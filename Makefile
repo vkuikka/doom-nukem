@@ -6,13 +6,13 @@
 #    By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/12/08 13:46:11 by vkuikka           #+#    #+#              #
-#    Updated: 2020/09/07 18:21:16 by vkuikka          ###   ########.fr        #
+#    Updated: 2021/01/04 20:45:30 by vkuikka          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = dnukem
 SRCDIR = src/
-SRC = main.c draw.c vectors.c init.c
+SRC = main.c draw.c vectors.c init.c rt_test.c
 LIB = libft/libft.a
 INCLUDE = libft/includes
 #FLAGS = -Wall -Wextra -Werror
@@ -24,7 +24,7 @@ all: $(NAME)
 
 $(NAME):
 	#@make -C libft
-	gcc $(FLAGS) -framework SDL2 -F ./ $(FILES) $(LIB) -I $(INCLUDE) -o $(NAME) -rpath @executable_path
+	gcc $(FLAGS) -O3 -framework SDL2 -F ./ $(FILES) $(LIB) -I $(INCLUDE) -o $(NAME) -rpath @executable_path
 
 clean:
 	#@make clean -C libft

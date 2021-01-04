@@ -43,10 +43,34 @@ int		buttons(int button, const int pressed)
 
 void	action_loop(t_window *window, t_world world, SDL_Texture *txt)
 {
+	static float posz = 0;
+	static float posx = 0;
+	static float angle = 0;
+
+	if (buttons(SDL_SCANCODE_W, -1))
+		posz += 0.3;
+	if (buttons(SDL_SCANCODE_S, -1))
+		posz -= 0.3;
+	if (buttons(SDL_SCANCODE_A, -1))
+		posx -= 0.3;
+	if (buttons(SDL_SCANCODE_D, -1))
+		posx += 0.3;
+	if (buttons(SDL_SCANCODE_Q, -1))
+		angle -= 0.1;
 	if (buttons(SDL_SCANCODE_E, -1))
-		printf("e is pressed (as in the word \"example\", get it? This is an example)\n");
-	
-	// render here?
+		angle += 0.1;
+
+
+	SDL_SetRenderTarget(window->SDLrenderer, txt);
+	SDL_SetRenderDrawColor(window->SDLrenderer, 0, 0, 0, 255);
+	SDL_RenderClear(window->SDLrenderer);
+	SDL_SetRenderDrawColor(window->SDLrenderer, 250, 250, 250, 255);
+
+	rt_test(window, posz, posx, angle);
+
+	SDL_SetRenderTarget(window->SDLrenderer, NULL);
+	SDL_RenderCopy(window->SDLrenderer, txt, NULL, NULL);
+	SDL_RenderPresent(window->SDLrenderer);
 	return ;
 }
 
