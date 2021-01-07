@@ -135,7 +135,6 @@ void	*rt_test(void *tp)
 		{
 			window->depth_buffer[x + (y * (int)RES_X)] = 0;
 			window->frame_buffer[x + (y * (int)RES_X)] = 0x00000000;
-			// window->frame_buffer[x + (y * (int)RES_X)] = 0x0000;
 			// if ((!(x % 3) && !(y % 3)))
 			// if (!(x % 2 ^ y % 2))		//further optimizations dont delete
 			{
@@ -161,16 +160,9 @@ void	*rt_test(void *tp)
 						window->frame_buffer[x + (y * (int)RES_X)] = color;
 						// window->frame_buffer[(x + 1) + (y * (int)RES_X)] = color;	//part of the above optimization
 						// window->frame_buffer[x + ((y + 1) * (int)RES_X)] = color;
-					}
 
-					// if (dist < closest || closest == -1)
-					{
-						// printf("%x\n", color);
-						// window->frame_buffer[x + (y * (int)RES_X)] = color;
 
-						// window->frame_buffer[(x + 1) + (y * (int)RES_X)] = color;	//part of the above optimization
 						// window->frame_buffer[(x + 2) + (y * (int)RES_X)] = color;
-						// window->frame_buffer[x + ((y + 1) * (int)RES_X)] = color;
 						// window->frame_buffer[(x + 1) + ((y + 1) * (int)RES_X)] = color;
 						// window->frame_buffer[(x + 2) + ((y + 1) * (int)RES_X)] = color;
 						// window->frame_buffer[x + ((y + 2) * (int)RES_X)] = color;
@@ -186,8 +178,6 @@ void	*rt_test(void *tp)
 	// SDL_SetRenderDrawColor(window->SDLrenderer, 255, 0, 0, 255);
 	// SDL_RenderDrawPoint(window->SDLrenderer, RES_X / 2 + posx * 10, RES_Y / 2 - posz * 10);
 	// printf("%f %f %f\n", test.verts[0].pos[0], test.verts[0].pos[1], test.verts[0].pos[2]);
-	// printf("asd %p\n", t);
-	// printf("asd %p\n", t->player);
 
 	// free(t->player);
 	// free(tp);
