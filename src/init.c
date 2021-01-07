@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/08 14:38:45 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/07 10:45:12 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/07 20:57:00 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,5 +36,7 @@ void			init_window(t_window **window)
 	if (!(window[0]->SDLrenderer = SDL_CreateRenderer(window[0]->SDLwindow, -1, 0)))
 		ft_error("could not create renderer");
 	window[0]->texture = empty_texture(window[0]->SDLrenderer);
-	window[0]->pixels = NULL;
+	window[0]->frame_buffer = NULL;
+	if (!(window[0]->depth_buffer = (float *)malloc(sizeof(float) * (RES_X * RES_Y))))
+		ft_error("memory allocation failed\n");
 }

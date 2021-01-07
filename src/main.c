@@ -61,7 +61,7 @@ void	action_loop(t_window *window, t_world world)
 
 
 	int pitch;
-	if(SDL_LockTexture(window->texture, NULL, (void**)&window->pixels, &pitch ) != 0)
+	if(SDL_LockTexture(window->texture, NULL, (void**)&window->frame_buffer, &pitch ) != 0)
 		ft_error("failed to lock texture\n");
 	i = 0;
 	pthread_t	tid[THREAD_AMOUNT];

@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/07 10:44:26 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/07 20:57:13 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,8 @@ typedef struct			s_window
 	SDL_Renderer		*SDLrenderer;
 	SDL_Window			*SDLwindow;
 	SDL_Texture			*texture;
-	unsigned			*pixels;
+	unsigned int		*frame_buffer;
+	float				*depth_buffer;
 }						t_window;
 
 typedef struct			s_ray		//only position and direction will probably be used

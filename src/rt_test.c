@@ -56,14 +56,14 @@ float	rt_sphere(t_window *window, float ray[3])
 	// return ((-b - sqrt(disc)) / (2.0 * a));
 }
 
-int		rt_tri(t_window *window, t_tri t, float ray[3], float cam[3], int x, int y, int *col)
+float	rt_tri(t_window *window, t_tri t, float ray[3], float cam[3], int x, int y, int *col)
 {
 
 	float	pvec[3];
 	vec_cross(pvec, ray, t.v0v2);
     float det = vec_dot(pvec, t.v0v1); 
-	// if (det > 0)	//if backface culling is not needed edit this
-	// 	return 0;
+	if (det > 0)	//if backface culling is not needed edit this
+		return 0;
 
 	// float invdet = 1 / vec_dot(pvec, t.v0v1);	//save a variable if culling is not used
 	float invdet = 1 / det;
@@ -133,38 +133,49 @@ void	*rt_test(void *tp)
 		// vec_normalize(tmp);
 		for (int y = 0; y < RES_Y; y++)
 		{
-			// if (!(x % 2 ^ y % 2))		//further optimizations dont delete
+			window->depth_buffer[x + (y * (int)RES_X)] = 0;
+			window->frame_buffer[x + (y * (int)RES_X)] = 0x00000000;
+			// window->frame_buffer[x + (y * (int)RES_X)] = 0x0000;
 			// if ((!(x % 3) && !(y % 3)))
+			// if (!(x % 2 ^ y % 2))		//further optimizations dont delete
 			{
 				vec_rot(ray, tmp, angle);
 				ray[1] = 1 / RES_Y * y - 0.5;
 				// float closest = -1;
-				int dist;
 				for (int j = 0; j < 10; j++)	//adjust amount of faces drawn
 				{
 					int color;
-					test.verts[0].pos[2] = j / 2 + 5;
-					test.verts[1].pos[2] = j / 2 + 5;	// moves faces out so they arent in the same spot
-					test.verts[2].pos[2] = j / 2 + 5;
+					float dist;
+
+					test.verts[0].pos[2] = (float)j / 2 + 5;
+					test.verts[1].pos[2] = (float)j / 2 + 5;	// moves faces out so they arent in the same spot
+					test.verts[2].pos[2] = (float)j / 2 + 5;
 
 					vec_sub(test.v0v1, test.verts[1].pos, test.verts[0].pos);
 					vec_sub(test.v0v2, test.verts[2].pos, test.verts[0].pos);
 					dist = rt_tri(window, test, ray, cam, x, y, &color);
-					// if (!dist)
-					// 	window->pixels[x + (y * (int)RES_X)] = 0x00000000;
+					if (dist && (dist < window->depth_buffer[x + (y * (int)RES_X)] ||
+								window->depth_buffer[x + (y * (int)RES_X)] == 0))
+					{
+						window->depth_buffer[x + (y * (int)RES_X)] = dist;
+						window->frame_buffer[x + (y * (int)RES_X)] = color;
+						// window->frame_buffer[(x + 1) + (y * (int)RES_X)] = color;	//part of the above optimization
+						// window->frame_buffer[x + ((y + 1) * (int)RES_X)] = color;
+					}
+
 					// if (dist < closest || closest == -1)
 					{
 						// printf("%x\n", color);
-						window->pixels[x + (y * (int)RES_X)] = color;
+						// window->frame_buffer[x + (y * (int)RES_X)] = color;
 
-						// window->pixels[(x + 1) + (y * (int)RES_X)] = color;	//part of the above optimization
-						// window->pixels[(x + 2) + (y * (int)RES_X)] = color;
-						// window->pixels[x + ((y + 1) * (int)RES_X)] = color;
-						// window->pixels[(x + 1) + ((y + 1) * (int)RES_X)] = color;
-						// window->pixels[(x + 2) + ((y + 1) * (int)RES_X)] = color;
-						// window->pixels[x + ((y + 2) * (int)RES_X)] = color;
-						// window->pixels[(x + 1) + ((y + 2) * (int)RES_X)] = color;
-						// window->pixels[(x + 2) + ((y + 2) * (int)RES_X)] = color;
+						// window->frame_buffer[(x + 1) + (y * (int)RES_X)] = color;	//part of the above optimization
+						// window->frame_buffer[(x + 2) + (y * (int)RES_X)] = color;
+						// window->frame_buffer[x + ((y + 1) * (int)RES_X)] = color;
+						// window->frame_buffer[(x + 1) + ((y + 1) * (int)RES_X)] = color;
+						// window->frame_buffer[(x + 2) + ((y + 1) * (int)RES_X)] = color;
+						// window->frame_buffer[x + ((y + 2) * (int)RES_X)] = color;
+						// window->frame_buffer[(x + 1) + ((y + 2) * (int)RES_X)] = color;
+						// window->frame_buffer[(x + 2) + ((y + 2) * (int)RES_X)] = color;
 						// closest = dist;
 					}
 				}
