@@ -56,18 +56,16 @@ float	rt_sphere(t_window *window, float ray[3])
 	// return ((-b - sqrt(disc)) / (2.0 * a));
 }
 
-float	rt_tri(t_window *window, t_tri t, float ray[3], float cam[3], int mid)
+int		rt_tri(t_window *window, t_tri t, float ray[3], float cam[3], int x, int y, int *col)
 {
 
 	float	pvec[3];
 	vec_cross(pvec, ray, t.v0v2);
     float det = vec_dot(pvec, t.v0v1); 
 	// if (det > 0)	//if backface culling is not needed edit this
-	// {
-	// 	SDL_SetRenderDrawColor(window->SDLrenderer, 0, 0, 0, 255);
 	// 	return 0;
-	// }
 
+	// float invdet = 1 / vec_dot(pvec, t.v0v1);	//save a variable if culling is not used
 	float invdet = 1 / det;
 
 	float	tvec[3];
@@ -84,20 +82,24 @@ float	rt_tri(t_window *window, t_tri t, float ray[3], float cam[3], int mid)
 		return 0;
     float dist = vec_dot(qvec, t.v0v2) * invdet;
 
-	SDL_SetRenderDrawColor(window->SDLrenderer, u * 255, v * 255, (1 - u - v) * 255, 255);
-	return dist;
+	// SDL_SetRenderDrawColor(window->SDLrenderer, u * 255, v * 255, (1 - u - v) * 255, 255);
+	// return (((int)(u * 255) & 0xff) << 16) + (((int)(v * 255) & 0xff) << 8) + (((int)((1-u-v) * 255) & 0xff));
 
+	*col =	(((int)(u * 255) & 0xff) << 24) +
+			(((int)(v * 255) & 0xff) << 16) +
+			(((int)((1-u-v) * 255) & 0xff) << 8) + (0xff);
+
+	return dist;
 }
 
-void	rt_test(t_window *window, float posz, float posx, float angle)
+void	*rt_test(void *tp)
 {
-	t_tri	test;
-	float	ray_increment_x = 1 / RES_X;
-	float	ray_increment_y = 1 / RES_Y;
-	float	cam[3];
-	float	ray[3];
-	// vec_rot(ray, (float[3]){1, 1, 1}, angle);
-	// printf("%f %f %f\n", ray[0], ray[1], ray[2]);
+	t_rthread	*t = tp;
+	t_tri		test;
+	float		ray_increment_x = 1 / RES_X;
+	float		ray_increment_y = 1 / RES_Y;
+	float		cam[3];
+	float		ray[3];
 
 	test.verts[0].pos[0] = -0.5;
 	test.verts[0].pos[1] = -0.5;
@@ -111,16 +113,18 @@ void	rt_test(t_window *window, float posz, float posx, float angle)
 	test.verts[2].pos[1] = 0.5;
 	test.verts[2].pos[2] = 8;
 
-	cam[0] = posx;
+	cam[0] = t->player->posx;
 	cam[1] = 0;
-	cam[2] = posz;
+	cam[2] = t->player->posz;
 
 	vec_sub(test.v0v1, test.verts[1].pos, test.verts[0].pos);
 	vec_sub(test.v0v2, test.verts[2].pos, test.verts[0].pos);
 
 	// ray.dir[0] = world.view->dir[0] - 1/RES_X * RES_X / 2;
-
-	for (int x = 0; x < RES_X; x++)
+	float angle = t->player->angle;
+	t_window *window = t->window;
+	// for (int x = 0; x < RES_X; x++)
+	for (int x = t->id; x < RES_X; x += THREAD_AMOUNT)
 	{
 		float tmp[3];
 		tmp[0] = 1 / RES_X * x - 0.5;
@@ -129,28 +133,52 @@ void	rt_test(t_window *window, float posz, float posx, float angle)
 		// vec_normalize(tmp);
 		for (int y = 0; y < RES_Y; y++)
 		{
-			vec_rot(ray, tmp, angle);
-			ray[1] = 1 / RES_Y * y - 0.5;
-			float closest = -1;
-			float dist = 0;
-			// if (x % 2 ^ y % 2)
-			for (int i = 0; i < 1; i++)
+			// if (!(x % 2 ^ y % 2))		//further optimizations dont delete
+			// if ((!(x % 3) && !(y % 3)))
 			{
-				test.verts[0].pos[0] = (float)(i - 5) / 4;
-				test.verts[0].pos[2] = 5;
-
-				vec_sub(test.v0v1, test.verts[1].pos, test.verts[0].pos);
-				vec_sub(test.v0v2, test.verts[2].pos, test.verts[0].pos);
-				dist = rt_tri(window, test, ray, cam, x == RES_X / 2 && y == RES_Y / 2);
-				if (!dist)
-					SDL_SetRenderDrawColor(window->SDLrenderer, 0, 0, 0, 255);
-				else if (dist < closest || closest == -1)
+				vec_rot(ray, tmp, angle);
+				ray[1] = 1 / RES_Y * y - 0.5;
+				// float closest = -1;
+				int dist;
+				for (int j = 0; j < 10; j++)	//adjust amount of faces drawn
 				{
-					SDL_RenderDrawPoint(window->SDLrenderer, x, y);
-					closest = dist;
+					int color;
+					test.verts[0].pos[2] = j / 2 + 5;
+					test.verts[1].pos[2] = j / 2 + 5;	// moves faces out so they arent in the same spot
+					test.verts[2].pos[2] = j / 2 + 5;
+
+					vec_sub(test.v0v1, test.verts[1].pos, test.verts[0].pos);
+					vec_sub(test.v0v2, test.verts[2].pos, test.verts[0].pos);
+					dist = rt_tri(window, test, ray, cam, x, y, &color);
+					// if (!dist)
+					// 	window->pixels[x + (y * (int)RES_X)] = 0x00000000;
+					// if (dist < closest || closest == -1)
+					{
+						// printf("%x\n", color);
+						window->pixels[x + (y * (int)RES_X)] = color;
+
+						// window->pixels[(x + 1) + (y * (int)RES_X)] = color;	//part of the above optimization
+						// window->pixels[(x + 2) + (y * (int)RES_X)] = color;
+						// window->pixels[x + ((y + 1) * (int)RES_X)] = color;
+						// window->pixels[(x + 1) + ((y + 1) * (int)RES_X)] = color;
+						// window->pixels[(x + 2) + ((y + 1) * (int)RES_X)] = color;
+						// window->pixels[x + ((y + 2) * (int)RES_X)] = color;
+						// window->pixels[(x + 1) + ((y + 2) * (int)RES_X)] = color;
+						// window->pixels[(x + 2) + ((y + 2) * (int)RES_X)] = color;
+						// closest = dist;
+					}
 				}
 			}
 		}
 	}
+
+	// SDL_SetRenderDrawColor(window->SDLrenderer, 255, 0, 0, 255);
+	// SDL_RenderDrawPoint(window->SDLrenderer, RES_X / 2 + posx * 10, RES_Y / 2 - posz * 10);
 	// printf("%f %f %f\n", test.verts[0].pos[0], test.verts[0].pos[1], test.verts[0].pos[2]);
+	// printf("asd %p\n", t);
+	// printf("asd %p\n", t->player);
+
+	// free(t->player);
+	// free(tp);
+	return (NULL);
 }

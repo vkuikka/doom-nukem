@@ -41,48 +41,70 @@ int		buttons(int button, const int pressed)
 	return (0);
 }
 
-void	action_loop(t_window *window, t_world world, SDL_Texture *txt)
+void	action_loop(t_window *window, t_world world)
 {
-	static float posz = 0;
-	static float posx = 0;
-	static float angle = 0;
+	static t_player	p;
+	int				i;
 
 	if (buttons(SDL_SCANCODE_W, -1))
-		posz += 0.3;
+		p.posz += 0.3;
 	if (buttons(SDL_SCANCODE_S, -1))
-		posz -= 0.3;
+		p.posz -= 0.3;
 	if (buttons(SDL_SCANCODE_A, -1))
-		posx -= 0.3;
+		p.posx -= 0.3;
 	if (buttons(SDL_SCANCODE_D, -1))
-		posx += 0.3;
+		p.posx += 0.3;
 	if (buttons(SDL_SCANCODE_Q, -1))
-		angle -= 0.1;
+		p.angle -= 0.1;
 	if (buttons(SDL_SCANCODE_E, -1))
-		angle += 0.1;
+		p.angle += 0.1;
 
 
-	SDL_SetRenderTarget(window->SDLrenderer, txt);
-	SDL_SetRenderDrawColor(window->SDLrenderer, 0, 0, 0, 255);
+	int pitch;
+	if(SDL_LockTexture(window->texture, NULL, (void**)&window->pixels, &pitch ) != 0)
+		ft_error("failed to lock texture\n");
+	i = 0;
+	pthread_t	tid[THREAD_AMOUNT];
+	t_rthread	**th;
+	if (!(th = (t_rthread**)malloc(sizeof(t_rthread*) * THREAD_AMOUNT)))
+		ft_error("memory allocation failed\n");
+	while (i < THREAD_AMOUNT)
+	{
+		if (!(th[i] = (t_rthread*)malloc(sizeof(t_rthread))))
+			ft_error("memory allocation failed\n");
+		if (!(th[i]->player = (t_player*)malloc(sizeof(t_player))))
+			ft_error("memory allocation failed\n");
+		th[i]->id = i;
+		th[i]->player->posz = p.posz;
+		th[i]->player->posx = p.posx;
+		th[i]->player->angle = p.angle;
+		th[i]->window = window;
+		pthread_create(&tid[i], NULL, rt_test, (void*)th[i]);
+		i++;
+	}
+	rt_test(th[0]);
+	i = 0;
+	while (i < THREAD_AMOUNT)
+	{
+		if (i != 0)
+			pthread_join(tid[i], NULL);
+		i++;
+	}
+	SDL_UnlockTexture(window->texture);
 	SDL_RenderClear(window->SDLrenderer);
-	SDL_SetRenderDrawColor(window->SDLrenderer, 250, 250, 250, 255);
-
-	rt_test(window, posz, posx, angle);
-
-	SDL_SetRenderTarget(window->SDLrenderer, NULL);
-	SDL_RenderCopy(window->SDLrenderer, txt, NULL, NULL);
+	SDL_RenderCopy(window->SDLrenderer, window->texture, NULL, NULL);
 	SDL_RenderPresent(window->SDLrenderer);
 	return ;
 }
 
 int			main(int argc, char **argv)
 {
-	SDL_Texture *txt;
 	SDL_Event	event;
 	t_window	*window;
 	t_world		world;
 	unsigned	frametime;
 
-	init_window(&window, &txt);
+	init_window(&window);
 	while (1)
 	{
 		frametime = SDL_GetTicks();
@@ -94,25 +116,12 @@ int			main(int argc, char **argv)
 				buttons(event.key.keysym.scancode, 1);
 			else if (event.key.repeat == 0 && event.type == SDL_KEYUP)
 				buttons(event.key.keysym.scancode, 0);
-			else if (event.type == SDL_MOUSEBUTTONDOWN)
-			{
-				SDL_SetRenderTarget(window->SDLrenderer, txt);
-				SDL_SetRenderDrawColor(window->SDLrenderer, 0, 0, 0, 255);
-				SDL_RenderClear(window->SDLrenderer);
-				SDL_SetRenderDrawColor(window->SDLrenderer, 250, 250, 250, 255);
-
-				draw_line((int[4]){0, 0, event.motion.x, event.motion.y}, window);	//test
-
-				SDL_SetRenderTarget(window->SDLrenderer, NULL);
-				SDL_RenderCopy(window->SDLrenderer, txt, NULL, NULL);
-				SDL_RenderPresent(window->SDLrenderer);
-			}
 		}
-		action_loop(window, world, txt);
+		action_loop(window, world);
 		frametime = SDL_GetTicks() - frametime;
-		// printf("frametime: %d ms\n", frametime);
+		printf("time: %d ms\n", frametime);
 
-		if (frametime < 1000)
-			usleep(1000);
+		if (frametime < 100)
+			usleep(10000);
 	}
 }
