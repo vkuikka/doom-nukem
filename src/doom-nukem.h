@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/05 00:38:42 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/07 04:40:56 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ typedef struct			s_ray		//only position and direction will probably be used
 typedef struct			s_vert
 {
 	float				pos[3];		//world position in 3d
-	float				txtr[3];	//position of the vert in the texture
+	float				txtr[2];	//position of the vert in the texture
 }						t_vert;
 
 typedef struct			s_tri
