@@ -88,8 +88,11 @@ void	action_loop(t_window *window, t_world world)
 	{
 		if (i != 0)
 			pthread_join(tid[i], NULL);
+		free(th[i]->player);
+		free(th[i]);
 		i++;
 	}
+	free(th);
 	SDL_UnlockTexture(window->texture);
 	SDL_RenderClear(window->SDLrenderer);
 	SDL_RenderCopy(window->SDLrenderer, window->texture, NULL, NULL);
