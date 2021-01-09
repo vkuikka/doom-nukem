@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/05 01:16:41by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/09 02:40:01 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -153,7 +153,7 @@ void	*rt_test(void *tp)
 					vec_sub(test.v0v1, test.verts[1].pos, test.verts[0].pos);
 					vec_sub(test.v0v2, test.verts[2].pos, test.verts[0].pos);
 					dist = rt_tri(window, test, ray, cam, x, y, &color);
-					if (dist && (dist < window->depth_buffer[x + (y * (int)RES_X)] ||
+					if (dist > 0 && (dist < window->depth_buffer[x + (y * (int)RES_X)] ||
 								window->depth_buffer[x + (y * (int)RES_X)] == 0))
 					{
 						window->depth_buffer[x + (y * (int)RES_X)] = dist;
