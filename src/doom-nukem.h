@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/09 03:01:59 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/09 04:10:32 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,30 +56,25 @@ typedef struct			s_tri
 
 typedef struct			s_obj
 {
-	struct s_tri		*tris;		//triangles that make the object
+	struct s_tri		*tris;		//array of triangles that make the object
+	int					tri_amount;	//amount of triangles
 	int					***txtr;	//pointer to the texture as a 2d array of pixel colors
 }						t_obj;
 
-typedef struct			s_world
+typedef struct			s_level
 {
-	struct s_objects	*obj;			//array of objects in the level
-	float				player_pos[3];
-	float				player_dir[3];	//vector from player position to indicate ray direction in the middle of screen?????????
-}						t_world;
+	struct s_obj		*obj;		//array of objects in the level
+	float				pos[3];		//player position vector
+	// float				dir[3];		//vector from player position to indicate ray direction in the middle of screen
+	float				angle;		//using angle instead of direction vector for testing
+}						t_level;
 
 typedef struct			s_rthread
 {
 	int					id;
-	struct s_player		*player;
+	struct s_level		*level;
 	struct s_window		*window;
 }						t_rthread;
-
-typedef struct			s_player
-{
-	float				posz;
-	float				posx;
-	float				angle;
-}						t_player;
 
 void		vec_normalize(float vec1[3]);						//makes vector length 1
 void		vec_normalize_two(float vec1[3], float vec2[3]);	//longest vector length will be 1 and other will be same scale
@@ -94,5 +89,6 @@ void		init_window(t_window **window);
 void		draw_line(int line[4], t_window *window);
 
 void		*rt_test(void *t);
+t_level		*rt_test_init_level();
 
 #endif

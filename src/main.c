@@ -41,58 +41,51 @@ int		buttons(int button, const int pressed)
 	return (0);
 }
 
-void	action_loop(t_window *window, t_world world)
+void	action_loop(t_window *window, t_level *l)
 {
-	static t_player	p;
-	int				i;
+	pthread_t	threads[THREAD_AMOUNT];
+	t_rthread	**thread_data;
+	int			window_horizontal_size;
+	int			i;
 
-	if (buttons(SDL_SCANCODE_W, -1))
-		p.posz += 0.3;
-	if (buttons(SDL_SCANCODE_S, -1))
-		p.posz -= 0.3;
 	if (buttons(SDL_SCANCODE_A, -1))
-		p.posx -= 0.3;
+		l->pos[0] -= 0.3;
 	if (buttons(SDL_SCANCODE_D, -1))
-		p.posx += 0.3;
+		l->pos[0] += 0.3;
+	if (buttons(SDL_SCANCODE_W, -1))
+		l->pos[2] += 0.3;
+	if (buttons(SDL_SCANCODE_S, -1))
+		l->pos[2] -= 0.3;
 	if (buttons(SDL_SCANCODE_Q, -1))
-		p.angle -= 0.1;
+		l->angle -= 0.1;
 	if (buttons(SDL_SCANCODE_E, -1))
-		p.angle += 0.1;
+		l->angle += 0.1;
 
-
-	int pitch;
-	if(SDL_LockTexture(window->texture, NULL, (void**)&window->frame_buffer, &pitch ) != 0)
+	if (SDL_LockTexture(window->texture, NULL, (void**)&window->frame_buffer, &window_horizontal_size) != 0)
 		ft_error("failed to lock texture\n");
 	i = 0;
-	pthread_t	tid[THREAD_AMOUNT];
-	t_rthread	**th;
-	if (!(th = (t_rthread**)malloc(sizeof(t_rthread*) * THREAD_AMOUNT)))
+	if (!(thread_data = (t_rthread**)malloc(sizeof(t_rthread*) * THREAD_AMOUNT)))
 		ft_error("memory allocation failed\n");
 	while (i < THREAD_AMOUNT)
 	{
-		if (!(th[i] = (t_rthread*)malloc(sizeof(t_rthread))))
+		if (!(thread_data[i] = (t_rthread*)malloc(sizeof(t_rthread))))
 			ft_error("memory allocation failed\n");
-		if (!(th[i]->player = (t_player*)malloc(sizeof(t_player))))
-			ft_error("memory allocation failed\n");
-		th[i]->id = i;
-		th[i]->player->posz = p.posz;
-		th[i]->player->posx = p.posx;
-		th[i]->player->angle = p.angle;
-		th[i]->window = window;
-		pthread_create(&tid[i], NULL, rt_test, (void*)th[i]);
+		thread_data[i]->id = i;
+		thread_data[i]->level = l;
+		thread_data[i]->window = window;
+		pthread_create(&threads[i], NULL, rt_test, (void*)thread_data[i]);
 		i++;
 	}
-	rt_test(th[0]);
+	// rt_test(thread_data[1]);
 	i = 0;
 	while (i < THREAD_AMOUNT)
 	{
 		if (i != 0)
-			pthread_join(tid[i], NULL);
-		free(th[i]->player);
-		free(th[i]);
+			pthread_join(threads[i], NULL);
+		free(thread_data[i]);
 		i++;
 	}
-	free(th);
+	free(thread_data);
 	SDL_UnlockTexture(window->texture);
 	SDL_RenderClear(window->SDLrenderer);
 	SDL_RenderCopy(window->SDLrenderer, window->texture, NULL, NULL);
@@ -104,9 +97,10 @@ int			main(int argc, char **argv)
 {
 	SDL_Event	event;
 	t_window	*window;
-	t_world		world;
+	t_level		*level;
 	unsigned	frametime;
 
+	level = rt_test_init_level();
 	init_window(&window);
 	while (1)
 	{
@@ -120,7 +114,7 @@ int			main(int argc, char **argv)
 			else if (event.key.repeat == 0 && event.type == SDL_KEYUP)
 				buttons(event.key.keysym.scancode, 0);
 		}
-		action_loop(window, world);
+		action_loop(window, level);
 		frametime = SDL_GetTicks() - frametime;
 		printf("time: %d ms\n", frametime);
 
