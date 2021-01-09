@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/09 02:56:35 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/09 03:01:59 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ typedef struct			s_tri
 
 typedef struct			s_obj
 {
-	struct s_tri		tris[3];	//triangles that make up the object
+	struct s_tri		*tris;		//triangles that make the object
 	int					***txtr;	//pointer to the texture as a 2d array of pixel colors
 }						t_obj;
 
