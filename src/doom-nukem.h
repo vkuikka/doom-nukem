@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/07 20:57:13 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/09 02:56:35 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,9 +39,6 @@ typedef struct			s_ray		//only position and direction will probably be used
 {
 	float				pos[3];
 	float				dir[3];
-	// float				normal[3];	//normal of intersection point
-	// float				reflect[3];	//reflected ray direction from intersection point
-	// int					obj_index;	//prevent ray from intersecting the object it is cast from in bounces
 }						t_ray;
 
 typedef struct			s_vert
@@ -53,8 +50,8 @@ typedef struct			s_vert
 typedef struct			s_tri
 {
 	struct s_vert		verts[3];	//vertex coordinates of 3d triangle
-	float				v0v1[3];	//vector between vertexes 1 and 0
-	float				v0v2[3];	//vector between vertexes 2 and 0
+	float				v0v1[3];	//vector between vertices 1 and 0
+	float				v0v2[3];	//vector between vertices 2 and 0
 }						t_tri;
 
 typedef struct			s_obj
