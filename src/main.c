@@ -76,7 +76,6 @@ void	action_loop(t_window *window, t_level *l)
 		pthread_create(&threads[i], NULL, rt_test, (void*)thread_data[i]);
 		i++;
 	}
-	// rt_test(thread_data[1]);
 	i = 0;
 	while (i < THREAD_AMOUNT)
 	{
@@ -86,6 +85,8 @@ void	action_loop(t_window *window, t_level *l)
 		i++;
 	}
 	free(thread_data);
+	fill_pixels(window->frame_buffer, PIXEL_GAP);
+
 	SDL_UnlockTexture(window->texture);
 	SDL_RenderClear(window->SDLrenderer);
 	SDL_RenderCopy(window->SDLrenderer, window->texture, NULL, NULL);

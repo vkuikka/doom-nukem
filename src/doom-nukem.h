@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/09 04:10:32 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/11 17:39:13 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 # define RES_X 800.0
 # define RES_Y 600.0
 # define THREAD_AMOUNT 100
+# define PIXEL_GAP 4	//change to dynamic later
 
 # include <math.h>
 # include <fcntl.h>
@@ -90,5 +91,6 @@ void		draw_line(int line[4], t_window *window);
 
 void		*rt_test(void *t);
 t_level		*rt_test_init_level();
+void		fill_pixels(unsigned *grid, int pixel_gap);
 
 #endif

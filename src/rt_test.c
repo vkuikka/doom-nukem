@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/09 19:02:00 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/11 17:38:30 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,12 +56,44 @@ float	rt_sphere(t_window *window, float ray[3])
 	// return ((-b - sqrt(disc)) / (2.0 * a));
 }
 
+void			fill_pixels(unsigned *grid, int gap)
+{
+	int		color;
+	int		i;
+	int		x;
+	int		y;
+
+	i = 0;
+	x = 0;
+	y = 0;
+	while (i < (int)RES_Y * (int)RES_X - gap * RES_X)
+	{
+		color = grid[i];
+		y = 0;
+		while (y < gap)
+		{
+			x = 0;
+			while (x < gap)
+			{
+				if (grid[i + x + (y * (int)RES_X)] == 0)
+					grid[i + x + (y * (int)RES_X)] = color;
+				x++;
+			}
+			y++;
+		}
+		// if (!(i % (int)RES_X))
+		// 	i += gap * (int)RES_X;
+		// else
+		i += gap;
+	}
+}
+
 t_level			*rt_test_init_level()
 {
 	t_level		*l;
 
 	if (!(l = (t_level *)malloc(sizeof(t_level))) ||
-		!(l->obj = (t_obj *)malloc(sizeof(t_obj) * 2)) ||
+		!(l->obj = (t_obj *)malloc(sizeof(t_obj))) ||
 		!(l->obj[0].tris = (t_tri *)malloc(sizeof(t_tri))))
 		ft_error("memory allocation failed\n");
 
@@ -152,8 +184,8 @@ void	*rt_test(void *data_pointer)
 		{
 			window->depth_buffer[x + (y * (int)RES_X)] = 0;
 			window->frame_buffer[x + (y * (int)RES_X)] = 0x00000000;
-			// if ((!(x % 3) && !(y % 3)))
 			// if (!(x % 2 ^ y % 2))		//further optimizations dont delete
+			if (!(x % PIXEL_GAP) && !(y % PIXEL_GAP))
 			{
 				vec_rot(r.dir, tmp, angle);
 				r.dir[1] = 1 / RES_Y * y - 0.5;
@@ -163,54 +195,30 @@ void	*rt_test(void *data_pointer)
 				// if (t->level->obj[0].tris[0].verts[0].pos[0] != -0.5)
 				// 	printf("2 id: %d, pos: %f\n", t->id, t->level->obj[0].tris[0].verts[0].pos[0]);
 	
-				for (int j = 0; j < 1; j++)	//adjust amount of faces drawn
+				for (int j = 0; j < 10; j++)	//adjust amount of faces drawn
 				{
 					int color;
 					float dist;
 
-					// obj[0].tris[0].verts[0].pos[2] = (float)j / 2 + 5;
-					// obj[0].tris[0].verts[1].pos[2] = (float)j / 2 + 5;	// moves faces out so they arent in the same spot
-					// obj[0].tris[0].verts[2].pos[2] = (float)j / 2 + 5;
-
-					// vec_sub(obj->tris[0].v0v1, obj[0].tris[0].verts[1].pos, obj[0].tris[0].verts[0].pos);
-					// vec_sub(obj->tris[0].v0v2, obj[0].tris[0].verts[2].pos, obj[0].tris[0].verts[0].pos);
-					// dist = rt_tri(window, obj[0].tris[0], r, x, y, &color);
-					dist = rt_tri(window, obj->tris[0], r, x, y, &color);
+					dist = rt_tri(window, obj[0].tris[0], r, x, y, &color);
 					if (dist > 0 &&
 							(dist < window->depth_buffer[x + (y * (int)RES_X)] ||
 									window->depth_buffer[x + (y * (int)RES_X)] == 0))
 					{
 						window->depth_buffer[x + (y * (int)RES_X)] = dist;
 						window->frame_buffer[x + (y * (int)RES_X)] = color;
-						// window->frame_buffer[(x + 1) + (y * (int)RES_X)] = color;	//part of the above optimization
-						// window->frame_buffer[x + ((y + 1) * (int)RES_X)] = color;
-
-
-						// window->frame_buffer[(x + 2) + (y * (int)RES_X)] = color;
-						// window->frame_buffer[(x + 1) + ((y + 1) * (int)RES_X)] = color;
-						// window->frame_buffer[(x + 2) + ((y + 1) * (int)RES_X)] = color;
-						// window->frame_buffer[x + ((y + 2) * (int)RES_X)] = color;
-						// window->frame_buffer[(x + 1) + ((y + 2) * (int)RES_X)] = color;
-						// window->frame_buffer[(x + 2) + ((y + 2) * (int)RES_X)] = color;
-						// closest = dist;
 					}
 				}
 			}
 		}
 	}
 
-	// SDL_SetRenderDrawColor(window->SDLrenderer, 255, 0, 0, 255);
-	// SDL_RenderDrawPoint(window->SDLrenderer, RES_X / 2 + posx * 10, RES_Y / 2 - posz * 10);
 	// printf("%f %f %f\n", test.verts[0].pos[0], test.verts[0].pos[1], test.verts[0].pos[2]);
 
 	// for (int x = 0; x < RES_X / 2; x++)
 	// 	for (int y = 0; y < RES_Y / 2; y++)
 	// 		window->frame_buffer[x + (y * (int)RES_X)] = 0xfffffff;
 
-
 	// window->frame_buffer[(int)(RES_X / 2 + ((RES_Y / 2) * (int)RES_X))] = 0xfffffff;
-
-	// free(t->player);
-	// free(tp);
 	return (NULL);
 }
