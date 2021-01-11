@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/11 17:39:13 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/11 20:30:29 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,8 @@
 
 # define RES_X 800.0
 # define RES_Y 600.0
-# define THREAD_AMOUNT 100
-# define PIXEL_GAP 4	//change to dynamic later
+# define THREAD_AMOUNT 10
+# define PIXEL_GAP 5	//change to dynamic later
 
 # include <math.h>
 # include <fcntl.h>
@@ -59,7 +59,6 @@ typedef struct			s_obj
 {
 	struct s_tri		*tris;		//array of triangles that make the object
 	int					tri_amount;	//amount of triangles
-	int					***txtr;	//pointer to the texture as a 2d array of pixel colors
 }						t_obj;
 
 typedef struct			s_level
@@ -68,6 +67,7 @@ typedef struct			s_level
 	float				pos[3];		//player position vector
 	// float				dir[3];		//vector from player position to indicate ray direction in the middle of screen
 	float				angle;		//using angle instead of direction vector for testing
+	int					***txtr;	//pointer to the texture as a 2d array of pixel colors
 }						t_level;
 
 typedef struct			s_rthread
