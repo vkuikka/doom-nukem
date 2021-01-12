@@ -79,8 +79,7 @@ void	action_loop(t_window *window, t_level *l)
 	i = 0;
 	while (i < THREAD_AMOUNT)
 	{
-		if (i != 0)
-			pthread_join(threads[i], NULL);
+		pthread_join(threads[i], NULL);
 		free(thread_data[i]);
 		i++;
 	}
