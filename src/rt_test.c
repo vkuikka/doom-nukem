@@ -98,7 +98,9 @@ t_level			*rt_test_init_level()
 	l->angle = 0;
 	l->txtr = NULL;
 
-	load_obj("level/monkey.obj", &l->obj[0]);
+	//load_obj("level/cube.obj", &l->obj[0]);
+	//load_obj("level/monkey.obj", &l->obj[0]);
+	load_obj("level/teapot_decimated.obj", &l->obj[0]);
 
 	return (l);
 }

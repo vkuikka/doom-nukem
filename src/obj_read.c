@@ -107,19 +107,19 @@ static void	set_tri(char *str, t_vec3 *verts, t_obj *obj, int i)
 		j++;
 	}
 	j++;
-	index.x = atoi(&str[j]);
+	index.x = atoi(&str[j]) - 1;
 	while (str[j] != ' ')
 	{
 		j++;
 	}
 	j++;
-	index.y = atoi(&str[j]);
+	index.y = atoi(&str[j]) - 1;
 	while (str[j] != ' ')
 	{
 		j++;
 	}
 	j++;
-	index.z = atoi(&str[j]);
+	index.z = atoi(&str[j]) - 1;
 
 	obj->tris[i].verts[0].pos[0] = verts[index.x].x;
 	obj->tris[i].verts[0].pos[1] = verts[index.x].y;
