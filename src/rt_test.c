@@ -89,8 +89,7 @@ t_level			*rt_test_init_level()
 	t_level		*l;
 
 	if (!(l = (t_level *)malloc(sizeof(t_level))) ||
-		!(l->obj = (t_obj *)malloc(sizeof(t_obj))) ||
-		!(l->obj[0].tris = (t_tri *)malloc(sizeof(t_tri))))
+		!(l->obj = (t_obj *)malloc(sizeof(t_obj) * 1)))
 		ft_error("memory allocation failed\n");
 
 	l->pos[0] = 0;
@@ -98,22 +97,9 @@ t_level			*rt_test_init_level()
 	l->pos[2] = 0;
 	l->angle = 0;
 	l->txtr = NULL;
-	l->obj[0].tri_amount = 1;
 
-	l->obj[0].tris[0].verts[0].pos[0] = -0.5;
-	l->obj[0].tris[0].verts[0].pos[1] = -0.5;
-	l->obj[0].tris[0].verts[0].pos[2] = 8;
+	load_obj("level/monkey.obj", &l->obj[0]);
 
-	l->obj[0].tris[0].verts[1].pos[0] = 0.5;
-	l->obj[0].tris[0].verts[1].pos[1] = -0.5;
-	l->obj[0].tris[0].verts[1].pos[2] = 8;
-
-	l->obj[0].tris[0].verts[2].pos[0] = 0;
-	l->obj[0].tris[0].verts[2].pos[1] = 0.5;
-	l->obj[0].tris[0].verts[2].pos[2] = 8;
-
-	vec_sub(l->obj[0].tris[0].v0v1, l->obj[0].tris[0].verts[1].pos, l->obj[0].tris[0].verts[0].pos);
-	vec_sub(l->obj[0].tris[0].v0v2, l->obj[0].tris[0].verts[2].pos, l->obj[0].tris[0].verts[0].pos);
 	return (l);
 }
 
@@ -183,12 +169,12 @@ void	*rt_test(void *data_pointer)
 				r.dir[1] = 1 / RES_Y * y - 0.5;
 				float closest = -1;
 	
-				for (int j = 0; j < 1; j++)	//adjust amount of faces drawn for test
+				for (int j = 0; j < obj[0].tri_amount; j++)
 				{
 					int color;
 					float dist;
 
-					dist = rt_tri(window, obj[0].tris[0], r, x, y, &color);
+					dist = rt_tri(window, obj[0].tris[j], r, x, y, &color);
 					if (dist > 0 &&
 							(dist < window->depth_buffer[x + (y * (int)RES_X)] ||
 									window->depth_buffer[x + (y * (int)RES_X)] == 0))
@@ -196,8 +182,8 @@ void	*rt_test(void *data_pointer)
 						window->depth_buffer[x + (y * (int)RES_X)] = dist;
 						window->frame_buffer[x + (y * (int)RES_X)] = color;
 					}
-					else
-						window->frame_buffer[x + (y * (int)RES_X)] = 0;
+					//else
+					//	window->frame_buffer[x + (y * (int)RES_X)] = 0;
 				}
 			}
 		}

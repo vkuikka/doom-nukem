@@ -48,6 +48,20 @@ typedef struct			s_vert
 	float				txtr[2];	//position of the vert in the texture
 }						t_vert;
 
+typedef struct			s_ivec3
+{
+	int					x;
+	int					y;
+	int					z;
+}						t_ivec3;
+
+typedef struct			s_vec3
+{
+	float				x;
+	float				y;
+	float				z;
+}						t_vec3;
+
 typedef struct			s_tri
 {
 	struct s_vert		verts[3];	//vertex coordinates of 3d triangle
@@ -92,5 +106,6 @@ void		draw_line(int line[4], t_window *window);
 void		*rt_test(void *t);
 t_level		*rt_test_init_level();
 void		fill_pixels(unsigned *grid, int pixel_gap);
+void		load_obj(char *filename, t_obj *obj);
 
 #endif
