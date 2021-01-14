@@ -12,7 +12,7 @@
 
 NAME = dnukem
 SRCDIR = src/
-SRC = main.c draw.c vectors.c init.c rt_test.c
+SRC = main.c draw.c vectors.c init.c rt_test.c obj_read.c
 LIB = libft/libft.a
 INCLUDE = libft/includes
 #FLAGS = -Wall -Wextra -Werror

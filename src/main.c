@@ -116,7 +116,10 @@ int			main(int argc, char **argv)
 		}
 		action_loop(window, level);
 		frametime = SDL_GetTicks() - frametime;
-		printf("time: %d ms\n", frametime);
+		//printf("time: %d ms\n", frametime);
+		char buf[50];
+		sprintf(buf, "%dms\n", frametime);
+		SDL_SetWindowTitle(window->SDLwindow, buf);
 
 		if (frametime < 100)
 			usleep(10000);
