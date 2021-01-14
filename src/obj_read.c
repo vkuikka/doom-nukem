@@ -133,8 +133,8 @@ static void	set_tri(char *str, t_vec3 *verts, t_obj *obj, int i)
 	obj->tris[i].verts[2].pos[1] = verts[index.z].y;
 	obj->tris[i].verts[2].pos[2] = verts[index.z].z;
 
-	vec_sub(obj->tris[i].v0v1, obj->tris[i].verts[1].pos, obj->tris[i].verts[0].pos);
-	vec_sub(obj->tris[i].v0v2, obj->tris[i].verts[2].pos, obj->tris[i].verts[0].pos);
+	vec_sub(obj->tris[i].v0v2, obj->tris[i].verts[1].pos, obj->tris[i].verts[0].pos);
+	vec_sub(obj->tris[i].v0v1, obj->tris[i].verts[2].pos, obj->tris[i].verts[0].pos);
 }
 
 void	load_obj(char *filename, t_obj *obj)
