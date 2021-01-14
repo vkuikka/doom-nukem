@@ -93,6 +93,24 @@ void	action_loop(t_window *window, t_level *l)
 	return ;
 }
 
+int		get_fps(void)
+{
+	struct timeval	time;
+	static long		s = 0;
+	static int		i = 0;
+	static int		fps = 0;
+
+	i++;
+	gettimeofday(&time, NULL);
+	if (s != time.tv_sec)
+	{
+		s = time.tv_sec;
+		fps = i;
+		i = 0;
+	}
+	return fps;
+}
+
 int			main(int argc, char **argv)
 {
 	SDL_Event	event;
@@ -118,7 +136,8 @@ int			main(int argc, char **argv)
 		frametime = SDL_GetTicks() - frametime;
 		//printf("time: %d ms\n", frametime);
 		char buf[50];
-		sprintf(buf, "%dms\n", frametime);
+		int fps = get_fps();
+		sprintf(buf, "%dfps %dms\n", fps, frametime);
 		SDL_SetWindowTitle(window->SDLwindow, buf);
 
 		if (frametime < 100)
