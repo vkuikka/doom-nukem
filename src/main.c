@@ -48,18 +48,49 @@ void	action_loop(t_window *window, t_level *l)
 	int			window_horizontal_size;
 	int			i;
 
-	if (buttons(SDL_SCANCODE_A, -1))
-		l->pos[0] -= 0.3;
-	if (buttons(SDL_SCANCODE_D, -1))
-		l->pos[0] += 0.3;
+	float rot[3];
+	float rot_tmp[3];
+	rot_tmp[0] = 0;
+	rot_tmp[1] = 0;
+	rot_tmp[2] = 1;
+
 	if (buttons(SDL_SCANCODE_W, -1))
-		l->pos[2] += 0.3;
+	{
+		vec_rot(rot, rot_tmp, l->look_side);
+		l->pos[0] += rot[0];
+		l->pos[2] += rot[2];
+	}
 	if (buttons(SDL_SCANCODE_S, -1))
-		l->pos[2] -= 0.3;
-	if (buttons(SDL_SCANCODE_Q, -1))
-		l->angle -= 0.1;
-	if (buttons(SDL_SCANCODE_E, -1))
-		l->angle += 0.1;
+	{
+		vec_rot(rot, rot_tmp, l->look_side);
+		l->pos[0] -= rot[0];
+		l->pos[2] -= rot[2];
+	}
+	if (buttons(SDL_SCANCODE_D, -1))
+	{
+		vec_rot(rot, rot_tmp, l->look_side + 1.571);
+		l->pos[0] += rot[0];
+		l->pos[2] += rot[2];
+	}
+	if (buttons(SDL_SCANCODE_A, -1))
+	{
+		vec_rot(rot, rot_tmp, l->look_side + 1.571);
+		l->pos[0] -= rot[0];
+		l->pos[2] -= rot[2];
+	}
+
+	if (buttons(SDL_SCANCODE_SPACE, -1))
+		l->pos[1] -= 0.3;
+	if (buttons(SDL_SCANCODE_LSHIFT, -1))
+		l->pos[1] += 0.3;
+	if (buttons(SDL_SCANCODE_RIGHT, -1))
+		l->look_side += 0.1;
+	if (buttons(SDL_SCANCODE_LEFT, -1))
+		l->look_side -= 0.1;
+	if (buttons(SDL_SCANCODE_UP, -1))
+		l->look_up += 0.1;
+	if (buttons(SDL_SCANCODE_DOWN, -1))
+		l->look_up -= 0.1;
 
 	if (SDL_LockTexture(window->texture, NULL, (void**)&window->frame_buffer, &window_horizontal_size) != 0)
 		ft_error("failed to lock texture\n");

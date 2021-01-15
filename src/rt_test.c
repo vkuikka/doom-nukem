@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/12 01:20:06 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/15 02:17:142 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,11 +95,13 @@ t_level			*rt_test_init_level()
 	l->pos[0] = 0;
 	l->pos[1] = 0;
 	l->pos[2] = 0;
-	l->angle = 0;
+	l->look_side = 0;
+	l->look_up = 0.5;
 	l->txtr = NULL;
 
-	//load_obj("level/cube.obj", &l->obj[0]);
-	//load_obj("level/monkey.obj", &l->obj[0]);
+	// load_obj("level/cube.obj", &l->obj[0]);
+	// load_obj("level/torus.obj", &l->obj[0]);
+	// load_obj("level/monkey.obj", &l->obj[0]);
 	load_obj("level/teapot_decimated.obj", &l->obj[0]);
 
 	return (l);
@@ -141,19 +143,15 @@ float	rt_tri(t_window *window, t_tri t, t_ray ray, int x, int y, int *col)
 void	*rt_test(void *data_pointer)
 {
 	t_rthread	*t = data_pointer;
-	t_obj		*obj;
 	t_ray		r;
 
-	obj = t->level->obj;
-
 	r.pos[0] = t->level->pos[0];
-	r.pos[1] = 0;
+	r.pos[1] = t->level->pos[1];
 	r.pos[2] = t->level->pos[2];
 
+	float	angle = t->level->look_side;
+	float	up_down = t->level->look_up;
 
-	// ray.dir[0] = world.view->dir[0] - 1/RES_X * RES_X / 2;
-	float angle = t->level->angle;
-	t_window *window = t->window;
 	// for (int x = 0; x < RES_X; x++)
 	for (int x = t->id; x < RES_X; x += THREAD_AMOUNT)
 	{
@@ -163,29 +161,28 @@ void	*rt_test(void *data_pointer)
 		tmp[2] = 1;
 		for (int y = 0; y < RES_Y; y++)
 		{
-			window->depth_buffer[x + (y * (int)RES_X)] = 0;
-			window->frame_buffer[x + (y * (int)RES_X)] = 0x00000000;
 			if (!(x % PIXEL_GAP) && !(y % PIXEL_GAP))
 			{
+				t->window->frame_buffer[x + (y * (int)RES_X)] = 0x00000000;
+				t->window->depth_buffer[x + (y * (int)RES_X)] = 0;
 				vec_rot(r.dir, tmp, angle);
-				r.dir[1] = 1 / RES_Y * y - 0.5;
+				r.dir[1] = (1 / RES_Y * y) - up_down;
+				// vec_normalize(r.dir);
+
 				float closest = -1;
-	
-				for (int j = 0; j < obj[0].tri_amount; j++)
+				for (int j = 0; j < t->level->obj[0].tri_amount; j++)
 				{
 					int color;
 					float dist;
 
-					dist = rt_tri(window, obj[0].tris[j], r, x, y, &color);
+					dist = rt_tri(t->window, t->level->obj[0].tris[j], r, x, y, &color);
 					if (dist > 0 &&
-							(dist < window->depth_buffer[x + (y * (int)RES_X)] ||
-									window->depth_buffer[x + (y * (int)RES_X)] == 0))
+						(dist < t->window->depth_buffer[x + (y * (int)RES_X)] ||
+								t->window->depth_buffer[x + (y * (int)RES_X)] == 0))
 					{
-						window->depth_buffer[x + (y * (int)RES_X)] = dist;
-						window->frame_buffer[x + (y * (int)RES_X)] = color;
+						t->window->depth_buffer[x + (y * (int)RES_X)] = dist;
+						t->window->frame_buffer[x + (y * (int)RES_X)] = color;
 					}
-					//else
-					//	window->frame_buffer[x + (y * (int)RES_X)] = 0;
 				}
 			}
 		}

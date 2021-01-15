@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/07 18:13:00 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/05 01:39:26 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/15 02:12:48 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,51 +44,17 @@ void		vec_normalize_two(float vec1[3], float vec2[3])
 	}
 }
 
-void		vec_normalize(float vec1[3])
+void		vec_normalize(float vec[3])
 {
-	int			i;
-	float		min;
-	float		max;
-	float		diff;
-
-	i = 1;
-	min = vec1[0];
-	max = vec1[0];
-	while (i < 3)
-	{
-		if (vec1[i] < min)
-			min = vec1[i];
-		if (vec1[i] > max)
-			max = vec1[i];
-		i++;
-	}
-	i = 0;
-	diff = max - min;
-	if (!diff)
-	{
-		diff = 0.001;
-		// printf("%f %f %f\n", vec1[0], vec1[1], vec1[2]);
-	}
-	while (i < 3)
-	{
-		vec1[i] = (vec1[i] - min) / diff;
-		i++;
-	}
+	float w = sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
+	vec[0] /= w;
+	vec[1] /= w;
+	vec[2] /= w;
 }
 
 float		vec_length(float vec[3])
 {
-	float	len;
-	int		i;
-
-	i = 0;
-	while (i < 3)
-	{
-		len += vec[i] * vec[i];
-		i++;
-	}
-	len = sqrt(len);
-	return (len);
+	return (sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]));
 }
 
 float		vec_dot(float ve1[3], float ve2[3])
