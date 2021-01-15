@@ -151,6 +151,7 @@ int			main(int argc, char **argv)
 
 	level = rt_test_init_level();
 	init_window(&window);
+	SDL_SetRelativeMouseMode(SDL_TRUE);
 	while (1)
 	{
 		frametime = SDL_GetTicks();
@@ -162,6 +163,11 @@ int			main(int argc, char **argv)
 				buttons(event.key.keysym.scancode, 1);
 			else if (event.key.repeat == 0 && event.type == SDL_KEYUP)
 				buttons(event.key.keysym.scancode, 0);
+			else if (event.type == SDL_MOUSEMOTION)
+			{
+				level->look_side += (float)event.motion.xrel / 200;
+				level->look_up -= (float)event.motion.yrel / 200;
+			}
 		}
 		action_loop(window, level);
 		frametime = SDL_GetTicks() - frametime;
