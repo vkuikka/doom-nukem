@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/03 03:51:15by vkuikka          ###   ########.fr        */
+/*   Updated: 2021/01/16 23:46:08 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,6 +114,8 @@ void	action_loop(t_window *window, t_level *l, t_bmp *bmp)
 		free(thread_data[i]);
 		i++;
 	}
+	free(thread_data);
+	fill_pixels(window->frame_buffer, PIXEL_GAP);
 
 	/////////////////////bmp
 	for (int y = 0; y < bmp->height; y++)
@@ -124,9 +126,6 @@ void	action_loop(t_window *window, t_level *l, t_bmp *bmp)
 		}
 	}
 	/////////////////////bmp
-
-	free(thread_data);
-	fill_pixels(window->frame_buffer, PIXEL_GAP);
 
 	SDL_UnlockTexture(window->texture);
 	SDL_RenderClear(window->SDLrenderer);
