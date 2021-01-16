@@ -94,7 +94,7 @@ t_level			*rt_test_init_level()
 
 	l->pos[0] = 0;
 	l->pos[1] = 0;
-	l->pos[2] = 0;
+	l->pos[2] = -10;
 	l->look_side = 0;
 	l->look_up = 0.5;
 	l->txtr = NULL;
@@ -140,17 +140,47 @@ float	rt_tri(t_window *window, t_tri t, t_ray ray, int x, int y, int *col)
 	return dist;
 }
 
+int		fov_culling(t_ray c[2], t_tri tri)
+{
+	float	end[3];
+
+	end[0] = tri.verts[0].pos[0] - c[0].pos[0];
+	end[1] = tri.verts[0].pos[1] - c[0].pos[1];
+	end[2] = tri.verts[0].pos[2] - c[0].pos[2];
+	if (vec_dot(end, c[0].dir) > 0 && vec_dot(end, c[1].dir) > 0)
+		return (1);
+	end[0] = tri.verts[1].pos[0] - c[0].pos[0];
+	end[1] = tri.verts[1].pos[1] - c[0].pos[1];
+	end[2] = tri.verts[1].pos[2] - c[0].pos[2];
+	if (vec_dot(end, c[0].dir) > 0 && vec_dot(end, c[1].dir) > 0)
+		return (1);
+	end[0] = tri.verts[2].pos[0] - c[0].pos[0];
+	end[1] = tri.verts[2].pos[1] - c[0].pos[1];
+	end[2] = tri.verts[2].pos[2] - c[0].pos[2];
+	if (vec_dot(end, c[0].dir) > 0 && vec_dot(end, c[1].dir) > 0)
+		return (1);
+	return (0);
+}
+
 void	*rt_test(void *data_pointer)
 {
 	t_rthread	*t = data_pointer;
 	t_ray		r;
+	t_ray		c[2];
+	float		angle = t->level->look_side;
 
 	r.pos[0] = t->level->pos[0];
 	r.pos[1] = t->level->pos[1];
 	r.pos[2] = t->level->pos[2];
 
-	float	angle = t->level->look_side;
-	float	up_down = t->level->look_up;
+	c[0].pos[0] = t->level->pos[0];
+	c[0].pos[1] = t->level->pos[1];
+	c[0].pos[2] = t->level->pos[2];
+	vec_rot(c[0].dir, (float[3]){0, 0, 1}, angle + ((M_PI / 2) - 0.5));
+	c[1].pos[0] = t->level->pos[0];
+	c[1].pos[1] = t->level->pos[1];
+	c[1].pos[2] = t->level->pos[2];
+	vec_rot(c[1].dir, (float[3]){0, 0, 1}, angle - ((M_PI / 2) - 0.5));
 
 	// for (int x = 0; x < RES_X; x++)
 	for (int x = t->id; x < RES_X; x += THREAD_AMOUNT)
@@ -166,7 +196,8 @@ void	*rt_test(void *data_pointer)
 				t->window->frame_buffer[x + (y * (int)RES_X)] = 0x00000000;
 				t->window->depth_buffer[x + (y * (int)RES_X)] = 0;
 				vec_rot(r.dir, tmp, angle);
-				r.dir[1] = (1 / RES_Y * y) - up_down;
+
+				r.dir[1] = (1 / RES_Y * y) - t->level->look_up;
 				// vec_normalize(r.dir);
 
 				float closest = -1;
@@ -174,14 +205,16 @@ void	*rt_test(void *data_pointer)
 				{
 					int color;
 					float dist;
-
-					dist = rt_tri(t->window, t->level->obj[0].tris[j], r, x, y, &color);
-					if (dist > 0 &&
-						(dist < t->window->depth_buffer[x + (y * (int)RES_X)] ||
-								t->window->depth_buffer[x + (y * (int)RES_X)] == 0))
+					if (fov_culling(c, t->level->obj[0].tris[j]))
 					{
-						t->window->depth_buffer[x + (y * (int)RES_X)] = dist;
-						t->window->frame_buffer[x + (y * (int)RES_X)] = color;
+						dist = rt_tri(t->window, t->level->obj[0].tris[j], r, x, y, &color);
+						if (dist > 0 &&
+							(dist < t->window->depth_buffer[x + (y * (int)RES_X)] ||
+									t->window->depth_buffer[x + (y * (int)RES_X)] == 0))
+						{
+							t->window->depth_buffer[x + (y * (int)RES_X)] = dist;
+							t->window->frame_buffer[x + (y * (int)RES_X)] = color;
+						}
 					}
 				}
 			}
