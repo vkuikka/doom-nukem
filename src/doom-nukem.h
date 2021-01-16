@@ -92,6 +92,43 @@ typedef struct			s_rthread
 	struct s_window		*window;
 }						t_rthread;
 
+typedef struct __attribute__((__packed__))	s_bmp_fileheader {
+	unsigned char							fileMarker1;
+	unsigned char							fileMarker2;
+	unsigned int							bfSize;
+	uint16_t								unused1;
+	uint16_t								unused2;
+	unsigned int							imageDataOffset;
+}											t_bmp_fileheader;
+
+typedef struct __attribute__((__packed__))	s_bmp_infoheader {
+	unsigned int							biSize;
+	int										width;
+	int										height;
+	uint16_t								planes;
+	uint16_t								bitPix;
+	unsigned int							biCompression;
+	unsigned int							biSizeImage;
+	int										biXPelsPerMeter;
+	int										biYPelsPerMeter;
+	unsigned int							biClrUsed;
+	unsigned int							biClrImportant;
+}											t_bmp_infoheader;
+
+typedef struct __attribute__((__packed__))	s_bmp_image {
+	unsigned char							b;
+	unsigned char							g;
+	unsigned char							r;
+	unsigned char							a;
+}											t_bmp_image;
+
+typedef struct								s_bmp
+{
+	int										width;
+	int										height;
+	int										*image;
+}											t_bmp;
+
 void		vec_normalize(float vec1[3]);						//makes vector length 1
 void		vec_normalize_two(float vec1[3], float vec2[3]);	//longest vector length will be 1 and other will be same scale
 float		vec_dot(float ve1[3], float ve2[3]);				//dot product of two vectors
@@ -108,5 +145,6 @@ void		*rt_test(void *t);
 t_level		*rt_test_init_level();
 void		fill_pixels(unsigned *grid, int pixel_gap);
 void		load_obj(char *filename, t_obj *obj);
+t_bmp		bmp_read(char *str);
 
 #endif

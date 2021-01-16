@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/03 03:51:15by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/03 03:51:15by vkuikka          ###   ########.fr        */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ int		buttons(int button, const int pressed)
 	return (0);
 }
 
-void	action_loop(t_window *window, t_level *l)
+void	action_loop(t_window *window, t_level *l, t_bmp *bmp)
 {
 	pthread_t	threads[THREAD_AMOUNT];
 	t_rthread	**thread_data;
@@ -114,6 +114,17 @@ void	action_loop(t_window *window, t_level *l)
 		free(thread_data[i]);
 		i++;
 	}
+
+	/////////////////////bmp
+	for (int y = 0; y < bmp->height; y++)
+	{
+		for (int x = 0; x < bmp->width; x++)
+		{
+			window->frame_buffer[(y * (int)RES_X) + x] = bmp->image[y * bmp->width + x];
+		}
+	}
+	/////////////////////bmp
+
 	free(thread_data);
 	fill_pixels(window->frame_buffer, PIXEL_GAP);
 
@@ -148,7 +159,9 @@ int			main(int argc, char **argv)
 	t_window	*window;
 	t_level		*level;
 	unsigned	frametime;
+	t_bmp		bmp;
 
+	bmp = bmp_read("out.bmp");
 	level = rt_test_init_level();
 	init_window(&window);
 	SDL_SetRelativeMouseMode(SDL_TRUE);
@@ -169,7 +182,7 @@ int			main(int argc, char **argv)
 				level->look_up -= (float)event.motion.yrel / 200;
 			}
 		}
-		action_loop(window, level);
+		action_loop(window, level, &bmp);
 		frametime = SDL_GetTicks() - frametime;
 		//printf("time: %d ms\n", frametime);
 		char buf[50];
