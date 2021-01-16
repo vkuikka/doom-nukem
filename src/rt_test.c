@@ -12,50 +12,6 @@
 
 #include "doom-nukem.h"
 
-float	rt_sphere(t_window *window, float ray[3])
-{
-	float	rsp[3];
-	rsp[0] = 0;	//sphere pos - ray start pos
-	rsp[1] = 0;
-	rsp[2] = 5;
-
-	float a = vec_dot(ray, ray);
-	float b = 2 * vec_dot(ray, rsp);
-	float c = vec_dot(rsp, rsp) - 10;
-
-	float disc = b * b - 4 * a * c;
-
-	float x0;
-	float x1;
-
-	if (disc < 0)
-		return (0);
-	else if (disc == 0)
-		x0 = x1 = - 0.5 * b / a; 
-    else
-	{ 
-        float q = (b > 0) ? 
-            -0.5 * (b + sqrt(disc)) : 
-            -0.5 * (b - sqrt(disc)); 
-        x0 = q / a; 
-        x1 = c / q; 
-    } 
-	if (x0 > x1)
-		x1 = x0;
-
-	if (x1 > 0)
-		x1 = 0;
-	x1 *= -1.0;
-
-	if (!x1)
-		SDL_SetRenderDrawColor(window->SDLrenderer, 0, 0, 0, 255);
-	else
-		SDL_SetRenderDrawColor(window->SDLrenderer, 255.0 / x1, 255.0 / x1, 255.0 / x1, 255);
-
-	return (x1);
-	// return ((-b - sqrt(disc)) / (2.0 * a));
-}
-
 void			fill_pixels(unsigned *grid, int gap)
 {
 	int		color;
@@ -191,7 +147,7 @@ void	*rt_test(void *data_pointer)
 		tmp[2] = 1;
 		for (int y = 0; y < RES_Y; y++)
 		{
-			if (rand() % 5)	//skip random pixel
+			// if (rand() % 5)	//skip random pixel
 			if (!(x % PIXEL_GAP) && !(y % PIXEL_GAP))
 			{
 				t->window->frame_buffer[x + (y * (int)RES_X)] = 0x00000000;

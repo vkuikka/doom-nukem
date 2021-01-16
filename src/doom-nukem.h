@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/15 03:38:37 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/17 01:22:47 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@
 # include "get_next_line.h"
 # include "SDL2/SDL.h"
 
+# include <stdlib.h>
 # include <stdio.h>
 
 typedef struct			s_window
