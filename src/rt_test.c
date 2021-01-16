@@ -191,6 +191,7 @@ void	*rt_test(void *data_pointer)
 		tmp[2] = 1;
 		for (int y = 0; y < RES_Y; y++)
 		{
+			if (rand() % 5)	//skip random pixel
 			if (!(x % PIXEL_GAP) && !(y % PIXEL_GAP))
 			{
 				t->window->frame_buffer[x + (y * (int)RES_X)] = 0x00000000;
