@@ -6,18 +6,41 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/17 11:19:20 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/17 12:26:59 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom-nukem.h"
+
+float	cast_all(t_ray vec, t_level *l, float *dist_u, float *dist_d)
+{
+	int		color;
+	float	res = 1000000;
+
+	for (int j = 0; j < l->obj[0].tri_amount; j++)
+	{
+		float tmp;
+		tmp = rt_tri(l->obj[0].tris[j], vec, &color, 0);
+		if (dist_u != NULL)
+		{
+			if (tmp > 0 && tmp < *dist_d)
+				*dist_d = tmp;
+			else if (tmp < 0 && tmp > *dist_u)
+				*dist_u = tmp;
+		}
+		else if (tmp > 0 && tmp < res)
+			res = tmp;
+	}
+	return (res);
+}
 
 void	player_movement(float dir[3], float pos[3], t_level *l, const Uint8 *keys)
 {
 	static int	noclip = 1;
 	static int	jump_delay = 0;
 	float		speed = MOVE_SPEED;
-	t_ray		down;
+	float		dist = 0;
+	t_ray		r;
 
 	if (keys == NULL)
 	{
@@ -44,29 +67,61 @@ void	player_movement(float dir[3], float pos[3], t_level *l, const Uint8 *keys)
 	rot_tmp[1] = 0;
 	rot_tmp[2] = 1;
 
+	r.pos[0] = pos[0];
+	r.pos[1] = pos[1];
+	r.pos[2] = pos[2];
+
 	if (keys[SDL_SCANCODE_W])
 	{
 		vec_rot(rot, rot_tmp, l->look_side);
-		l->pos[0] += rot[0] * speed;
-		l->pos[2] += rot[2] * speed;
+		r.dir[0] = rot[0];
+		r.dir[1] = rot[1];
+		r.dir[2] = rot[2];
+		dist = cast_all(r, l, NULL, NULL);
+		if (noclip || (dist <= 0 || dist > WALL_CLIP_DIST))
+		{
+			l->pos[0] += rot[0] * speed;
+			l->pos[2] += rot[2] * speed;
+		}
 	}
 	if (keys[SDL_SCANCODE_S])
 	{
-		vec_rot(rot, rot_tmp, l->look_side);
-		l->pos[0] -= rot[0] * speed;
-		l->pos[2] -= rot[2] * speed;
+		vec_rot(rot, rot_tmp, l->look_side + M_PI);
+		r.dir[0] = rot[0];
+		r.dir[1] = rot[1];
+		r.dir[2] = rot[2];
+		dist = cast_all(r, l, NULL, NULL);
+		if (noclip || (dist <= 0 || dist > WALL_CLIP_DIST))
+		{
+			l->pos[0] += rot[0] * speed;
+			l->pos[2] += rot[2] * speed;
+		}
 	}
 	if (keys[SDL_SCANCODE_D])
 	{
 		vec_rot(rot, rot_tmp, l->look_side + M_PI / 2);
-		l->pos[0] += rot[0] * speed;
-		l->pos[2] += rot[2] * speed;
+		r.dir[0] = rot[0];
+		r.dir[1] = rot[1];
+		r.dir[2] = rot[2];
+		dist = cast_all(r, l, NULL, NULL);
+		if (noclip || (dist <= 0 || dist > WALL_CLIP_DIST))
+		{
+			l->pos[0] += rot[0] * speed;
+			l->pos[2] += rot[2] * speed;
+		}
 	}
 	if (keys[SDL_SCANCODE_A])
 	{
-		vec_rot(rot, rot_tmp, l->look_side + M_PI / 2);
-		l->pos[0] -= rot[0] * speed;
-		l->pos[2] -= rot[2] * speed;
+		vec_rot(rot, rot_tmp, l->look_side - M_PI / 2);
+		r.dir[0] = rot[0];
+		r.dir[1] = rot[1];
+		r.dir[2] = rot[2];
+		dist = cast_all(r, l, NULL, NULL);
+		if (noclip || (dist <= 0 || dist > WALL_CLIP_DIST))
+		{
+			l->pos[0] += rot[0] * speed;
+			l->pos[2] += rot[2] * speed;
+		}
 	}
 	if (noclip)
 		return;
@@ -75,35 +130,20 @@ void	player_movement(float dir[3], float pos[3], t_level *l, const Uint8 *keys)
 		dir[1] = -0.4;
 		jump_delay = SDL_GetTicks();
 	}
-
-	down.pos[0] = pos[0];
-	down.pos[1] = pos[1];
-	down.pos[2] = pos[2];
-	down.dir[0] = 0;
-	down.dir[1] = 1;
-	down.dir[2] = 0;
-
-	float dist = 0;
 	float dist_d = 100000;
 	float dist_u = -100000;
-	for (int j = 0; j < l->obj[0].tri_amount; j++)
-	{
-		int color;
-		float tmp;
-		tmp = rt_tri(l->obj[0].tris[j], down, &color, 0);
-		if (tmp > 0.001 && tmp < dist_d)
-			dist_d = tmp;
-		else if (tmp < -0.001 && tmp > dist_u)
-			dist_u = tmp;
-	}
+
+	r.dir[0] = 0;
+	r.dir[1] = 1;
+	r.dir[2] = 0;
+	cast_all(r, l, &dist_u, &dist_d);
 	if (dist_d > 0 && dist_d != 100000)
 		dist = dist_d;
 	else if (dist_u < 0 && dist_u != -100000)
 		dist = dist_u;
-
 	if (dist > 0)
 	{
-		if (dir[1] < -0.0001)
+		if (dir[1] < 0)
 			dir[1] += 0.08;
 		if (dist < dir[1])
 			dir[1] = 0;
@@ -112,13 +152,11 @@ void	player_movement(float dir[3], float pos[3], t_level *l, const Uint8 *keys)
 		else if (dist < 0.5)
 			pos[1] += dist - 0.5;
 	}
-
-	if (dist < 0 && dist > -1)
+	else if (dist < 0 && dist > -1)
 	{
 		dir[1] = 0;
 		pos[1] += dist - 0.5;
 	}
-
 	pos[1] += dir[1];
 }
 

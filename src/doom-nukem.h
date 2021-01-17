@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/17 04:27:06 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/17 12:21:18 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,8 @@
 
 # define MOVE_SPEED 0.1
 # define NOCLIP_SPEED 0.8
+
+# define WALL_CLIP_DIST 0.3
 
 # include <math.h>
 # include <fcntl.h>
