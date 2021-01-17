@@ -63,7 +63,7 @@ t_level			*rt_test_init_level()
 	return (l);
 }
 
-float	rt_tri(t_window *window, t_tri t, t_ray ray, int x, int y, int *col)
+float	rt_tri(t_window *window, t_tri t, t_ray ray, int *col)
 {
 	float	pvec[3];
 	vec_cross(pvec, ray.dir, t.v0v2);
@@ -164,7 +164,7 @@ void	*rt_test(void *data_pointer)
 					float dist;
 					if (fov_culling(c, t->level->obj[0].tris[j]))
 					{
-						dist = rt_tri(t->window, t->level->obj[0].tris[j], r, x, y, &color);
+						dist = rt_tri(t->window, t->level->obj[0].tris[j], r, &color);
 						if (dist > 0 &&
 							(dist < t->window->depth_buffer[x + (y * (int)RES_X)] ||
 									t->window->depth_buffer[x + (y * (int)RES_X)] == 0))
