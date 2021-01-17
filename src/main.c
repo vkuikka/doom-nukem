@@ -160,7 +160,7 @@ void	player_movement(float dir[3], float pos[3], t_level *l, const Uint8 *keys)
 	pos[1] += dir[1];
 }
 
-void	action_loop(t_window *window, t_level *l, t_bmp *bmp)
+void	action_loop(t_window *window, t_level *l, t_bmp *bmp, t_obj *culled)
 {
 	const Uint8		*keys = SDL_GetKeyboardState(NULL);
 	static float	fall_vector[3] = {0, 0, 0};
@@ -170,6 +170,7 @@ void	action_loop(t_window *window, t_level *l, t_bmp *bmp)
 	int				i;
 
 	player_movement(fall_vector, l->pos, l, keys);
+	l->obj = culled;
 
 	if (keys[SDL_SCANCODE_RIGHT])
 		l->look_side += 0.1;
@@ -240,6 +241,43 @@ int		get_fps(void)
 	return fps;
 }
 
+t_obj		*culling(t_level *level, int *visible)
+{
+	float		angle = level->look_side;
+	t_ray		c[2];
+
+	c[0].pos[0] = level->pos[0];
+	c[0].pos[1] = level->pos[1];
+	c[0].pos[2] = level->pos[2];
+	vec_rot(c[0].dir, (float[3]){0, 0, 1}, angle + ((M_PI / 2) - 0.5));
+	c[1].pos[0] = level->pos[0];
+	c[1].pos[1] = level->pos[1];
+	c[1].pos[2] = level->pos[2];
+	vec_rot(c[1].dir, (float[3]){0, 0, 1}, angle - ((M_PI / 2) - 0.5));
+
+	t_obj *new = (t_obj*)malloc(sizeof(t_obj));
+
+	for (int j = 0; j < level->obj->tri_amount; j++)
+	{
+		if (fov_culling(c, level->obj->tris[j]))
+		{
+			(*visible)++;
+		}
+	}
+	new->tris = (t_tri*)malloc(sizeof(t_tri) * (*visible));
+	new->tri_amount = (*visible);
+	int k = 0;
+	for (int j = 0; j < level->obj->tri_amount; j++)
+	{
+		if (fov_culling(c, level->obj->tris[j]))
+		{
+			new->tris[k] = level->obj->tris[j];
+			k++;
+		}
+	}
+	return (new);
+}
+
 int			main(int argc, char **argv)
 {
 	SDL_Event	event;
@@ -247,8 +285,10 @@ int			main(int argc, char **argv)
 	t_level		*level;
 	unsigned	frametime;
 	t_bmp		bmp;
+	int			enable_culling;
 
-	bmp = bmp_read("out.bmp");
+	enable_culling = 1;
+	//bmp = bmp_read("out.bmp");
 	level = rt_test_init_level();
 	init_window(&window);
 	SDL_SetRelativeMouseMode(SDL_TRUE);
@@ -266,13 +306,30 @@ int			main(int argc, char **argv)
 			}
 			else if (event.key.repeat == 0 && event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_N)
 				player_movement((float[3]){0,0,0}, (float[3]){0,0,0}, NULL, NULL);
+			else if (event.key.repeat == 0 && event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_M)
+				enable_culling = enable_culling ? 0 : 1;
 		}
-		action_loop(window, level, &bmp);
+		int faces = level->obj->tri_amount;
+		t_obj *tmp = level->obj;
+		t_obj *culled = level->obj;
+		if (enable_culling)
+		{
+			faces = 0;
+			culled = culling(level, &faces);
+		}
+		action_loop(window, level, &bmp, culled);
+		if (enable_culling)
+		{
+			free(&culled->tris);
+			free(&culled);
+			level->obj = tmp;
+		}
+
 		frametime = SDL_GetTicks() - frametime;
 		//printf("time: %d ms\n", frametime);
 		char buf[50];
 		int fps = get_fps();
-		sprintf(buf, "%dfps %dms\n", fps, frametime);
+		sprintf(buf, "%dfps %dms %dfaces\n", fps, frametime, faces);
 		SDL_SetWindowTitle(window->SDLwindow, buf);
 
 		if (frametime < 100)

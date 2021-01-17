@@ -123,21 +123,11 @@ void	*rt_test(void *data_pointer)
 {
 	t_rthread	*t = data_pointer;
 	t_ray		r;
-	t_ray		c[2];
 	float		angle = t->level->look_side;
 
 	r.pos[0] = t->level->pos[0];
 	r.pos[1] = t->level->pos[1];
 	r.pos[2] = t->level->pos[2];
-
-	c[0].pos[0] = t->level->pos[0];
-	c[0].pos[1] = t->level->pos[1];
-	c[0].pos[2] = t->level->pos[2];
-	vec_rot(c[0].dir, (float[3]){0, 0, 1}, angle + ((M_PI / 2) - 0.5));
-	c[1].pos[0] = t->level->pos[0];
-	c[1].pos[1] = t->level->pos[1];
-	c[1].pos[2] = t->level->pos[2];
-	vec_rot(c[1].dir, (float[3]){0, 0, 1}, angle - ((M_PI / 2) - 0.5));
 
 	// for (int x = 0; x < RES_X; x++)
 	for (int x = t->id; x < RES_X; x += THREAD_AMOUNT)
@@ -163,16 +153,13 @@ void	*rt_test(void *data_pointer)
 				{
 					int color;
 					float dist;
-					// if (fov_culling(c, t->level->obj[0].tris[j]))
+					dist = rt_tri(t->level->obj[0].tris[j], r, &color, 1);
+					if (dist > 0 &&
+						(dist < t->window->depth_buffer[x + (y * (int)RES_X)] ||
+								t->window->depth_buffer[x + (y * (int)RES_X)] == 0))
 					{
-						dist = rt_tri(t->level->obj[0].tris[j], r, &color, 1);
-						if (dist > 0 &&
-							(dist < t->window->depth_buffer[x + (y * (int)RES_X)] ||
-									t->window->depth_buffer[x + (y * (int)RES_X)] == 0))
-						{
-							t->window->depth_buffer[x + (y * (int)RES_X)] = dist;
-							t->window->frame_buffer[x + (y * (int)RES_X)] = color;
-						}
+						t->window->depth_buffer[x + (y * (int)RES_X)] = dist;
+						t->window->frame_buffer[x + (y * (int)RES_X)] = color;
 					}
 				}
 			}

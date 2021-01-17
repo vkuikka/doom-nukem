@@ -153,5 +153,6 @@ t_level		*rt_test_init_level();
 void		fill_pixels(unsigned *grid, int pixel_gap);
 void		load_obj(char *filename, t_obj *obj);
 t_bmp		bmp_read(char *str);
+int			fov_culling(t_ray c[2], t_tri tri);
 
 #endif
