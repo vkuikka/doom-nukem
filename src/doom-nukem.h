@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/17 01:22:47 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/17 04:27:06 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,9 @@
 # define RES_Y 600.0
 # define THREAD_AMOUNT 50
 # define PIXEL_GAP 3	//change to dynamic later
+
+# define MOVE_SPEED 0.1
+# define NOCLIP_SPEED 0.8
 
 # include <math.h>
 # include <fcntl.h>
@@ -143,6 +146,7 @@ void		init_window(t_window **window);
 void		draw_line(int line[4], t_window *window);
 
 void		*rt_test(void *t);
+float		rt_tri(t_tri t, t_ray ray, int *col, int backface_culling);
 t_level		*rt_test_init_level();
 void		fill_pixels(unsigned *grid, int pixel_gap);
 void		load_obj(char *filename, t_obj *obj);

@@ -6,47 +6,37 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/16 23:46:08 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/17 11:19:20 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom-nukem.h"
 
-int		buttons(int button, const int pressed)
+void	player_movement(float dir[3], float pos[3], t_level *l, const Uint8 *keys)
 {
-	static int		*keys;
-	int				i;
+	static int	noclip = 1;
+	static int	jump_delay = 0;
+	float		speed = MOVE_SPEED;
+	t_ray		down;
 
-	if (!(keys) && (i = -1))
+	if (keys == NULL)
 	{
-		if (!(keys = (int *)malloc(sizeof(int) * 4)))
-			ft_error("memory allocation failed\n");
-		while (++i < 4)
-			keys[i] = -1;
+		if (noclip)
+			noclip = 0;
+		else
+			noclip = 1;
+		return;
 	}
-	i = -1;
-	while (++i < 4)
-		if (pressed == -1 && keys[i] == button)
-			return (1);
-		else if (pressed == 0 && keys[i] == button)
-		{
-			keys[i] = -1;
-			return (0);
-		}
-		else if (pressed == 1 && keys[i] == -1)
-		{
-			keys[i] = button;
-			return (0);
-		}
-	return (0);
-}
-
-void	action_loop(t_window *window, t_level *l, t_bmp *bmp)
-{
-	pthread_t	threads[THREAD_AMOUNT];
-	t_rthread	**thread_data;
-	int			window_horizontal_size;
-	int			i;
+	if (noclip)
+	{
+		speed = NOCLIP_SPEED;
+		if (keys[SDL_SCANCODE_SPACE])
+			l->pos[1] -= 0.5;
+		if (keys[SDL_SCANCODE_LSHIFT])
+			l->pos[1] += 0.5;
+	}
+	else if (keys[SDL_SCANCODE_LSHIFT])
+		speed /= 2;
 
 	float rot[3];
 	float rot_tmp[3];
@@ -54,42 +44,102 @@ void	action_loop(t_window *window, t_level *l, t_bmp *bmp)
 	rot_tmp[1] = 0;
 	rot_tmp[2] = 1;
 
-	if (buttons(SDL_SCANCODE_W, -1))
+	if (keys[SDL_SCANCODE_W])
 	{
 		vec_rot(rot, rot_tmp, l->look_side);
-		l->pos[0] += rot[0];
-		l->pos[2] += rot[2];
+		l->pos[0] += rot[0] * speed;
+		l->pos[2] += rot[2] * speed;
 	}
-	if (buttons(SDL_SCANCODE_S, -1))
+	if (keys[SDL_SCANCODE_S])
 	{
 		vec_rot(rot, rot_tmp, l->look_side);
-		l->pos[0] -= rot[0];
-		l->pos[2] -= rot[2];
+		l->pos[0] -= rot[0] * speed;
+		l->pos[2] -= rot[2] * speed;
 	}
-	if (buttons(SDL_SCANCODE_D, -1))
+	if (keys[SDL_SCANCODE_D])
 	{
-		vec_rot(rot, rot_tmp, l->look_side + 1.571);
-		l->pos[0] += rot[0];
-		l->pos[2] += rot[2];
+		vec_rot(rot, rot_tmp, l->look_side + M_PI / 2);
+		l->pos[0] += rot[0] * speed;
+		l->pos[2] += rot[2] * speed;
 	}
-	if (buttons(SDL_SCANCODE_A, -1))
+	if (keys[SDL_SCANCODE_A])
 	{
-		vec_rot(rot, rot_tmp, l->look_side + 1.571);
-		l->pos[0] -= rot[0];
-		l->pos[2] -= rot[2];
+		vec_rot(rot, rot_tmp, l->look_side + M_PI / 2);
+		l->pos[0] -= rot[0] * speed;
+		l->pos[2] -= rot[2] * speed;
+	}
+	if (noclip)
+		return;
+	if (keys[SDL_SCANCODE_SPACE] && dir[1] >= 0 && SDL_GetTicks() > jump_delay + 500)
+	{
+		dir[1] = -0.4;
+		jump_delay = SDL_GetTicks();
 	}
 
-	if (buttons(SDL_SCANCODE_SPACE, -1))
-		l->pos[1] -= 0.3;
-	if (buttons(SDL_SCANCODE_LSHIFT, -1))
-		l->pos[1] += 0.3;
-	if (buttons(SDL_SCANCODE_RIGHT, -1))
+	down.pos[0] = pos[0];
+	down.pos[1] = pos[1];
+	down.pos[2] = pos[2];
+	down.dir[0] = 0;
+	down.dir[1] = 1;
+	down.dir[2] = 0;
+
+	float dist = 0;
+	float dist_d = 100000;
+	float dist_u = -100000;
+	for (int j = 0; j < l->obj[0].tri_amount; j++)
+	{
+		int color;
+		float tmp;
+		tmp = rt_tri(l->obj[0].tris[j], down, &color, 0);
+		if (tmp > 0.001 && tmp < dist_d)
+			dist_d = tmp;
+		else if (tmp < -0.001 && tmp > dist_u)
+			dist_u = tmp;
+	}
+	if (dist_d > 0 && dist_d != 100000)
+		dist = dist_d;
+	else if (dist_u < 0 && dist_u != -100000)
+		dist = dist_u;
+
+	if (dist > 0)
+	{
+		if (dir[1] < -0.0001)
+			dir[1] += 0.08;
+		if (dist < dir[1])
+			dir[1] = 0;
+		if (dist > 0.5 && dir[1] < 1)
+			dir[1] += 0.04;
+		else if (dist < 0.5)
+			pos[1] += dist - 0.5;
+	}
+
+	if (dist < 0 && dist > -1)
+	{
+		dir[1] = 0;
+		pos[1] += dist - 0.5;
+	}
+
+	pos[1] += dir[1];
+}
+
+void	action_loop(t_window *window, t_level *l, t_bmp *bmp)
+{
+	const Uint8		*keys = SDL_GetKeyboardState(NULL);
+	static float	fall_vector[3] = {0, 0, 0};
+	pthread_t		threads[THREAD_AMOUNT];
+	t_rthread		**thread_data;
+	int				window_horizontal_size;
+	int				i;
+
+	player_movement(fall_vector, l->pos, l, keys);
+
+	if (keys[SDL_SCANCODE_RIGHT])
 		l->look_side += 0.1;
-	if (buttons(SDL_SCANCODE_LEFT, -1))
+	if (keys[SDL_SCANCODE_LEFT])
 		l->look_side -= 0.1;
-	if (buttons(SDL_SCANCODE_UP, -1))
+	if (keys[SDL_SCANCODE_UP])
 		l->look_up += 0.1;
-	if (buttons(SDL_SCANCODE_DOWN, -1))
+	if (keys[SDL_SCANCODE_DOWN])
 		l->look_up -= 0.1;
 
 	if (SDL_LockTexture(window->texture, NULL, (void**)&window->frame_buffer, &window_horizontal_size) != 0)
@@ -118,13 +168,13 @@ void	action_loop(t_window *window, t_level *l, t_bmp *bmp)
 	fill_pixels(window->frame_buffer, PIXEL_GAP);
 
 	/////////////////////bmp
-	for (int y = 0; y < bmp->height; y++)
-	{
-		for (int x = 0; x < bmp->width; x++)
-		{
-			window->frame_buffer[(y * (int)RES_X) + x] = bmp->image[y * bmp->width + x];
-		}
-	}
+	// for (int y = 0; y < bmp->height; y++)
+	// {
+	// 	for (int x = 0; x < bmp->width; x++)
+	// 	{
+	// 		window->frame_buffer[(y * (int)RES_X) + x] = bmp->image[y * bmp->width + x];
+	// 	}
+	// }
 	/////////////////////bmp
 
 	SDL_UnlockTexture(window->texture);
@@ -171,15 +221,13 @@ int			main(int argc, char **argv)
 		{
 			if (event.type == SDL_QUIT || event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
 				return (0);
-			else if (event.key.repeat == 0 && event.type == SDL_KEYDOWN)
-				buttons(event.key.keysym.scancode, 1);
-			else if (event.key.repeat == 0 && event.type == SDL_KEYUP)
-				buttons(event.key.keysym.scancode, 0);
 			else if (event.type == SDL_MOUSEMOTION)
 			{
 				level->look_side += (float)event.motion.xrel / 200;
 				level->look_up -= (float)event.motion.yrel / 200;
 			}
+			else if (event.key.repeat == 0 && event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_N)
+				player_movement((float[3]){0,0,0}, (float[3]){0,0,0}, NULL, NULL);
 		}
 		action_loop(window, level, &bmp);
 		frametime = SDL_GetTicks() - frametime;

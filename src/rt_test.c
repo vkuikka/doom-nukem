@@ -50,25 +50,26 @@ t_level			*rt_test_init_level()
 
 	l->pos[0] = 0;
 	l->pos[1] = 0;
-	l->pos[2] = -10;
+	l->pos[2] = 0;
 	l->look_side = 0;
 	l->look_up = 0.5;
 	l->txtr = NULL;
 
 	// load_obj("level/cube.obj", &l->obj[0]);
+	load_obj("level/island.obj", &l->obj[0]);
 	// load_obj("level/torus.obj", &l->obj[0]);
 	// load_obj("level/monkey.obj", &l->obj[0]);
-	load_obj("level/teapot_decimated.obj", &l->obj[0]);
+	// load_obj("level/teapot_decimated.obj", &l->obj[0]);
 
 	return (l);
 }
 
-float	rt_tri(t_window *window, t_tri t, t_ray ray, int *col)
+float	rt_tri(t_tri t, t_ray ray, int *col, int backface_culling)
 {
 	float	pvec[3];
 	vec_cross(pvec, ray.dir, t.v0v2);
     float det = vec_dot(pvec, t.v0v1); 
-	if (det > 0)
+	if (det > 0 && backface_culling)
 		return 0;
 	float invdet = 1 / det;
 
@@ -162,9 +163,9 @@ void	*rt_test(void *data_pointer)
 				{
 					int color;
 					float dist;
-					if (fov_culling(c, t->level->obj[0].tris[j]))
+					// if (fov_culling(c, t->level->obj[0].tris[j]))
 					{
-						dist = rt_tri(t->window, t->level->obj[0].tris[j], r, &color);
+						dist = rt_tri(t->level->obj[0].tris[j], r, &color, 1);
 						if (dist > 0 &&
 							(dist < t->window->depth_buffer[x + (y * (int)RES_X)] ||
 									t->window->depth_buffer[x + (y * (int)RES_X)] == 0))
