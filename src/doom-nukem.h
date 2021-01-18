@@ -68,6 +68,12 @@ typedef struct			s_vec3
 	float				z;
 }						t_vec3;
 
+typedef struct			s_vec2
+{
+	float				x;
+	float				y;
+}						t_vec2;
+
 typedef struct			s_tri
 {
 	struct s_vert		verts[3];	//vertex coordinates of 3d triangle
