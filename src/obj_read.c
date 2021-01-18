@@ -140,11 +140,10 @@ static void	set_tri(char *str, t_vec3 *verts, t_obj *obj, int i)
 void	load_obj(char *filename, t_obj *obj)
 {
 	char **file;
-
-	file = file2d(filename);
 	int i = 0;
 	int tri_amount = 0;
 
+	file = file2d(filename);
 	while (file[i])
 	{
 		if (!ft_strncmp(file[i], "f ", 2))
@@ -168,6 +167,9 @@ void	load_obj(char *filename, t_obj *obj)
 			set_tri(file[i], verts, obj, j);
 			j++;
 		}
+		free(file[i]);
 		i++;
 	}
+	free(file);
+	free(verts);
 }

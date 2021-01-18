@@ -320,8 +320,8 @@ int			main(int argc, char **argv)
 		action_loop(window, level, &bmp, culled);
 		if (enable_culling)
 		{
-			free(&culled->tris);
-			free(&culled);
+			free(culled->tris);
+			free(culled);
 			level->obj = tmp;
 		}
 
