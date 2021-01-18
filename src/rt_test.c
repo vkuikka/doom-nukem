@@ -97,10 +97,29 @@ float	rt_tri(t_tri t, t_ray ray, int *col, int backface_culling)
 	return dist;
 }
 
-int		fov_culling(t_ray c[2], t_tri tri)
+int		fov_culling(t_ray c[3], t_tri tri)
 {
 	float	end[3];
 	int		side;
+
+
+	end[0] = tri.verts[0].pos[0] - c[0].pos[0];
+	end[1] = tri.verts[0].pos[1] - c[0].pos[1];
+	end[2] = tri.verts[0].pos[2] - c[0].pos[2];
+	if (vec_dot(end, c[2].dir) <= 0)
+	{
+		end[0] = tri.verts[1].pos[0] - c[0].pos[0];
+		end[1] = tri.verts[1].pos[1] - c[0].pos[1];
+		end[2] = tri.verts[1].pos[2] - c[0].pos[2];
+		if (vec_dot(end, c[2].dir) <= 0)
+		{
+			end[0] = tri.verts[2].pos[0] - c[0].pos[0];
+			end[1] = tri.verts[2].pos[1] - c[0].pos[1];
+			end[2] = tri.verts[2].pos[2] - c[0].pos[2];
+			if (vec_dot(end, c[2].dir) <= 0)
+				return (0);
+		}
+	}
 
 	end[0] = tri.verts[0].pos[0] - c[0].pos[0];
 	end[1] = tri.verts[0].pos[1] - c[0].pos[1];

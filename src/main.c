@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/17 12:26:59 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/18 17:47:45 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -244,7 +244,7 @@ int		get_fps(void)
 t_obj		*culling(t_level *level, int *visible)
 {
 	float		angle = level->look_side;
-	t_ray		c[2];
+	t_ray		c[3];
 
 	c[0].pos[0] = level->pos[0];
 	c[0].pos[1] = level->pos[1];
@@ -254,6 +254,10 @@ t_obj		*culling(t_level *level, int *visible)
 	c[1].pos[1] = level->pos[1];
 	c[1].pos[2] = level->pos[2];
 	vec_rot(c[1].dir, (float[3]){0, 0, 1}, angle - ((M_PI / 2) - 0.5));
+	c[2].pos[0] = level->pos[0];
+	c[2].pos[1] = level->pos[1];
+	c[2].pos[2] = level->pos[2];
+	vec_rot(c[2].dir, (float[3]){0, 0, 1}, angle);
 
 	t_obj *new = (t_obj*)malloc(sizeof(t_obj));
 
