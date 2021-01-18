@@ -48,19 +48,19 @@ static void	set_vert(char **file, int i, t_vec3 *vert)
 		j++;
 	}
 	j++;
-	vert->x = atof(&file[i][j]);
+	vert->x = ft_atof(&file[i][j]);
 	while (file[i][j] != ' ')
 	{
 		j++;
 	}
 	j++;
-	vert->y = atof(&file[i][j]);
+	vert->y = ft_atof(&file[i][j]);
 	while (file[i][j] != ' ')
 	{
 		j++;
 	}
 	j++;
-	vert->z = atof(&file[i][j]);
+	vert->z = ft_atof(&file[i][j]);
 }
 
 static t_vec3	*load_verts(char **file)

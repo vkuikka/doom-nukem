@@ -29,6 +29,7 @@ int					*ft_arrdup(const int *src, const int len);
 void				ft_quicksort(int *nums, int index, int len);
 int					ft_atoi_base(const char *nb, int base);
 int					ft_atoi(const char *str);
+double				ft_atof(const char *str);
 char				*ft_itoa_base(long num, int base, int lowercase);
 int					*ft_strsplit_int(char *s, char c);
 int					ft_abs(int num);
