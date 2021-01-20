@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/18 17:47:45 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/20 02:21:37 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -147,10 +147,10 @@ void	player_movement(float dir[3], float pos[3], t_level *l, const Uint8 *keys)
 			dir[1] += 0.08;
 		if (dist < dir[1])
 			dir[1] = 0;
-		if (dist > 0.5 && dir[1] < 1)
+		if (dist > 1 && dir[1] < 1.5)
 			dir[1] += 0.04;
-		else if (dist < 0.5)
-			pos[1] += dist - 0.5;
+		else if (dist < 1)
+			pos[1] += dist - 1;
 	}
 	else if (dist < 0 && dist > -1)
 	{

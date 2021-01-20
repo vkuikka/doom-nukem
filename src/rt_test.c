@@ -56,7 +56,8 @@ t_level			*rt_test_init_level()
 	l->txtr = NULL;
 
 	// load_obj("level/cube.obj", &l->obj[0]);
-	load_obj("level/island.obj", &l->obj[0]);
+	// load_obj("level/island.obj", &l->obj[0]);
+	load_obj("level/cache.obj", &l->obj[0]);
 	// load_obj("level/torus.obj", &l->obj[0]);
 	// load_obj("level/monkey.obj", &l->obj[0]);
 	// load_obj("level/teapot_decimated.obj", &l->obj[0]);
@@ -201,7 +202,7 @@ void	*rt_test(void *data_pointer)
 				{
 					int color;
 					float dist;
-					dist = rt_tri(t->level->obj[0].tris[j], r, &color, 1);
+					dist = rt_tri(t->level->obj[0].tris[j], r, &color, 0);
 					if (dist > 0 &&
 						(dist < t->window->depth_buffer[x + (y * (int)RES_X)] ||
 								t->window->depth_buffer[x + (y * (int)RES_X)] == 0))
