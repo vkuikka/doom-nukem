@@ -58,6 +58,7 @@ t_level			*rt_test_init_level()
 	// load_obj("level/cube.obj", &l->obj[0]);
 	// load_obj("level/island.obj", &l->obj[0]);
 	load_obj("level/cache.obj", &l->obj[0]);
+	// load_obj("level/one_tri.obj", &l->obj[0]);
 	// load_obj("level/torus.obj", &l->obj[0]);
 	// load_obj("level/monkey.obj", &l->obj[0]);
 	// load_obj("level/teapot_decimated.obj", &l->obj[0]);
@@ -65,14 +66,11 @@ t_level			*rt_test_init_level()
 	return (l);
 }
 
-float	rt_tri(t_tri t, t_ray ray, int *col, int backface_culling)
+float	rt_tri(t_tri t, t_ray ray, int *col)
 {
 	float	pvec[3];
 	vec_cross(pvec, ray.dir, t.v0v2);
-    float det = vec_dot(pvec, t.v0v1); 
-	if (det > 0 && backface_culling)
-		return 0;
-	float invdet = 1 / det;
+	float invdet = 1 / vec_dot(pvec, t.v0v1); 
 
 	float	tvec[3];
 	vec_sub(tvec, ray.pos, t.verts[0].pos);
@@ -88,84 +86,11 @@ float	rt_tri(t_tri t, t_ray ray, int *col, int backface_culling)
 		return 0;
     float dist = vec_dot(qvec, t.v0v2) * invdet;
 
-	// return (((int)(u * 255) & 0xff) << 16) + (((int)(v * 255) & 0xff) << 8) + (((int)((1-u-v) * 255) & 0xff));
-
 	*col =	(((int)(u * 255) & 0xff) << 24) +
 			(((int)(v * 255) & 0xff) << 16) +
 			(((int)((1-u-v) * 255) & 0xff) << 8) + 0xff;
 // (((int)((1-u-v) * 255) & 0xff) << 8) + (0xff - (0xff * (dist / 10)));	//smooth transition to limited draw distance
-
 	return dist;
-}
-
-int		fov_culling(t_ray c[3], t_tri tri)
-{
-	float	end[3];
-	int		side;
-
-
-	end[0] = tri.verts[0].pos[0] - c[0].pos[0];
-	end[1] = tri.verts[0].pos[1] - c[0].pos[1];
-	end[2] = tri.verts[0].pos[2] - c[0].pos[2];
-	if (vec_dot(end, c[2].dir) <= 0)
-	{
-		end[0] = tri.verts[1].pos[0] - c[0].pos[0];
-		end[1] = tri.verts[1].pos[1] - c[0].pos[1];
-		end[2] = tri.verts[1].pos[2] - c[0].pos[2];
-		if (vec_dot(end, c[2].dir) <= 0)
-		{
-			end[0] = tri.verts[2].pos[0] - c[0].pos[0];
-			end[1] = tri.verts[2].pos[1] - c[0].pos[1];
-			end[2] = tri.verts[2].pos[2] - c[0].pos[2];
-			if (vec_dot(end, c[2].dir) <= 0)
-				return (0);
-		}
-	}
-
-	end[0] = tri.verts[0].pos[0] - c[0].pos[0];
-	end[1] = tri.verts[0].pos[1] - c[0].pos[1];
-	end[2] = tri.verts[0].pos[2] - c[0].pos[2];
-	if (vec_dot(end, c[0].dir) <= 0)
-		side = 0;
-	else if (vec_dot(end, c[1].dir) <= 0)
-		side = 1;
-	else
-		return (1);
-	end[0] = tri.verts[1].pos[0] - c[0].pos[0];
-	end[1] = tri.verts[1].pos[1] - c[0].pos[1];
-	end[2] = tri.verts[1].pos[2] - c[0].pos[2];
-	if (vec_dot(end, c[0].dir) <= 0)
-	{
-		if (side == 1)
-			return (1);
-		side = 0;
-	}
-	else if (vec_dot(end, c[1].dir) <= 0)
-	{
-		if (side == 0)
-			return (1);
-		side = 1;
-	}
-	else
-		return (1);
-	end[0] = tri.verts[2].pos[0] - c[0].pos[0];
-	end[1] = tri.verts[2].pos[1] - c[0].pos[1];
-	end[2] = tri.verts[2].pos[2] - c[0].pos[2];
-	if (vec_dot(end, c[0].dir) <= 0)
-	{
-		if (side == 1)
-			return (1);
-		side = 0;
-	}
-	else if (vec_dot(end, c[1].dir) <= 0)
-	{
-		if (side == 0)
-			return (1);
-		side = 1;
-	}
-	else
-		return (1);
-	return (0);
 }
 
 void	*rt_test(void *data_pointer)
@@ -202,7 +127,7 @@ void	*rt_test(void *data_pointer)
 				{
 					int color;
 					float dist;
-					dist = rt_tri(t->level->obj[0].tris[j], r, &color, 0);
+					dist = rt_tri(t->level->obj[0].tris[j], r, &color);
 					if (dist > 0 &&
 						(dist < t->window->depth_buffer[x + (y * (int)RES_X)] ||
 								t->window->depth_buffer[x + (y * (int)RES_X)] == 0))

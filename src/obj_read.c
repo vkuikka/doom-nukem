@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/01/15 00:19:06 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/20 19:19:07 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -233,13 +233,12 @@ void	load_obj(char *filename, t_obj *obj)
 	if (!(obj->distance_culling_mask = (int*)malloc(sizeof(int) * tri_amount)))
 		ft_error("memory allocation failed\n");
 	ft_memset(obj->distance_culling_mask, 0, tri_amount * sizeof(int));
-	obj->distance_culling_mask[145] = 1;
-	obj->distance_culling_mask[1] = 1;
+	if (!(obj->backface_culling_mask = (int*)malloc(sizeof(int) * tri_amount)))
+		ft_error("memory allocation failed\n");
+	ft_memset(obj->backface_culling_mask, 1, tri_amount * sizeof(int));
 	obj->tri_amount = tri_amount;
-
 	t_vec3 *verts = load_verts(file);
 	t_vec2 *uvs = load_uvs(file);
-
 	i = 0;
 	int j = 0;
 	while (file[i])
@@ -255,4 +254,11 @@ void	load_obj(char *filename, t_obj *obj)
 	free(file);
 	free(verts);
 	free(uvs);
+	for (int i = 0; i < tri_amount; i++)
+	{
+		float y = obj->tris[i].verts[0].pos[1];
+		if (obj->tris[i].verts[1].pos[1] == y && 
+			obj->tris[i].verts[2].pos[1] == y)
+			obj->distance_culling_mask[i] = 1;
+	}
 }

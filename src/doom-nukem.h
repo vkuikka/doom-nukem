@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/20 02:23:19 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/20 19:05:40 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,6 +85,7 @@ typedef struct			s_obj
 {
 	struct s_tri		*tris;		//array of triangles that make the object
 	int					tri_amount;	//amount of triangles
+	int					*backface_culling_mask;
 	int					*distance_culling_mask;
 }						t_obj;
 
@@ -95,7 +96,7 @@ typedef struct			s_level
 	// float				dir[3];		//vector from player position to indicate ray direction in the middle of screen
 	float				look_side;		//using angle instead of direction vector for testing
 	float				look_up;
-	int					***txtr;	//pointer to the texture as a 2d array of pixel colors
+	int					*txtr;		//pointer to the texture as a 2d array of pixel colors
 }						t_level;
 
 typedef struct			s_rthread
@@ -155,11 +156,13 @@ void		init_window(t_window **window);
 void		draw_line(int line[4], t_window *window);
 
 void		*rt_test(void *t);
-float		rt_tri(t_tri t, t_ray ray, int *col, int backface_culling);
+float		rt_tri(t_tri t, t_ray ray, int *col);
 t_level		*rt_test_init_level();
+
 void		fill_pixels(unsigned *grid, int pixel_gap);
 void		load_obj(char *filename, t_obj *obj);
 t_bmp		bmp_read(char *str);
-int			fov_culling(t_ray c[2], t_tri tri);
+
+t_obj		*culling(t_level *level, int *visible);
 
 #endif
