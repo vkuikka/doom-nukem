@@ -85,6 +85,7 @@ typedef struct			s_obj
 {
 	struct s_tri		*tris;		//array of triangles that make the object
 	int					tri_amount;	//amount of triangles
+	int					*distance_culling_mask;
 }						t_obj;
 
 typedef struct			s_level

@@ -241,6 +241,27 @@ int		get_fps(void)
 	return fps;
 }
 
+int			distance_culling(t_obj *obj, int j, float player[3])
+{
+	int max = 20;
+	int smallest = 0;
+	int n;
+	t_tri tri;
+
+	if (obj->distance_culling_mask[j])
+		return (1);
+	tri = obj->tris[j];
+	for (int i = 0; i < 3; i++)
+	{
+		float v[3];
+		vec_sub(v, tri.verts[i].pos, player);
+		n = vec_length(v);
+		if (n > smallest)
+			smallest = n;
+	}
+	return ((smallest < max));
+}
+
 t_obj		*culling(t_level *level, int *visible)
 {
 	float		angle = level->look_side;
@@ -263,7 +284,7 @@ t_obj		*culling(t_level *level, int *visible)
 
 	for (int j = 0; j < level->obj->tri_amount; j++)
 	{
-		if (fov_culling(c, level->obj->tris[j]))
+		if (fov_culling(c, level->obj->tris[j]) && distance_culling(level->obj, j, level->pos))
 		{
 			(*visible)++;
 		}
@@ -273,7 +294,7 @@ t_obj		*culling(t_level *level, int *visible)
 	int k = 0;
 	for (int j = 0; j < level->obj->tri_amount; j++)
 	{
-		if (fov_culling(c, level->obj->tris[j]))
+		if (fov_culling(c, level->obj->tris[j]) && distance_culling(level->obj, j, level->pos))
 		{
 			new->tris[k] = level->obj->tris[j];
 			k++;
