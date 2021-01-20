@@ -81,8 +81,12 @@ float	rt_tri(t_tri t, t_ray ray, int *col)
 	float qvec[3];
 	vec_cross(qvec, tvec, t.v0v1);
 	float v = vec_dot(ray.dir, qvec) * invdet;
-	// if (v < 0 || v > 1) //quad hack
-	if (v < 0 || u + v > 1)
+	if (t.isquad)
+	{
+		if (v < 0 || v > 1) //quad hack
+			return 0;
+	}
+	else if (v < 0 || u + v > 1)
 		return 0;
     float dist = vec_dot(qvec, t.v0v2) * invdet;
 

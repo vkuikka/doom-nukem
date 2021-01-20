@@ -246,6 +246,7 @@ void	load_obj(char *filename, t_obj *obj)
 		if (!ft_strncmp(file[i], "f ", 2))
 		{
 			set_tri(file[i], verts, uvs, obj, j);
+			obj->tris[j].isquad = 1;
 			j++;
 		}
 		free(file[i]);
@@ -257,7 +258,7 @@ void	load_obj(char *filename, t_obj *obj)
 	for (int i = 0; i < tri_amount; i++)
 	{
 		float y = obj->tris[i].verts[0].pos[1];
-		if (obj->tris[i].verts[1].pos[1] == y && 
+		if (obj->tris[i].verts[1].pos[1] == y &&
 			obj->tris[i].verts[2].pos[1] == y)
 			obj->distance_culling_mask[i] = 1;
 	}
