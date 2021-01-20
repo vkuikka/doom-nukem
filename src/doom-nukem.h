@@ -149,8 +149,11 @@ void		vec_normalize_two(float vec1[3], float vec2[3]);	//longest vector length w
 float		vec_dot(float ve1[3], float ve2[3]);				//dot product of two vectors
 float		vec_length(float vec[3]);
 void		vec_sub(float res[3], float ve1[3], float ve2[3]);
+void		vec_add(float res[3], float ve1[3], float ve2[3]);
 void		vec_cross(float res[3], float u[3], float v[3]);
 void		vec_rot(float res[3], float ve1[3], float ang);		//rotates atound y axis
+int			vec_cmp(float ve1[3], float ve2[3]);
+void		vec_avg(float res[3], float ve1[3], float ve2[3]);
 
 void		init_window(t_window **window);
 

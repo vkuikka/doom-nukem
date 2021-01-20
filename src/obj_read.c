@@ -214,6 +214,76 @@ static void	set_tri(char *str, t_vec3 *verts, t_vec2 *uvs, t_obj *obj, int i)
 	vec_sub(obj->tris[i].v0v1, obj->tris[i].verts[2].pos, obj->tris[i].verts[0].pos);
 }
 
+int		is_mirror(t_tri a, t_tri b)
+{
+	int i = 0;
+	int not_same;
+	float avg[3];
+	float new[3];
+
+	while (i < 3)
+	{
+		if (!vec_cmp(a.verts[i].pos, b.verts[i].pos))
+			not_same = i;
+		i++;
+	}
+	int x = 0;
+	int y = 1;
+	if (not_same == 0)
+	{
+		x++;
+		y++;
+	}
+	else if (not_same == 1)
+		y++;
+	vec_avg(avg, a.verts[x].pos, a.verts[y].pos);
+	vec_add(new, a.verts[not_same].pos, avg);
+	return (vec_cmp(new, b.verts[not_same].pos));
+}
+
+int		has_2_shared_vertices(t_tri a, t_tri b)
+{
+	int	shared_count;
+	int	i;
+
+	i = 0;
+	shared_count = 0;
+	while (i < 3)
+	{
+		if (vec_cmp(a.verts[i].pos, b.verts[i].pos))
+			shared_count++;
+		i++;
+	}
+	return (shared_count == 2);
+}
+
+void	find_quads(t_obj *obj)
+{
+	int in = 0;
+	for (int i = 0; i < obj->tri_amount; i++)
+	{
+		for (int j = 0; j < obj->tri_amount; j++)
+		{
+			if (i == j || obj->tris[i].isquad || obj->tris[j].isquad)
+				continue;
+			if (has_2_shared_vertices(obj->tris[i], obj->tris[j]) && is_mirror(obj->tris[i], obj->tris[j]))
+			{
+				in++;
+				//set_mirror_dir();
+				obj->tris[i].isquad = 1;
+				//free(obj->tris[j]); //delete other part of quad //cant delete only one // maybe calloc?
+				obj->tri_amount--;
+				for (int x = j; x < obj->tri_amount; x++) //move address of everythign left
+					obj->tris[x] = obj->tris[x + 1];
+				i = 0;
+				j = 0;
+			}
+		}
+	}
+	printf("quads = %d\n", in);
+	//realloc(obj->tris, sizeof(t_tri) * obj->tri_amount)
+}
+
 void	load_obj(char *filename, t_obj *obj)
 {
 	char **file;
@@ -227,7 +297,7 @@ void	load_obj(char *filename, t_obj *obj)
 			tri_amount++;
 		i++;
 	}
-	printf("faces = %d\n", tri_amount);
+	printf("faces before optimized = %d\n", tri_amount);
 	if (!(obj->tris = (t_tri *)malloc(sizeof(t_tri) * tri_amount)))
 		ft_error("memory allocation failed\n");
 	if (!(obj->distance_culling_mask = (int*)malloc(sizeof(int) * tri_amount)))
@@ -246,7 +316,7 @@ void	load_obj(char *filename, t_obj *obj)
 		if (!ft_strncmp(file[i], "f ", 2))
 		{
 			set_tri(file[i], verts, uvs, obj, j);
-			obj->tris[j].isquad = 1;
+			obj->tris[j].isquad = 0;
 			j++;
 		}
 		free(file[i]);
@@ -262,4 +332,6 @@ void	load_obj(char *filename, t_obj *obj)
 			obj->tris[i].verts[2].pos[1] == y)
 			obj->distance_culling_mask[i] = 1;
 	}
+	find_quads(obj);
+	printf("faces after optimized = %d\n", obj->tri_amount);
 }
