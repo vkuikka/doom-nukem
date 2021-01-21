@@ -12,28 +12,65 @@
 
 #include "doom-nukem.h"
 
-void	set_mirror_dir(t_tri *a, int not_shared[2])
+void	set_mirror_dir(t_tri *a, int not_shared_vertex_index)
 {
 	float tmp[3];
 
-	if (not_shared[0] == 1)
+	if (not_shared_vertex_index == 1)
 	{
 		vec_copy(tmp, a->verts[0].pos);
 		vec_copy(a->verts[0].pos, a->verts[1].pos);
 		vec_copy(a->verts[1].pos, a->verts[2].pos);
 		vec_copy(a->verts[2].pos, tmp);
 	}
-	else if (not_shared[0] == 2)
+	else if (not_shared_vertex_index == 2)
 	{
 		vec_copy(tmp, a->verts[0].pos);
 		vec_copy(a->verts[0].pos, a->verts[2].pos);
 		vec_copy(a->verts[2].pos, a->verts[1].pos);
 		vec_copy(a->verts[1].pos, tmp);
 	}
+	vec_sub(a->v0v2, a->verts[1].pos, a->verts[0].pos);
+	vec_sub(a->v0v1, a->verts[2].pos, a->verts[0].pos);
 }
 
-int		is_mirror(t_tri a, t_tri b, int not_shared[2])
+int		has_2_shared_vertices(t_tri a, t_tri b, int *not_shared)
 {
+	int	shared_count;
+	int	found;
+	int	i;
+	int	j;
+
+	shared_count = 0;
+	(*not_shared) = 2;
+	i = 0;
+	while (i < 3)
+	{
+		found = 0;
+		j = 0;
+		while (j < 3)
+		{
+			if (vec_cmp(a.verts[i].pos, b.verts[j].pos))
+			{
+				found = 1;
+				shared_count++;
+			}
+			j++;
+		}
+		if (!found)
+			(*not_shared) = i;
+		i++;
+	}
+	return (shared_count == 2);
+}
+
+int		is_mirror(t_tri a, t_tri b, int *not_shared_vertex_index)
+{
+	int not_shared[2];
+
+	if (!has_2_shared_vertices(a, b, &not_shared[0]))
+		return (0);
+	has_2_shared_vertices(b, a, &not_shared[1]);
 
 	int x = 0;
 	int y = 1;
@@ -54,36 +91,13 @@ int		is_mirror(t_tri a, t_tri b, int not_shared[2])
 	float res[3];
 	vec_avg(avg, shared1, shared2);
 	vec_add(res, avg, avg);
+	(*not_shared_vertex_index) = not_shared[0];
 	return (vec_cmp(res, nshared));
-}
-
-int		has_2_shared_vertices(t_tri a, t_tri b, int *not_shared)
-{
-	int	shared_count;
-	int found;
-
-	shared_count = 0;
-	(*not_shared) = 2;
-	for (int i = 0; i < 3; i++)
-	{
-		found = 0;
-		for (int j = 0; j < 3; j++)
-		{
-			if (vec_cmp(a.verts[i].pos, b.verts[j].pos))
-			{
-				found = 1;
-				shared_count++;
-			}
-		}
-		if (!found)
-			(*not_shared) = i;
-	}
-	return (shared_count == 2);
 }
 
 void	find_quads(t_obj *obj)
 {
-	int quad = 0;
+	int quads = 0;
 
 	for (int i = 0; i < obj->tri_amount; i++)
 	{
@@ -91,28 +105,22 @@ void	find_quads(t_obj *obj)
 		{
 			if (i != j && !obj->tris[i].isquad && !obj->tris[j].isquad)
 			{
-				int not_shared[2];
-				if (has_2_shared_vertices(obj->tris[i], obj->tris[j], &not_shared[0]))
+				int not_shared_vertex_index;;
+				if (is_mirror(obj->tris[i], obj->tris[j], &not_shared_vertex_index))
 				{
-					has_2_shared_vertices(obj->tris[j], obj->tris[i], &not_shared[1]);
-					if (is_mirror(obj->tris[i], obj->tris[j], not_shared))
-					{
-						quad++;
-						set_mirror_dir(&obj->tris[i], not_shared);
-						vec_sub(obj->tris[i].v0v2, obj->tris[i].verts[1].pos, obj->tris[i].verts[0].pos);
-						vec_sub(obj->tris[i].v0v1, obj->tris[i].verts[2].pos, obj->tris[i].verts[0].pos);
-						obj->tris[i].isquad = 1;
-						//free(obj->tris[j]); //delete other part of quad //cant delete only one // maybe calloc?
-						obj->tri_amount--;
-						for (int x = j; x < obj->tri_amount; x++) //move address of everythign left
-							obj->tris[x] = obj->tris[x + 1];
-						i = 0;
-						j = 0;
-					}
+					set_mirror_dir(&obj->tris[i], not_shared_vertex_index);
+					obj->tris[i].isquad = 1;
+					obj->tri_amount--;
+					for (int x = j; x < obj->tri_amount; x++) //move address of everythign left
+						obj->tris[x] = obj->tris[x + 1];
+					i = 0;
+					j = 0;
+					quads++;
 				}
 			}
 		}
 	}
-	printf("quads = %d\n", quad);
-	//realloc(obj->tris, sizeof(t_tri) * obj->tri_amount)
+	if (!(obj->tris = (t_tri*)realloc(obj->tris, sizeof(t_tri) * obj->tri_amount)))
+		ft_error("memory allocation failed\n");
+	printf("quads = %d\n", quads);
 }
