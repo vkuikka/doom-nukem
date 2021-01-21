@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/20 17:50:56 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/20 19:17:21 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/21 20:26:12 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,15 +73,15 @@ static int		fov_culling(t_ray c[3], t_tri tri)
 static int		distance_culling(t_tri tri, float player[3])
 {
 	int max = 20;
-	int smallest = 0;
-	int n;
+	float smallest = 0;
+	float n;
 
 	for (int i = 0; i < 3; i++)
 	{
 		float v[3];
 		vec_sub(v, tri.verts[i].pos, player);
 		n = vec_length(v);
-		if (n > smallest)
+		if (n < smallest)
 			smallest = n;
 	}
 	return ((smallest < max));

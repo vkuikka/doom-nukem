@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/21 17:32:09 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/21 19:38:58 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/21 20:31:18 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,9 +79,12 @@ int		find_color(float u, float v, t_tri t, t_ray r, float dist, t_bmp *img)
 		x + (y * img->width) >= 0)
 		col = img->image[x + (y * img->width)];
 
+	if (dist < 20)
+	{
 	col =	(((int)(u * 255) & 0xff) << 24) +
 			(((int)(v * 255) & 0xff) << 16) +
-			(((int)((1-u-v) * 255) & 0xff) << 8) + 0xff;
-// (((int)((1-u-v) * 255) & 0xff) << 8) + (0xff - (0xff * (dist / 10)));	//smooth transition to limited draw distance
+			// (((int)((1-u-v) * 255) & 0xff) << 8) + 0xff;
+(((int)((1-u-v) * 255) & 0xff) << 8) + fabs(0xff - (0xff * (float)(dist / 20)));	//smooth transition to limited draw distance
+	}
 	return (col);
 }
