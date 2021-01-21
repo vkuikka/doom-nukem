@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/21 17:32:09 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/21 20:31:18 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/21 20:36:38 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,16 +75,18 @@ int		find_color(float u, float v, t_tri t, t_ray r, float dist, t_bmp *img)
 	int x = v0v2[0];
 	int y = img->height - v0v1[1];
 
-	if (x + (y * img->width) < img->width * img->height &&
-		x + (y * img->width) >= 0)
-		col = img->image[x + (y * img->width)];
-
+	col = 0;
 	if (dist < 20)
 	{
-	col =	(((int)(u * 255) & 0xff) << 24) +
-			(((int)(v * 255) & 0xff) << 16) +
-			// (((int)((1-u-v) * 255) & 0xff) << 8) + 0xff;
-(((int)((1-u-v) * 255) & 0xff) << 8) + fabs(0xff - (0xff * (float)(dist / 20)));	//smooth transition to limited draw distance
+		if (x + (y * img->width) < img->width * img->height &&
+			x + (y * img->width) >= 0)
+			col = img->image[x + (y * img->width)];
+
+		col = (((int)(u * 255) & 0xff) << 24) +
+				(((int)(v * 255) & 0xff) << 16) +
+				(((int)((1-u-v) * 255) & 0xff) << 8) +
+				fabs(0xff - (0xff * (float)(dist / 20)));	//smooth transition to limited draw distance
+				// 0xff;
 	}
 	return (col);
 }
