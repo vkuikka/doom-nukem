@@ -169,5 +169,6 @@ void		load_obj(char *filename, t_obj *obj);
 t_bmp		bmp_read(char *str);
 
 t_obj		*culling(t_level *level, int *visible);
+void		find_quads(t_obj *obj);
 
 #endif
