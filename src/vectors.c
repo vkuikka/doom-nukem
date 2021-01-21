@@ -64,11 +64,11 @@ float		vec_dot(float ve1[3], float ve2[3])
 
 int			vec_cmp(float ve1[3], float ve2[3])
 {
-	if (ve1[0] == ve2[0])
+	if (ve1[0] != ve2[0])
 		return (0);
-	if (ve1[1] == ve2[1])
+	if (ve1[1] != ve2[1])
 		return (0);
-	if (ve1[2] == ve2[2])
+	if (ve1[2] != ve2[2])
 		return (0);
 	return (1);
 }
@@ -85,6 +85,13 @@ void		vec_add(float res[3], float ve1[3], float ve2[3])
 	res[0] = ve1[0] + ve2[0];
 	res[1] = ve1[1] + ve2[1];
 	res[2] = ve1[2] + ve2[2];
+}
+
+void		vec_copy(float res[3], float ve[3])
+{
+	res[0] = ve[0];
+	res[1] = ve[1];
+	res[2] = ve[2];
 }
 
 void		vec_sub(float res[3], float ve1[3], float ve2[3])

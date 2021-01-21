@@ -214,73 +214,107 @@ static void	set_tri(char *str, t_vec3 *verts, t_vec2 *uvs, t_obj *obj, int i)
 	vec_sub(obj->tris[i].v0v1, obj->tris[i].verts[2].pos, obj->tris[i].verts[0].pos);
 }
 
-int		is_mirror(t_tri a, t_tri b)
+void	set_mirror_dir(t_tri *a, int not_shared[2])
 {
-	int i = 0;
-	int not_same;
-	float avg[3];
-	float new[3];
+	float tmp[3];
+	printf("dir = %d\n", not_shared[0]);
 
-	while (i < 3)
+	/*if (not_shared[0] == 2)
 	{
-		if (!vec_cmp(a.verts[i].pos, b.verts[i].pos))
-			not_same = i;
-		i++;
+		vec_copy(tmp, a->verts[0].pos);
+		vec_copy(a->verts[0].pos, a->verts[1].pos);
+		vec_copy(a->verts[1].pos, a->verts[2].pos);
+		vec_copy(a->verts[2].pos, tmp);
+	}*/
+	//else if (not_shared[0] == 1)
+	{
+		vec_copy(tmp, a->verts[0].pos);
+		vec_copy(a->verts[0].pos, a->verts[2].pos);
+		vec_copy(a->verts[2].pos, a->verts[1].pos);
+		vec_copy(a->verts[1].pos, tmp);
 	}
+}
+
+int		is_mirror(t_tri a, t_tri b, int not_shared[2])
+{
+
 	int x = 0;
 	int y = 1;
-	if (not_same == 0)
+	if (not_shared[0] == 0)
 	{
 		x++;
 		y++;
 	}
-	else if (not_same == 1)
+	else if (not_shared[0] == 1)
 		y++;
-	vec_avg(avg, a.verts[x].pos, a.verts[y].pos);
-	vec_add(new, a.verts[not_same].pos, avg);
-	return (vec_cmp(new, b.verts[not_same].pos));
+	float shared1[3];
+	float shared2[3];
+	float nshared[3];
+	vec_sub(shared1, a.verts[x].pos, a.verts[not_shared[0]].pos);
+	vec_sub(shared2, a.verts[y].pos, a.verts[not_shared[0]].pos);
+	vec_sub(nshared, b.verts[not_shared[1]].pos, a.verts[not_shared[0]].pos);
+	float avg[3];
+	float res[3];
+	vec_avg(avg, shared1, shared2);
+	vec_add(res, avg, avg);
+	return (vec_cmp(res, nshared));
 }
 
-int		has_2_shared_vertices(t_tri a, t_tri b)
+int		has_2_shared_vertices(t_tri a, t_tri b, int *not_shared)
 {
 	int	shared_count;
-	int	i;
+	int found;
 
-	i = 0;
 	shared_count = 0;
-	while (i < 3)
+	(*not_shared) = 2;
+	for (int i = 0; i < 3; i++)
 	{
-		if (vec_cmp(a.verts[i].pos, b.verts[i].pos))
-			shared_count++;
-		i++;
+		found = 0;
+		for (int j = 0; j < 3; j++)
+		{
+			if (vec_cmp(a.verts[i].pos, b.verts[j].pos))
+			{
+				found = 1;
+				shared_count++;
+			}
+		}
+		if (!found)
+			(*not_shared) = i;
 	}
 	return (shared_count == 2);
 }
 
 void	find_quads(t_obj *obj)
 {
-	int in = 0;
+	int quad = 0;
+
 	for (int i = 0; i < obj->tri_amount; i++)
 	{
 		for (int j = 0; j < obj->tri_amount; j++)
 		{
-			if (i == j || obj->tris[i].isquad || obj->tris[j].isquad)
-				continue;
-			if (has_2_shared_vertices(obj->tris[i], obj->tris[j]) && is_mirror(obj->tris[i], obj->tris[j]))
+			if (i != j && !obj->tris[i].isquad && !obj->tris[j].isquad)
 			{
-				in++;
-				//set_mirror_dir();
-				obj->tris[i].isquad = 1;
-				//free(obj->tris[j]); //delete other part of quad //cant delete only one // maybe calloc?
-				obj->tri_amount--;
-				for (int x = j; x < obj->tri_amount; x++) //move address of everythign left
-					obj->tris[x] = obj->tris[x + 1];
-				i = 0;
-				j = 0;
+				int not_shared[2];
+				if (has_2_shared_vertices(obj->tris[i], obj->tris[j], &not_shared[0]))
+				{
+					has_2_shared_vertices(obj->tris[j], obj->tris[i], &not_shared[1]);
+					if (is_mirror(obj->tris[i], obj->tris[j], not_shared))
+					{
+						quad++;
+						set_mirror_dir(&obj->tris[i], not_shared);
+						obj->tris[i].isquad = 1;
+						//free(obj->tris[j]); //delete other part of quad //cant delete only one // maybe calloc?
+						obj->tri_amount--;
+						for (int x = j; x < obj->tri_amount; x++) //move address of everythign left
+							obj->tris[x] = obj->tris[x + 1];
+						i = 0;
+						j = 0;
+					}
+				}
 			}
 		}
 	}
-	printf("quads = %d\n", in);
+	printf("quads = %d\n", quad);
 	//realloc(obj->tris, sizeof(t_tri) * obj->tri_amount)
 }
 
