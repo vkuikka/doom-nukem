@@ -73,7 +73,7 @@ static int		fov_culling(t_ray c[3], t_tri tri)
 static int		distance_culling(t_tri tri, float player[3])
 {
 	int max = 20;
-	float smallest = 0;
+	float smallest = 9999999;
 	float n;
 
 	for (int i = 0; i < 3; i++)
