@@ -217,16 +217,15 @@ static void	set_tri(char *str, t_vec3 *verts, t_vec2 *uvs, t_obj *obj, int i)
 void	set_mirror_dir(t_tri *a, int not_shared[2])
 {
 	float tmp[3];
-	printf("dir = %d\n", not_shared[0]);
 
-	/*if (not_shared[0] == 2)
+	if (not_shared[0] == 1)
 	{
 		vec_copy(tmp, a->verts[0].pos);
 		vec_copy(a->verts[0].pos, a->verts[1].pos);
 		vec_copy(a->verts[1].pos, a->verts[2].pos);
 		vec_copy(a->verts[2].pos, tmp);
-	}*/
-	//else if (not_shared[0] == 1)
+	}
+	else if (not_shared[0] == 2)
 	{
 		vec_copy(tmp, a->verts[0].pos);
 		vec_copy(a->verts[0].pos, a->verts[2].pos);
@@ -302,6 +301,8 @@ void	find_quads(t_obj *obj)
 					{
 						quad++;
 						set_mirror_dir(&obj->tris[i], not_shared);
+						vec_sub(obj->tris[i].v0v2, obj->tris[i].verts[1].pos, obj->tris[i].verts[0].pos);
+						vec_sub(obj->tris[i].v0v1, obj->tris[i].verts[2].pos, obj->tris[i].verts[0].pos);
 						obj->tris[i].isquad = 1;
 						//free(obj->tris[j]); //delete other part of quad //cant delete only one // maybe calloc?
 						obj->tri_amount--;
@@ -331,7 +332,7 @@ void	load_obj(char *filename, t_obj *obj)
 			tri_amount++;
 		i++;
 	}
-	printf("faces before optimized = %d\n", tri_amount);
+	printf("faces = %d\n", tri_amount);
 	if (!(obj->tris = (t_tri *)malloc(sizeof(t_tri) * tri_amount)))
 		ft_error("memory allocation failed\n");
 	if (!(obj->distance_culling_mask = (int*)malloc(sizeof(int) * tri_amount)))
@@ -367,5 +368,5 @@ void	load_obj(char *filename, t_obj *obj)
 			obj->distance_culling_mask[i] = 1;
 	}
 	find_quads(obj);
-	printf("faces after optimized = %d\n", obj->tri_amount);
+	printf("faces = %d\n", obj->tri_amount);
 }

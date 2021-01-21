@@ -55,11 +55,11 @@ t_level			*rt_test_init_level()
 	l->look_up = 0.5;
 	l->txtr = NULL;
 
-	load_obj("level/two.obj", &l->obj[0]);
-	//load_obj("level/test.obj", &l->obj[0]);
-	//load_obj("level/cube.obj", &l->obj[0]);
+	// load_obj("level/two.obj", &l->obj[0]);
+	// load_obj("level/test.obj", &l->obj[0]);
+	// load_obj("level/cube.obj", &l->obj[0]);
 	// load_obj("level/island.obj", &l->obj[0]);
-	// load_obj("level/cache.obj", &l->obj[0]);
+	load_obj("level/cache.obj", &l->obj[0]);
 	// load_obj("level/ship.obj", &l->obj[0]);
 	// load_obj("level/one_tri.obj", &l->obj[0]);
 	// load_obj("level/torus.obj", &l->obj[0]);
