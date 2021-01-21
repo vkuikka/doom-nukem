@@ -92,6 +92,10 @@ int		is_mirror(t_tri a, t_tri b, int *not_shared_vertex_index)
 	vec_avg(avg, shared1, shared2);
 	vec_add(res, avg, avg);
 	(*not_shared_vertex_index) = not_shared[0];
+	float aa[3];
+	vec_sub(aa, res, nshared);
+	float len = vec_length(aa);
+	return ((len < 0.00001));
 	return (vec_cmp(res, nshared));
 }
 
