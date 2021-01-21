@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/20 19:05:40 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/21 19:32:33 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 # define RES_X 800.0
 # define RES_Y 600.0
 # define THREAD_AMOUNT 50
-# define PIXEL_GAP 4	//change to dynamic later
+# define PIXEL_GAP 3	//change to dynamic later
 
 # define MOVE_SPEED 0.1
 # define NOCLIP_SPEED 0.8
@@ -105,6 +105,7 @@ typedef struct			s_rthread
 	int					id;
 	struct s_level		*level;
 	struct s_window		*window;
+	struct s_bmp		*img;
 }						t_rthread;
 
 typedef struct __attribute__((__packed__))	s_bmp_fileheader {
@@ -161,7 +162,7 @@ void		init_window(t_window **window);
 void		draw_line(int line[4], t_window *window);
 
 void		*rt_test(void *t);
-float		rt_tri(t_tri t, t_ray ray, int *col);
+float		rt_tri(t_tri t, t_ray ray, int *col, t_bmp *img);
 t_level		*rt_test_init_level();
 
 void		fill_pixels(unsigned *grid, int pixel_gap);
@@ -170,5 +171,7 @@ t_bmp		bmp_read(char *str);
 
 t_obj		*culling(t_level *level, int *visible);
 void		find_quads(t_obj *obj);
+
+int			find_color(float u, float v, t_tri t, t_ray r, float dist, t_bmp *img);
 
 #endif

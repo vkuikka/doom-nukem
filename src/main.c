@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/20 18:34:06 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/21 18:02:59 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ float	cast_all(t_ray vec, t_level *l, float *dist_u, float *dist_d)
 	for (int j = 0; j < l->obj[0].tri_amount; j++)
 	{
 		float tmp;
-		tmp = rt_tri(l->obj[0].tris[j], vec, &color);
+		tmp = rt_tri(l->obj[0].tris[j], vec, &color, NULL);
 		if (dist_u != NULL)
 		{
 			if (tmp > 0 && tmp < *dist_d)
@@ -193,6 +193,7 @@ void	action_loop(t_window *window, t_level *l, t_bmp *bmp, t_obj *culled)
 		thread_data[i]->id = i;
 		thread_data[i]->level = l;
 		thread_data[i]->window = window;
+		thread_data[i]->img = bmp;
 		pthread_create(&threads[i], NULL, rt_test, (void*)thread_data[i]);
 		i++;
 	}
@@ -251,7 +252,7 @@ int			main(int argc, char **argv)
 	int			enable_culling;
 
 	enable_culling = 1;
-	//bmp = bmp_read("out.bmp");
+	bmp = bmp_read("out.bmp");
 	level = rt_test_init_level();
 	init_window(&window);
 	SDL_SetRelativeMouseMode(SDL_TRUE);

@@ -69,7 +69,7 @@ t_level			*rt_test_init_level()
 	return (l);
 }
 
-float	rt_tri(t_tri t, t_ray ray, int *col)
+float	rt_tri(t_tri t, t_ray ray, int *col, t_bmp *img)
 {
 	float	pvec[3];
 	vec_cross(pvec, ray.dir, t.v0v2);
@@ -92,11 +92,8 @@ float	rt_tri(t_tri t, t_ray ray, int *col)
 	else if (v < 0 || u + v > 1)
 		return 0;
     float dist = vec_dot(qvec, t.v0v2) * invdet;
-
-	*col =	(((int)(u * 255) & 0xff) << 24) +
-			(((int)(v * 255) & 0xff) << 16) +
-			(((int)((1-u-v) * 255) & 0xff) << 8) + 0xff;
-// (((int)((1-u-v) * 255) & 0xff) << 8) + (0xff - (0xff * (dist / 10)));	//smooth transition to limited draw distance
+	if (img)
+		*col = find_color(u, v, t, ray, dist, img);
 	return dist;
 }
 
@@ -134,7 +131,7 @@ void	*rt_test(void *data_pointer)
 				{
 					int color;
 					float dist;
-					dist = rt_tri(t->level->obj[0].tris[j], r, &color);
+					dist = rt_tri(t->level->obj[0].tris[j], r, &color, t->img);
 					if (dist > 0 &&
 						(dist < t->window->depth_buffer[x + (y * (int)RES_X)] ||
 								t->window->depth_buffer[x + (y * (int)RES_X)] == 0))
