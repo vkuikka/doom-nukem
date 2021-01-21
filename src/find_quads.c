@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   find_quads.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/21 16:54:13 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/01/21 19:19:07 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/01/21 20:39:39 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,7 +95,7 @@ int		is_mirror(t_tri a, t_tri b, int *not_shared_vertex_index)
 	float aa[3];
 	vec_sub(aa, res, nshared);
 	float len = vec_length(aa);
-	return ((len < 0.00001));
+	return ((len < 0.0001));
 	return (vec_cmp(res, nshared));
 }
 
