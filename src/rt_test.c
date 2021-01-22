@@ -98,7 +98,7 @@ float	rt_tri(t_tri t, t_ray ray, int *col, t_bmp *img)
 	return dist;
 }
 
-void	*rt_test(void *data_pointer)
+int		rt_test(void *data_pointer)
 {
 	t_rthread	*t = data_pointer;
 	t_ray		r;
@@ -148,5 +148,5 @@ void	*rt_test(void *data_pointer)
 			}
 		}
 	}
-	return (NULL);
+	return (0);
 }

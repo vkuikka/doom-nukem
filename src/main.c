@@ -164,7 +164,7 @@ void	action_loop(t_window *window, t_level *l, t_bmp *bmp, t_obj *culled)
 {
 	const Uint8		*keys = SDL_GetKeyboardState(NULL);
 	static float	fall_vector[3] = {0, 0, 0};
-	pthread_t		threads[THREAD_AMOUNT];
+	SDL_Thread		*threads[THREAD_AMOUNT];
 	t_rthread		**thread_data;
 	int				window_horizontal_size;
 	int				i;
@@ -194,13 +194,14 @@ void	action_loop(t_window *window, t_level *l, t_bmp *bmp, t_obj *culled)
 		thread_data[i]->level = l;
 		thread_data[i]->window = window;
 		thread_data[i]->img = bmp;
-		pthread_create(&threads[i], NULL, rt_test, (void*)thread_data[i]);
+		threads[i] = SDL_CreateThread(rt_test, "asd", (void*)thread_data[i]);
 		i++;
 	}
 	i = 0;
 	while (i < THREAD_AMOUNT)
 	{
-		pthread_join(threads[i], NULL);
+		int thread_returnvalue;
+		SDL_WaitThread(threads[i], &thread_returnvalue);
 		free(thread_data[i]);
 		i++;
 	}

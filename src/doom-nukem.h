@@ -25,7 +25,6 @@
 # include <math.h>
 # include <fcntl.h>
 # include <sys/time.h>
-# include <pthread.h>
 # include "get_next_line.h"
 # include "SDL2/SDL.h"
 
@@ -161,7 +160,7 @@ void		init_window(t_window **window);
 
 void		draw_line(int line[4], t_window *window);
 
-void		*rt_test(void *t);
+int			rt_test(void *t);
 float		rt_tri(t_tri t, t_ray ray, int *col, t_bmp *img);
 t_level		*rt_test_init_level();
 
