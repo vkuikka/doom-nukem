@@ -74,7 +74,7 @@ typedef struct			s_vec2
 
 typedef struct			s_tri
 {
-	struct s_vert		verts[3];	//vertex coordinates of 3d triangle
+	struct s_vert		verts[4];	//vertex coordinates of 3d triangle
 	float				v0v1[3];	//vector between vertices 1 and 0
 	float				v0v2[3];	//vector between vertices 2 and 0
 	int					isquad;
