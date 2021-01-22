@@ -205,7 +205,7 @@ void	action_loop(t_window *window, t_level *l, t_bmp *bmp, t_obj *culled)
 		i++;
 	}
 	free(thread_data);
-	fill_pixels(window->frame_buffer, PIXEL_GAP);
+	fill_pixels(window->frame_buffer, l->quality);
 
 	/////////////////////bmp
 	// for (int y = 0; y < bmp->height; y++)
@@ -254,6 +254,7 @@ int			main(int argc, char **argv)
 	enable_culling = 1;
 	bmp = bmp_read("out.bmp");
 	level = rt_test_init_level();
+	level->quality = 3;
 	init_window(&window);
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 	while (1)
@@ -290,13 +291,19 @@ int			main(int argc, char **argv)
 		}
 
 		frametime = SDL_GetTicks() - frametime;
+		if (frametime > 33)
+			level->quality += 2;
+		else if (frametime < 20)
+			level->quality -= 2;
+		if (level->quality < 0)
+			level->quality = 1;
 		//printf("time: %d ms\n", frametime);
 		char buf[50];
 		int fps = get_fps();
-		sprintf(buf, "%dfps %dms %dfaces\n", fps, frametime, faces);
+		sprintf(buf, "%dfps %dms %dfaces quality: %d\n\n", fps, frametime, faces, level->quality);
 		SDL_SetWindowTitle(window->SDLwindow, buf);
 
-		if (frametime < 100)
-			usleep(10000);
+		//if (frametime < 100)
+		//	usleep(10000);
 	}
 }

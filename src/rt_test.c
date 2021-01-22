@@ -103,7 +103,11 @@ void	*rt_test(void *data_pointer)
 	t_rthread	*t = data_pointer;
 	t_ray		r;
 	float		angle = t->level->look_side;
+	int			pixel_gap = t->level->quality;
+	int			rand_amount = 10000000;
 
+	if (t->level->quality > 7)
+		rand_amount = 2;
 	r.pos[0] = t->level->pos[0];
 	r.pos[1] = t->level->pos[1];
 	r.pos[2] = t->level->pos[2];
@@ -117,8 +121,8 @@ void	*rt_test(void *data_pointer)
 		tmp[2] = 1;
 		for (int y = 0; y < RES_Y; y++)
 		{
-			// if (rand() % 5)	//skip random pixel
-			if (!(x % PIXEL_GAP) && !(y % PIXEL_GAP))
+			if (rand() % rand_amount)	//skip random pixel
+			if (!(x % pixel_gap) && !(y % pixel_gap))
 			{
 				t->window->frame_buffer[x + (y * (int)RES_X)] = 0x00000000;
 				t->window->depth_buffer[x + (y * (int)RES_X)] = 0;

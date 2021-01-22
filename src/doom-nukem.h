@@ -16,7 +16,6 @@
 # define RES_X 800.0
 # define RES_Y 600.0
 # define THREAD_AMOUNT 50
-# define PIXEL_GAP 3	//change to dynamic later
 
 # define MOVE_SPEED 0.1
 # define NOCLIP_SPEED 0.8
@@ -98,6 +97,7 @@ typedef struct			s_level
 	float				look_side;		//using angle instead of direction vector for testing
 	float				look_up;
 	int					*txtr;		//pointer to the texture as a 2d array of pixel colors
+	int					quality;
 }						t_level;
 
 typedef struct			s_rthread
