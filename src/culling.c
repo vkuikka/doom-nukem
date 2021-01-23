@@ -26,7 +26,16 @@ static int		fov_culling(t_ray c[3], t_tri tri)
 		{
 			vec_sub(end, tri.verts[2].pos, c[0].pos);
 			if (vec_dot(end, c[2].dir) <= 0)
-				return (0);
+			{
+				if (tri.isquad)
+				{
+					vec_sub(end, tri.verts[3].pos, c[0].pos);
+					if (vec_dot(end, c[2].dir) <= 0)
+						return (0);
+				}
+				else
+					return (0);
+			}
 		}
 	}
 	vec_sub(end, tri.verts[0].pos, c[0].pos);
@@ -67,6 +76,24 @@ static int		fov_culling(t_ray c[3], t_tri tri)
 	}
 	else
 		return (1);
+	if (tri.isquad)
+	{
+		vec_sub(end, tri.verts[3].pos, c[0].pos);
+		if (vec_dot(end, c[0].dir) <= 0)
+		{
+			if (side == 1)
+				return (1);
+			side = 0;
+		}
+		else if (vec_dot(end, c[1].dir) <= 0)
+		{
+			if (side == 0)
+				return (1);
+			side = 1;
+		}
+		else
+			return (1);
+	}
 	return (0);
 }
 
