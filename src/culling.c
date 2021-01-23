@@ -101,11 +101,13 @@ static int		distance_culling(t_tri tri, float player[3])
 {
 	int max = 20;
 	float smallest = 9999999;
+	float v[3];
 	float n;
+	int	v_amount;
 
-	for (int i = 0; i < 3; i++)
+	v_amount = tri.isquad ? 4 : 3;
+	for (int i = 0; i < v_amount; i++)
 	{
-		float v[3];
 		vec_sub(v, tri.verts[i].pos, player);
 		n = vec_length(v);
 		if (n < smallest)
