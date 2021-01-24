@@ -48,12 +48,32 @@ void	rot2d(float res[2], float v[2], float rad)
 	res[1] = v[0] * sn + v[1] * cs;
 }
 
-int		find_color(float u, float v, t_tri t, t_ray r, float dist, t_bmp *img)
+unsigned	crossfade(unsigned color1, unsigned color2, unsigned fade, unsigned r1)
+{
+	unsigned g1;
+	unsigned b1;
+	unsigned r2;
+	unsigned g2;
+	unsigned b2;
+
+	r1 = ((color1 % (0x1000000)) >> 8 * 2);
+	g1 = ((color1 % (0x10000)) >> 8 * 1);
+	b1 = (color1 % (0x100));
+	r2 = ((color2 % (0x1000000)) >> 8 * 2);
+	g2 = ((color2 % (0x10000)) >> 8 * 1);
+	b2 = (color2 % (0x100));
+
+	unsigned newr = (r1 * (0xff - fade) + r2 * fade) / 0xff;
+	unsigned newg = (g1 * (0xff - fade) + g2 * fade) / 0xff;
+	unsigned newb = (b1 * (0xff - fade) + b2 * fade) / 0xff;
+	return ((newr << 8 * 3) + (newg << 8 * 2) + (newb << 8 * 1) + 0xff);
+}
+
+int		find_color(float u, float v, t_tri t, t_ray r, float dist, t_bmp *img, unsigned fog_color)
 {
 	int		col;
 	float	v0v1[2];
 	float	v0v2[2];
-
 	// v1m0[2] = t.verts[1].txtr[0] * img->width - t.verts[0].txtr[0] * img-
 
 	v0v1[0] = (t.verts[1].txtr[0] - t.verts[0].txtr[0]) * v;
@@ -75,7 +95,7 @@ int		find_color(float u, float v, t_tri t, t_ray r, float dist, t_bmp *img)
 	int x = v0v2[0];
 	int y = img->height - v0v1[1];
 
-	col = 0;
+	col = fog_color;
 	if (dist < 20)
 	{
 		if (x + (y * img->width) < img->width * img->height &&
@@ -85,8 +105,10 @@ int		find_color(float u, float v, t_tri t, t_ray r, float dist, t_bmp *img)
 		col = (((int)(u * 255) & 0xff) << 24) +
 				(((int)(v * 255) & 0xff) << 16) +
 				(((int)((1-u-v) * 255) & 0xff) << 8) +
-				fabs(0xff - (0xff * (float)(dist / 20)));	//smooth transition to limited draw distance
-				// 0xff;
+				0xff;
+		float fade = (dist + 1) / 20;
+		fade = fade > 1 ? 1 : fade;
+		col = crossfade(col >> 8, fog_color >> 8, 0xff * fade, 0);
 	}
 	return (col);
 }

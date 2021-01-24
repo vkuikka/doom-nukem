@@ -70,7 +70,7 @@ t_level			*rt_test_init_level()
 	return (l);
 }
 
-float	rt_tri(t_tri t, t_ray ray, int *col, t_bmp *img)
+float	rt_tri(t_tri t, t_ray ray, int *col, t_bmp *img, unsigned fog_color)
 {
 	float	pvec[3];
 	vec_cross(pvec, ray.dir, t.v0v2);
@@ -94,7 +94,7 @@ float	rt_tri(t_tri t, t_ray ray, int *col, t_bmp *img)
 		return 0;
     float dist = vec_dot(qvec, t.v0v2) * invdet;
 	if (img)
-		*col = find_color(u, v, t, ray, dist, img);
+		*col = find_color(u, v, t, ray, dist, img, fog_color);
 	return dist;
 }
 
@@ -124,7 +124,7 @@ int		rt_test(void *data_pointer)
 			if (rand() % rand_amount)	//skip random pixel
 			if (!(x % pixel_gap) && !(y % pixel_gap))
 			{
-				t->window->frame_buffer[x + (y * (int)RES_X)] = 0x00000000;
+				t->window->frame_buffer[x + (y * (int)RES_X)] = t->level->fog_color;;
 				t->window->depth_buffer[x + (y * (int)RES_X)] = 0;
 				vec_rot(r.dir, tmp, angle);
 
@@ -136,7 +136,7 @@ int		rt_test(void *data_pointer)
 				{
 					int color;
 					float dist;
-					dist = rt_tri(t->level->obj[0].tris[j], r, &color, t->img);
+					dist = rt_tri(t->level->obj[0].tris[j], r, &color, t->img, t->level->fog_color);
 					if (dist > 0 &&
 						(dist < t->window->depth_buffer[x + (y * (int)RES_X)] ||
 								t->window->depth_buffer[x + (y * (int)RES_X)] == 0))
