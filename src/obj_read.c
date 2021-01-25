@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/01/20 19:19:07 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/26 01:40:49 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -186,8 +186,8 @@ static void	set_tri(char *str, t_vec3 *verts, t_vec2 *uvs, t_obj *obj, int i)
 		obj->tris[i].verts[0].txtr[1] = uvs[uv_index.x].y;
 		obj->tris[i].verts[1].txtr[0] = uvs[uv_index.y].x;
 		obj->tris[i].verts[1].txtr[1] = uvs[uv_index.y].y;
-		obj->tris[i].verts[2].txtr[0] = uvs[uv_index.y].x;
-		obj->tris[i].verts[2].txtr[1] = uvs[uv_index.y].y;
+		obj->tris[i].verts[2].txtr[0] = uvs[uv_index.z].x;
+		obj->tris[i].verts[2].txtr[1] = uvs[uv_index.z].y;
 	}
 	else
 	{//idk if this block needed
