@@ -250,12 +250,13 @@ int			main(int argc, char **argv)
 	unsigned	frametime;
 	t_bmp		bmp;
 	int			enable_culling;
+	int			relmouse;
 
+	relmouse = 0;
 	enable_culling = 1;
 	bmp = bmp_read("out.bmp");
 	level = rt_test_init_level();
 	init_window(&window);
-	SDL_SetRelativeMouseMode(SDL_TRUE);
 	while (1)
 	{
 		frametime = SDL_GetTicks();
@@ -263,7 +264,7 @@ int			main(int argc, char **argv)
 		{
 			if (event.type == SDL_QUIT || event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
 				return (0);
-			else if (event.type == SDL_MOUSEMOTION)
+			else if (event.type == SDL_MOUSEMOTION && relmouse)
 			{
 				level->look_side += (float)event.motion.xrel / 200;
 				level->look_up -= (float)event.motion.yrel / 200;
@@ -272,6 +273,17 @@ int			main(int argc, char **argv)
 				player_movement((float[3]){0,0,0}, (float[3]){0,0,0}, NULL, NULL);
 			else if (event.key.repeat == 0 && event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_M)
 				enable_culling = enable_culling ? 0 : 1;
+			else if (event.key.repeat == 0 && event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_TAB)
+			{
+				relmouse = relmouse ? 0 : 1;
+				if (relmouse)
+					SDL_SetRelativeMouseMode(SDL_TRUE);
+				else
+				{
+					SDL_SetRelativeMouseMode(SDL_FALSE);
+					SDL_WarpMouseInWindow(window->SDLwindow, RES_X / 2, RES_Y / 2);
+				}
+			}
 		}
 		int faces = level->obj->tri_amount;
 		t_obj *tmp = level->obj;
