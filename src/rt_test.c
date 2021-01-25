@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/15 02:17:142 by vkuikka          ###   ########.fr      */
+/*   Updated: 2021/01/26 01:24:33 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,7 +94,7 @@ float	rt_tri(t_tri t, t_ray ray, int *col, t_bmp *img)
 		return 0;
     float dist = vec_dot(qvec, t.v0v2) * invdet;
 	if (img)
-		*col = find_color(u, v, t, ray, dist, img);
+		*col = find_color(u, v, t, img);
 	return dist;
 }
 

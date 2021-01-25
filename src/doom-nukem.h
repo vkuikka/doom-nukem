@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/21 19:32:33 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/26 01:25:29 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,8 @@
 
 # define RES_X 800.0
 # define RES_Y 600.0
-# define THREAD_AMOUNT 50
-# define PIXEL_GAP 3	//change to dynamic later
+# define THREAD_AMOUNT 1
+# define PIXEL_GAP 1	//change to dynamic later
 
 # define MOVE_SPEED 0.1
 # define NOCLIP_SPEED 0.8
@@ -146,7 +146,6 @@ typedef struct								s_bmp
 }											t_bmp;
 
 void		vec_normalize(float vec1[3]);						//makes vector length 1
-void		vec_normalize_two(float vec1[3], float vec2[3]);	//longest vector length will be 1 and other will be same scale
 float		vec_dot(float ve1[3], float ve2[3]);				//dot product of two vectors
 float		vec_length(float vec[3]);
 void		vec_sub(float res[3], float ve1[3], float ve2[3]);
@@ -156,6 +155,7 @@ void		vec_rot(float res[3], float ve1[3], float ang);		//rotates atound y axis
 int			vec_cmp(float ve1[3], float ve2[3]);
 void		vec_avg(float res[3], float ve1[3], float ve2[3]);
 void		vec_copy(float res[3], float ve[3]);
+void		vec2d_copy(float res[2], float ve[2]);
 
 void		init_window(t_window **window);
 
@@ -172,6 +172,6 @@ t_bmp		bmp_read(char *str);
 t_obj		*culling(t_level *level, int *visible);
 void		find_quads(t_obj *obj);
 
-int			find_color(float u, float v, t_tri t, t_ray r, float dist, t_bmp *img);
+int			find_color(float u, float v, t_tri t, t_bmp *img);
 
 #endif
