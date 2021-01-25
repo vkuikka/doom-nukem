@@ -6,43 +6,11 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/07 18:13:00 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/15 02:12:48 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/26 01:27:38 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom-nukem.h"
-
-void		vec_normalize_two(float vec1[3], float vec2[3])
-{
-	int			i;
-	float		min;
-	float		max;
-	float		diff;
-
-	i = 0;
-	min = vec1[0] < vec2[0] ? vec1[0] : vec2[0];
-	max = vec1[0] > vec2[0] ? vec1[0] : vec2[0];
-	while (++i < 3)
-	{
-		if (vec1[i] < min)
-			min = vec1[i];
-		if (vec2[i] < min)
-			min = vec1[i];
-		if (vec1[i] > max)
-			max = vec1[i];
-		if (vec2[i] > max)
-			max = vec2[i];
-	}
-	i = -1;
-	diff = max - min;
-	if (!diff)
-		diff = 1.0;
-	while (++i < 3)
-	{
-		vec1[i] = (vec1[i] - min) / diff;
-		vec2[i] = (vec2[i] - min) / diff;
-	}
-}
 
 void		vec_normalize(float vec[3])
 {
@@ -94,6 +62,12 @@ void		vec_copy(float res[3], float ve[3])
 	res[2] = ve[2];
 }
 
+void		vec2d_copy(float res[2], float ve[2])
+{
+	res[0] = ve[0];
+	res[1] = ve[1];
+}
+
 void		vec_sub(float res[3], float ve1[3], float ve2[3])
 {
 	res[0] = ve1[0] - ve2[0];
@@ -116,23 +90,3 @@ void		vec_rot(float res[3], float ve1[3], float ang)
 	res[1] = ve1[1];
 	res[2] = -ve1[0] * s + ve1[2] * c;
 }
-
-// int main(void)
-// {
-// 	float ve1[3];
-// 	float ve2[3];
-
-// 	ve1[0] = 0;
-// 	ve1[1] = 0.1;
-// 	ve1[2] = 4;
-
-// 	ve2[0] = 6;
-// 	ve2[1] = 8;
-// 	ve2[2] = 10;
-// 	ft_normalize_two(ve1, ve2);
-// 	for (int i = 0; i < 3; i++)
-// 	{
-// 		printf("%f %f", ve1[i], ve2[i]);
-// 		printf("\n");
-// 	}
-// }
