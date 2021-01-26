@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/21 18:02:59 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/26 02:04:33 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ float	cast_all(t_ray vec, t_level *l, float *dist_u, float *dist_d)
 	for (int j = 0; j < l->obj[0].tri_amount; j++)
 	{
 		float tmp;
-		tmp = rt_tri(l->obj[0].tris[j], vec, &color, NULL, 0);
+		tmp = rt_tri(l->obj[0].tris[j], vec, &color, NULL);
 		if (dist_u != NULL)
 		{
 			if (tmp > 0 && tmp < *dist_d)

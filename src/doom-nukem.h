@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/26 01:55:32 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/26 02:07:33 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,6 @@
 # define RES_X 800.0
 # define RES_Y 600.0
 # define THREAD_AMOUNT 1
-# define PIXEL_GAP 1	//change to dynamic later
 
 # define MOVE_SPEED 0.1
 # define NOCLIP_SPEED 0.8
@@ -26,7 +25,6 @@
 # include <math.h>
 # include <fcntl.h>
 # include <sys/time.h>
-# include <pthread.h>
 # include "get_next_line.h"
 # include "SDL2/SDL.h"
 
@@ -76,7 +74,7 @@ typedef struct			s_vec2
 
 typedef struct			s_tri
 {
-	struct s_vert		verts[3];	//vertex coordinates of 3d triangle
+	struct s_vert		verts[4];	//vertex coordinates of 3d triangle
 	float				v0v1[3];	//vector between vertices 1 and 0
 	float				v0v2[3];	//vector between vertices 2 and 0
 	int					isquad;
@@ -98,6 +96,8 @@ typedef struct			s_level
 	float				look_side;		//using angle instead of direction vector for testing
 	float				look_up;
 	int					*txtr;		//pointer to the texture as a 2d array of pixel colors
+	int					quality;
+	unsigned			fog_color;
 }						t_level;
 
 typedef struct			s_rthread
@@ -161,7 +161,7 @@ void		init_window(t_window **window);
 
 void		draw_line(int line[4], t_window *window);
 
-void		*rt_test(void *t);
+int			rt_test(void *t);
 float		rt_tri(t_tri t, t_ray ray, int *col, t_bmp *img);
 t_level		*rt_test_init_level();
 

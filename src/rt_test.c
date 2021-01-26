@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/26 01:51:43 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/26 02:09:46 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,7 @@ t_level			*rt_test_init_level()
 	return (l);
 }
 
-float	rt_tri(t_tri t, t_ray ray, int *col, t_bmp *img, unsigned fog_color)
+float	rt_tri(t_tri t, t_ray ray, int *col, t_bmp *img)
 {
 	float	pvec[3];
 	vec_cross(pvec, ray.dir, t.v0v2);
@@ -136,7 +136,7 @@ int		rt_test(void *data_pointer)
 				{
 					int color;
 					float dist;
-					dist = rt_tri(t->level->obj[0].tris[j], r, &color, t->img, t->level->fog_color);
+					dist = rt_tri(t->level->obj[0].tris[j], r, &color, t->img);
 					if (dist > 0 &&
 						(dist < t->window->depth_buffer[x + (y * (int)RES_X)] ||
 								t->window->depth_buffer[x + (y * (int)RES_X)] == 0))
