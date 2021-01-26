@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/21 16:54:13 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/01/26 00:15:16 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/26 02:28:00 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,10 +40,10 @@ void	set_mirror_dir(t_tri *a, int not_shared_vertex_index)
 		vec_copy(a->verts[0].pos, a->verts[1].pos);
 		vec_copy(a->verts[1].pos, a->verts[2].pos);
 		vec_copy(a->verts[2].pos, tmp);
-		vec2d_copy(tmp, a->verts[0].txtr);
-		vec2d_copy(a->verts[0].txtr, a->verts[1].txtr);
-		vec2d_copy(a->verts[1].txtr, a->verts[2].txtr);
-		vec2d_copy(a->verts[2].txtr, tmp);
+		vec2_copy(tmp, a->verts[0].txtr);
+		vec2_copy(a->verts[0].txtr, a->verts[1].txtr);
+		vec2_copy(a->verts[1].txtr, a->verts[2].txtr);
+		vec2_copy(a->verts[2].txtr, tmp);
 	}
 	else if (not_shared_vertex_index == 2)
 	{
@@ -51,10 +51,10 @@ void	set_mirror_dir(t_tri *a, int not_shared_vertex_index)
 		vec_copy(a->verts[0].pos, a->verts[2].pos);
 		vec_copy(a->verts[2].pos, a->verts[1].pos);
 		vec_copy(a->verts[1].pos, tmp);
-		vec2d_copy(tmp, a->verts[0].txtr);
-		vec2d_copy(a->verts[0].txtr, a->verts[2].txtr);
-		vec2d_copy(a->verts[2].txtr, a->verts[1].txtr);
-		vec2d_copy(a->verts[1].txtr, tmp);
+		vec2_copy(tmp, a->verts[0].txtr);
+		vec2_copy(a->verts[0].txtr, a->verts[2].txtr);
+		vec2_copy(a->verts[2].txtr, a->verts[1].txtr);
+		vec2_copy(a->verts[1].txtr, tmp);
 	}
 	vec_sub(a->v0v2, a->verts[1].pos, a->verts[0].pos);
 	vec_sub(a->v0v1, a->verts[2].pos, a->verts[0].pos);

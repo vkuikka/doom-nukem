@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/26 02:04:33 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/26 02:28:22 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ float	cast_all(t_ray vec, t_level *l, float *dist_u, float *dist_d)
 	for (int j = 0; j < l->obj[0].tri_amount; j++)
 	{
 		float tmp;
-		tmp = rt_tri(l->obj[0].tris[j], vec, &color, NULL);
+		tmp = cast_face(l->obj[0].tris[j], vec, &color, NULL);
 		if (dist_u != NULL)
 		{
 			if (tmp > 0 && tmp < *dist_d)
@@ -194,7 +194,7 @@ void	action_loop(t_window *window, t_level *l, t_bmp *bmp, t_obj *culled)
 		thread_data[i]->level = l;
 		thread_data[i]->window = window;
 		thread_data[i]->img = bmp;
-		threads[i] = SDL_CreateThread(rt_test, "asd", (void*)thread_data[i]);
+		threads[i] = SDL_CreateThread(render, "asd", (void*)thread_data[i]);
 		i++;
 	}
 	i = 0;
@@ -256,7 +256,7 @@ int			main(int argc, char **argv)
 	relmouse = 0;
 	enable_culling = 1;
 	bmp = bmp_read("out.bmp");
-	level = rt_test_init_level();
+	level = init_level();
 	level->quality = 3;
 	level->fog_color = 0xffffffff;//fog
 	level->fog_color = 0xb5aca5ff;//smokefog

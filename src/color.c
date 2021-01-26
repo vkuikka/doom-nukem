@@ -1,18 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   find_color.c                                       :+:      :+:    :+:   */
+/*   color.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/21 17:32:09 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/26 02:15:37 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/26 02:18:41 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom-nukem.h"
 
-int		find_color(float u, float v, t_tri t, t_bmp *img)
+// int		skybox_color(t_ray r, t_bmp *img)
+// {
+// 	return (0);
+// }
+
+int		face_color(float u, float v, t_tri t, t_bmp *img)
 {
 	int		x;
 	int 	y;

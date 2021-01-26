@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   rt_test.c                                          :+:      :+:    :+:   */
+/*   render.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/26 02:09:46 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/26 02:27:31 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,37 +40,7 @@ void			fill_pixels(unsigned *grid, int gap)
 	}
 }
 
-t_level			*rt_test_init_level()
-{
-	t_level		*l;
-
-	if (!(l = (t_level *)malloc(sizeof(t_level))) ||
-		!(l->obj = (t_obj *)malloc(sizeof(t_obj) * 1)))
-		ft_error("memory allocation failed\n");
-
-	l->pos[0] = 0;
-	l->pos[1] = 0;
-	l->pos[2] = 0;
-	l->look_side = 0;
-	l->look_up = 0.5;
-	l->txtr = NULL;
-
-	// load_obj("level/two.obj", &l->obj[0]);
-	// load_obj("level/test.obj", &l->obj[0]);
-	// load_obj("level/cube.obj", &l->obj[0]);
-	// load_obj("level/island.obj", &l->obj[0]);
-	// load_obj("level/cache.obj", &l->obj[0]);
-	load_obj("level/ship.obj", &l->obj[0]);
-	// load_obj("level/one_tri.obj", &l->obj[0]);
-	// load_obj("level/tri_test.obj", &l->obj[0]);
-	// load_obj("level/torus.obj", &l->obj[0]);
-	// load_obj("level/monkey.obj", &l->obj[0]);
-	// load_obj("level/teapot_decimated.obj", &l->obj[0]);
-
-	return (l);
-}
-
-float	rt_tri(t_tri t, t_ray ray, int *col, t_bmp *img)
+float	cast_face(t_tri t, t_ray ray, int *col, t_bmp *img)
 {
 	float	pvec[3];
 	vec_cross(pvec, ray.dir, t.v0v2);
@@ -94,11 +64,11 @@ float	rt_tri(t_tri t, t_ray ray, int *col, t_bmp *img)
 		return 0;
     float dist = vec_dot(qvec, t.v0v2) * invdet;
 	if (img)
-		*col = find_color(u, v, t, img);
+		*col = face_color(u, v, t, img);
 	return dist;
 }
 
-int		rt_test(void *data_pointer)
+int		render(void *data_pointer)
 {
 	t_rthread	*t = data_pointer;
 	t_ray		r;
@@ -136,7 +106,7 @@ int		rt_test(void *data_pointer)
 				{
 					int color;
 					float dist;
-					dist = rt_tri(t->level->obj[0].tris[j], r, &color, t->img);
+					dist = cast_face(t->level->obj[0].tris[j], r, &color, t->img);
 					if (dist > 0 &&
 						(dist < t->window->depth_buffer[x + (y * (int)RES_X)] ||
 								t->window->depth_buffer[x + (y * (int)RES_X)] == 0))

@@ -6,13 +6,13 @@
 #    By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/12/08 13:46:11 by vkuikka           #+#    #+#              #
-#    Updated: 2021/01/21 17:40:21 by vkuikka          ###   ########.fr        #
+#    Updated: 2021/01/26 02:26:08 by vkuikka          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = dnukem
 SRCDIR = src/
-SRC = main.c find_color.c culling.c vectors.c init.c rt_test.c obj_read.c bmp_read.c find_quads.c
+SRC = main.c color.c culling.c vectors.c init.c render.c obj_read.c bmp_read.c find_quads.c
 LIB = libft/libft.a
 INCLUDE = libft/includes
 #FLAGS = -Wall -Wextra -Werror

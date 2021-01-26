@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/07 18:13:00 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/26 01:27:38 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/26 02:22:17 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ void		vec_copy(float res[3], float ve[3])
 	res[2] = ve[2];
 }
 
-void		vec2d_copy(float res[2], float ve[2])
+void		vec2_copy(float res[2], float ve[2])
 {
 	res[0] = ve[0];
 	res[1] = ve[1];
@@ -90,3 +90,23 @@ void		vec_rot(float res[3], float ve1[3], float ang)
 	res[1] = ve1[1];
 	res[2] = -ve1[0] * s + ve1[2] * c;
 }
+
+// int main(void)
+// {
+// 	float ve1[3];
+// 	float ve2[3];
+
+// 	ve1[0] = 0;
+// 	ve1[1] = 0.1;
+// 	ve1[2] = 4;
+
+// 	ve2[0] = 6;
+// 	ve2[1] = 8;
+// 	ve2[2] = 10;
+// 	ft_normalize_two(ve1, ve2);
+// 	for (int i = 0; i < 3; i++)
+// 	{
+// 		printf("%f %f", ve1[i], ve2[i]);
+// 		printf("\n");
+// 	}
+// }

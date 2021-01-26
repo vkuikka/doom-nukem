@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/08 14:38:45 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/07 20:57:00 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/26 02:26:58 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,36 @@ SDL_Texture		*empty_texture(SDL_Renderer *renderer)
 	SDL_RenderClear(renderer);
 	SDL_SetRenderTarget(renderer, NULL);
 	return (texture);
+}
+
+t_level			*init_level()
+{
+	t_level		*l;
+
+	if (!(l = (t_level *)malloc(sizeof(t_level))) ||
+		!(l->obj = (t_obj *)malloc(sizeof(t_obj) * 1)))
+		ft_error("memory allocation failed\n");
+
+	l->pos[0] = 0;
+	l->pos[1] = 0;
+	l->pos[2] = 0;
+	l->look_side = 0;
+	l->look_up = 0.5;
+	l->txtr = NULL;
+
+	// load_obj("level/two.obj", &l->obj[0]);
+	// load_obj("level/test.obj", &l->obj[0]);
+	// load_obj("level/cube.obj", &l->obj[0]);
+	// load_obj("level/island.obj", &l->obj[0]);
+	// load_obj("level/cache.obj", &l->obj[0]);
+	// load_obj("level/ship.obj", &l->obj[0]);
+	// load_obj("level/one_tri.obj", &l->obj[0]);
+	load_obj("level/tri_test.obj", &l->obj[0]);
+	// load_obj("level/torus.obj", &l->obj[0]);
+	// load_obj("level/monkey.obj", &l->obj[0]);
+	// load_obj("level/teapot_decimated.obj", &l->obj[0]);
+
+	return (l);
 }
 
 void			init_window(t_window **window)

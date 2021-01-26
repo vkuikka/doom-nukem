@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/26 02:07:33 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/26 02:28:34 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -155,15 +155,15 @@ void		vec_rot(float res[3], float ve1[3], float ang);		//rotates atound y axis
 int			vec_cmp(float ve1[3], float ve2[3]);
 void		vec_avg(float res[3], float ve1[3], float ve2[3]);
 void		vec_copy(float res[3], float ve[3]);
-void		vec2d_copy(float res[2], float ve[2]);
+void		vec2_copy(float res[2], float ve[2]);
 
 void		init_window(t_window **window);
 
 void		draw_line(int line[4], t_window *window);
 
-int			rt_test(void *t);
-float		rt_tri(t_tri t, t_ray ray, int *col, t_bmp *img);
-t_level		*rt_test_init_level();
+int			render(void *t);
+float		cast_face(t_tri t, t_ray ray, int *col, t_bmp *img);
+t_level		*init_level();
 
 void		fill_pixels(unsigned *grid, int pixel_gap);
 void		load_obj(char *filename, t_obj *obj);
@@ -172,6 +172,7 @@ t_bmp		bmp_read(char *str);
 t_obj		*culling(t_level *level, int *visible);
 void		find_quads(t_obj *obj);
 
-int			find_color(float u, float v, t_tri t, t_bmp *img);
+int			face_color(float u, float v, t_tri t, t_bmp *img);
+// int			skybox_color(t_ray r, t_bmp *img);
 
 #endif
