@@ -26,7 +26,16 @@ static int		fov_culling(t_ray c[3], t_tri tri)
 		{
 			vec_sub(end, tri.verts[2].pos, c[0].pos);
 			if (vec_dot(end, c[2].dir) <= 0)
-				return (0);
+			{
+				if (tri.isquad)
+				{
+					vec_sub(end, tri.verts[3].pos, c[0].pos);
+					if (vec_dot(end, c[2].dir) <= 0)
+						return (0);
+				}
+				else
+					return (0);
+			}
 		}
 	}
 	vec_sub(end, tri.verts[0].pos, c[0].pos);
@@ -67,18 +76,38 @@ static int		fov_culling(t_ray c[3], t_tri tri)
 	}
 	else
 		return (1);
+	if (tri.isquad)
+	{
+		vec_sub(end, tri.verts[3].pos, c[0].pos);
+		if (vec_dot(end, c[0].dir) <= 0)
+		{
+			if (side == 1)
+				return (1);
+			side = 0;
+		}
+		else if (vec_dot(end, c[1].dir) <= 0)
+		{
+			if (side == 0)
+				return (1);
+			side = 1;
+		}
+		else
+			return (1);
+	}
 	return (0);
 }
 
 static int		distance_culling(t_tri tri, float player[3])
 {
 	int max = 20;
-	float smallest = 0;
+	float smallest = 9999999;
+	float v[3];
 	float n;
+	int	v_amount;
 
-	for (int i = 0; i < 3; i++)
+	v_amount = tri.isquad ? 4 : 3;
+	for (int i = 0; i < v_amount; i++)
 	{
-		float v[3];
 		vec_sub(v, tri.verts[i].pos, player);
 		n = vec_length(v);
 		if (n < smallest)

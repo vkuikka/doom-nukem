@@ -235,7 +235,7 @@ void	load_obj(char *filename, t_obj *obj)
 	ft_memset(obj->distance_culling_mask, 0, tri_amount * sizeof(int));
 	if (!(obj->backface_culling_mask = (int*)malloc(sizeof(int) * tri_amount)))
 		ft_error("memory allocation failed\n");
-	ft_memset(obj->backface_culling_mask, 1, tri_amount * sizeof(int));
+	ft_memset(obj->backface_culling_mask, 0, tri_amount * sizeof(int));
 	obj->tri_amount = tri_amount;
 	t_vec3 *verts = load_verts(file);
 	t_vec2 *uvs = load_uvs(file);
@@ -255,13 +255,13 @@ void	load_obj(char *filename, t_obj *obj)
 	free(file);
 	free(verts);
 	free(uvs);
-	for (int i = 0; i < tri_amount; i++)
+	/*for (int i = 0; i < tri_amount; i++)
 	{
 		float y = obj->tris[i].verts[0].pos[1];
 		if (obj->tris[i].verts[1].pos[1] == y &&
 			obj->tris[i].verts[2].pos[1] == y)
 			obj->distance_culling_mask[i] = 1;
-	}
+	}*/
 	find_quads(obj);
 	printf("faces = %d\n", obj->tri_amount);
 }

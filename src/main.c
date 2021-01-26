@@ -20,7 +20,7 @@ float	cast_all(t_ray vec, t_level *l, float *dist_u, float *dist_d)
 	for (int j = 0; j < l->obj[0].tri_amount; j++)
 	{
 		float tmp;
-		tmp = rt_tri(l->obj[0].tris[j], vec, &color, NULL);
+		tmp = rt_tri(l->obj[0].tris[j], vec, &color, NULL, 0);
 		if (dist_u != NULL)
 		{
 			if (tmp > 0 && tmp < *dist_d)
@@ -164,7 +164,7 @@ void	action_loop(t_window *window, t_level *l, t_bmp *bmp, t_obj *culled)
 {
 	const Uint8		*keys = SDL_GetKeyboardState(NULL);
 	static float	fall_vector[3] = {0, 0, 0};
-	pthread_t		threads[THREAD_AMOUNT];
+	SDL_Thread		*threads[THREAD_AMOUNT];
 	t_rthread		**thread_data;
 	int				window_horizontal_size;
 	int				i;
@@ -194,18 +194,19 @@ void	action_loop(t_window *window, t_level *l, t_bmp *bmp, t_obj *culled)
 		thread_data[i]->level = l;
 		thread_data[i]->window = window;
 		thread_data[i]->img = bmp;
-		pthread_create(&threads[i], NULL, rt_test, (void*)thread_data[i]);
+		threads[i] = SDL_CreateThread(rt_test, "asd", (void*)thread_data[i]);
 		i++;
 	}
 	i = 0;
 	while (i < THREAD_AMOUNT)
 	{
-		pthread_join(threads[i], NULL);
+		int thread_returnvalue;
+		SDL_WaitThread(threads[i], &thread_returnvalue);
 		free(thread_data[i]);
 		i++;
 	}
 	free(thread_data);
-	fill_pixels(window->frame_buffer, PIXEL_GAP);
+	fill_pixels(window->frame_buffer, l->quality);
 
 	/////////////////////bmp
 	// for (int y = 0; y < bmp->height; y++)
@@ -256,6 +257,12 @@ int			main(int argc, char **argv)
 	enable_culling = 1;
 	bmp = bmp_read("out.bmp");
 	level = rt_test_init_level();
+	level->quality = 3;
+	level->fog_color = 0xffffffff;//fog
+	level->fog_color = 0xb5aca5ff;//smokefog
+	level->fog_color = 0x000000ff;//night
+	level->fog_color = 0xff0000ff;
+	level->fog_color = 0xb19a6aff;//sandstorm
 	init_window(&window);
 	while (1)
 	{
@@ -302,13 +309,19 @@ int			main(int argc, char **argv)
 		}
 
 		frametime = SDL_GetTicks() - frametime;
+		if (frametime > 33)
+			level->quality += 2;
+		else if (frametime < 20)
+			level->quality -= 2;
+		if (level->quality < 0)
+			level->quality = 1;
 		//printf("time: %d ms\n", frametime);
 		char buf[50];
 		int fps = get_fps();
-		sprintf(buf, "%dfps %dms %dfaces\n", fps, frametime, faces);
+		sprintf(buf, "%dfps %dms %dfaces quality: %d\n\n", fps, frametime, faces, level->quality);
 		SDL_SetWindowTitle(window->SDLwindow, buf);
 
-		if (frametime < 100)
-			usleep(10000);
+		//if (frametime < 100)
+		//	usleep(10000);
 	}
 }

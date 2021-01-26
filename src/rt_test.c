@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/26 01:24:33 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/26 01:51:43 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,9 +60,9 @@ t_level			*rt_test_init_level()
 	// load_obj("level/cube.obj", &l->obj[0]);
 	// load_obj("level/island.obj", &l->obj[0]);
 	// load_obj("level/cache.obj", &l->obj[0]);
-	// load_obj("level/ship.obj", &l->obj[0]);
+	load_obj("level/ship.obj", &l->obj[0]);
 	// load_obj("level/one_tri.obj", &l->obj[0]);
-	load_obj("level/tri_test.obj", &l->obj[0]);
+	// load_obj("level/tri_test.obj", &l->obj[0]);
 	// load_obj("level/torus.obj", &l->obj[0]);
 	// load_obj("level/monkey.obj", &l->obj[0]);
 	// load_obj("level/teapot_decimated.obj", &l->obj[0]);
@@ -70,7 +70,7 @@ t_level			*rt_test_init_level()
 	return (l);
 }
 
-float	rt_tri(t_tri t, t_ray ray, int *col, t_bmp *img)
+float	rt_tri(t_tri t, t_ray ray, int *col, t_bmp *img, unsigned fog_color)
 {
 	float	pvec[3];
 	vec_cross(pvec, ray.dir, t.v0v2);
@@ -98,12 +98,16 @@ float	rt_tri(t_tri t, t_ray ray, int *col, t_bmp *img)
 	return dist;
 }
 
-void	*rt_test(void *data_pointer)
+int		rt_test(void *data_pointer)
 {
 	t_rthread	*t = data_pointer;
 	t_ray		r;
 	float		angle = t->level->look_side;
+	int			pixel_gap = t->level->quality;
+	int			rand_amount = 10000000;
 
+	if (t->level->quality > 7)
+		rand_amount = 2;
 	r.pos[0] = t->level->pos[0];
 	r.pos[1] = t->level->pos[1];
 	r.pos[2] = t->level->pos[2];
@@ -117,10 +121,10 @@ void	*rt_test(void *data_pointer)
 		tmp[2] = 1;
 		for (int y = 0; y < RES_Y; y++)
 		{
-			// if (rand() % 5)	//skip random pixel
-			if (!(x % PIXEL_GAP) && !(y % PIXEL_GAP))
+			if (rand() % rand_amount)	//skip random pixel
+			if (!(x % pixel_gap) && !(y % pixel_gap))
 			{
-				t->window->frame_buffer[x + (y * (int)RES_X)] = 0x00000000;
+				t->window->frame_buffer[x + (y * (int)RES_X)] = t->level->fog_color;;
 				t->window->depth_buffer[x + (y * (int)RES_X)] = 0;
 				vec_rot(r.dir, tmp, angle);
 
@@ -132,7 +136,7 @@ void	*rt_test(void *data_pointer)
 				{
 					int color;
 					float dist;
-					dist = rt_tri(t->level->obj[0].tris[j], r, &color, t->img);
+					dist = rt_tri(t->level->obj[0].tris[j], r, &color, t->img, t->level->fog_color);
 					if (dist > 0 &&
 						(dist < t->window->depth_buffer[x + (y * (int)RES_X)] ||
 								t->window->depth_buffer[x + (y * (int)RES_X)] == 0))
@@ -144,5 +148,5 @@ void	*rt_test(void *data_pointer)
 			}
 		}
 	}
-	return (NULL);
+	return (0);
 }

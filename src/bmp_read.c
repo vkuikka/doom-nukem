@@ -28,7 +28,7 @@ t_bmp	bmp_read(char *str)
 	//printf("w = %d, h = %d, bits = %d\n", ih.width, ih.height, ih.bitPix);
 
 	t_bmp_image bmp;
-	res.image = (int*)malloc(sizeof(int) * (ih.width * ih.height));
+	res.image = (int*)malloc(sizeof(int) * (ih.width * ih.height) * 2);
 	y = 0;
 	while (y < ih.height)
 	{

@@ -12,6 +12,24 @@
 
 #include "doom-nukem.h"
 
+void	set_fourth_vertex(t_tri *a)
+{
+	float shared1[3];
+	float shared2[3];
+	float avg[3];
+	float new[3];
+	float res[3];
+
+	vec_sub(shared1, a->verts[1].pos, a->verts[0].pos);
+	vec_sub(shared2, a->verts[2].pos, a->verts[0].pos);
+	vec_avg(avg, shared1, shared2);
+	vec_add(new, avg, avg);
+	vec_add(res, new, a->verts[0].pos);
+	a->verts[3].pos[0] = res[0];
+	a->verts[3].pos[1] = res[1];
+	a->verts[3].pos[2] = res[2];
+}
+
 void	set_mirror_dir(t_tri *a, int not_shared_vertex_index)
 {
 	float tmp[3];
@@ -121,6 +139,7 @@ void	find_quads(t_obj *obj)
 				if (is_mirror(obj->tris[i], obj->tris[j], &not_shared_vertex_index))
 				{
 					set_mirror_dir(&obj->tris[i], not_shared_vertex_index);
+					set_fourth_vertex(&obj->tris[i]);
 					obj->tris[i].isquad = 1;
 					obj->tri_amount--;
 					for (int x = j; x < obj->tri_amount; x++) //move address of everythign left
