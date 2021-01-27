@@ -169,7 +169,7 @@ void		fill_pixels(unsigned *grid, int pixel_gap);
 void		load_obj(char *filename, t_obj *obj);
 t_bmp		bmp_read(char *str);
 
-t_obj		*culling(t_level *level, int *visible);
+void		culling(t_level *level, int *visible, t_obj *culled);
 void		find_quads(t_obj *obj);
 
 int			face_color(float u, float v, t_tri t, t_bmp *img);

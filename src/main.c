@@ -160,7 +160,62 @@ void	player_movement(float dir[3], float pos[3], t_level *l, const Uint8 *keys)
 	pos[1] += dir[1];
 }
 
-void	action_loop(t_window *window, t_level *l, t_bmp *bmp, t_obj *culled)
+int				is_tri_side(t_tri tri, t_ray c)
+{
+	float   end[3];
+
+	int amount = tri.isquad ? 4 : 3;
+	for (int i = 0; i < amount; i++)
+	{
+		vec_sub(end, tri.verts[i].pos, c.pos);
+		if (vec_dot(end, c.dir) <= 0)
+			return (0);
+	}
+	return (1);
+}
+
+void			split_obj(t_obj *culled, t_level *level, int *faces_left, int *faces_right)
+{
+	int		right_amount = 0;
+	int		left_amount = 0;
+	t_ray	right;
+	t_ray	left;
+
+	left.pos[0] = level->pos[0];
+	left.pos[1] = level->pos[1];
+	left.pos[2] = level->pos[2];
+	vec_rot(left.dir, (float[3]){0,0,1}, level->look_side - (M_PI / 2));
+	right.pos[0] = level->pos[0];
+	right.pos[1] = level->pos[1];
+	right.pos[2] = level->pos[2];
+	vec_rot(right.dir, (float[3]){0,0,1}, level->look_side + (M_PI / 2));
+	for (int i = 0; i < culled->tri_amount; i++)
+	{
+		if (is_tri_side(culled[0].tris[i], left))
+		{
+			culled[0].tris[left_amount] = culled[0].tris[i];
+			left_amount++;
+		}
+		else if (is_tri_side(culled[0].tris[i], right))
+		{
+			culled[1].tris[right_amount] = culled[0].tris[i];
+			right_amount++;
+		}
+		else
+		{
+			culled[0].tris[left_amount] = culled[0].tris[i];
+			culled[1].tris[right_amount] = culled[0].tris[i];
+			left_amount++;
+			right_amount++;
+		}
+	}
+	culled[0].tri_amount = left_amount;
+	culled[1].tri_amount = right_amount;
+	(*faces_left) = left_amount;
+	(*faces_right) = right_amount;
+}
+
+void	action_loop(t_window *window, t_level *l, t_bmp *bmp, t_obj *culled, int *faces_left, int *faces_right)
 {
 	const Uint8		*keys = SDL_GetKeyboardState(NULL);
 	static float	fall_vector[3] = {0, 0, 0};
@@ -170,6 +225,7 @@ void	action_loop(t_window *window, t_level *l, t_bmp *bmp, t_obj *culled)
 	int				i;
 
 	player_movement(fall_vector, l->pos, l, keys);
+	split_obj(culled, l, faces_left, faces_right);//level->pos is updated after this.... so when moving sometimes can see through wall
 	l->obj = culled;
 
 	if (keys[SDL_SCANCODE_RIGHT])
@@ -252,6 +308,7 @@ int			main(int argc, char **argv)
 	t_bmp		bmp;
 	int			enable_culling;
 	int			relmouse;
+	t_obj		*culled;
 
 	relmouse = 0;
 	enable_culling = 1;
@@ -259,11 +316,24 @@ int			main(int argc, char **argv)
 	level = init_level();
 	level->quality = 3;
 	level->fog_color = 0xffffffff;//fog
-	level->fog_color = 0xb5aca5ff;//smokefog
+	level->fog_color = 0xbbbbbbff;//smoke
 	level->fog_color = 0x000000ff;//night
 	level->fog_color = 0xff0000ff;
 	level->fog_color = 0xb19a6aff;//sandstorm
 	init_window(&window);
+	if (!(culled = (t_obj*)malloc(sizeof(t_obj) * 2)))
+		ft_error("memory allocation failed\n");
+	if (!(culled[0].tris = (t_tri*)malloc(sizeof(t_tri) * level->obj->tri_amount)))
+		ft_error("memory allocation failed\n");
+	if (!(culled[1].tris = (t_tri*)malloc(sizeof(t_tri) * level->obj->tri_amount)))
+		ft_error("memory allocation failed\n");
+	for (int i = 0; i < level->obj->tri_amount; i++)
+	{
+		culled[0].tris[i] = level->obj[0].tris[i];
+		culled[1].tris[i] = level->obj[0].tris[i];
+	}
+	culled[0].tri_amount = level->obj[0].tri_amount;
+	culled[1].tri_amount = level->obj[0].tri_amount;
 	while (1)
 	{
 		frametime = SDL_GetTicks();
@@ -292,21 +362,23 @@ int			main(int argc, char **argv)
 				}
 			}
 		}
-		int faces = level->obj->tri_amount;
 		t_obj *tmp = level->obj;
-		t_obj *culled = level->obj;
+		int faces_visible = level->obj->tri_amount;
+		int faces_left = culled[0].tri_amount;
+		int faces_right = culled[1].tri_amount;
 		if (enable_culling)
 		{
-			faces = 0;
-			culled = culling(level, &faces);
+			faces_visible = 0;
+			culling(level, &faces_visible, culled);
 		}
-		action_loop(window, level, &bmp, culled);
-		if (enable_culling)
+		else
 		{
-			free(culled->tris);
-			free(culled);
-			level->obj = tmp;
+			for (int i = 0; i < level->obj->tri_amount; i++)
+				culled[0].tris[i] = level->obj[0].tris[i];
+			culled[0].tri_amount = level->obj[0].tri_amount;
 		}
+		action_loop(window, level, &bmp, culled, &faces_left, &faces_right);
+		level->obj = tmp;
 
 		frametime = SDL_GetTicks() - frametime;
 		if (frametime > 33)
@@ -318,7 +390,7 @@ int			main(int argc, char **argv)
 		//printf("time: %d ms\n", frametime);
 		char buf[50];
 		int fps = get_fps();
-		sprintf(buf, "%dfps %dms %dfaces quality: %d\n\n", fps, frametime, faces, level->quality);
+		sprintf(buf, "%dfps %dms %d(%dL %dR)faces quality: %d\n\n", fps, frametime, faces_visible, faces_left, faces_right, level->quality);
 		SDL_SetWindowTitle(window->SDLwindow, buf);
 
 		//if (frametime < 100)

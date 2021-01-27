@@ -134,7 +134,7 @@ static int		backface_culling(t_ray r, t_tri tri)
 	return (0);
 }
 
-t_obj		*culling(t_level *level, int *visible)
+void			culling(t_level *level, int *visible, t_obj *culled)
 {
 	float		angle = level->look_side;
 	t_ray		c[3];
@@ -152,19 +152,6 @@ t_obj		*culling(t_level *level, int *visible)
 	c[2].pos[2] = level->pos[2];
 	vec_rot(c[2].dir, (float[3]){0, 0, 1}, angle);
 
-	t_obj *new = (t_obj*)malloc(sizeof(t_obj));
-
-	for (int j = 0; j < level->obj->tri_amount; j++)
-	{
-		if (fov_culling(c, level->obj->tris[j]) &&
-			(level->obj->distance_culling_mask[j] || distance_culling(level->obj->tris[j], level->pos)) &&
-			(level->obj->backface_culling_mask[j] || backface_culling(c[2], level->obj->tris[j])))
-		{
-			(*visible)++;
-		}
-	}
-	new->tris = (t_tri*)malloc(sizeof(t_tri) * (*visible));
-	new->tri_amount = (*visible);
 	int k = 0;
 	for (int j = 0; j < level->obj->tri_amount; j++)
 	{
@@ -172,9 +159,10 @@ t_obj		*culling(t_level *level, int *visible)
 			(level->obj->distance_culling_mask[j] || distance_culling(level->obj->tris[j], level->pos)) &&
 			(level->obj->backface_culling_mask[j] || backface_culling(c[2], level->obj->tris[j])))
 		{
-			new->tris[k] = level->obj->tris[j];
+			culled[0].tris[k] = level->obj->tris[j];
 			k++;
 		}
 	}
-	return (new);
+	(*visible) = k;
+	culled[0].tri_amount = k;
 }

@@ -101,12 +101,12 @@ int		render(void *data_pointer)
 				r.dir[1] = (1 / RES_Y * y) - t->level->look_up;
 				// vec_normalize(r.dir);
 
-				float closest = -1;
-				for (int j = 0; j < t->level->obj[0].tri_amount; j++)
+				int side = x < RES_X / 2 ? 0 : 1;
+				for (int j = 0; j < t->level->obj[side].tri_amount; j++)
 				{
 					int color;
 					float dist;
-					dist = cast_face(t->level->obj[0].tris[j], r, &color, t->img);
+					dist = cast_face(t->level->obj[side].tris[j], r, &color, t->img);
 					if (dist > 0 &&
 						(dist < t->window->depth_buffer[x + (y * (int)RES_X)] ||
 								t->window->depth_buffer[x + (y * (int)RES_X)] == 0))
