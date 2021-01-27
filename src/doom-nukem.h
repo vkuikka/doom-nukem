@@ -15,7 +15,7 @@
 
 # define RES_X 800.0
 # define RES_Y 600.0
-# define THREAD_AMOUNT 1
+# define THREAD_AMOUNT 20
 
 # define MOVE_SPEED 0.1
 # define NOCLIP_SPEED 0.8

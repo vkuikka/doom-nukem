@@ -68,6 +68,40 @@ float	cast_face(t_tri t, t_ray ray, int *col, t_bmp *img)
 	return dist;
 }
 
+unsigned	crossfade(unsigned color1, unsigned color2, unsigned fade, unsigned r1)
+{
+	unsigned g1;
+	unsigned b1;
+	unsigned r2;
+	unsigned g2;
+	unsigned b2;
+
+	r1 = ((color1 % (0x1000000)) >> 8 * 2);
+	g1 = ((color1 % (0x10000)) >> 8 * 1);
+	b1 = (color1 % (0x100));
+	r2 = ((color2 % (0x1000000)) >> 8 * 2);
+	g2 = ((color2 % (0x10000)) >> 8 * 1);
+	b2 = (color2 % (0x100));
+
+	unsigned newr = (r1 * (0xff - fade) + r2 * fade) / 0xff;
+	unsigned newg = (g1 * (0xff - fade) + g2 * fade) / 0xff;
+	unsigned newb = (b1 * (0xff - fade) + b2 * fade) / 0xff;
+	return ((newr << 8 * 3) + (newg << 8 * 2) + (newb << 8 * 1) + 0xff);
+}
+
+int		fog(int color, float dist, unsigned fog_color)
+{
+	float	fade;
+
+	if (dist < 20)
+	{
+		fade = (dist + 1) / 20;
+		fade = fade > 1 ? 1 : fade;
+		return (crossfade(color >> 8, fog_color >> 8, 0xff * fade, 0));
+	}
+	return (fog_color);
+}
+
 int		render(void *data_pointer)
 {
 	t_rthread	*t = data_pointer;
@@ -112,7 +146,7 @@ int		render(void *data_pointer)
 								t->window->depth_buffer[x + (y * (int)RES_X)] == 0))
 					{
 						t->window->depth_buffer[x + (y * (int)RES_X)] = dist;
-						t->window->frame_buffer[x + (y * (int)RES_X)] = color;
+						t->window->frame_buffer[x + (y * (int)RES_X)] = fog(color, dist, t->level->fog_color);
 					}
 				}
 			}

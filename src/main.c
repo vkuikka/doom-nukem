@@ -225,7 +225,7 @@ void	action_loop(t_window *window, t_level *l, t_bmp *bmp, t_obj *culled, int *f
 	int				i;
 
 	player_movement(fall_vector, l->pos, l, keys);
-	split_obj(culled, l, faces_left, faces_right);//level->pos is updated after this.... so when moving sometimes can see through wall
+	split_obj(culled, l, faces_left, faces_right);
 	l->obj = culled;
 
 	if (keys[SDL_SCANCODE_RIGHT])
@@ -316,10 +316,10 @@ int			main(int argc, char **argv)
 	level = init_level();
 	level->quality = 3;
 	level->fog_color = 0xffffffff;//fog
-	level->fog_color = 0xbbbbbbff;//smoke
 	level->fog_color = 0x000000ff;//night
 	level->fog_color = 0xff0000ff;
 	level->fog_color = 0xb19a6aff;//sandstorm
+	level->fog_color = 0xddddddff;//smoke
 	init_window(&window);
 	if (!(culled = (t_obj*)malloc(sizeof(t_obj) * 2)))
 		ft_error("memory allocation failed\n");
