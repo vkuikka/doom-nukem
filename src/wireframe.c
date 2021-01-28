@@ -147,7 +147,16 @@ void	wireframe(t_window *window, t_level *level)
 		avg.x /= amount;
 		avg.y /= amount;
 		avg.z /= amount;
+		float normal_dir[3];
+		vec_cross(normal_dir, level->obj[0].tris[i].v0v1, level->obj[0].tris[i].v0v2);
+		vec_normalize(normal_dir);
+		t_vec3 normal;
+		normal.x = avg.x - normal_dir[0];
+		normal.y = avg.y - normal_dir[1];
+		normal.z = avg.z - normal_dir[2];
 		camera_offset(&avg, level);
-		put_vertex(avg, 0x00ffffff, window);
+		camera_offset(&normal, level);
+		int color[2] = {0x00ffff, 0x00ffff};
+		print_line(avg, normal, color, window);
 	}
 }
