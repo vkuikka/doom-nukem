@@ -370,7 +370,7 @@ int			main(int argc, char **argv)
 		t_obj *tmp = level->obj;
 		int faces_visible = level->obj->tri_amount;
 		int faces_left = culled[0].tri_amount;
-		int faces_right = culled[1].tri_amount;
+		int faces_right = culled[0].tri_amount;
 		if (rendermode == 1)
 		{
 			faces_visible = 0;

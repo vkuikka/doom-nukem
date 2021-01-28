@@ -71,15 +71,50 @@ void	rotate_vertex(float angle, t_vec3 *vertex, int axis)
 	}
 }
 
+void	put_vertex(t_vec3 vertex, int color, t_window *window)
+{
+	if (vertex.z < 0)
+		return ;
+	for (int a = -1; a < 2; a++)
+	{
+		for (int b = -1; b < 2; b++)
+		{
+			pixel_put(vertex.x + a, vertex.y + b, color, window);
+		}
+	}
+}
+
+void	camera_offset(t_vec3 *vertex, t_level *level)
+{
+	float fov = 500;
+
+	//move vertices to camera position
+	vertex->x -= level->pos[0];
+	vertex->y -= level->pos[1];
+	vertex->z -= level->pos[2];
+
+	//rotate vertices around camera
+	rotate_vertex(-1 * level->look_side, vertex, 0);
+	rotate_vertex(-1 * level->look_up, vertex, 1);
+
+	//add perspective
+	vertex->x /= vertex->z / fov;
+	vertex->y /= vertex->z / fov;
+
+	//move to center of screen
+	vertex->x += RES_X / 2;
+	vertex->y += RES_Y / 2;
+}
+
 void	wireframe(t_window *window, t_level *level)
 {
 	t_vec3	start;
 	t_vec3	stop;
+	t_vec3	avg;
 
-	ft_memset(window->frame_buffer, 0, RES_X * RES_Y * sizeof(int));
+	ft_memset(window->frame_buffer, 0x99, RES_X * RES_Y * sizeof(int));
 	ft_memset(window->depth_buffer, 0, RES_X * RES_Y * sizeof(int));
 
-	float fov = 500;
 	for (int i = 0; i < level->obj[0].tri_amount; i++)
 	{
 		int amount = level->obj[0].tris[i].isquad ? 4 : 3;
@@ -92,34 +127,27 @@ void	wireframe(t_window *window, t_level *level)
 			stop.y = level->obj[0].tris[i].verts[(j + 1) % 3].pos[1];
 			stop.z = level->obj[0].tris[i].verts[(j + 1) % 3].pos[2];
 
-			//move vertices to camera position
-			start.x -= level->pos[0];
-			start.y -= level->pos[1];
-			start.z -= level->pos[2];
-			stop.x -= level->pos[0];
-			stop.y -= level->pos[1];
-			stop.z -= level->pos[2];
+			camera_offset(&start, level);
+			camera_offset(&stop, level);
 
-			//rotate vertices around camera
-			rotate_vertex(-1 * level->look_side, &start, 0);
-			rotate_vertex(-1 * level->look_up, &start, 1);
-			rotate_vertex(-1 * level->look_side, &stop, 0);
-			rotate_vertex(-1 * level->look_up, &stop, 1);
-
-			//add perspective
-			start.x /= start.z / fov;
-			start.y /= start.z / fov;
-			stop.x /= stop.z / fov;
-			stop.y /= stop.z / fov;
-
-			//move to center of screen
-			start.x += RES_X / 2;
-			start.y += RES_Y / 2;
-			stop.x += RES_X / 2;
-			stop.y += RES_Y / 2;
-
-			int color[2] = {0xff0000, 0x0000ff};
+			int color[2] = {0x333333, 0x333333};
 			print_line(start, stop, color, window);
+			put_vertex(start, 0, window);
+			put_vertex(stop, 0, window);
 		}
+		avg.x = 0;
+		avg.y = 0;
+		avg.z = 0;
+		for (int j = 0; j < amount; j++)
+		{
+			avg.x += level->obj[0].tris[i].verts[j].pos[0];
+			avg.y += level->obj[0].tris[i].verts[j].pos[1];
+			avg.z += level->obj[0].tris[i].verts[j].pos[2];
+		}
+		avg.x /= amount;
+		avg.y /= amount;
+		avg.z /= amount;
+		camera_offset(&avg, level);
+		put_vertex(avg, 0x00ffffff, window);
 	}
 }
