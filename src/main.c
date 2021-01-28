@@ -215,7 +215,7 @@ void			split_obj(t_obj *culled, t_level *level, int *faces_left, int *faces_righ
 	(*faces_right) = right_amount;
 }
 
-void	action_loop(t_window *window, t_level *l, t_bmp *bmp, t_obj *culled, int *faces_left, int *faces_right)
+void	action_loop(t_window *window, t_level *l, t_bmp *bmp, t_obj *culled, int *faces_left, int *faces_right, int rendermode)
 {
 	const Uint8		*keys = SDL_GetKeyboardState(NULL);
 	static float	fall_vector[3] = {0, 0, 0};
@@ -225,7 +225,8 @@ void	action_loop(t_window *window, t_level *l, t_bmp *bmp, t_obj *culled, int *f
 	int				i;
 
 	player_movement(fall_vector, l->pos, l, keys);
-	split_obj(culled, l, faces_left, faces_right);
+	if (rendermode != 2)
+		split_obj(culled, l, faces_left, faces_right);
 	l->obj = culled;
 
 	if (keys[SDL_SCANCODE_RIGHT])
@@ -239,31 +240,35 @@ void	action_loop(t_window *window, t_level *l, t_bmp *bmp, t_obj *culled, int *f
 
 	if (SDL_LockTexture(window->texture, NULL, (void**)&window->frame_buffer, &window_horizontal_size) != 0)
 		ft_error("failed to lock texture\n");
-	i = 0;
-	if (!(thread_data = (t_rthread**)malloc(sizeof(t_rthread*) * THREAD_AMOUNT)))
-		ft_error("memory allocation failed\n");
-	while (i < THREAD_AMOUNT)
+	if (rendermode == 2)
+		wireframe(window, l);
+	else
 	{
-		if (!(thread_data[i] = (t_rthread*)malloc(sizeof(t_rthread))))
+		i = 0;
+		if (!(thread_data = (t_rthread**)malloc(sizeof(t_rthread*) * THREAD_AMOUNT)))
 			ft_error("memory allocation failed\n");
-		thread_data[i]->id = i;
-		thread_data[i]->level = l;
-		thread_data[i]->window = window;
-		thread_data[i]->img = bmp;
-		threads[i] = SDL_CreateThread(render, "asd", (void*)thread_data[i]);
-		i++;
+		while (i < THREAD_AMOUNT)
+		{
+			if (!(thread_data[i] = (t_rthread*)malloc(sizeof(t_rthread))))
+				ft_error("memory allocation failed\n");
+			thread_data[i]->id = i;
+			thread_data[i]->level = l;
+			thread_data[i]->window = window;
+			thread_data[i]->img = bmp;
+			threads[i] = SDL_CreateThread(render, "asd", (void*)thread_data[i]);
+			i++;
+		}
+		i = 0;
+		while (i < THREAD_AMOUNT)
+		{
+			int thread_returnvalue;
+			SDL_WaitThread(threads[i], &thread_returnvalue);
+			free(thread_data[i]);
+			i++;
+		}
+		free(thread_data);
+		fill_pixels(window->frame_buffer, l->quality);
 	}
-	i = 0;
-	while (i < THREAD_AMOUNT)
-	{
-		int thread_returnvalue;
-		SDL_WaitThread(threads[i], &thread_returnvalue);
-		free(thread_data[i]);
-		i++;
-	}
-	free(thread_data);
-	fill_pixels(window->frame_buffer, l->quality);
-
 	/////////////////////bmp
 	// for (int y = 0; y < bmp->height; y++)
 	// {
@@ -306,12 +311,12 @@ int			main(int argc, char **argv)
 	t_level		*level;
 	unsigned	frametime;
 	t_bmp		bmp;
-	int			enable_culling;
+	int			rendermode;//0 raycast all, 1 raycast culled, 2 wireframe
 	int			relmouse;
 	t_obj		*culled;
 
 	relmouse = 0;
-	enable_culling = 1;
+	rendermode = 1;
 	bmp = bmp_read("out.bmp");
 	level = init_level();
 	level->quality = 3;
@@ -349,7 +354,7 @@ int			main(int argc, char **argv)
 			else if (event.key.repeat == 0 && event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_N)
 				player_movement((float[3]){0,0,0}, (float[3]){0,0,0}, NULL, NULL);
 			else if (event.key.repeat == 0 && event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_M)
-				enable_culling = enable_culling ? 0 : 1;
+				rendermode = rendermode == 2 ? 0 : rendermode + 1;
 			else if (event.key.repeat == 0 && event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_TAB)
 			{
 				relmouse = relmouse ? 0 : 1;
@@ -366,7 +371,7 @@ int			main(int argc, char **argv)
 		int faces_visible = level->obj->tri_amount;
 		int faces_left = culled[0].tri_amount;
 		int faces_right = culled[1].tri_amount;
-		if (enable_culling)
+		if (rendermode == 1)
 		{
 			faces_visible = 0;
 			culling(level, &faces_visible, culled);
@@ -377,7 +382,7 @@ int			main(int argc, char **argv)
 				culled[0].tris[i] = level->obj[0].tris[i];
 			culled[0].tri_amount = level->obj[0].tri_amount;
 		}
-		action_loop(window, level, &bmp, culled, &faces_left, &faces_right);
+		action_loop(window, level, &bmp, culled, &faces_left, &faces_right, rendermode);
 		level->obj = tmp;
 
 		frametime = SDL_GetTicks() - frametime;

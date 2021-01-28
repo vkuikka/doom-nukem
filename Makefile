@@ -12,7 +12,7 @@
 
 NAME = dnukem
 SRCDIR = src/
-SRC = main.c color.c culling.c vectors.c init.c render.c obj_read.c bmp_read.c find_quads.c
+SRC = main.c color.c culling.c vectors.c init.c render.c obj_read.c bmp_read.c find_quads.c wireframe.c
 LIB = libft/libft.a
 INCLUDE = libft/includes
 #FLAGS = -Wall -Wextra -Werror

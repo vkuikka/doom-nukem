@@ -12,7 +12,6 @@
 
 #ifndef DOOM_NUKEM_H
 # define DOOM_NUKEM_H
-
 # define RES_X 800.0
 # define RES_Y 600.0
 # define THREAD_AMOUNT 20
@@ -173,6 +172,8 @@ void		culling(t_level *level, int *visible, t_obj *culled);
 void		find_quads(t_obj *obj);
 
 int			face_color(float u, float v, t_tri t, t_bmp *img);
+void		wireframe(t_window *window, t_level *level);
+unsigned	crossfade(unsigned color1, unsigned color2, unsigned fade, unsigned r1);
 // int			skybox_color(t_ray r, t_bmp *img);
 
 #endif
