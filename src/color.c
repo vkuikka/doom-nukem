@@ -6,16 +6,11 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/21 17:32:09 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/26 02:18:41 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/29 03:46:04 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom-nukem.h"
-
-// int		skybox_color(t_ray r, t_bmp *img)
-// {
-// 	return (0);
-// }
 
 int		face_color(float u, float v, t_tri t, t_bmp *img)
 {
@@ -24,12 +19,12 @@ int		face_color(float u, float v, t_tri t, t_bmp *img)
 	float	w;
 
 	w = 1 - u - v;
-	x =	((t.verts[0].txtr[0] * img->width * w +
-			t.verts[1].txtr[0] * img->width * v +
-			t.verts[2].txtr[0] * img->width * u) / (float)(u + v + w));
-	y =	((t.verts[0].txtr[1] * img->height * w +
-			t.verts[1].txtr[1] * img->height * v +
-			t.verts[2].txtr[1] * img->height * u) / (float)(u + v + w));
+	x =	((t.verts[0].txtr.x * img->width * w +
+			t.verts[1].txtr.x * img->width * v +
+			t.verts[2].txtr.x * img->width * u) / (float)(u + v + w));
+	y =	((t.verts[0].txtr.y * img->height * w +
+			t.verts[1].txtr.y * img->height * v +
+			t.verts[2].txtr.y * img->height * u) / (float)(u + v + w));
 	if (y > img->height)
 		y = y % img->height;
 	else if (y < 0)

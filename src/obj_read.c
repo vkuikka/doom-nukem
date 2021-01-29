@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/01/26 01:40:49 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/29 03:45:11 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -182,36 +182,36 @@ static void	set_tri(char *str, t_vec3 *verts, t_vec2 *uvs, t_obj *obj, int i)
 
 	if (uvs)
 	{
-		obj->tris[i].verts[0].txtr[0] = uvs[uv_index.x].x;
-		obj->tris[i].verts[0].txtr[1] = uvs[uv_index.x].y;
-		obj->tris[i].verts[1].txtr[0] = uvs[uv_index.y].x;
-		obj->tris[i].verts[1].txtr[1] = uvs[uv_index.y].y;
-		obj->tris[i].verts[2].txtr[0] = uvs[uv_index.z].x;
-		obj->tris[i].verts[2].txtr[1] = uvs[uv_index.z].y;
+		obj->tris[i].verts[0].txtr.x = uvs[uv_index.x].x;
+		obj->tris[i].verts[0].txtr.y = uvs[uv_index.x].y;
+		obj->tris[i].verts[1].txtr.x = uvs[uv_index.y].x;
+		obj->tris[i].verts[1].txtr.y = uvs[uv_index.y].y;
+		obj->tris[i].verts[2].txtr.x = uvs[uv_index.z].x;
+		obj->tris[i].verts[2].txtr.y = uvs[uv_index.z].y;
 	}
 	else
 	{//idk if this block needed
-		obj->tris[i].verts[0].txtr[0] = 0;
-		obj->tris[i].verts[0].txtr[1] = 0;
-		obj->tris[i].verts[1].txtr[0] = 0;
-		obj->tris[i].verts[1].txtr[1] = 0;
-		obj->tris[i].verts[2].txtr[0] = 0;
-		obj->tris[i].verts[2].txtr[1] = 0;
+		obj->tris[i].verts[0].txtr.x = 0;
+		obj->tris[i].verts[0].txtr.y = 0;
+		obj->tris[i].verts[1].txtr.x = 0;
+		obj->tris[i].verts[1].txtr.y = 0;
+		obj->tris[i].verts[2].txtr.x = 0;
+		obj->tris[i].verts[2].txtr.y = 0;
 	}
-	obj->tris[i].verts[0].pos[0] = verts[tex_index.x].x;
-	obj->tris[i].verts[0].pos[1] = -verts[tex_index.x].y;
-	obj->tris[i].verts[0].pos[2] = -verts[tex_index.x].z;
+	obj->tris[i].verts[0].pos.x = verts[tex_index.x].x;
+	obj->tris[i].verts[0].pos.y = -verts[tex_index.x].y;
+	obj->tris[i].verts[0].pos.z = -verts[tex_index.x].z;
 
-	obj->tris[i].verts[1].pos[0] = verts[tex_index.y].x;
-	obj->tris[i].verts[1].pos[1] = -verts[tex_index.y].y;
-	obj->tris[i].verts[1].pos[2] = -verts[tex_index.y].z;
+	obj->tris[i].verts[1].pos.x = verts[tex_index.y].x;
+	obj->tris[i].verts[1].pos.y = -verts[tex_index.y].y;
+	obj->tris[i].verts[1].pos.z = -verts[tex_index.y].z;
 
-	obj->tris[i].verts[2].pos[0] = verts[tex_index.z].x;
-	obj->tris[i].verts[2].pos[1] = -verts[tex_index.z].y;
-	obj->tris[i].verts[2].pos[2] = -verts[tex_index.z].z;
+	obj->tris[i].verts[2].pos.x = verts[tex_index.z].x;
+	obj->tris[i].verts[2].pos.y = -verts[tex_index.z].y;
+	obj->tris[i].verts[2].pos.z = -verts[tex_index.z].z;
 
-	vec_sub(obj->tris[i].v0v2, obj->tris[i].verts[1].pos, obj->tris[i].verts[0].pos);
-	vec_sub(obj->tris[i].v0v1, obj->tris[i].verts[2].pos, obj->tris[i].verts[0].pos);
+	vec_sub(&obj->tris[i].v0v2, obj->tris[i].verts[1].pos, obj->tris[i].verts[0].pos);
+	vec_sub(&obj->tris[i].v0v1, obj->tris[i].verts[2].pos, obj->tris[i].verts[0].pos);
 }
 
 void	load_obj(char *filename, t_obj *obj)

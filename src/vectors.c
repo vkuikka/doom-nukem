@@ -6,89 +6,89 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/07 18:13:00 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/26 02:22:17 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/29 03:42:09 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom-nukem.h"
 
-void		vec_normalize(float vec[3])
+void		vec_normalize(t_vec3 *vec)
 {
-	float w = sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
-	vec[0] /= w;
-	vec[1] /= w;
-	vec[2] /= w;
+	float w = sqrt(vec->x * vec->x + vec->y * vec->y + vec->z * vec->z);
+	vec->x /= w;
+	vec->y /= w;
+	vec->z /= w;
 }
 
-float		vec_length(float vec[3])
+float		vec_length(t_vec3 vec)
 {
-	return (sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]));
+	return (sqrt(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z));
 }
 
-float		vec_dot(float ve1[3], float ve2[3])
+float		vec_dot(t_vec3 ve1, t_vec3 ve2)
 {
-	return (ve1[0] * ve2[0] + ve1[1] * ve2[1] + ve1[2] * ve2[2]);
+	return (ve1.x * ve2.x + ve1.y * ve2.y + ve1.z * ve2.z);
 }
 
-int			vec_cmp(float ve1[3], float ve2[3])
+int			vec_cmp(t_vec3 ve1, t_vec3 ve2)
 {
-	if (ve1[0] != ve2[0])
+	if (ve1.x != ve2.x)
 		return (0);
-	if (ve1[1] != ve2[1])
+	if (ve1.y != ve2.y)
 		return (0);
-	if (ve1[2] != ve2[2])
+	if (ve1.z != ve2.z)
 		return (0);
 	return (1);
 }
 
-void		vec_avg(float res[3], float ve1[3], float ve2[3])
+void		vec_avg(t_vec3 *res, t_vec3 ve1, t_vec3 ve2)
 {
-	res[0] = (ve1[0] + ve2[0]) / 2;
-	res[1] = (ve1[1] + ve2[1]) / 2;
-	res[2] = (ve1[2] + ve2[2]) / 2;
+	res->x = (ve1.x + ve2.x) / 2;
+	res->y = (ve1.y + ve2.y) / 2;
+	res->z = (ve1.z + ve2.z) / 2;
 }
 
-void		vec_add(float res[3], float ve1[3], float ve2[3])
+void		vec_add(t_vec3 *res, t_vec3 ve1, t_vec3 ve2)
 {
-	res[0] = ve1[0] + ve2[0];
-	res[1] = ve1[1] + ve2[1];
-	res[2] = ve1[2] + ve2[2];
+	res->x = ve1.x + ve2.x;
+	res->y = ve1.y + ve2.y;
+	res->z = ve1.z + ve2.z;
 }
 
-void		vec_copy(float res[3], float ve[3])
+void		vec_copy(t_vec3 *res, t_vec3 ve)
 {
-	res[0] = ve[0];
-	res[1] = ve[1];
-	res[2] = ve[2];
+	res->x = ve.x;
+	res->y = ve.y;
+	res->z = ve.z;
 }
 
-void		vec2_copy(float res[2], float ve[2])
+void		vec2_copy(t_vec2 *res, t_vec2 ve)
 {
-	res[0] = ve[0];
-	res[1] = ve[1];
+	res->x = ve.x;
+	res->y = ve.y;
 }
 
-void		vec_sub(float res[3], float ve1[3], float ve2[3])
+void		vec_sub(t_vec3 *res, t_vec3 ve1, t_vec3 ve2)
 {
-	res[0] = ve1[0] - ve2[0];
-	res[1] = ve1[1] - ve2[1];
-	res[2] = ve1[2] - ve2[2];
+	res->x = ve1.x - ve2.x;
+	res->y = ve1.y - ve2.y;
+	res->z = ve1.z - ve2.z;
 }
 
-void		vec_cross(float res[3], float u[3], float v[3])
+void		vec_cross(t_vec3 *res, t_vec3 u, t_vec3 v)
 {
-	res[0] = u[1] * v[2] - v[1] * u[2];
-	res[1] = v[0] * u[2] - u[0] * v[2];
-	res[2] = u[0] * v[1] - v[0] * u[1];
+	res->x = u.y * v.z - v.y * u.z;
+	res->y = v.x * u.z - u.x * v.z;
+	res->z = u.x * v.y - v.x * u.y;
 }
 
-void		vec_rot(float res[3], float ve1[3], float ang)
+void		vec_rot(t_vec3 *res, t_vec3 ve1, float ang)
 {
 	float c = cos(ang);
 	float s = sin(ang);
-	res[0] = ve1[0] * c + ve1[2] * s;
-	res[1] = ve1[1];
-	res[2] = -ve1[0] * s + ve1[2] * c;
+	res->x = ve1.x * c + ve1.z * s;
+	res->y = ve1.y;
+	res->z = -ve1.x * s + ve1.z * c;
 }
 
 // int main(void)

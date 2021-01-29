@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/26 02:27:31 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/29 03:47:54 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,18 +42,18 @@ void			fill_pixels(unsigned *grid, int gap)
 
 float	cast_face(t_tri t, t_ray ray, int *col, t_bmp *img)
 {
-	float	pvec[3];
-	vec_cross(pvec, ray.dir, t.v0v2);
+	t_vec3	pvec;
+	vec_cross(&pvec, ray.dir, t.v0v2);
 	float invdet = 1 / vec_dot(pvec, t.v0v1); 
 
-	float	tvec[3];
-	vec_sub(tvec, ray.pos, t.verts[0].pos);
+	t_vec3	tvec;
+	vec_sub(&tvec, ray.pos, t.verts[0].pos);
 	float u = vec_dot(tvec, pvec) * invdet;
 	if (u < 0 || u > 1)
 		return 0;
 
-	float qvec[3];
-	vec_cross(qvec, tvec, t.v0v1);
+	t_vec3 qvec;
+	vec_cross(&qvec, tvec, t.v0v1);
 	float v = vec_dot(ray.dir, qvec) * invdet;
 	if (t.isquad)
 	{
@@ -112,17 +112,17 @@ int		render(void *data_pointer)
 
 	if (t->level->quality > 7)
 		rand_amount = 2;
-	r.pos[0] = t->level->pos[0];
-	r.pos[1] = t->level->pos[1];
-	r.pos[2] = t->level->pos[2];
+	r.pos.x = t->level->pos.x;
+	r.pos.y = t->level->pos.y;
+	r.pos.z = t->level->pos.z;
 
 	// for (int x = 0; x < RES_X; x++)
 	for (int x = t->id; x < RES_X; x += THREAD_AMOUNT)
 	{
-		float tmp[3];
-		tmp[0] = 1 / RES_X * x - 0.5;
-		tmp[1] = 0;
-		tmp[2] = 1;
+		t_vec3 tmp;
+		tmp.x = 1 / RES_X * x - 0.5;
+		tmp.y = 0;
+		tmp.z = 1;
 		for (int y = 0; y < RES_Y; y++)
 		{
 			if (rand() % rand_amount)	//skip random pixel
@@ -130,9 +130,9 @@ int		render(void *data_pointer)
 			{
 				t->window->frame_buffer[x + (y * (int)RES_X)] = t->level->fog_color;;
 				t->window->depth_buffer[x + (y * (int)RES_X)] = 0;
-				vec_rot(r.dir, tmp, angle);
+				vec_rot(&r.dir, tmp, angle);
 
-				r.dir[1] = (1 / RES_Y * y) - t->level->look_up;
+				r.dir.y = (1 / RES_Y * y) - t->level->look_up;
 				// vec_normalize(r.dir);
 
 				int side = x < RES_X / 2 ? 0 : 1;

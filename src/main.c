@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/26 02:28:22 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/29 03:50:38 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ float	cast_all(t_ray vec, t_level *l, float *dist_u, float *dist_d)
 	return (res);
 }
 
-void	player_movement(float dir[3], float pos[3], t_level *l, const Uint8 *keys)
+void	player_movement(t_vec3 *dir, t_vec3 *pos, t_level *l, const Uint8 *keys)
 {
 	static int	noclip = 1;
 	static int	jump_delay = 0;
@@ -54,88 +54,88 @@ void	player_movement(float dir[3], float pos[3], t_level *l, const Uint8 *keys)
 	{
 		speed = NOCLIP_SPEED;
 		if (keys[SDL_SCANCODE_SPACE])
-			l->pos[1] -= 0.5;
+			l->pos.y -= 0.5;
 		if (keys[SDL_SCANCODE_LSHIFT])
-			l->pos[1] += 0.5;
+			l->pos.y += 0.5;
 	}
 	else if (keys[SDL_SCANCODE_LSHIFT])
 		speed /= 2;
 
-	float rot[3];
-	float rot_tmp[3];
-	rot_tmp[0] = 0;
-	rot_tmp[1] = 0;
-	rot_tmp[2] = 1;
+	t_vec3	rot;
+	t_vec3	rot_tmp;
+	rot_tmp.x = 0;
+	rot_tmp.y = 0;
+	rot_tmp.z = 1;
 
-	r.pos[0] = pos[0];
-	r.pos[1] = pos[1];
-	r.pos[2] = pos[2];
+	r.pos.x = pos->x;
+	r.pos.y = pos->y;
+	r.pos.z = pos->z;
 
 	if (keys[SDL_SCANCODE_W])
 	{
-		vec_rot(rot, rot_tmp, l->look_side);
-		r.dir[0] = rot[0];
-		r.dir[1] = rot[1];
-		r.dir[2] = rot[2];
+		vec_rot(&rot, rot_tmp, l->look_side);
+		r.dir.x = rot.x;
+		r.dir.y = rot.y;
+		r.dir.z = rot.z;
 		dist = cast_all(r, l, NULL, NULL);
 		if (noclip || (dist <= 0 || dist > WALL_CLIP_DIST))
 		{
-			l->pos[0] += rot[0] * speed;
-			l->pos[2] += rot[2] * speed;
+			l->pos.x += rot.x * speed;
+			l->pos.z += rot.z * speed;
 		}
 	}
 	if (keys[SDL_SCANCODE_S])
 	{
-		vec_rot(rot, rot_tmp, l->look_side + M_PI);
-		r.dir[0] = rot[0];
-		r.dir[1] = rot[1];
-		r.dir[2] = rot[2];
+		vec_rot(&rot, rot_tmp, l->look_side + M_PI);
+		r.dir.x = rot.x;
+		r.dir.y = rot.y;
+		r.dir.z = rot.z;
 		dist = cast_all(r, l, NULL, NULL);
 		if (noclip || (dist <= 0 || dist > WALL_CLIP_DIST))
 		{
-			l->pos[0] += rot[0] * speed;
-			l->pos[2] += rot[2] * speed;
+			l->pos.x += rot.x * speed;
+			l->pos.z += rot.z * speed;
 		}
 	}
 	if (keys[SDL_SCANCODE_D])
 	{
-		vec_rot(rot, rot_tmp, l->look_side + M_PI / 2);
-		r.dir[0] = rot[0];
-		r.dir[1] = rot[1];
-		r.dir[2] = rot[2];
+		vec_rot(&rot, rot_tmp, l->look_side + M_PI / 2);
+		r.dir.x = rot.x;
+		r.dir.y = rot.y;
+		r.dir.z = rot.z;
 		dist = cast_all(r, l, NULL, NULL);
 		if (noclip || (dist <= 0 || dist > WALL_CLIP_DIST))
 		{
-			l->pos[0] += rot[0] * speed;
-			l->pos[2] += rot[2] * speed;
+			l->pos.x += rot.x * speed;
+			l->pos.z += rot.z * speed;
 		}
 	}
 	if (keys[SDL_SCANCODE_A])
 	{
-		vec_rot(rot, rot_tmp, l->look_side - M_PI / 2);
-		r.dir[0] = rot[0];
-		r.dir[1] = rot[1];
-		r.dir[2] = rot[2];
+		vec_rot(&rot, rot_tmp, l->look_side - M_PI / 2);
+		r.dir.x = rot.x;
+		r.dir.y = rot.y;
+		r.dir.z = rot.z;
 		dist = cast_all(r, l, NULL, NULL);
 		if (noclip || (dist <= 0 || dist > WALL_CLIP_DIST))
 		{
-			l->pos[0] += rot[0] * speed;
-			l->pos[2] += rot[2] * speed;
+			l->pos.x += rot.x * speed;
+			l->pos.z += rot.z * speed;
 		}
 	}
 	if (noclip)
 		return;
-	if (keys[SDL_SCANCODE_SPACE] && dir[1] >= 0 && SDL_GetTicks() > jump_delay + 500)
+	if (keys[SDL_SCANCODE_SPACE] && dir->y >= 0 && SDL_GetTicks() > jump_delay + 500)
 	{
-		dir[1] = -0.4;
+		dir->y = -0.4;
 		jump_delay = SDL_GetTicks();
 	}
 	float dist_d = 100000;
 	float dist_u = -100000;
 
-	r.dir[0] = 0;
-	r.dir[1] = 1;
-	r.dir[2] = 0;
+	r.dir.x = 0;
+	r.dir.y = 1;
+	r.dir.z = 0;
 	cast_all(r, l, &dist_u, &dist_d);
 	if (dist_d > 0 && dist_d != 100000)
 		dist = dist_d;
@@ -143,31 +143,31 @@ void	player_movement(float dir[3], float pos[3], t_level *l, const Uint8 *keys)
 		dist = dist_u;
 	if (dist > 0)
 	{
-		if (dir[1] < 0)
-			dir[1] += 0.08;
-		if (dist < dir[1])
-			dir[1] = 0;
-		if (dist > 1 && dir[1] < 1.5)
-			dir[1] += 0.04;
+		if (dir->y < 0)
+			dir->y += 0.08;
+		if (dist < dir->y)
+			dir->y = 0;
+		if (dist > 1 && dir->y < 1.5)
+			dir->y += 0.04;
 		else if (dist < 1)
-			pos[1] += dist - 1;
+			pos->y += dist - 1;
 	}
 	else if (dist < 0 && dist > -1)
 	{
-		dir[1] = 0;
-		pos[1] += dist - 0.5;
+		dir->y = 0;
+		pos->y += dist - 0.5;
 	}
-	pos[1] += dir[1];
+	pos->y += dir->y;
 }
 
 int				is_tri_side(t_tri tri, t_ray c)
 {
-	float   end[3];
+	t_vec3   end;
 
 	int amount = tri.isquad ? 4 : 3;
 	for (int i = 0; i < amount; i++)
 	{
-		vec_sub(end, tri.verts[i].pos, c.pos);
+		vec_sub(&end, tri.verts[i].pos, c.pos);
 		if (vec_dot(end, c.dir) <= 0)
 			return (0);
 	}
@@ -181,14 +181,14 @@ void			split_obj(t_obj *culled, t_level *level, int *faces_left, int *faces_righ
 	t_ray	right;
 	t_ray	left;
 
-	left.pos[0] = level->pos[0];
-	left.pos[1] = level->pos[1];
-	left.pos[2] = level->pos[2];
-	vec_rot(left.dir, (float[3]){0,0,1}, level->look_side - (M_PI / 2));
-	right.pos[0] = level->pos[0];
-	right.pos[1] = level->pos[1];
-	right.pos[2] = level->pos[2];
-	vec_rot(right.dir, (float[3]){0,0,1}, level->look_side + (M_PI / 2));
+	left.pos.x = level->pos.x;
+	left.pos.y = level->pos.y;
+	left.pos.z = level->pos.z;
+	vec_rot(&left.dir, (t_vec3){0,0,1}, level->look_side - (M_PI / 2));
+	right.pos.x = level->pos.x;
+	right.pos.y = level->pos.y;
+	right.pos.z = level->pos.z;
+	vec_rot(&right.dir, (t_vec3){0,0,1}, level->look_side + (M_PI / 2));
 	for (int i = 0; i < culled->tri_amount; i++)
 	{
 		if (is_tri_side(culled[0].tris[i], left))
@@ -218,13 +218,13 @@ void			split_obj(t_obj *culled, t_level *level, int *faces_left, int *faces_righ
 void	action_loop(t_window *window, t_level *l, t_bmp *bmp, t_obj *culled, int *faces_left, int *faces_right, int rendermode)
 {
 	const Uint8		*keys = SDL_GetKeyboardState(NULL);
-	static float	fall_vector[3] = {0, 0, 0};
+	static t_vec3	fall_vector = {0, 0, 0};
 	SDL_Thread		*threads[THREAD_AMOUNT];
 	t_rthread		**thread_data;
 	int				window_horizontal_size;
 	int				i;
 
-	player_movement(fall_vector, l->pos, l, keys);
+	player_movement(&fall_vector, &l->pos, l, keys);
 	if (rendermode != 2)
 		split_obj(culled, l, faces_left, faces_right);
 	l->obj = culled;
@@ -352,7 +352,7 @@ int			main(int argc, char **argv)
 				level->look_up -= (float)event.motion.yrel / 200;
 			}
 			else if (event.key.repeat == 0 && event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_N)
-				player_movement((float[3]){0,0,0}, (float[3]){0,0,0}, NULL, NULL);
+				player_movement(&(t_vec3){0,0,0}, &(t_vec3){0,0,0}, NULL, NULL);
 			else if (event.key.repeat == 0 && event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_M)
 				rendermode = rendermode == 2 ? 0 : rendermode + 1;
 			else if (event.key.repeat == 0 && event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_TAB)

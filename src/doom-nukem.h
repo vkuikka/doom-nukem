@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/26 02:28:34 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/29 03:42:34 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,18 +39,6 @@ typedef struct			s_window
 	float				*depth_buffer;
 }						t_window;
 
-typedef struct			s_ray		//only position and direction will probably be used
-{
-	float				pos[3];
-	float				dir[3];
-}						t_ray;
-
-typedef struct			s_vert
-{
-	float				pos[3];		//world position in 3d
-	float				txtr[2];	//position of the vert in the texture
-}						t_vert;
-
 typedef struct			s_ivec3
 {
 	int					x;
@@ -71,11 +59,23 @@ typedef struct			s_vec2
 	float				y;
 }						t_vec2;
 
+typedef struct			s_ray
+{
+	struct s_vec3		pos;
+	struct s_vec3		dir;
+}						t_ray;
+
+typedef struct			s_vert
+{
+	struct s_vec3		pos;		//world position in 3d
+	struct s_vec2		txtr;		//texture position in 2d
+}						t_vert;
+
 typedef struct			s_tri
 {
 	struct s_vert		verts[4];	//vertex coordinates of 3d triangle
-	float				v0v1[3];	//vector between vertices 1 and 0
-	float				v0v2[3];	//vector between vertices 2 and 0
+	struct s_vec3		v0v1;		//vector between vertices 1 and 0
+	struct s_vec3		v0v2;		//vector between vertices 2 and 0
 	int					isquad;
 }						t_tri;
 
@@ -90,11 +90,10 @@ typedef struct			s_obj
 typedef struct			s_level
 {
 	struct s_obj		*obj;		//array of objects in the level
-	float				pos[3];		//player position vector
-	// float				dir[3];		//vector from player position to indicate ray direction in the middle of screen
-	float				look_side;		//using angle instead of direction vector for testing
-	float				look_up;
-	int					*txtr;		//pointer to the texture as a 2d array of pixel colors
+	struct s_vec3		pos;		//player position
+	float				look_side;	//side look angle
+	float				look_up;	//up and down look angle
+	int					*txtr;		//pointer to the level texture
 	int					quality;
 	unsigned			fog_color;
 }						t_level;
@@ -144,36 +143,33 @@ typedef struct								s_bmp
 	int										*image;
 }											t_bmp;
 
-void		vec_normalize(float vec1[3]);						//makes vector length 1
-float		vec_dot(float ve1[3], float ve2[3]);				//dot product of two vectors
-float		vec_length(float vec[3]);
-void		vec_sub(float res[3], float ve1[3], float ve2[3]);
-void		vec_add(float res[3], float ve1[3], float ve2[3]);
-void		vec_cross(float res[3], float u[3], float v[3]);
-void		vec_rot(float res[3], float ve1[3], float ang);		//rotates atound y axis
-int			vec_cmp(float ve1[3], float ve2[3]);
-void		vec_avg(float res[3], float ve1[3], float ve2[3]);
-void		vec_copy(float res[3], float ve[3]);
-void		vec2_copy(float res[2], float ve[2]);
+void		vec_normalize(t_vec3 *vec);						//makes vector length 1
+float		vec_dot(t_vec3 ve1, t_vec3 ve2);			//dot product of two vectors
+float		vec_length(t_vec3 vec);
+void		vec_sub(t_vec3 *res, t_vec3 ve1, t_vec3 ve2);
+void		vec_add(t_vec3 *res, t_vec3 ve1, t_vec3 ve2);
+void		vec_cross(t_vec3 *res, t_vec3 u, t_vec3 v);
+void		vec_rot(t_vec3 *res, t_vec3 ve1, float ang);		//rotates atound y axis
+int			vec_cmp(t_vec3 ve1, t_vec3 ve2);
+void		vec_avg(t_vec3 *res, t_vec3 ve1, t_vec3 ve2);
+void		vec_copy(t_vec3 *res, t_vec3 vec);
+void		vec2_copy(t_vec2 *res, t_vec2 vec);
 
 void		init_window(t_window **window);
-
-void		draw_line(int line[4], t_window *window);
+t_level		*init_level();
 
 int			render(void *t);
 float		cast_face(t_tri t, t_ray ray, int *col, t_bmp *img);
-t_level		*init_level();
-
 void		fill_pixels(unsigned *grid, int pixel_gap);
+unsigned	crossfade(unsigned color1, unsigned color2, unsigned fade, unsigned r1);
+int			face_color(float u, float v, t_tri t, t_bmp *img);
+
+void		wireframe(t_window *window, t_level *level);
+
 void		load_obj(char *filename, t_obj *obj);
 t_bmp		bmp_read(char *str);
 
 void		culling(t_level *level, int *visible, t_obj *culled);
 void		find_quads(t_obj *obj);
-
-int			face_color(float u, float v, t_tri t, t_bmp *img);
-void		wireframe(t_window *window, t_level *level);
-unsigned	crossfade(unsigned color1, unsigned color2, unsigned fade, unsigned r1);
-// int			skybox_color(t_ray r, t_bmp *img);
 
 #endif

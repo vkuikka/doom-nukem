@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/21 16:54:13 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/01/26 02:28:00 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/29 03:44:59 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,50 +14,55 @@
 
 void	set_fourth_vertex(t_tri *a)
 {
-	float shared1[3];
-	float shared2[3];
-	float avg[3];
-	float new[3];
-	float res[3];
+	t_vec3 shared1;
+	t_vec3 shared2;
+	t_vec3 avg;
+	t_vec3 new;
+	t_vec3 res;
 
-	vec_sub(shared1, a->verts[1].pos, a->verts[0].pos);
-	vec_sub(shared2, a->verts[2].pos, a->verts[0].pos);
-	vec_avg(avg, shared1, shared2);
-	vec_add(new, avg, avg);
-	vec_add(res, new, a->verts[0].pos);
-	a->verts[3].pos[0] = res[0];
-	a->verts[3].pos[1] = res[1];
-	a->verts[3].pos[2] = res[2];
+	vec_sub(&shared1, a->verts[1].pos, a->verts[0].pos);
+	vec_sub(&shared2, a->verts[2].pos, a->verts[0].pos);
+	vec_avg(&avg, shared1, shared2);
+	vec_add(&new, avg, avg);
+	vec_add(&res, new, a->verts[0].pos);
+	a->verts[3].pos.x = res.x;
+	a->verts[3].pos.y = res.y;
+	a->verts[3].pos.z = res.z;
 }
 
 void	set_mirror_dir(t_tri *a, int not_shared_vertex_index)
 {
-	float tmp[3];
+	t_vec3 tmp;
+	t_vec2 v2tmp;
 
 	if (not_shared_vertex_index == 1)
 	{
-		vec_copy(tmp, a->verts[0].pos);
-		vec_copy(a->verts[0].pos, a->verts[1].pos);
-		vec_copy(a->verts[1].pos, a->verts[2].pos);
-		vec_copy(a->verts[2].pos, tmp);
-		vec2_copy(tmp, a->verts[0].txtr);
-		vec2_copy(a->verts[0].txtr, a->verts[1].txtr);
-		vec2_copy(a->verts[1].txtr, a->verts[2].txtr);
-		vec2_copy(a->verts[2].txtr, tmp);
+		vec_copy(&tmp, a->verts[0].pos);
+		vec_copy(&a->verts[0].pos, a->verts[1].pos);
+		vec_copy(&a->verts[1].pos, a->verts[2].pos);
+		vec_copy(&a->verts[2].pos, tmp);
+		v2tmp.x = tmp.x;
+		v2tmp.y = tmp.y;
+		vec2_copy(&v2tmp, a->verts[0].txtr);
+		vec2_copy(&a->verts[0].txtr, a->verts[1].txtr);
+		vec2_copy(&a->verts[1].txtr, a->verts[2].txtr);
+		vec2_copy(&a->verts[2].txtr, v2tmp);
 	}
 	else if (not_shared_vertex_index == 2)
 	{
-		vec_copy(tmp, a->verts[0].pos);
-		vec_copy(a->verts[0].pos, a->verts[2].pos);
-		vec_copy(a->verts[2].pos, a->verts[1].pos);
-		vec_copy(a->verts[1].pos, tmp);
-		vec2_copy(tmp, a->verts[0].txtr);
-		vec2_copy(a->verts[0].txtr, a->verts[2].txtr);
-		vec2_copy(a->verts[2].txtr, a->verts[1].txtr);
-		vec2_copy(a->verts[1].txtr, tmp);
+		vec_copy(&tmp, a->verts[0].pos);
+		vec_copy(&a->verts[0].pos, a->verts[2].pos);
+		vec_copy(&a->verts[2].pos, a->verts[1].pos);
+		vec_copy(&a->verts[1].pos, tmp);
+		v2tmp.x = tmp.x;
+		v2tmp.y = tmp.y;
+		vec2_copy(&v2tmp, a->verts[0].txtr);
+		vec2_copy(&a->verts[0].txtr, a->verts[2].txtr);
+		vec2_copy(&a->verts[2].txtr, a->verts[1].txtr);
+		vec2_copy(&a->verts[1].txtr, v2tmp);
 	}
-	vec_sub(a->v0v2, a->verts[1].pos, a->verts[0].pos);
-	vec_sub(a->v0v1, a->verts[2].pos, a->verts[0].pos);
+	vec_sub(&a->v0v2, a->verts[1].pos, a->verts[0].pos);
+	vec_sub(&a->v0v1, a->verts[2].pos, a->verts[0].pos);
 }
 
 int		has_2_shared_vertices(t_tri a, t_tri b, int *not_shared)
@@ -107,19 +112,19 @@ int		is_mirror(t_tri a, t_tri b, int *not_shared_vertex_index)
 	}
 	else if (not_shared[0] == 1)
 		y++;
-	float shared1[3];
-	float shared2[3];
-	float nshared[3];
-	vec_sub(shared1, a.verts[x].pos, a.verts[not_shared[0]].pos);
-	vec_sub(shared2, a.verts[y].pos, a.verts[not_shared[0]].pos);
-	vec_sub(nshared, b.verts[not_shared[1]].pos, a.verts[not_shared[0]].pos);
-	float avg[3];
-	float res[3];
-	vec_avg(avg, shared1, shared2);
-	vec_add(res, avg, avg);
+	t_vec3	shared1;
+	t_vec3	shared2;
+	t_vec3	nshared;
+	vec_sub(&shared1, a.verts[x].pos, a.verts[not_shared[0]].pos);
+	vec_sub(&shared2, a.verts[y].pos, a.verts[not_shared[0]].pos);
+	vec_sub(&nshared, b.verts[not_shared[1]].pos, a.verts[not_shared[0]].pos);
+	t_vec3	avg;
+	t_vec3	res;
+	vec_avg(&avg, shared1, shared2);
+	vec_add(&res, avg, avg);
 	(*not_shared_vertex_index) = not_shared[0];
-	float aa[3];
-	vec_sub(aa, res, nshared);
+	t_vec3	aa;
+	vec_sub(&aa, res, nshared);
 	float len = vec_length(aa);
 	return ((len < 0.0001));
 	return (vec_cmp(res, nshared));

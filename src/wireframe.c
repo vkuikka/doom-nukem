@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   printer.c                                          :+:      :+:    :+:   */
+/*   wireframe.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/05 16:44:10 by rpehkone          #+#    #+#             */
-/*   Updated: 2020/03/07 21:39:06 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/01/29 03:45:34 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,9 +89,9 @@ void	camera_offset(t_vec3 *vertex, t_level *level)
 	float fov = 500;
 
 	//move vertices to camera position
-	vertex->x -= level->pos[0];
-	vertex->y -= level->pos[1];
-	vertex->z -= level->pos[2];
+	vertex->x -= level->pos.x;
+	vertex->y -= level->pos.y;
+	vertex->z -= level->pos.z;
 
 	//rotate vertices around camera
 	rotate_vertex(-1 * level->look_side, vertex, 0);
@@ -120,12 +120,12 @@ void	wireframe(t_window *window, t_level *level)
 		int amount = level->obj[0].tris[i].isquad ? 4 : 3;
 		for (int j = 0; j < amount; j++)
 		{
-			start.x = level->obj[0].tris[i].verts[j].pos[0];
-			start.y = level->obj[0].tris[i].verts[j].pos[1];
-			start.z = level->obj[0].tris[i].verts[j].pos[2];
-			stop.x = level->obj[0].tris[i].verts[(j + 1) % 3].pos[0];
-			stop.y = level->obj[0].tris[i].verts[(j + 1) % 3].pos[1];
-			stop.z = level->obj[0].tris[i].verts[(j + 1) % 3].pos[2];
+			start.x = level->obj[0].tris[i].verts[j].pos.x;
+			start.y = level->obj[0].tris[i].verts[j].pos.y;
+			start.z = level->obj[0].tris[i].verts[j].pos.z;
+			stop.x = level->obj[0].tris[i].verts[(j + 1) % 3].pos.x;
+			stop.y = level->obj[0].tris[i].verts[(j + 1) % 3].pos.y;
+			stop.z = level->obj[0].tris[i].verts[(j + 1) % 3].pos.z;
 
 			camera_offset(&start, level);
 			camera_offset(&stop, level);
@@ -140,20 +140,20 @@ void	wireframe(t_window *window, t_level *level)
 		avg.z = 0;
 		for (int j = 0; j < amount; j++)
 		{
-			avg.x += level->obj[0].tris[i].verts[j].pos[0];
-			avg.y += level->obj[0].tris[i].verts[j].pos[1];
-			avg.z += level->obj[0].tris[i].verts[j].pos[2];
+			avg.x += level->obj[0].tris[i].verts[j].pos.x;
+			avg.y += level->obj[0].tris[i].verts[j].pos.y;
+			avg.z += level->obj[0].tris[i].verts[j].pos.z;
 		}
 		avg.x /= amount;
 		avg.y /= amount;
 		avg.z /= amount;
-		float normal_dir[3];
-		vec_cross(normal_dir, level->obj[0].tris[i].v0v1, level->obj[0].tris[i].v0v2);
-		vec_normalize(normal_dir);
+		t_vec3	normal_dir;
+		vec_cross(&normal_dir, level->obj[0].tris[i].v0v1, level->obj[0].tris[i].v0v2);
+		vec_normalize(&normal_dir);
 		t_vec3 normal;
-		normal.x = avg.x - normal_dir[0];
-		normal.y = avg.y - normal_dir[1];
-		normal.z = avg.z - normal_dir[2];
+		normal.x = avg.x - normal_dir.x;
+		normal.y = avg.y - normal_dir.y;
+		normal.z = avg.z - normal_dir.z;
 		camera_offset(&avg, level);
 		camera_offset(&normal, level);
 		int color[2] = {0x00ffff, 0x00ffff};
