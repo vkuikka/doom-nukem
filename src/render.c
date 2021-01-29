@@ -20,7 +20,7 @@ void			fill_pixels(unsigned *grid, int gap)
 	int		y;
 
 	y = 0;
-	while (y < RES_Y - gap)
+	while (y < RES_Y)
 	{
 		x = 0;
 		color = 0;
