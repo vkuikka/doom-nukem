@@ -14,7 +14,7 @@
 
 void	pixel_put(int x, int y, int color, t_window *window)
 {
-	if (x < 0 || y < 0 || x > RES_X || y > RES_Y)
+	if (x < 0 || y < 0 || x >= RES_X || y >= RES_Y)
 		return;
 	//window->depth_buffer[x + (y * (int)RES_X)] = dist;
 	window->frame_buffer[x + (y * (int)RES_X)] = color;
@@ -106,11 +106,123 @@ void	camera_offset(t_vec3 *vertex, t_level *level)
 	vertex->y += RES_Y / 2;
 }
 
+void	put_edit_mode(int mode, t_window *window)
+{
+	char mode_selector[3][14][14] =
+	{{"..............",
+	"..............",
+	"..............",
+	"..............",
+	"..............",
+	"......xxx.....",
+	"......xxx.....",
+	"......xxx.....",
+	"..............",
+	"..............",
+	"..............",
+	"..............",
+	"..............",
+	".............."},
+
+	{"..............",
+	"..............",
+	"..............",
+	"...x..........",
+	"....x.........",
+	".....x........",
+	"......x.......",
+	".......x......",
+	"........x.....",
+	".........x....",
+	"..........x...",
+	"...........x..",
+	"..............",
+	".............."},
+
+	{"..............",
+	"..............",
+	"..xxxxxxxxxx..",
+	"...xxxxxxxxx..",
+	"....xxxxxxxx..",
+	".....xxxxxxx..",
+	"......xxxxxx..",
+	".......xxxxx..",
+	"........xxxx..",
+	".........xxx..",
+	"..........xx..",
+	"...........x..",
+	"..............",
+	".............."}};
+
+	for (int i = 0; i < 3; i++)
+	{
+		for (int x = 0; x < 14; x++)
+		{
+			for (int y = 0; y < 14; y++)
+			{
+				if (mode_selector[i][y][x] == '.')
+				{
+					if (mode == i)
+						pixel_put(x + 2 + i + i * 14, y + 1, 0x6666ddff, window);
+					else
+						pixel_put(x + 2 + i + i * 14, y + 1, 0x777777ff, window);
+				}
+				else
+					pixel_put(x + 2 + i + i * 14, y + 1, 0xccccccff, window);
+			}
+		}
+	}
+	for (int y = 0; y < 16; y++)
+	{
+		for (int x = 0; x < 14 * 3 + 5; x++)
+		{
+			if (y == 0 || y == 15 || x == 0 || x == 1 || x == 16 || x == 31 || x == 46)
+				pixel_put(x, y, 0x444444ff, window);
+		}
+	}
+}
+
+int		select_mode(int mode)
+{
+	const Uint8	*keys = SDL_GetKeyboardState(NULL);
+	int			x;
+	int			y;
+
+	if (!SDL_GetRelativeMouseMode() && SDL_GetMouseState(&x, &y) & SDL_BUTTON(SDL_BUTTON_LEFT))
+	{
+		if (y <= 17 && (x >= 2 && x <= 17))
+			return (0);
+		else if (y <= 17 && (x >= 18 && x <= 32))
+			return (1);
+		else if (y <= 17 && (x >= 33 && x <= 47))
+			return (2);
+	}
+	if (keys[SDL_SCANCODE_1])
+		return (0);
+	else if (keys[SDL_SCANCODE_2])
+		return (1);
+	else if (keys[SDL_SCANCODE_3])
+		return (2);
+	return (mode);
+}
+
 void	wireframe(t_window *window, t_level *level)
 {
-	t_vec3	start;
-	t_vec3	stop;
-	t_vec3	avg;
+	static int		selected_face = 0;
+	static t_vec3	selected_vert = {.x = 0, .y = 0, .z = 0};
+	static int	selected = 0;
+	static int	mode = 0;
+	t_vec3		start;
+	t_vec3		stop;
+	t_vec3		avg;
+
+	const Uint8	*keys = SDL_GetKeyboardState(NULL);
+	if (keys[SDL_SCANCODE_4])
+		selected -= 1;
+	if (keys[SDL_SCANCODE_5])
+		selected += 1;
+	selected = selected > level->obj[0].tri_amount ? 0 : selected;
+	selected = selected < 0 ? level->obj[0].tri_amount : selected;
 
 	ft_memset(window->frame_buffer, 0x99, RES_X * RES_Y * sizeof(int));
 	ft_memset(window->depth_buffer, 0, RES_X * RES_Y * sizeof(int));
@@ -130,10 +242,26 @@ void	wireframe(t_window *window, t_level *level)
 			camera_offset(&start, level);
 			camera_offset(&stop, level);
 
-			int color[2] = {0x333333, 0x333333};
+			int color[2];
+			if ((mode == 2 && i == selected) || (mode == 1 && i == selected && j == 1))
+			{
+				color[0] = 0xffaa00;
+				color[1] = 0xffaa00;
+			}
+			else
+			{
+				color[0] = 0x333333;
+				color[1] = 0x333333;
+			}
 			print_line(start, stop, color, window);
-			put_vertex(start, 0, window);
-			put_vertex(stop, 0, window);
+			if (mode == 0)
+			{
+				if (selected == i)
+					put_vertex(start, 0xffaa00ff, window);
+				else
+					put_vertex(start, 0, window);
+			}
+			//put_vertex(stop, 0, window);
 		}
 		avg.x = 0;
 		avg.y = 0;
@@ -151,12 +279,22 @@ void	wireframe(t_window *window, t_level *level)
 		vec_cross(&normal_dir, level->obj[0].tris[i].v0v1, level->obj[0].tris[i].v0v2);
 		vec_normalize(&normal_dir);
 		t_vec3 normal;
-		normal.x = avg.x - normal_dir.x;
-		normal.y = avg.y - normal_dir.y;
-		normal.z = avg.z - normal_dir.z;
+		float normal_len = 0.3;
+		normal.x = avg.x - normal_dir.x * normal_len;
+		normal.y = avg.y - normal_dir.y * normal_len;
+		normal.z = avg.z - normal_dir.z * normal_len;
 		camera_offset(&avg, level);
 		camera_offset(&normal, level);
 		int color[2] = {0x00ffff, 0x00ffff};
 		print_line(avg, normal, color, window);
+		if (mode == 2)
+		{
+			if (selected == i)
+				put_vertex(avg, 0xffaa00ff, window);
+			else
+				put_vertex(avg, 0, window);
+		}
 	}
+	mode = select_mode(mode);
+	put_edit_mode(mode, window);
 }
