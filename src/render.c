@@ -170,7 +170,7 @@ int		render(void *data_pointer)
 							t->window->frame_buffer[x + (y * (int)RES_X)] = color;
 					}
 				}
-				if (!t->window->depth_buffer[x + (y * (int)RES_X)])
+				if (!t->level->enable_fog && !t->window->depth_buffer[x + (y * (int)RES_X)])
 					t->window->frame_buffer[x + (y * (int)RES_X)] = skybox(*t->level, r);
 			}
 		}

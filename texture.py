@@ -5,4 +5,4 @@ from PIL import Image
 if len(sys.argv) == 1:
 	print('no input file')
 	exit(0);
-Image.open(sys.argv[1]).save("out.bmp")
+Image.open(sys.argv[1]).convert('RGBA').save("out.bmp")
