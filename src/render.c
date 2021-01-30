@@ -154,7 +154,6 @@ int		render(void *data_pointer)
 				// vec_normalize(r.dir);
 
 				int side = x < RES_X / 2 ? 0 : 1;
-				int	hit = 0;
 				for (int j = 0; j < t->level->obj[side].tri_amount; j++)
 				{
 					int color;
@@ -169,10 +168,9 @@ int		render(void *data_pointer)
 							t->window->frame_buffer[x + (y * (int)RES_X)] = fog(color, dist, t->level->fog_color);
 						else
 							t->window->frame_buffer[x + (y * (int)RES_X)] = color;
-						hit = 1;
 					}
 				}
-				if (!hit)
+				if (!t->window->depth_buffer[x + (y * (int)RES_X)])
 					t->window->frame_buffer[x + (y * (int)RES_X)] = skybox(*t->level, r);
 			}
 		}
