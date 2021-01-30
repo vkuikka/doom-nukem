@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/30 02:23:27 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/30 04:08:34by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,6 +102,24 @@ int		fog(int color, float dist, unsigned fog_color)
 	return (fog_color);
 }
 
+int		skybox(t_level l, t_ray r)
+{
+	int		color;
+	float	dist;
+
+	color = 0;
+	r.pos.x = 0;
+	r.pos.y = 0;
+	r.pos.z = 0;
+	for (int i = 0; i < l.sky.obj.tri_amount; i++)
+	{
+		dist = cast_face(l.sky.obj.tris[i] , r, &color, &l.sky.img);
+		if (dist > 0 && color)
+			return (color);
+	}
+	return (color);
+}
+
 int		render(void *data_pointer)
 {
 	t_rthread	*t = data_pointer;
@@ -136,6 +154,7 @@ int		render(void *data_pointer)
 				// vec_normalize(r.dir);
 
 				int side = x < RES_X / 2 ? 0 : 1;
+				int	hit = 0;
 				for (int j = 0; j < t->level->obj[side].tri_amount; j++)
 				{
 					int color;
@@ -150,8 +169,11 @@ int		render(void *data_pointer)
 							t->window->frame_buffer[x + (y * (int)RES_X)] = fog(color, dist, t->level->fog_color);
 						else
 							t->window->frame_buffer[x + (y * (int)RES_X)] = color;
+						hit = 1;
 					}
 				}
+				if (!hit)
+					t->window->frame_buffer[x + (y * (int)RES_X)] = skybox(*t->level, r);
 			}
 		}
 	}

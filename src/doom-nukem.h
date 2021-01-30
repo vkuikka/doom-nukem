@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/30 02:39:03 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/30 04:36:14 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,13 @@
 # include <stdio.h>
 # include <signal.h>
 char		*global_seginfo;
+
+typedef struct			s_bmp
+{
+	int					width;
+	int					height;
+	int					*image;
+}						t_bmp;
 
 typedef struct			s_window
 {
@@ -89,10 +96,17 @@ typedef struct			s_obj
 	int					*distance_culling_mask;
 }						t_obj;
 
+typedef struct			s_skybox
+{
+	struct s_bmp		img;
+	struct s_obj		obj;
+}						t_skybox;
+
 typedef struct			s_level
 {
 	struct s_obj		*obj;		//array of objects in the level
 	struct s_vec3		pos;		//player position
+	struct s_skybox		sky;
 	float				look_side;	//side look angle
 	float				look_up;	//up and down look angle
 	int					*txtr;		//pointer to the level texture
@@ -138,13 +152,6 @@ typedef struct __attribute__((__packed__))	s_bmp_image {
 	unsigned char							r;
 	unsigned char							a;
 }											t_bmp_image;
-
-typedef struct								s_bmp
-{
-	int										width;
-	int										height;
-	int										*image;
-}											t_bmp;
 
 void		vec_normalize(t_vec3 *vec);						//makes vector length 1
 float		vec_dot(t_vec3 ve1, t_vec3 ve2);			//dot product of two vectors

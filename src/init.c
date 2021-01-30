@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/08 14:38:45 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/30 02:28:23 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/30 04:35:24 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,11 @@ t_level			*init_level()
 	// load_obj("level/torus.obj", &l->obj[0]);
 	// load_obj("level/monkey.obj", &l->obj[0]);
 	// load_obj("level/teapot_decimated.obj", &l->obj[0]);
+
+	global_seginfo = "load skybox obj\n";
+	load_obj("skybox.obj", &l->sky.obj);
+	global_seginfo = "load skybox texture\n";
+	l->sky.img = bmp_read("skybox.bmp");
 
 	// level->fog_color = 0xffffffff;//fog
 	// level->fog_color = 0x000000ff;//night
