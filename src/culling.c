@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/20 17:50:56 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/30 02:31:29 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/30 21:12:56 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,22 +100,51 @@ static int		fov_culling(t_ray c[3], t_tri tri)
 
 static int		distance_culling(t_tri tri, t_vec3 player)
 {
-	int max = 20;
-	float smallest = 9999999;
 	t_vec3	v;
-	float n;
-	int	v_amount;
+	float	min = FLT_MAX;
+	float	max = 0;
+	float	len;
 
 	global_seginfo = "culling distance\n";
-	v_amount = tri.isquad ? 4 : 3;
-	for (int i = 0; i < v_amount; i++)
+	for (int i = 0; i < 3 + tri.isquad; i++)
 	{
 		vec_sub(&v, tri.verts[i].pos, player);
-		n = vec_length(v);
-		if (n < smallest)
-			smallest = n;
+		len = vec_length(v);
+		if (len < min)
+			min = len;
+		if (len > max)
+			max = len;
 	}
-	return ((smallest < max));
+	if (min < 20)
+		return (1);
+	t_vec3	v1v2;
+	vec_sub(&v1v2, tri.verts[2].pos, tri.verts[1].pos);
+	min = vec_length(v1v2);
+	len = vec_length(tri.v0v1);
+	if (len < min)
+		len = min;
+	min = vec_length(tri.v0v2);
+	if (len < min)
+		len = min;
+	if (tri.isquad)
+	{
+		t_vec3	v0v3;
+		t_vec3	v1v3;
+		t_vec3	v2v3;
+		vec_sub(&v0v3, tri.verts[3].pos, tri.verts[0].pos);
+		vec_sub(&v1v3, tri.verts[3].pos, tri.verts[1].pos);
+		vec_sub(&v2v3, tri.verts[3].pos, tri.verts[2].pos);
+		min = vec_length(v0v3);
+		if (len < min)
+			len = min;
+		min = vec_length(v1v2);
+		if (len < min)
+			len = min;
+		min = vec_length(v1v3);
+		if (len < min)
+			len = min;
+	}
+	return (max < len);
 }
 
 static int		backface_culling(t_ray r, t_tri tri)
