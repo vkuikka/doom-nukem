@@ -6,11 +6,18 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/29 03:50:38 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/30 02:42:36 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom-nukem.h"
+
+void segv_handler(int sig)
+{
+	printf ("\n\033[1m\033[31m\tSEGFAULT: %s\n\033[0m", global_seginfo);
+    abort();
+    (void)sig;
+}
 
 float	cast_all(t_ray vec, t_level *l, float *dist_u, float *dist_d)
 {
@@ -224,9 +231,13 @@ void	action_loop(t_window *window, t_level *l, t_bmp *bmp, t_obj *culled, int *f
 	int				window_horizontal_size;
 	int				i;
 
+	global_seginfo = "player_movement\n";
 	player_movement(&fall_vector, &l->pos, l, keys);
 	if (rendermode != 2)
+	{
+		global_seginfo = "split_obj\n";
 		split_obj(culled, l, faces_left, faces_right);
+	}
 	l->obj = culled;
 
 	if (keys[SDL_SCANCODE_RIGHT])
@@ -241,12 +252,16 @@ void	action_loop(t_window *window, t_level *l, t_bmp *bmp, t_obj *culled, int *f
 	if (SDL_LockTexture(window->texture, NULL, (void**)&window->frame_buffer, &window_horizontal_size) != 0)
 		ft_error("failed to lock texture\n");
 	if (rendermode == 2)
+	{
+		global_seginfo = "wireframe\n";
 		wireframe(window, l);
+	}
 	else
 	{
 		i = 0;
 		if (!(thread_data = (t_rthread**)malloc(sizeof(t_rthread*) * THREAD_AMOUNT)))
 			ft_error("memory allocation failed\n");
+		global_seginfo = "render\n";
 		while (i < THREAD_AMOUNT)
 		{
 			if (!(thread_data[i] = (t_rthread*)malloc(sizeof(t_rthread))))
@@ -267,17 +282,9 @@ void	action_loop(t_window *window, t_level *l, t_bmp *bmp, t_obj *culled, int *f
 			i++;
 		}
 		free(thread_data);
+		global_seginfo = "fill_pixels\n";
 		fill_pixels(window->frame_buffer, l->quality);
 	}
-	/////////////////////bmp
-	// for (int y = 0; y < bmp->height; y++)
-	// {
-	// 	for (int x = 0; x < bmp->width; x++)
-	// 	{
-	// 		window->frame_buffer[(y * (int)RES_X) + x] = bmp->image[y * bmp->width + x];
-	// 	}
-	// }
-	/////////////////////bmp
 
 	SDL_UnlockTexture(window->texture);
 	SDL_RenderClear(window->SDLrenderer);
@@ -315,16 +322,25 @@ int			main(int argc, char **argv)
 	int			relmouse;
 	t_obj		*culled;
 
+	struct sigaction act;
+	act.sa_handler = segv_handler;
+	sigemptyset(&act.sa_mask);
+	act.sa_flags = 0;
+	sigaction(SIGSEGV, &act, NULL);
+
 	relmouse = 0;
 	rendermode = 1;
+	global_seginfo = "bmp_read\n";
 	bmp = bmp_read("out.bmp");
+	global_seginfo = "init_level\n";
 	level = init_level();
 	level->quality = 3;
-	level->fog_color = 0xffffffff;//fog
-	level->fog_color = 0x000000ff;//night
-	level->fog_color = 0xff0000ff;
-	level->fog_color = 0xb19a6aff;//sandstorm
+	// level->fog_color = 0xffffffff;//fog
+	// level->fog_color = 0x000000ff;//night
+	// level->fog_color = 0xff0000ff;
+	// level->fog_color = 0xb19a6aff;//sandstorm
 	level->fog_color = 0xddddddff;//smoke
+	global_seginfo = "init_window\n";
 	init_window(&window);
 	if (!(culled = (t_obj*)malloc(sizeof(t_obj) * 2)))
 		ft_error("memory allocation failed\n");

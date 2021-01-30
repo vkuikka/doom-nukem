@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/29 03:42:34 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/30 02:39:03 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,8 @@
 
 # include <stdlib.h>
 # include <stdio.h>
+# include <signal.h>
+char		*global_seginfo;
 
 typedef struct			s_window
 {
@@ -171,5 +173,7 @@ t_bmp		bmp_read(char *str);
 
 void		culling(t_level *level, int *visible, t_obj *culled);
 void		find_quads(t_obj *obj);
+
+void		rotate_vertex(float angle, t_vec3 *vertex, int axis);
 
 #endif

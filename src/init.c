@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/08 14:38:45 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/29 03:53:39 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/30 02:28:23 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,7 @@ t_level			*init_level()
 	// load_obj("level/island.obj", &l->obj[0]);
 	// load_obj("level/cache.obj", &l->obj[0]);
 	// load_obj("level/ship.obj", &l->obj[0]);
+	global_seginfo = "load_obj\n";
 	load_obj("level/ship_2.obj", &l->obj[0]);
 	// load_obj("level/one_tri.obj", &l->obj[0]);
 	// load_obj("level/tri_test.obj", &l->obj[0]);

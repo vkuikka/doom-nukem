@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/20 17:50:56 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/29 03:43:24 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/30 02:31:29 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@ static int		fov_culling(t_ray c[3], t_tri tri)
 	t_vec3	end;
 	int		side;
 
+	global_seginfo = "culling fov\n";
 
 	vec_sub(&end, tri.verts[0].pos, c[0].pos);
 	if (vec_dot(end, c[2].dir) <= 0)
@@ -105,6 +106,7 @@ static int		distance_culling(t_tri tri, t_vec3 player)
 	float n;
 	int	v_amount;
 
+	global_seginfo = "culling distance\n";
 	v_amount = tri.isquad ? 4 : 3;
 	for (int i = 0; i < v_amount; i++)
 	{
@@ -121,6 +123,7 @@ static int		backface_culling(t_ray r, t_tri tri)
 	t_vec3	normal;
 	t_vec3	diff;
 
+	global_seginfo = "culling backface\n";
 	vec_cross(&normal, tri.v0v1, tri.v0v2);
 	vec_sub(&diff, tri.verts[0].pos, r.pos);
 	if (vec_dot(diff, normal) > 0)
@@ -139,6 +142,7 @@ void			culling(t_level *level, int *visible, t_obj *culled)
 	float		angle = level->look_side;
 	t_ray		c[3];
 
+	global_seginfo = "culling start\n";
 	c[0].pos.x = level->pos.x;
 	c[0].pos.y = level->pos.y;
 	c[0].pos.z = level->pos.z;
@@ -165,4 +169,5 @@ void			culling(t_level *level, int *visible, t_obj *culled)
 	}
 	(*visible) = k;
 	culled[0].tri_amount = k;
+	global_seginfo = "culling end\n";
 }

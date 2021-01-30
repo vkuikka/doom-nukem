@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/05 16:44:10 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/01/29 03:45:34 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/30 02:33:59 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,8 +94,8 @@ void	camera_offset(t_vec3 *vertex, t_level *level)
 	vertex->z -= level->pos.z;
 
 	//rotate vertices around camera
-	rotate_vertex(-1 * level->look_side, vertex, 0);
-	rotate_vertex(-1 * level->look_up, vertex, 1);
+	rotate_vertex(-level->look_side, vertex, 0);
+	rotate_vertex(-level->look_up, vertex, 1);
 
 	//add perspective
 	vertex->x /= vertex->z / fov;
@@ -216,6 +216,7 @@ void	wireframe(t_window *window, t_level *level)
 	t_vec3		stop;
 	t_vec3		avg;
 
+	global_seginfo = "wireframe start\n";
 	const Uint8	*keys = SDL_GetKeyboardState(NULL);
 	if (keys[SDL_SCANCODE_4])
 		selected -= 1;
@@ -227,6 +228,7 @@ void	wireframe(t_window *window, t_level *level)
 	ft_memset(window->frame_buffer, 0x99, RES_X * RES_Y * sizeof(int));
 	ft_memset(window->depth_buffer, 0, RES_X * RES_Y * sizeof(int));
 
+	global_seginfo = "wireframe loop\n";
 	for (int i = 0; i < level->obj[0].tri_amount; i++)
 	{
 		int amount = level->obj[0].tris[i].isquad ? 4 : 3;
@@ -239,6 +241,7 @@ void	wireframe(t_window *window, t_level *level)
 			stop.y = level->obj[0].tris[i].verts[(j + 1) % 3].pos.y;
 			stop.z = level->obj[0].tris[i].verts[(j + 1) % 3].pos.z;
 
+			global_seginfo = "wireframe 1\n";
 			camera_offset(&start, level);
 			camera_offset(&stop, level);
 
@@ -263,6 +266,7 @@ void	wireframe(t_window *window, t_level *level)
 			}
 			//put_vertex(stop, 0, window);
 		}
+		global_seginfo = "wireframe 2\n";
 		avg.x = 0;
 		avg.y = 0;
 		avg.z = 0;
@@ -278,6 +282,7 @@ void	wireframe(t_window *window, t_level *level)
 		t_vec3	normal_dir;
 		vec_cross(&normal_dir, level->obj[0].tris[i].v0v1, level->obj[0].tris[i].v0v2);
 		vec_normalize(&normal_dir);
+		global_seginfo = "wireframe 3\n";
 		t_vec3 normal;
 		float normal_len = 0.3;
 		normal.x = avg.x - normal_dir.x * normal_len;
@@ -295,6 +300,8 @@ void	wireframe(t_window *window, t_level *level)
 				put_vertex(avg, 0, window);
 		}
 	}
+	global_seginfo = "wireframe 4\n";
 	mode = select_mode(mode);
 	put_edit_mode(mode, window);
+	global_seginfo = "wireframe end\n";
 }
