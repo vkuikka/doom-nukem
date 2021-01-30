@@ -128,7 +128,7 @@ int		render(void *data_pointer)
 			if (rand() % rand_amount)	//skip random pixel
 			if (!(x % pixel_gap) && !(y % pixel_gap))
 			{
-				t->window->frame_buffer[x + (y * (int)RES_X)] = t->level->fog_color;;
+				t->window->frame_buffer[x + (y * (int)RES_X)] = t->level->fog_color;
 				t->window->depth_buffer[x + (y * (int)RES_X)] = 0;
 				vec_rot(&r.dir, tmp, angle);
 
@@ -146,7 +146,10 @@ int		render(void *data_pointer)
 								t->window->depth_buffer[x + (y * (int)RES_X)] == 0))
 					{
 						t->window->depth_buffer[x + (y * (int)RES_X)] = dist;
-						t->window->frame_buffer[x + (y * (int)RES_X)] = fog(color, dist, t->level->fog_color);
+						if (t->level->enable_fog)
+							t->window->frame_buffer[x + (y * (int)RES_X)] = fog(color, dist, t->level->fog_color);
+						else
+							t->window->frame_buffer[x + (y * (int)RES_X)] = color;
 					}
 				}
 			}

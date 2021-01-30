@@ -97,6 +97,7 @@ typedef struct			s_level
 	float				look_up;	//up and down look angle
 	int					*txtr;		//pointer to the level texture
 	int					quality;
+	int					enable_fog;
 	unsigned			fog_color;
 }						t_level;
 

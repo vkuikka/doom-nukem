@@ -335,11 +335,6 @@ int			main(int argc, char **argv)
 	global_seginfo = "init_level\n";
 	level = init_level();
 	level->quality = 3;
-	// level->fog_color = 0xffffffff;//fog
-	// level->fog_color = 0x000000ff;//night
-	// level->fog_color = 0xff0000ff;
-	// level->fog_color = 0xb19a6aff;//sandstorm
-	level->fog_color = 0xddddddff;//smoke
 	global_seginfo = "init_window\n";
 	init_window(&window);
 	if (!(culled = (t_obj*)malloc(sizeof(t_obj) * 2)))

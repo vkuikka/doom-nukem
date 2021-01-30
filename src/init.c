@@ -53,6 +53,12 @@ t_level			*init_level()
 	// load_obj("level/monkey.obj", &l->obj[0]);
 	// load_obj("level/teapot_decimated.obj", &l->obj[0]);
 
+	// level->fog_color = 0xffffffff;//fog
+	// level->fog_color = 0x000000ff;//night
+	// level->fog_color = 0xff0000ff;
+	// level->fog_color = 0xb19a6aff;//sandstorm
+	l->fog_color = 0xddddddff;//smoke
+	l->enable_fog = 0;
 	return (l);
 }
 
