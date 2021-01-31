@@ -21,6 +21,11 @@ static char	**file2d(char *filename)
 
 	file = (char **)malloc(sizeof(char*) * 10000);
 	fd = open(filename, O_RDONLY);
+	if (fd < 2)
+	{
+		printf("%s\n", filename);
+		ft_error("^: no such obj\n");
+	}
 	while (get_next_line(fd, &line))
 	{
 		//printf("%s\n", line);

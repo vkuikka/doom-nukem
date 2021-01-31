@@ -21,14 +21,19 @@ t_bmp	bmp_read(char *str)
 	int					y;
 	t_bmp				res;
 
-	img = fopen(str, "rb");
+	if (!(img = fopen(str, "rb")))
+	{
+		printf("%s\n", str);
+		ft_error("^: no such file\n");
+	}
 	fread(&fh, sizeof(unsigned char), sizeof(t_bmp_fileheader), img);
 	fread(&ih, sizeof(unsigned char), sizeof(t_bmp_infoheader), img);
 	//printf("fM1 = %c, fM2 = %c, bfS = %u, un1 = %hu, un2 = %hu, iDO = %u\n", fh.fileMarker1, fh.fileMarker2, fh.bfSize, fh.unused1, fh.unused2, fh.imageDataOffset);
 	//printf("w = %d, h = %d, bits = %d\n", ih.width, ih.height, ih.bitPix);
 
 	t_bmp_image bmp;
-	res.image = (int*)malloc(sizeof(int) * (ih.width * ih.height) * 2);
+	if (!(res.image = (int*)malloc(sizeof(int) * (ih.width * ih.height) * 2)))
+		ft_error("memory allocation failed\n");
 	y = 0;
 	while (y < ih.height)
 	{
