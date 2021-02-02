@@ -29,7 +29,7 @@ void		fill_pixels(unsigned *grid, int gap)
 			if (!(x % gap))
 			{
 				color = grid[x + (y * (int)RES_X)];
-				if ((y + 1) % gap && y < RES_Y)
+				if ((y + 1) % gap && y + 1 < RES_Y)
 					grid[x + ((y + 1) * (int)RES_X)] = color;
 			}
 			else
