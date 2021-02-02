@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/08 14:38:45 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/30 04:35:24 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/02/02 16:06:35 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,16 +36,16 @@ t_level			*init_level()
 	l->pos.y = 0;
 	l->pos.z = 0;
 	l->look_side = 0;
-	l->look_up = 0.5;
+	l->look_up = 0;
 	l->txtr = NULL;
 
+	global_seginfo = "load_obj\n";
 	// load_obj("level/two.obj", &l->obj[0]);
 	// load_obj("level/test.obj", &l->obj[0]);
 	// load_obj("level/cube.obj", &l->obj[0]);
 	// load_obj("level/island.obj", &l->obj[0]);
 	// load_obj("level/cache.obj", &l->obj[0]);
 	// load_obj("level/ship.obj", &l->obj[0]);
-	global_seginfo = "load_obj\n";
 	load_obj("level/ship_2.obj", &l->obj[0]);
 	// load_obj("level/one_tri.obj", &l->obj[0]);
 	// load_obj("level/tri_test.obj", &l->obj[0]);
