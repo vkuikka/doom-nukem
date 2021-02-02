@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/07 18:13:00 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/29 03:42:09 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/02/02 16:05:46 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,22 +91,12 @@ void		vec_rot(t_vec3 *res, t_vec3 ve1, float ang)
 	res->z = -ve1.x * s + ve1.z * c;
 }
 
-// int main(void)
-// {
-// 	float ve1[3];
-// 	float ve2[3];
+float		vec_angle(t_vec3 v1, t_vec3 v2)
+{
+	float	dot;
+	float	len;
 
-// 	ve1[0] = 0;
-// 	ve1[1] = 0.1;
-// 	ve1[2] = 4;
-
-// 	ve2[0] = 6;
-// 	ve2[1] = 8;
-// 	ve2[2] = 10;
-// 	ft_normalize_two(ve1, ve2);
-// 	for (int i = 0; i < 3; i++)
-// 	{
-// 		printf("%f %f", ve1[i], ve2[i]);
-// 		printf("\n");
-// 	}
-// }
+	dot = vec_dot(v1, v2);
+	len = vec_length(v1) * vec_length(v2);
+	return (acos(dot / len));
+}
