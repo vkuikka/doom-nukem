@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/05 16:44:10 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/01/30 02:33:59 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/02/02 21:32:42 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -237,9 +237,18 @@ void	wireframe(t_window *window, t_level *level)
 			start.x = level->obj[0].tris[i].verts[j].pos.x;
 			start.y = level->obj[0].tris[i].verts[j].pos.y;
 			start.z = level->obj[0].tris[i].verts[j].pos.z;
-			stop.x = level->obj[0].tris[i].verts[(j + 1) % 3].pos.x;
-			stop.y = level->obj[0].tris[i].verts[(j + 1) % 3].pos.y;
-			stop.z = level->obj[0].tris[i].verts[(j + 1) % 3].pos.z;
+			if (amount == 4)
+			{
+				stop.x = level->obj[0].tris[i].verts[(int[4]){1, 3, 0, 2}[j]].pos.x;
+				stop.y = level->obj[0].tris[i].verts[(int[4]){1, 3, 0, 2}[j]].pos.y;
+				stop.z = level->obj[0].tris[i].verts[(int[4]){1, 3, 0, 2}[j]].pos.z;
+			}
+			else
+			{
+				stop.x = level->obj[0].tris[i].verts[(j + 1) % 3].pos.x;
+				stop.y = level->obj[0].tris[i].verts[(j + 1) % 3].pos.y;
+				stop.z = level->obj[0].tris[i].verts[(j + 1) % 3].pos.z;
+			}
 
 			global_seginfo = "wireframe 1\n";
 			camera_offset(&start, level);
