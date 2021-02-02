@@ -12,7 +12,7 @@
 
 #include "doom-nukem.h"
 
-void			fill_pixels(unsigned *grid, int gap)
+void		fill_pixels(unsigned *grid, int gap)
 {
 	int		color;
 	int		i;
@@ -29,7 +29,7 @@ void			fill_pixels(unsigned *grid, int gap)
 			if (!(x % gap))
 			{
 				color = grid[x + (y * (int)RES_X)];
-				if ((y + 1) % gap)
+				if ((y + 1) % gap && y < RES_Y)
 					grid[x + ((y + 1) * (int)RES_X)] = color;
 			}
 			else
@@ -40,7 +40,7 @@ void			fill_pixels(unsigned *grid, int gap)
 	}
 }
 
-float	cast_face(t_tri t, t_ray ray, int *col, t_bmp *img)
+float		cast_face(t_tri t, t_ray ray, int *col, t_bmp *img)
 {
 	t_vec3	pvec;
 	vec_cross(&pvec, ray.dir, t.v0v2);
@@ -89,7 +89,7 @@ unsigned	crossfade(unsigned color1, unsigned color2, unsigned fade, unsigned r1)
 	return ((newr << 8 * 3) + (newg << 8 * 2) + (newb << 8 * 1) + 0xff);
 }
 
-int		fog(int color, float dist, unsigned fog_color)
+int			fog(int color, float dist, unsigned fog_color)
 {
 	float	fade;
 
@@ -102,7 +102,7 @@ int		fog(int color, float dist, unsigned fog_color)
 	return (fog_color);
 }
 
-int		skybox(t_level l, t_ray r)
+int			skybox(t_level l, t_ray r)
 {
 	int		color;
 	float	dist;
@@ -120,7 +120,19 @@ int		skybox(t_level l, t_ray r)
 	return (color);
 }
 
-int		render(void *data_pointer)
+
+static void	rot_cam(t_vec3 *cam, const float lon, const float lat)
+{
+	const float	phi = (M_PI / 2 - lat);
+	const float	theta = lon;
+	float radius = 1;
+
+	cam->x = radius * sin(phi) * cos(theta);
+	cam->y = radius * cos(phi);
+	cam->z = radius * sin(phi) * sin(theta);
+}
+
+int			render(void *data_pointer)
 {
 	t_rthread	*t = data_pointer;
 	t_ray		r;
@@ -134,7 +146,15 @@ int		render(void *data_pointer)
 	r.pos.y = t->level->pos.y;
 	r.pos.z = t->level->pos.z;
 
-	// for (int x = 0; x < RES_X; x++)
+	t_vec3	cam;
+	t_vec3	up;
+	t_vec3	side;
+	float lon = -t->level->look_side + M_PI/2;
+	float lat = -t->level->look_up;
+	rot_cam(&cam, lon, lat);
+	rot_cam(&up, lon, lat + (M_PI / 2));
+	vec_cross(&side, cam, up);
+
 	for (int x = t->id; x < RES_X; x += THREAD_AMOUNT)
 	{
 		t_vec3 tmp;
@@ -148,10 +168,12 @@ int		render(void *data_pointer)
 			{
 				t->window->frame_buffer[x + (y * (int)RES_X)] = t->level->fog_color;
 				t->window->depth_buffer[x + (y * (int)RES_X)] = 0;
-				vec_rot(&r.dir, tmp, angle);
 
-				r.dir.y = (1 / RES_Y * y) - t->level->look_up;
-				// vec_normalize(r.dir);
+				float ym = 1 / RES_Y * y - 1/(RES_Y/2) - 0.5;
+				float xm = -(1 / RES_X * x - 1/(RES_X/2) - 0.5);
+				r.dir.x = cam.x + up.x * ym + side.x * xm;
+				r.dir.y = cam.y + up.y * ym + side.y * xm;
+				r.dir.z = cam.z + up.z * ym + side.z * xm;
 
 				int side = x < RES_X / 2 ? 0 : 1;
 				for (int j = 0; j < t->level->obj[side].tri_amount; j++)
