@@ -153,7 +153,7 @@ int			render(void *data_pointer)
 	float lat = -t->level->look_up;
 	rot_cam(&cam, lon, lat);
 	rot_cam(&up, lon, lat + (M_PI / 2));
-	vec_cross(&side, cam, up);
+	vec_cross(&side, up, cam);
 
 	for (int x = t->id; x < RES_X; x += THREAD_AMOUNT)
 	{
@@ -169,8 +169,9 @@ int			render(void *data_pointer)
 				t->window->frame_buffer[x + (y * (int)RES_X)] = t->level->fog_color;
 				t->window->depth_buffer[x + (y * (int)RES_X)] = 0;
 
-				float ym = 1 / RES_Y * y - 1/(RES_Y/2) - 0.5;
-				float xm = -(1 / RES_X * x - 1/(RES_X/2) - 0.5);
+				float ym = (1/RES_Y*y - 0.5);	//multiply these to change fov
+				float xm = (1/RES_X*x - 0.5);
+
 				r.dir.x = cam.x + up.x * ym + side.x * xm;
 				r.dir.y = cam.y + up.y * ym + side.y * xm;
 				r.dir.z = cam.z + up.z * ym + side.z * xm;
