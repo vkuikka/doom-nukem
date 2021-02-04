@@ -322,11 +322,13 @@ int			main(int argc, char **argv)
 	int			relmouse;
 	t_obj		*culled;
 
+#if __APPLE__
 	struct sigaction act;
 	act.sa_handler = segv_handler;
 	sigemptyset(&act.sa_mask);
 	act.sa_flags = 0;
 	sigaction(SIGSEGV, &act, NULL);
+#endif
 
 	relmouse = 0;
 	rendermode = 1;

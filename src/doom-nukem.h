@@ -21,11 +21,15 @@
 
 # define WALL_CLIP_DIST 0.3
 
+#ifndef FLT_MAX
+#define FLT_MAX 3.40282347E+38
+#endif
+
 # include <math.h>
 # include <fcntl.h>
 # include <sys/time.h>
 # include "get_next_line.h"
-# include "SDL2/SDL.h"
+# include "SDL.h"
 
 # include <stdlib.h>
 # include <stdio.h>
