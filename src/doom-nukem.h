@@ -29,7 +29,7 @@
 # include <fcntl.h>
 # include <sys/time.h>
 # include "get_next_line.h"
-# include "SDL.h"
+# include "SDL2/SDL.h"
 
 # include <stdlib.h>
 # include <stdio.h>
