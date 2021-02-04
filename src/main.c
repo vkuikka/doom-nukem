@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/02/04 16:38:43 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/02/04 17:13:00 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,15 +41,25 @@ float	cast_all(t_ray vec, t_level *l, float *dist_u, float *dist_d)
 	return (res);
 }
 
-void	player_movement(t_vec3 *dir, t_vec3 *pos, t_level *l, const Uint8 *keys)
+void	player_movement(t_vec3 *pos, t_level *l)
 {
-	static int	noclip = 1;
-	static int	jump_delay = 0;
-	float		speed = MOVE_SPEED;
-	float		dist = 0;
-	t_ray		r;
+	static t_vec3	dir = {0, 0, 0};
+	const Uint8		*keys = SDL_GetKeyboardState(NULL);
+	static int		noclip = 1;
+	static int		jump_delay = 0;
+	float			speed = MOVE_SPEED;
+	float			dist = 0;
+	t_ray			r;
 
-	if (keys == NULL)
+	if (keys[SDL_SCANCODE_RIGHT])
+		l->look_side += 0.1;
+	if (keys[SDL_SCANCODE_LEFT])
+		l->look_side -= 0.1;
+	if (keys[SDL_SCANCODE_UP])
+		l->look_up += 0.1;
+	if (keys[SDL_SCANCODE_DOWN])
+		l->look_up -= 0.1;
+	if (l == NULL)
 	{
 		if (noclip)
 			noclip = 0;
@@ -132,9 +142,9 @@ void	player_movement(t_vec3 *dir, t_vec3 *pos, t_level *l, const Uint8 *keys)
 	}
 	if (noclip)
 		return;
-	if (keys[SDL_SCANCODE_SPACE] && dir->y >= 0 && SDL_GetTicks() > jump_delay + 500)
+	if (keys[SDL_SCANCODE_SPACE] && dir.y >= 0 && SDL_GetTicks() > jump_delay + 500)
 	{
-		dir->y = -0.4;
+		dir.y = -0.4;
 		jump_delay = SDL_GetTicks();
 	}
 	float dist_d = 100000;
@@ -150,21 +160,21 @@ void	player_movement(t_vec3 *dir, t_vec3 *pos, t_level *l, const Uint8 *keys)
 		dist = dist_u;
 	if (dist > 0)
 	{
-		if (dir->y < 0)
-			dir->y += 0.08;
-		if (dist < dir->y)
-			dir->y = 0;
-		if (dist > 1 && dir->y < 1.5)
-			dir->y += 0.04;
+		if (dir.y < 0)
+			dir.y += 0.08;
+		if (dist < dir.y)
+			dir.y = 0;
+		if (dist > 1 && dir.y < 1.5)
+			dir.y += 0.04;
 		else if (dist < 1)
 			pos->y += dist - 1;
 	}
 	else if (dist < 0 && dist > -1)
 	{
-		dir->y = 0;
+		dir.y = 0;
 		pos->y += dist - 0.5;
 	}
-	pos->y += dir->y;
+	pos->y += dir.y;
 }
 
 int				is_tri_side(t_tri tri, t_ray c)
@@ -205,7 +215,7 @@ void			split_obj(t_obj *culled, t_level *level, int *faces_left, int *faces_righ
 			left_amount++;
 			right_amount++;
 		}
-		if (is_tri_side(culled[0].tris[i], left))
+		else if (is_tri_side(culled[0].tris[i], left))
 		{
 			culled[0].tris[left_amount] = culled[0].tris[i];
 			left_amount++;
@@ -231,31 +241,17 @@ void			split_obj(t_obj *culled, t_level *level, int *faces_left, int *faces_righ
 
 void	action_loop(t_window *window, t_level *l, t_bmp *bmp, t_obj *culled, int *faces_left, int *faces_right, int rendermode)
 {
-	const Uint8		*keys = SDL_GetKeyboardState(NULL);
-	static t_vec3	fall_vector = {0, 0, 0};
 	SDL_Thread		*threads[THREAD_AMOUNT];
 	t_rthread		**thread_data;
 	int				window_horizontal_size;
 	int				i;
 
-	global_seginfo = "player_movement\n";
-	player_movement(&fall_vector, &l->pos, l, keys);
 	if (rendermode != 2)
 	{
 		global_seginfo = "split_obj\n";
 		split_obj(culled, l, faces_left, faces_right);
 		l->obj = culled;
 	}
-
-	if (keys[SDL_SCANCODE_RIGHT])
-		l->look_side += 0.1;
-	if (keys[SDL_SCANCODE_LEFT])
-		l->look_side -= 0.1;
-	if (keys[SDL_SCANCODE_UP])
-		l->look_up += 0.1;
-	if (keys[SDL_SCANCODE_DOWN])
-		l->look_up -= 0.1;
-
 	if (SDL_LockTexture(window->texture, NULL, (void**)&window->frame_buffer, &window_horizontal_size) != 0)
 		ft_error("failed to lock texture\n");
 	if (rendermode == 2)
@@ -372,7 +368,7 @@ int			main(int argc, char **argv)
 				level->look_up -= (float)event.motion.yrel / 200;
 			}
 			else if (event.key.repeat == 0 && event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_N)
-				player_movement(&(t_vec3){0,0,0}, &(t_vec3){0,0,0}, NULL, NULL);
+				player_movement(&(t_vec3){0,0,0}, NULL);
 			else if (event.key.repeat == 0 && event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_M)
 				rendermode = rendermode == 2 ? 0 : rendermode + 1;
 			else if (event.key.repeat == 0 && event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_TAB)
@@ -387,6 +383,8 @@ int			main(int argc, char **argv)
 				}
 			}
 		}
+		global_seginfo = "player_movement\n";
+		player_movement(&level->pos, level);
 		t_obj *tmp = level->obj;
 		int faces_visible = level->obj->tri_amount;
 		int faces_left = culled[0].tri_amount;
