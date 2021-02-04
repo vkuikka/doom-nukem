@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/20 17:50:56 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/30 21:12:56 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/02/04 15:41:19 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -188,9 +188,9 @@ void			culling(t_level *level, int *visible, t_obj *culled)
 	int k = 0;
 	for (int j = 0; j < level->obj->tri_amount; j++)
 	{
-		if (fov_culling(c, level->obj->tris[j]) &&
+		if (level->obj->tris[j].isgrid || (fov_culling(c, level->obj->tris[j]) &&
 			(level->obj->distance_culling_mask[j] || distance_culling(level->obj->tris[j], level->pos)) &&
-			(level->obj->backface_culling_mask[j] || backface_culling(c[2], level->obj->tris[j])))
+			(level->obj->backface_culling_mask[j] || backface_culling(c[2], level->obj->tris[j]))))
 		{
 			culled[0].tris[k] = level->obj->tris[j];
 			k++;

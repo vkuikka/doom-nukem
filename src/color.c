@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/21 17:32:09 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/29 03:46:04 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/02/04 15:57:50 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@ int		face_color(float u, float v, t_tri t, t_bmp *img)
 		x = x % img->width;
 	else if (x < 0)
 		x = -x % img->width;
+	global_seginfo = "set color 1\n";
 	return (img->image[x + (y * img->width)]);
 }
 

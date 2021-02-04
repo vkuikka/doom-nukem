@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/02/01 16:10:31 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/02/04 15:22:57 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,6 +78,7 @@ typedef struct			s_vert
 {
 	struct s_vec3		pos;		//world position in 3d
 	struct s_vec2		txtr;		//texture position in 2d
+	int					selected;
 }						t_vert;
 
 typedef struct			s_tri
@@ -86,6 +87,7 @@ typedef struct			s_tri
 	struct s_vec3		v0v1;		//vector between vertices 1 and 0
 	struct s_vec3		v0v2;		//vector between vertices 2 and 0
 	int					isquad;
+	int					isgrid;
 }						t_tri;
 
 typedef struct			s_obj
@@ -184,5 +186,6 @@ void		culling(t_level *level, int *visible, t_obj *culled);
 void		find_quads(t_obj *obj);
 
 void		rotate_vertex(float angle, t_vec3 *vertex, int axis);
+void		rot_cam(t_vec3 *cam, const float lon, const float lat);
 
 #endif

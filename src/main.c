@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/30 02:42:36 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/02/04 16:38:43 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -198,6 +198,13 @@ void			split_obj(t_obj *culled, t_level *level, int *faces_left, int *faces_righ
 	vec_rot(&right.dir, (t_vec3){0,0,1}, level->look_side + (M_PI / 2));
 	for (int i = 0; i < culled->tri_amount; i++)
 	{
+		if (culled[0].tris[i].isgrid)
+		{
+			culled[0].tris[left_amount] = culled[0].tris[i];
+			culled[1].tris[right_amount] = culled[0].tris[i];
+			left_amount++;
+			right_amount++;
+		}
 		if (is_tri_side(culled[0].tris[i], left))
 		{
 			culled[0].tris[left_amount] = culled[0].tris[i];
@@ -237,8 +244,8 @@ void	action_loop(t_window *window, t_level *l, t_bmp *bmp, t_obj *culled, int *f
 	{
 		global_seginfo = "split_obj\n";
 		split_obj(culled, l, faces_left, faces_right);
+		l->obj = culled;
 	}
-	l->obj = culled;
 
 	if (keys[SDL_SCANCODE_RIGHT])
 		l->look_side += 0.1;

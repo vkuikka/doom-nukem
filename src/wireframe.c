@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/05 16:44:10 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/02/02 21:32:42 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/02/04 15:31:12 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -182,13 +182,73 @@ void	put_edit_mode(int mode, t_window *window)
 	}
 }
 
-int		select_mode(int mode)
+int		find_select(t_ray vec, t_level *l)
 {
+	int		color;
+	int		dist = -1;
+	int		res;
+
+	for (int j = 0; j < l->obj[0].tri_amount; j++)
+	{
+		float tmp;
+		tmp = cast_face(l->obj[0].tris[j], vec, &color, NULL);
+		if (tmp > 0 && (tmp < dist || dist == -1))
+		{
+			dist = tmp;
+			res = j;
+		}
+	}
+	for (int i = 0; i < 3 + l->obj[0].tris[res].isquad; i++)
+	{
+		if (l->obj[0].tris[res].verts[i].selected)
+		{
+			l->obj[0].tris[res].verts[i].selected = 0;
+			l->obj[0].tris[res].isgrid = 0;
+		}
+		else
+		{
+			l->obj[0].tris[res].verts[i].selected = 1;
+			l->obj[0].tris[res].isgrid = 1;
+		}
+	}
+	return (res);
+}
+
+void	select_vert(t_level *l, int x, int y)
+{
+	t_ray	r;
+	t_vec3	cam;
+	t_vec3	up;
+	t_vec3	side;
+
+	float lon = -l->look_side + M_PI/2;
+	float lat = -l->look_up;
+
+	rot_cam(&cam, lon, lat);
+	rot_cam(&up, lon, lat + (M_PI / 2));
+	vec_cross(&side, up, cam);
+
+	float ym = (1/RES_Y * y - 0.5);
+	float xm = (1/RES_X * x - 0.5);
+
+	r.pos.x = l->pos.x;
+	r.pos.y = l->pos.y;
+	r.pos.z = l->pos.z;
+	r.dir.x = cam.x + up.x * ym + side.x * xm;
+	r.dir.y = cam.y + up.y * ym + side.y * xm;
+	r.dir.z = cam.z + up.z * ym + side.z * xm;
+
+	find_select(r, l);
+}
+
+int		select_mode(int mode, t_level *l)
+{
+	static int	pressed = 0;
 	const Uint8	*keys = SDL_GetKeyboardState(NULL);
 	int			x;
 	int			y;
 
-	if (!SDL_GetRelativeMouseMode() && SDL_GetMouseState(&x, &y) & SDL_BUTTON(SDL_BUTTON_LEFT))
+	if (!pressed && !SDL_GetRelativeMouseMode() && SDL_GetMouseState(&x, &y) & SDL_BUTTON(SDL_BUTTON_LEFT))
 	{
 		if (y <= 17 && (x >= 2 && x <= 17))
 			return (0);
@@ -196,7 +256,12 @@ int		select_mode(int mode)
 			return (1);
 		else if (y <= 17 && (x >= 33 && x <= 47))
 			return (2);
+		else
+			select_vert(l, x, y);
+		pressed = 1;
 	}
+	if (!(SDL_GetMouseState(&x, &y) & SDL_BUTTON(SDL_BUTTON_LEFT)))
+		pressed = 0;
 	if (keys[SDL_SCANCODE_1])
 		return (0);
 	else if (keys[SDL_SCANCODE_2])
@@ -208,8 +273,6 @@ int		select_mode(int mode)
 
 void	wireframe(t_window *window, t_level *level)
 {
-	static int		selected_face = 0;
-	static t_vec3	selected_vert = {.x = 0, .y = 0, .z = 0};
 	static int	selected = 0;
 	static int	mode = 0;
 	t_vec3		start;
@@ -218,12 +281,6 @@ void	wireframe(t_window *window, t_level *level)
 
 	global_seginfo = "wireframe start\n";
 	const Uint8	*keys = SDL_GetKeyboardState(NULL);
-	if (keys[SDL_SCANCODE_4])
-		selected -= 1;
-	if (keys[SDL_SCANCODE_5])
-		selected += 1;
-	selected = selected > level->obj[0].tri_amount ? 0 : selected;
-	selected = selected < 0 ? level->obj[0].tri_amount : selected;
 
 	ft_memset(window->frame_buffer, 0x99, RES_X * RES_Y * sizeof(int));
 	ft_memset(window->depth_buffer, 0, RES_X * RES_Y * sizeof(int));
@@ -234,28 +291,26 @@ void	wireframe(t_window *window, t_level *level)
 		int amount = level->obj[0].tris[i].isquad ? 4 : 3;
 		for (int j = 0; j < amount; j++)
 		{
+			int		next;
+			if (amount == 4)
+				next = (int[4]){1, 3, 0, 2}[j];
+			else
+				next = (j + 1) % 3;
+
 			start.x = level->obj[0].tris[i].verts[j].pos.x;
 			start.y = level->obj[0].tris[i].verts[j].pos.y;
 			start.z = level->obj[0].tris[i].verts[j].pos.z;
-			if (amount == 4)
-			{
-				stop.x = level->obj[0].tris[i].verts[(int[4]){1, 3, 0, 2}[j]].pos.x;
-				stop.y = level->obj[0].tris[i].verts[(int[4]){1, 3, 0, 2}[j]].pos.y;
-				stop.z = level->obj[0].tris[i].verts[(int[4]){1, 3, 0, 2}[j]].pos.z;
-			}
-			else
-			{
-				stop.x = level->obj[0].tris[i].verts[(j + 1) % 3].pos.x;
-				stop.y = level->obj[0].tris[i].verts[(j + 1) % 3].pos.y;
-				stop.z = level->obj[0].tris[i].verts[(j + 1) % 3].pos.z;
-			}
+			stop.x = level->obj[0].tris[i].verts[next].pos.x;
+			stop.y = level->obj[0].tris[i].verts[next].pos.y;
+			stop.z = level->obj[0].tris[i].verts[next].pos.z;
 
 			global_seginfo = "wireframe 1\n";
 			camera_offset(&start, level);
 			camera_offset(&stop, level);
 
 			int color[2];
-			if ((mode == 2 && i == selected) || (mode == 1 && i == selected && j == 1))
+			if (level->obj[0].tris[i].verts[next].selected &&
+				level->obj[0].tris[i].verts[j].selected)
 			{
 				color[0] = 0xffaa00;
 				color[1] = 0xffaa00;
@@ -268,7 +323,7 @@ void	wireframe(t_window *window, t_level *level)
 			print_line(start, stop, color, window);
 			if (mode == 0)
 			{
-				if (selected == i)
+				if (level->obj[0].tris[i].verts[j].selected)
 					put_vertex(start, 0xffaa00ff, window);
 				else
 					put_vertex(start, 0, window);
@@ -310,7 +365,11 @@ void	wireframe(t_window *window, t_level *level)
 		}
 	}
 	global_seginfo = "wireframe 4\n";
-	mode = select_mode(mode);
+	mode = select_mode(mode, level);
+	// for (int asd = 0; asd < level->obj[0].tri_amount; asd++)
+	// 	for (int qwe = 0; qwe < 3 + level->obj[0].tris[asd].isquad; qwe++)
+	// 		if (level->obj[0].tris[asd].verts[qwe].selected)
+	// 			printf("%d\n", asd);
 	put_edit_mode(mode, window);
 	global_seginfo = "wireframe end\n";
 }

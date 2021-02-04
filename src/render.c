@@ -49,12 +49,28 @@ float		cast_face(t_tri t, t_ray ray, int *col, t_bmp *img)
 	t_vec3	tvec;
 	vec_sub(&tvec, ray.pos, t.verts[0].pos);
 	float u = vec_dot(tvec, pvec) * invdet;
+	if (t.isgrid)
+	{
+		int test = 1;
+		if (u < 0)
+			test = -1;
+		u -= (int)u / 1;
+		u *= test;
+	}
 	if (u < 0 || u > 1)
 		return 0;
 
 	t_vec3 qvec;
 	vec_cross(&qvec, tvec, t.v0v1);
 	float v = vec_dot(ray.dir, qvec) * invdet;
+	if (t.isgrid)
+	{
+		int test = 1;
+		if (v < 0)
+			test = -1;
+		v -= (int)v / 1;
+		v *= test;
+	}
 	if (t.isquad)
 	{
 		if (v < 0 || v > 1) //quad hack
@@ -62,9 +78,14 @@ float		cast_face(t_tri t, t_ray ray, int *col, t_bmp *img)
 	}
 	else if (v < 0 || u + v > 1)
 		return 0;
+	// if (t.isgrid)
+	// 	printf("%f %f\n", u, v);
     float dist = vec_dot(qvec, t.v0v2) * invdet;
 	if (img)
+	{
 		*col = face_color(u, v, t, img);
+		global_seginfo = "set color 2\n";
+	}
 	return dist;
 }
 
@@ -121,7 +142,7 @@ int			skybox(t_level l, t_ray r)
 }
 
 
-static void	rot_cam(t_vec3 *cam, const float lon, const float lat)
+void		rot_cam(t_vec3 *cam, const float lon, const float lat)
 {
 	const float	phi = (M_PI / 2 - lat);
 	const float	theta = lon;

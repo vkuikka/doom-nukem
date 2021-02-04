@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/01/30 02:29:53 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/02/04 15:32:06 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -273,5 +273,11 @@ void	load_obj(char *filename, t_obj *obj)
 	}*/
 	global_seginfo = "load_obj quads\n";
 	find_quads(obj);
+	for (int asd = 0; asd < obj[0].tri_amount; asd++)
+	{
+		for (int k = 0; k < 3 + obj->tris[asd].isquad; k++)
+			obj->tris[asd].verts[k].selected = 0;
+		obj->tris[asd].isgrid = 0;
+	}
 	printf("faces = %d\n", obj->tri_amount);
 }
