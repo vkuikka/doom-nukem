@@ -33,7 +33,7 @@ t_level			*init_level()
 		ft_error("memory allocation failed\n");
 
 	l->pos.x = 0;
-	l->pos.y = 0;
+	l->pos.y = -5;
 	l->pos.z = 0;
 	l->look_side = 0;
 	l->look_up = 0;

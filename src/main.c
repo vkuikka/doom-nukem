@@ -329,6 +329,45 @@ int			physics(void *data_pointer)
 	return (0);
 }
 
+int		did_move(t_level *level)
+{
+	static int		last_side = 0;
+	static int		last_up = 0;
+	static t_vec3	pos;
+	int				res = 0;
+
+	if (last_side != level->look_side && last_up != level->look_up && !vec_cmp(pos, level->pos))
+		res = 1;
+	last_side = level->look_side;
+	last_up = level->look_up;
+	pos = level->pos;
+	return (res);
+}
+
+void	set_quality(int frametime, t_level *level, int currentfps)
+{
+	static int	lastfps = 0;
+	static int	s = 0;
+	const int	pause_time = 2;//seconds until can improve quality
+	int			minfps = TARGETFPS - 10;
+	int		maxfps = TARGETFPS + 10;
+
+	if (lastfps != currentfps)
+		s++;
+	lastfps = currentfps;
+	if (frametime > 1000 / minfps)
+		level->quality += 2;
+	else if (s == pause_time && did_move(level) && frametime < 1000 / maxfps)
+		level->quality -= 2;
+	did_move(level);//update statics
+	if (s == pause_time)
+		s = 0;
+	if (level->quality < 0)
+		level->quality = 1;
+	else if (level->quality > 13)
+		level->quality = 13;
+}
+
 int			main(int argc, char **argv)
 {
 	SDL_Event	event;
@@ -356,7 +395,7 @@ int			main(int argc, char **argv)
 	bmp = bmp_read("out.bmp");
 	global_seginfo = "init_level\n";
 	level = init_level();
-	level->quality = 3;
+	level->quality = 1;
 	global_seginfo = "init_window\n";
 	init_window(&window);
 	if (!(culled = (t_obj*)malloc(sizeof(t_obj) * 2)))
@@ -376,6 +415,9 @@ int			main(int argc, char **argv)
 	float physhz = 0;
 	physicsdata.hz = &physhz;
 	physicsdata.pos = &pos;
+	pos.x = level->pos.x;
+	pos.y = level->pos.y;
+	pos.z = level->pos.z;
 	SDL_CreateThread(physics, "physics", (void*)&physicsdata);
 	while (1)
 	{
@@ -386,8 +428,8 @@ int			main(int argc, char **argv)
 				return (0);
 			else if (event.type == SDL_MOUSEMOTION && relmouse)
 			{
-				level->look_side += (float)event.motion.xrel / 200;
-				level->look_up -= (float)event.motion.yrel / 200;
+				level->look_side += (float)event.motion.xrel / 600;
+				level->look_up -= (float)event.motion.yrel / 600;
 			}
 			/*else if (event.key.repeat == 0 && event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_RIGHT)
 				level->look_side += 0.1;
@@ -400,7 +442,10 @@ int			main(int argc, char **argv)
 			else if (event.key.repeat == 0 && event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_N)
 				player_movement(NULL, NULL);
 			else if (event.key.repeat == 0 && event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_M)
+			{
 				rendermode = rendermode == 2 ? 0 : rendermode + 1;
+				level->quality = 1;
+			}
 			else if (event.key.repeat == 0 && event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_TAB)
 			{
 				relmouse = relmouse ? 0 : 1;
@@ -433,16 +478,11 @@ int			main(int argc, char **argv)
 		level->obj = tmp;
 
 		frametime = SDL_GetTicks() - frametime;
-		if (frametime > 33)
-			level->quality += 2;
-		else if (frametime < 20)
-			level->quality -= 2;
-		if (level->quality < 0)
-			level->quality = 1;
 		//printf("time: %d ms\n", frametime);
 		char buf[50];
 		int fps = get_fps(0);
-		sprintf(buf, "%.2fphyshz %dfps %dms %d(%dL %dR)faces quality: %d\n\n", physhz, fps, frametime, faces_visible, faces_left, faces_right, level->quality);
+		set_quality(frametime, level, fps);
+		sprintf(buf, "%.2fphyshz %dfps %d(%dL %dR)faces quality: %d", physhz, fps, faces_visible, faces_left, faces_right, level->quality);
 		SDL_SetWindowTitle(window->SDLwindow, buf);
 
 		//SDL_Delay(2);
