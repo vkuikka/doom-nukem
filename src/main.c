@@ -51,14 +51,6 @@ void	player_movement(t_vec3 *pos, t_level *l)
 	float			dist = 0;
 	t_ray			r;
 
-	if (keys[SDL_SCANCODE_RIGHT])
-		l->look_side += 0.1;
-	if (keys[SDL_SCANCODE_LEFT])
-		l->look_side -= 0.1;
-	if (keys[SDL_SCANCODE_UP])
-		l->look_up += 0.1;
-	if (keys[SDL_SCANCODE_DOWN])
-		l->look_up -= 0.1;
 	if (l == NULL)
 	{
 		if (noclip)
@@ -71,9 +63,9 @@ void	player_movement(t_vec3 *pos, t_level *l)
 	{
 		speed = NOCLIP_SPEED;
 		if (keys[SDL_SCANCODE_SPACE])
-			l->pos.y -= 0.5;
+			pos->y -= 0.5;
 		if (keys[SDL_SCANCODE_LSHIFT])
-			l->pos.y += 0.5;
+			pos->y += 0.5;
 	}
 	else if (keys[SDL_SCANCODE_LSHIFT])
 		speed /= 2;
@@ -97,8 +89,8 @@ void	player_movement(t_vec3 *pos, t_level *l)
 		dist = cast_all(r, l, NULL, NULL);
 		if (noclip || (dist <= 0 || dist > WALL_CLIP_DIST))
 		{
-			l->pos.x += rot.x * speed;
-			l->pos.z += rot.z * speed;
+			pos->x += rot.x * speed;
+			pos->z += rot.z * speed;
 		}
 	}
 	if (keys[SDL_SCANCODE_S])
@@ -110,8 +102,8 @@ void	player_movement(t_vec3 *pos, t_level *l)
 		dist = cast_all(r, l, NULL, NULL);
 		if (noclip || (dist <= 0 || dist > WALL_CLIP_DIST))
 		{
-			l->pos.x += rot.x * speed;
-			l->pos.z += rot.z * speed;
+			pos->x += rot.x * speed;
+			pos->z += rot.z * speed;
 		}
 	}
 	if (keys[SDL_SCANCODE_D])
@@ -123,8 +115,8 @@ void	player_movement(t_vec3 *pos, t_level *l)
 		dist = cast_all(r, l, NULL, NULL);
 		if (noclip || (dist <= 0 || dist > WALL_CLIP_DIST))
 		{
-			l->pos.x += rot.x * speed;
-			l->pos.z += rot.z * speed;
+			pos->x += rot.x * speed;
+			pos->z += rot.z * speed;
 		}
 	}
 	if (keys[SDL_SCANCODE_A])
@@ -136,8 +128,8 @@ void	player_movement(t_vec3 *pos, t_level *l)
 		dist = cast_all(r, l, NULL, NULL);
 		if (noclip || (dist <= 0 || dist > WALL_CLIP_DIST))
 		{
-			l->pos.x += rot.x * speed;
-			l->pos.z += rot.z * speed;
+			pos->x += rot.x * speed;
+			pos->z += rot.z * speed;
 		}
 	}
 	if (noclip)
@@ -296,22 +288,45 @@ void	action_loop(t_window *window, t_level *l, t_bmp *bmp, t_obj *culled, int *f
 	return ;
 }
 
-int		get_fps(void)
+int		get_fps(int i)
 {
 	struct timeval	time;
-	static long		s = 0;
-	static int		i = 0;
-	static int		fps = 0;
+	static long		s[2];
+	static int		frames[2];
+	static int		fps[2];
 
-	i++;
+	frames[i]++;
 	gettimeofday(&time, NULL);
-	if (s != time.tv_sec)
+	if (s[i] != time.tv_sec)
 	{
-		s = time.tv_sec;
-		fps = i;
-		i = 0;
+		s[i] = time.tv_sec;
+		fps[i] = frames[i];
+		frames[i] = 0;
 	}
-	return fps;
+	return (fps[i]);
+}
+
+int			physics(void *data_pointer)
+{
+	t_physthread	*data = data_pointer;
+	const int		tickrate = 64;
+	float		over = 0;
+	unsigned	start;
+
+	while (1)
+	{
+		start = SDL_GetTicks() - over;
+		global_seginfo = "player_movement\n";
+		player_movement(data->pos, data->level);// sometimes gets only visible faces?...
+		*data->hz = get_fps(1);
+		SDL_Delay(1000 / tickrate / 3 * 2);
+		//printf("%d\n", 1000 / tickrate / 3 * 2);
+		while (SDL_GetTicks() - start + 0.0 < 1000.0 / tickrate)
+			;//SDL_Delay(1);
+		over = SDL_GetTicks() - start - (1000 / tickrate);
+		//printf("over = %f\n", over);
+	}
+	return (0);
 }
 
 int			main(int argc, char **argv)
@@ -324,6 +339,8 @@ int			main(int argc, char **argv)
 	int			rendermode;//0 raycast all, 1 raycast culled, 2 wireframe
 	int			relmouse;
 	t_obj		*culled;
+	t_physthread	physicsdata;
+	t_vec3		pos;
 
 #if __APPLE__
 	struct sigaction act;
@@ -355,6 +372,11 @@ int			main(int argc, char **argv)
 	}
 	culled[0].tri_amount = level->obj[0].tri_amount;
 	culled[1].tri_amount = level->obj[0].tri_amount;
+	physicsdata.level = level;
+	float physhz = 0;
+	physicsdata.hz = &physhz;
+	physicsdata.pos = &pos;
+	SDL_CreateThread(physics, "physics", (void*)&physicsdata);
 	while (1)
 	{
 		frametime = SDL_GetTicks();
@@ -367,8 +389,16 @@ int			main(int argc, char **argv)
 				level->look_side += (float)event.motion.xrel / 200;
 				level->look_up -= (float)event.motion.yrel / 200;
 			}
+			/*else if (event.key.repeat == 0 && event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_RIGHT)
+				level->look_side += 0.1;
+			else if (event.key.repeat == 0 && event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_LEFT)
+				level->look_side -= 0.1;
+			else if (event.key.repeat == 0 && event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_UP)
+				level->look_up += 0.1;
+			else if (event.key.repeat == 0 && event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_DOWN)
+				level->look_up -= 0.1;*/
 			else if (event.key.repeat == 0 && event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_N)
-				player_movement(&(t_vec3){0,0,0}, NULL);
+				player_movement(NULL, NULL);
 			else if (event.key.repeat == 0 && event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_M)
 				rendermode = rendermode == 2 ? 0 : rendermode + 1;
 			else if (event.key.repeat == 0 && event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_TAB)
@@ -383,8 +413,7 @@ int			main(int argc, char **argv)
 				}
 			}
 		}
-		global_seginfo = "player_movement\n";
-		player_movement(&level->pos, level);
+		level->pos = pos;
 		t_obj *tmp = level->obj;
 		int faces_visible = level->obj->tri_amount;
 		int faces_left = culled[0].tri_amount;
@@ -412,10 +441,11 @@ int			main(int argc, char **argv)
 			level->quality = 1;
 		//printf("time: %d ms\n", frametime);
 		char buf[50];
-		int fps = get_fps();
-		sprintf(buf, "%dfps %dms %d(%dL %dR)faces quality: %d\n\n", fps, frametime, faces_visible, faces_left, faces_right, level->quality);
+		int fps = get_fps(0);
+		sprintf(buf, "%.2fphyshz %dfps %dms %d(%dL %dR)faces quality: %d\n\n", physhz, fps, frametime, faces_visible, faces_left, faces_right, level->quality);
 		SDL_SetWindowTitle(window->SDLwindow, buf);
 
+		//SDL_Delay(2);
 		//if (frametime < 100)
 		//	usleep(10000);
 	}

@@ -121,6 +121,13 @@ typedef struct			s_level
 	unsigned			fog_color;
 }						t_level;
 
+typedef struct			s_physthread
+{
+	float				*hz;
+	struct s_level		*level;
+	struct s_vec3		*pos;
+}						t_physthread;
+
 typedef struct			s_rthread
 {
 	int					id;

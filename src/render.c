@@ -162,7 +162,10 @@ int			render(void *data_pointer)
 	int			rand_amount = 10000000;
 
 	if (t->level->quality > 7)
+	{
+		srand(SDL_GetTicks());
 		rand_amount = 2;
+	}
 	r.pos.x = t->level->pos.x;
 	r.pos.y = t->level->pos.y;
 	r.pos.z = t->level->pos.z;
