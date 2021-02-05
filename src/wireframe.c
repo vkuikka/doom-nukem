@@ -20,14 +20,31 @@ void	pixel_put(int x, int y, int color, t_window *window)
 	window->frame_buffer[x + (y * (int)RES_X)] = color;
 }
 
+t_vec3	move2z(t_vec3 *p1, t_vec3 *p2)
+{
+	t_vec3	intersection;
+	float	len;
+
+	len = p1->z / (p2->z - p1->z);
+	len *= 20;
+	intersection.x = p1->x + len * (p2->x - p1->x);
+	intersection.y = p1->y + len * (p2->y - p1->y);
+	intersection.z = 0;
+	return (intersection);
+}
+
 void	print_line(t_vec3 start, t_vec3 stop, int color[2], t_window *window)
 {
 	t_vec3	step;
 	t_vec3	pos;
 	int		i;
 
-	if (start.z < 0 || stop.z < 0)
+	if (start.z < 0 && stop.z < 0)
 		return ;
+	else if (start.z < 0)
+		start = move2z(&stop, &start);
+	else if (stop.z < 0)
+		stop = move2z(&start, &stop);
 	i = 0;
 	pos.x = start.x;
 	pos.y = start.y;
