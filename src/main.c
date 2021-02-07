@@ -24,10 +24,10 @@ float	cast_all(t_ray vec, t_level *l, float *dist_u, float *dist_d)
 	int		color;
 	float	res = 1000000;
 
-	for (int j = 0; j < l->obj[0].tri_amount; j++)
+	for (int j = 0; j < l->allfaces->tri_amount; j++)
 	{
 		float tmp;
-		tmp = cast_face(l->obj[0].tris[j], vec, &color, NULL);
+		tmp = cast_face(l->allfaces->tris[j], vec, &color, NULL);
 		if (dist_u != NULL)
 		{
 			if (tmp > 0 && tmp < *dist_d)
@@ -308,23 +308,106 @@ int		get_fps(int i)
 	return (fps[i]);
 }
 
+
+float		get_hz(void)
+{
+	static float oldTime = 0;
+	float newTime = SDL_GetTicks();
+	float dt = newTime - oldTime;
+	float fps = 1000.0f / dt;
+	oldTime = newTime;
+	return (fps);
+}
+float		avghz(float hz)
+{
+	struct timeval	time;
+	static long		s;
+	static int		frames;
+	static float	avghz = 0;
+	static float	tmp = 0;
+
+	frames++;
+	gettimeofday(&time, NULL);
+	tmp += hz;
+	if (s != time.tv_sec)
+	{
+		s = time.tv_sec;
+		avghz = tmp /= frames;
+		frames = 0;
+		tmp = 0;
+	}
+	return (avghz);
+}
+
+#include <time.h>
+#include <assert.h>
+
+#if defined(_WIN32)
+
+#include <windows.h>
+
+#elif defined(__unix__) || defined(__linux) || defined(__linux__) || defined(__ANDROID__) || defined(__EPOC32__) || defined(__QNX__)
+
+#include <time.h>
+
+#elif defined(__APPLE__)
+
+#include <sys/time.h>
+
+#endif
+
+unsigned long getTimeInNanoseconds(void) {
+#if defined(_WIN32)
+    LARGE_INTEGER freq;
+    LARGE_INTEGER count;
+    QueryPerformanceCounter(&count);
+    QueryPerformanceFrequency(&freq);
+    assert(freq.LowPart != 0 || freq.HighPart != 0);
+
+    if (count.QuadPart < MAXLONGLONG / 1000000) {
+        assert(freq.QuadPart != 0);
+        return count.QuadPart * 1000000 / freq.QuadPart;
+    } else {
+        assert(freq.QuadPart >= 1000000);
+        return count.QuadPart / (freq.QuadPart / 1000000);
+    }
+
+#elif defined(__unix__) || defined(__linux) || defined(__linux__) || defined(__ANDROID__) || defined(__QNX__)
+    struct timespec currTime;
+    clock_gettime(CLOCK_MONOTONIC, &currTime);
+    return (uint64_t)currTime.tv_sec * 1000000 + ((uint64_t)currTime.tv_nsec / 1000);
+
+#elif defined(__EPOC32__)
+    struct timespec currTime;
+    /* Symbian supports only realtime clock for clock_gettime. */
+    clock_gettime(CLOCK_REALTIME, &currTime);
+    return (uint64_t)currTime.tv_sec * 1000000 + ((uint64_t)currTime.tv_nsec / 1000);
+
+#elif defined(__APPLE__)
+    struct timeval currTime;
+    gettimeofday(&currTime, NULL);
+    return (uint64_t)currTime.tv_sec * 1000000 + (uint64_t)currTime.tv_usec;
+
+#else
+#error "Not implemented for target OS"
+#endif
+}
+
 int			physics(void *data_pointer)
 {
 	t_physthread	*data = data_pointer;
-	float		over = 0;
-	unsigned	start;
+	unsigned long	start;
+	unsigned long	target = 1000000 / TICKRATE;
 
 	while (1)
 	{
-		start = SDL_GetTicks() - over;
+		start = getTimeInNanoseconds();
 		global_seginfo = "player_movement\n";
 		player_movement(data->pos, data->level);// sometimes gets only visible faces?...
-		*data->hz = get_fps(1);
-		SDL_Delay(1000 / TICKRATE / 3 * 2);
-		while (SDL_GetTicks() - start + 0.0 < 1000.0 / TICKRATE)
-			;//SDL_Delay(1);
-		over = SDL_GetTicks() - start - (1000 / TICKRATE);
-		//printf("over = %f\n", over);
+		SDL_Delay(5);
+		*data->hz = avghz(get_hz());
+		while (getTimeInNanoseconds() - start < target)
+			;
 	}
 	return (0);
 }
@@ -412,6 +495,7 @@ int			main(int argc, char **argv)
 	}
 	culled[0].tri_amount = level->obj[0].tri_amount;
 	culled[1].tri_amount = level->obj[0].tri_amount;
+	level->allfaces = level->obj;
 	physicsdata.level = level;
 	float physhz = 0;
 	physicsdata.hz = &physhz;
@@ -485,7 +569,7 @@ int			main(int argc, char **argv)
 		char buf[50];
 		int fps = get_fps(0);
 		set_quality(frametime, level, fps);
-		sprintf(buf, "%.2fphyshz %dfps %d(%dL %dR)faces quality: %d", physhz, fps, faces_visible, faces_left, faces_right, level->quality);
+		sprintf(buf, "%.2fhz %dfps %d(%dL %dR)faces quality: %d", physhz, fps, faces_visible, faces_left, faces_right, level->quality);
 		SDL_SetWindowTitle(window->SDLwindow, buf);
 
 		//SDL_Delay(2);

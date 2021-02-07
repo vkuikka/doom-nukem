@@ -16,7 +16,7 @@
 # define RES_Y 600.0
 # define THREAD_AMOUNT 20
 # define TARGETFPS 35
-# define TICKRATE 64
+# define TICKRATE 128
 
 # define MOVE_SPEED 10.0 / TICKRATE
 # define NOCLIP_SPEED 30.0 / TICKRATE
@@ -114,6 +114,7 @@ typedef struct			s_skybox
 typedef struct			s_level
 {
 	struct s_obj		*obj;		//array of objects in the level
+	struct s_obj		*allfaces;
 	struct s_vec3		pos;		//player position
 	struct s_skybox		sky;
 	float				look_side;	//side look angle
