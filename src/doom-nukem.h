@@ -16,9 +16,10 @@
 # define RES_Y 600.0
 # define THREAD_AMOUNT 20
 # define TARGETFPS 35
+# define TICKRATE 64
 
-# define MOVE_SPEED 0.1
-# define NOCLIP_SPEED 0.8
+# define MOVE_SPEED 10.0 / TICKRATE
+# define NOCLIP_SPEED 30.0 / TICKRATE
 
 # define WALL_CLIP_DIST 0.3
 
@@ -31,6 +32,7 @@
 # include <sys/time.h>
 # include "get_next_line.h"
 # include "SDL2/SDL.h"
+# include "SDL2/SDL_ttf.h"
 
 # include <stdlib.h>
 # include <stdio.h>
@@ -199,5 +201,9 @@ void		find_quads(t_obj *obj);
 
 void		rotate_vertex(float angle, t_vec3 *vertex, int axis);
 void		rot_cam(t_vec3 *cam, const float lon, const float lat);
+
+void		init_buttons(t_window *window);
+void		draw_buttons(void);
+void		button(int *var, char *text);
 
 #endif

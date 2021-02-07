@@ -59,6 +59,7 @@ void	player_movement(t_vec3 *pos, t_level *l)
 			noclip = 1;
 		return;
 	}
+	// button(&noclip, "noclip");
 	if (noclip)
 	{
 		speed = NOCLIP_SPEED;
@@ -284,6 +285,7 @@ void	action_loop(t_window *window, t_level *l, t_bmp *bmp, t_obj *culled, int *f
 	SDL_UnlockTexture(window->texture);
 	SDL_RenderClear(window->SDLrenderer);
 	SDL_RenderCopy(window->SDLrenderer, window->texture, NULL, NULL);
+	draw_buttons();
 	SDL_RenderPresent(window->SDLrenderer);
 	return ;
 }
@@ -309,7 +311,6 @@ int		get_fps(int i)
 int			physics(void *data_pointer)
 {
 	t_physthread	*data = data_pointer;
-	const int		tickrate = 64;
 	float		over = 0;
 	unsigned	start;
 
@@ -319,11 +320,10 @@ int			physics(void *data_pointer)
 		global_seginfo = "player_movement\n";
 		player_movement(data->pos, data->level);// sometimes gets only visible faces?...
 		*data->hz = get_fps(1);
-		SDL_Delay(1000 / tickrate / 3 * 2);
-		//printf("%d\n", 1000 / tickrate / 3 * 2);
-		while (SDL_GetTicks() - start + 0.0 < 1000.0 / tickrate)
+		SDL_Delay(1000 / TICKRATE / 3 * 2);
+		while (SDL_GetTicks() - start + 0.0 < 1000.0 / TICKRATE)
 			;//SDL_Delay(1);
-		over = SDL_GetTicks() - start - (1000 / tickrate);
+		over = SDL_GetTicks() - start - (1000 / TICKRATE);
 		//printf("over = %f\n", over);
 	}
 	return (0);
@@ -398,6 +398,7 @@ int			main(int argc, char **argv)
 	level->quality = 1;
 	global_seginfo = "init_window\n";
 	init_window(&window);
+	init_buttons(window);
 	if (!(culled = (t_obj*)malloc(sizeof(t_obj) * 2)))
 		ft_error("memory allocation failed\n");
 	if (!(culled[0].tris = (t_tri*)malloc(sizeof(t_tri) * level->obj->tri_amount)))
@@ -474,6 +475,8 @@ int			main(int argc, char **argv)
 				culled[0].tris[i] = level->obj[0].tris[i];
 			culled[0].tri_amount = level->obj[0].tri_amount;
 		}
+		button(&level->enable_fog, "fog");
+		button(&rendermode, "culling");
 		action_loop(window, level, &bmp, culled, &faces_left, &faces_right, rendermode);
 		level->obj = tmp;
 
