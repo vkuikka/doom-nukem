@@ -27,7 +27,7 @@ $(NAME):
 ifeq ($(OS),Windows_NT)
 	gcc $(FLAGS) -O3  $(FILES) $(LIB) -I $(INCLUDE) -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf -o $(NAME)
 else
-	gcc $(FLAGS) -O3 -framework SDL2 -F ./ $(FILES) $(LIB) -I $(INCLUDE) -o $(NAME) -rpath @executable_path
+	gcc $(FLAGS) -O3 -framework SDL2 -framework SDL2_ttf -F ./ $(FILES) $(LIB) -I $(INCLUDE) -o $(NAME) -rpath @executable_path
 endif
 
 clean:
