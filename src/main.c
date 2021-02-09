@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/02/04 17:13:00 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/02/09 21:04:21 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,6 @@ float	cast_all(t_ray vec, t_level *l, float *dist_u, float *dist_d, int *index)
 
 	for (int j = 0; j < l->allfaces->tri_amount; j++)
 	{
-		(*index) = j;
 		float tmp;
 		tmp = cast_face(l->allfaces->tris[j], vec, &color, NULL);
 		if (dist_u != NULL)
@@ -37,7 +36,10 @@ float	cast_all(t_ray vec, t_level *l, float *dist_u, float *dist_d, int *index)
 				*dist_u = tmp;
 		}
 		else if (tmp > 0 && tmp < res)
+		{
 			res = tmp;
+			*index = j;
+		}
 	}
 	return (res);
 }
@@ -73,9 +75,9 @@ t_vec3	player_input(int noclip, t_level *level)
 	if (wishdir.x || wishdir.y || wishdir.z)
 	{
 		vec_normalize(&wishdir);
-		wishdir.x *= .1;
-		wishdir.y *= .1;
-		wishdir.z *= .1;
+		wishdir.x *= .01;
+		wishdir.y *= .01;
+		wishdir.z *= .01;
 	}
 	return (wishdir);
 }
@@ -105,9 +107,9 @@ void	player_collision(t_vec3 *vel, t_vec3 *pos, t_level *level)
 		t_vec3	normal;
 		vec_cross(&normal, level->allfaces->tris[index].v0v1, level->allfaces->tris[index].v0v2);
 		vec_normalize(&normal);
+		vec_mult(&normal, vec_dot(*vel, normal));
 		t_vec3	clip;
-		vec_add(&clip, *vel, normal);
-		vec_mult(&clip, vec_dot(*vel, normal));
+		vec_sub(&clip, *vel, normal);
 		vel->x = clip.x;
 		vel->y = clip.y;
 		vel->z = clip.z;
