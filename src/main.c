@@ -19,13 +19,14 @@ void segv_handler(int sig)
     (void)sig;
 }
 
-float	cast_all(t_ray vec, t_level *l, float *dist_u, float *dist_d)
+float	cast_all(t_ray vec, t_level *l, float *dist_u, float *dist_d, int *index)
 {
 	int		color;
 	float	res = 1000000;
 
 	for (int j = 0; j < l->allfaces->tri_amount; j++)
 	{
+		(*index) = j;
 		float tmp;
 		tmp = cast_face(l->allfaces->tris[j], vec, &color, NULL);
 		if (dist_u != NULL)
@@ -41,133 +42,150 @@ float	cast_all(t_ray vec, t_level *l, float *dist_u, float *dist_d)
 	return (res);
 }
 
-void	player_movement(t_vec3 *pos, t_level *l)
+t_vec3	player_input(int noclip, t_level *level)
 {
-	static t_vec3	dir = {0, 0, 0};
-	const Uint8		*keys = SDL_GetKeyboardState(NULL);
-	static int		noclip = 1;
-	static int		jump_delay = 0;
-	float			speed = MOVE_SPEED;
-	float			dist = 0;
-	t_ray			r;
+	const Uint8	*keys = SDL_GetKeyboardState(NULL);
+	t_vec3		wishdir;
+	float		speed;
+	wishdir.x = 0;
+	wishdir.y = 0;
+	wishdir.z = 0;
 
-	if (l == NULL)
+	speed = noclip ? NOCLIP_SPEED : MOVE_SPEED;
+	if (keys[SDL_SCANCODE_LSHIFT])
 	{
 		if (noclip)
-			noclip = 0;
+			wishdir.y += speed;
 		else
-			noclip = 1;
-		return;
+			speed /= 2;
 	}
-	// button(&noclip, "noclip");
-	if (noclip)
+	if (keys[SDL_SCANCODE_SPACE])
+		wishdir.y -= speed;
+	if (keys[SDL_SCANCODE_W])
+		wishdir.z += speed;
+	if (keys[SDL_SCANCODE_S])
+		wishdir.z -= speed;
+	if (keys[SDL_SCANCODE_A])
+		wishdir.x -= speed;
+	if (keys[SDL_SCANCODE_D])
+		wishdir.x += speed;
+	rotate_vertex(level->look_side, &wishdir, 0);
+	if (wishdir.x || wishdir.y || wishdir.z)
 	{
-		speed = NOCLIP_SPEED;
-		if (keys[SDL_SCANCODE_SPACE])
-			pos->y -= 0.5;
-		if (keys[SDL_SCANCODE_LSHIFT])
-			pos->y += 0.5;
+		vec_normalize(&wishdir);
+		wishdir.x *= .1;
+		wishdir.y *= .1;
+		wishdir.z *= .1;
 	}
-	else if (keys[SDL_SCANCODE_LSHIFT])
-		speed /= 2;
+	return (wishdir);
+}
 
-	t_vec3	rot;
-	t_vec3	rot_tmp;
-	rot_tmp.x = 0;
-	rot_tmp.y = 0;
-	rot_tmp.z = 1;
+void	player_collision(t_vec3 *vel, t_vec3 *pos, t_level *level)
+{
+	t_ray	r;
 
 	r.pos.x = pos->x;
 	r.pos.y = pos->y;
 	r.pos.z = pos->z;
+	r.dir.x = vel->x;
+	r.dir.y = vel->y + .5;//player height
+	r.dir.z = vel->z;
 
-	if (keys[SDL_SCANCODE_W])
+	float			dist = 0;
+	int				index;
+	dist = cast_all(r, level, NULL, NULL, &index);
+	if (dist <= 0 || dist > WALL_CLIP_DIST * 10)
 	{
-		vec_rot(&rot, rot_tmp, l->look_side);
-		r.dir.x = rot.x;
-		r.dir.y = rot.y;
-		r.dir.z = rot.z;
-		dist = cast_all(r, l, NULL, NULL);
-		if (noclip || (dist <= 0 || dist > WALL_CLIP_DIST))
-		{
-			pos->x += rot.x * speed;
-			pos->z += rot.z * speed;
-		}
+		pos->x += vel->x;
+		pos->y += vel->y;
+		pos->z += vel->z;
 	}
-	if (keys[SDL_SCANCODE_S])
+	else
 	{
-		vec_rot(&rot, rot_tmp, l->look_side + M_PI);
-		r.dir.x = rot.x;
-		r.dir.y = rot.y;
-		r.dir.z = rot.z;
-		dist = cast_all(r, l, NULL, NULL);
-		if (noclip || (dist <= 0 || dist > WALL_CLIP_DIST))
-		{
-			pos->x += rot.x * speed;
-			pos->z += rot.z * speed;
-		}
+		t_vec3	normal;
+		vec_cross(&normal, level->allfaces->tris[index].v0v1, level->allfaces->tris[index].v0v2);
+		vec_normalize(&normal);
+		t_vec3	clip;
+		vec_add(&clip, *vel, normal);
+		vec_mult(&clip, vec_dot(*vel, normal));
+		vel->x = clip.x;
+		vel->y = clip.y;
+		vel->z = clip.z;
+		// vel->x = 0;
+		// vel->y = 0;
+		// vel->z = 0;
 	}
-	if (keys[SDL_SCANCODE_D])
+	pos->x += vel->x;
+	pos->y += vel->y;
+	pos->z += vel->z;
+}
+
+void	player_movement(t_vec3 *pos, t_level *level)
+{
+	static t_vec3	vel = {0, 0, 0};
+	static int		noclip = 1;
+
+	// button(&noclip, "noclip");
+	if (level == NULL)
 	{
-		vec_rot(&rot, rot_tmp, l->look_side + M_PI / 2);
-		r.dir.x = rot.x;
-		r.dir.y = rot.y;
-		r.dir.z = rot.z;
-		dist = cast_all(r, l, NULL, NULL);
-		if (noclip || (dist <= 0 || dist > WALL_CLIP_DIST))
-		{
-			pos->x += rot.x * speed;
-			pos->z += rot.z * speed;
-		}
-	}
-	if (keys[SDL_SCANCODE_A])
-	{
-		vec_rot(&rot, rot_tmp, l->look_side - M_PI / 2);
-		r.dir.x = rot.x;
-		r.dir.y = rot.y;
-		r.dir.z = rot.z;
-		dist = cast_all(r, l, NULL, NULL);
-		if (noclip || (dist <= 0 || dist > WALL_CLIP_DIST))
-		{
-			pos->x += rot.x * speed;
-			pos->z += rot.z * speed;
-		}
-	}
-	if (noclip)
+		noclip = noclip ? 0 : 1;
 		return;
-	if (keys[SDL_SCANCODE_SPACE] && dir.y >= 0 && SDL_GetTicks() > jump_delay + 500)
-	{
-		dir.y = -0.4;
-		jump_delay = SDL_GetTicks();
 	}
-	float dist_d = 100000;
-	float dist_u = -100000;
+	t_vec3 wishdir = player_input(noclip, level);
+	if (noclip)
+	{
+		pos->x += wishdir.x;
+		pos->y += wishdir.y;
+		pos->z += wishdir.z;
+		vel.x = 0;
+		vel.y = 0;
+		vel.z = 0;
+		return ;
+	}
+	vel.x += wishdir.x;
+	vel.y += wishdir.y;
+	vel.z += wishdir.z;
+	player_collision(&vel, pos, level);
 
-	r.dir.x = 0;
-	r.dir.y = 1;
-	r.dir.z = 0;
-	cast_all(r, l, &dist_u, &dist_d);
-	if (dist_d > 0 && dist_d != 100000)
-		dist = dist_d;
-	else if (dist_u < 0 && dist_u != -100000)
-		dist = dist_u;
-	if (dist > 0)
-	{
-		if (dir.y < 0)
-			dir.y += 0.08;
-		if (dist < dir.y)
-			dir.y = 0;
-		if (dist > 1 && dir.y < 1.5)
-			dir.y += 0.04;
-		else if (dist < 1)
-			pos->y += dist - 1;
-	}
-	else if (dist < 0 && dist > -1)
-	{
-		dir.y = 0;
-		pos->y += dist - 0.5;
-	}
-	pos->y += dir.y;
+	// static float onground = 0;
+	// if (keys[SDL_SCANCODE_SPACE] && vel.y >= 0 && SDL_GetTicks() > jump_delay + 00 && onground == pos->y)
+	// {
+	// 	// vel.y = -(300.0 / (float)TICKRATE);//jump height
+	// 	vel.y = -(speed * (300 / TICKRATE));//jump height
+	// 	// vel.y = -4;
+	// 	jump_delay = SDL_GetTicks();
+	// }
+	// onground = pos->y;
+	// float dist_d = 100000;
+	// float dist_u = -100000;
+
+	// r.dir.x = 0;
+	// r.dir.y = 1;
+	// r.dir.z = 0;
+	// cast_all(r, l, &dist_u, &dist_d);
+	// if (dist_d > 0 && dist_d != 100000)
+	// 	dist = dist_d;
+	// else if (dist_u < 0 && dist_u != -100000)
+	// 	dist = dist_u;
+	// if (dist > 0)
+	// {
+	// 	if (vel.y < 0)
+	// 		vel.y += 0.7 / TICKRATE;//jumpspeed
+	// 		// vel.y += 0.08;
+	// 	if (dist < vel.y)
+	// 		vel.y = 0;
+	// 		// vel.y += 0.08;
+	// 	if (dist > 1 && vel.y < 1.5)
+	// 		vel.y += 0.7 / TICKRATE;//jumpspeed
+	// 	else if (dist < 1)
+	// 		pos->y += dist - 1;
+	// }
+	// // else if (dist < 0 && dist > -1)
+	// // {
+	// // 	dir.y = 0;
+	// // 	pos->y += dist - 0.5;
+	// // }
+	// pos->y += vel.y;
 }
 
 int				is_tri_side(t_tri tri, t_ray c)
