@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/07 18:13:00 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/02/02 16:05:46 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/02/09 19:35:10 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,4 +99,11 @@ float		vec_angle(t_vec3 v1, t_vec3 v2)
 	dot = vec_dot(v1, v2);
 	len = vec_length(v1) * vec_length(v2);
 	return (acos(dot / len));
+}
+
+void		vec_mult(t_vec3 *res, int mult)
+{
+	res->x = res->x * mult;
+	res->y = res->y * mult;
+	res->z = res->z * mult;
 }
