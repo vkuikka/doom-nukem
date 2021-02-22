@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/02/09 19:37:17 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/02/22 15:36:38 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,11 @@
 # define TARGETFPS 35
 # define TICKRATE 128
 
-# define MOVE_SPEED 10.0 / TICKRATE
-# define NOCLIP_SPEED 30.0 / TICKRATE
+# define MOVE_SPEED 7.0 / TICKRATE
+# define JUMP_SPEED 5.0 / TICKRATE
+# define NOCLIP_SPEED 20.0 / TICKRATE
+
+# define PLAYER_HEIGHT 1.75
 
 # define WALL_CLIP_DIST 0.3
 
@@ -176,7 +179,7 @@ float		vec_length(t_vec3 vec);
 void		vec_sub(t_vec3 *res, t_vec3 ve1, t_vec3 ve2);
 void		vec_add(t_vec3 *res, t_vec3 ve1, t_vec3 ve2);
 void		vec_cross(t_vec3 *res, t_vec3 u, t_vec3 v);
-void		vec_rot(t_vec3 *res, t_vec3 ve1, float ang);		//rotates atound y axis
+void		vec_rot(t_vec3 *res, t_vec3 ve1, float ang);
 int			vec_cmp(t_vec3 ve1, t_vec3 ve2);
 void		vec_avg(t_vec3 *res, t_vec3 ve1, t_vec3 ve2);
 void		vec_copy(t_vec3 *res, t_vec3 vec);
