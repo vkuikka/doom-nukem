@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   buttons.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/06 08:50:56 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/02/06 09:41:19 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/02/10 03:42:47 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ static void	button_pixel_put(int x, int y, int color, unsigned *texture)
 	texture[x + (y * (int)RES_X)] = color;
 }
 
-static int	put_text(char *text, t_window *window, SDL_Texture *texture)
+static void	put_text(char *text, t_window *window, SDL_Texture *texture)
 {
 	TTF_Font* font = TTF_OpenFont("Roboto-Medium.ttf", 13);
 	if (!font)
@@ -78,7 +78,7 @@ static void	draw_buttons_internal(SDL_Texture *get_text, SDL_Texture *get_button
 		SDL_RenderCopy(window->SDLrenderer, text_texture, NULL, NULL);
 }
 
-static int	edit_var(int *var, int yloc)
+static void	edit_var(int *var, int yloc)
 {
 	static int	last[1000];
 	int			x;
