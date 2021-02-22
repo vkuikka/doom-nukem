@@ -143,7 +143,7 @@ void	player_movement(t_vec3 *pos, t_level *level)
 	r.dir.y = 1;
 	r.dir.z = 0;
 	dist = cast_all(r, level, NULL, NULL, NULL);
-	if (dist > 0 && dist <= PLAYER_HEIGHT)
+	if (dist > 0 && dist <= PLAYER_HEIGHT && !noclip)
 	{
 		in_air = 0;
 		if (dist < PLAYER_HEIGHT)
