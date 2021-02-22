@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/02/09 21:04:21 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/02/20 04:37: 0by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@ float	cast_all(t_ray vec, t_level *l, float *dist_u, float *dist_d, int *index)
 	int		color;
 	float	res = 1000000;
 
+	vec_normalize(&vec.dir);
 	for (int j = 0; j < l->allfaces->tri_amount; j++)
 	{
 		float tmp;
@@ -38,71 +39,76 @@ float	cast_all(t_ray vec, t_level *l, float *dist_u, float *dist_d, int *index)
 		else if (tmp > 0 && tmp < res)
 		{
 			res = tmp;
-			*index = j;
+			if (index)
+				*index = j;
 		}
 	}
 	return (res);
 }
 
-t_vec3	player_input(int noclip, t_level *level)
+t_vec3	player_input(int noclip, t_level *level, int in_air, t_vec3 vel)
 {
-	const Uint8	*keys = SDL_GetKeyboardState(NULL);
-	t_vec3		wishdir;
-	float		speed;
+	const Uint8		*keys = SDL_GetKeyboardState(NULL);
+	t_vec3			wishdir;
+	float			speed;
+
 	wishdir.x = 0;
 	wishdir.y = 0;
 	wishdir.z = 0;
-
-	speed = noclip ? NOCLIP_SPEED : MOVE_SPEED;
-	if (keys[SDL_SCANCODE_LSHIFT])
-	{
-		if (noclip)
-			wishdir.y += speed;
-		else
-			speed /= 2;
-	}
-	if (keys[SDL_SCANCODE_SPACE])
-		wishdir.y -= speed;
+	speed = 0;
+	if (keys[SDL_SCANCODE_LSHIFT] && noclip)
+		wishdir.y += 1;
+	if (keys[SDL_SCANCODE_SPACE] && (!in_air || noclip))
+		wishdir.y -= 1;
 	if (keys[SDL_SCANCODE_W])
-		wishdir.z += speed;
+		wishdir.z += 1;
 	if (keys[SDL_SCANCODE_S])
-		wishdir.z -= speed;
+		wishdir.z -= 1;
 	if (keys[SDL_SCANCODE_A])
-		wishdir.x -= speed;
+		wishdir.x -= 1;
 	if (keys[SDL_SCANCODE_D])
-		wishdir.x += speed;
-	rotate_vertex(level->look_side, &wishdir, 0);
-	if (wishdir.x || wishdir.y || wishdir.z)
+		wishdir.x += 1;
+
+	if (keys[SDL_SCANCODE_LEFT])	//for testing bhop
+		level->look_side -= 0.004;
+	if (keys[SDL_SCANCODE_RIGHT])
+		level->look_side += 0.004;
+
+	if (wishdir.x || wishdir.z)
 	{
-		vec_normalize(&wishdir);
-		wishdir.x *= .01;
-		wishdir.y *= .01;
-		wishdir.z *= .01;
+		rotate_vertex(level->look_side, &wishdir, 0);
+		float length = sqrt(wishdir.x * wishdir.x + wishdir.z * wishdir.z);
+		wishdir.x /= length;
+		wishdir.z /= length;
 	}
+	if (noclip)
+		speed = NOCLIP_SPEED;
+	else
+		speed = fmax(MOVE_SPEED - (vel.x * wishdir.x + vel.z * wishdir.z), 0);
+
+	wishdir.x *= speed;
+	wishdir.z *= speed;
+	wishdir.y *= JUMP_SPEED;	//horizontal velocity does not affect vertical velocity
+
+	if (keys[SDL_SCANCODE_LSHIFT] && !noclip)
+		vec_mult(&wishdir, 0.5);
 	return (wishdir);
 }
 
 void	player_collision(t_vec3 *vel, t_vec3 *pos, t_level *level)
 {
-	t_ray	r;
+	t_ray			r;
+	float			dist = 0;
+	int				index;
 
 	r.pos.x = pos->x;
 	r.pos.y = pos->y;
 	r.pos.z = pos->z;
 	r.dir.x = vel->x;
-	r.dir.y = vel->y + .5;//player height
+	r.dir.y = vel->y;
 	r.dir.z = vel->z;
-
-	float			dist = 0;
-	int				index;
 	dist = cast_all(r, level, NULL, NULL, &index);
-	if (dist <= 0 || dist > WALL_CLIP_DIST * 10)
-	{
-		pos->x += vel->x;
-		pos->y += vel->y;
-		pos->z += vel->z;
-	}
-	else
+	if (dist > 0 && dist <= vec_length(*vel) + WALL_CLIP_DIST)
 	{
 		t_vec3	normal;
 		vec_cross(&normal, level->allfaces->tris[index].v0v1, level->allfaces->tris[index].v0v2);
@@ -113,27 +119,41 @@ void	player_collision(t_vec3 *vel, t_vec3 *pos, t_level *level)
 		vel->x = clip.x;
 		vel->y = clip.y;
 		vel->z = clip.z;
-		// vel->x = 0;
-		// vel->y = 0;
-		// vel->z = 0;
 	}
-	pos->x += vel->x;
-	pos->y += vel->y;
-	pos->z += vel->z;
 }
 
 void	player_movement(t_vec3 *pos, t_level *level)
 {
 	static t_vec3	vel = {0, 0, 0};
 	static int		noclip = 1;
+	static float	asd = 0;
+	t_ray			r;
+	float			dist;
+	int				in_air;
 
-	// button(&noclip, "noclip");
 	if (level == NULL)
 	{
 		noclip = noclip ? 0 : 1;
 		return;
 	}
-	t_vec3 wishdir = player_input(noclip, level);
+	r.pos.x = pos->x;
+	r.pos.y = pos->y;
+	r.pos.z = pos->z;
+	r.dir.x = 0;
+	r.dir.y = 1;
+	r.dir.z = 0;
+	dist = cast_all(r, level, NULL, NULL, NULL);
+	if (dist > 0 && dist <= PLAYER_HEIGHT)
+	{
+		in_air = 0;
+		if (dist < PLAYER_HEIGHT)
+			pos->y -= PLAYER_HEIGHT - dist;
+	}
+	else
+		in_air = 1;
+	t_vec3 wishdir = player_input(noclip, level, in_air, vel);
+	vel.y = fmax(fmin(vel.y, 0.5), -0.5);
+
 	if (noclip)
 	{
 		pos->x += wishdir.x;
@@ -144,50 +164,27 @@ void	player_movement(t_vec3 *pos, t_level *level)
 		vel.z = 0;
 		return ;
 	}
-	vel.x += wishdir.x;
-	vel.y += wishdir.y;
-	vel.z += wishdir.z;
-	player_collision(&vel, pos, level);
+	if (vel.x || vel.y || vel.z)
+		player_collision(&vel, pos, level);
+	pos->x += vel.x;
+	pos->y += vel.y;
+	pos->z += vel.z;
 
-	// static float onground = 0;
-	// if (keys[SDL_SCANCODE_SPACE] && vel.y >= 0 && SDL_GetTicks() > jump_delay + 00 && onground == pos->y)
-	// {
-	// 	// vel.y = -(300.0 / (float)TICKRATE);//jump height
-	// 	vel.y = -(speed * (300 / TICKRATE));//jump height
-	// 	// vel.y = -4;
-	// 	jump_delay = SDL_GetTicks();
-	// }
-	// onground = pos->y;
-	// float dist_d = 100000;
-	// float dist_u = -100000;
-
-	// r.dir.x = 0;
-	// r.dir.y = 1;
-	// r.dir.z = 0;
-	// cast_all(r, l, &dist_u, &dist_d);
-	// if (dist_d > 0 && dist_d != 100000)
-	// 	dist = dist_d;
-	// else if (dist_u < 0 && dist_u != -100000)
-	// 	dist = dist_u;
-	// if (dist > 0)
-	// {
-	// 	if (vel.y < 0)
-	// 		vel.y += 0.7 / TICKRATE;//jumpspeed
-	// 		// vel.y += 0.08;
-	// 	if (dist < vel.y)
-	// 		vel.y = 0;
-	// 		// vel.y += 0.08;
-	// 	if (dist > 1 && vel.y < 1.5)
-	// 		vel.y += 0.7 / TICKRATE;//jumpspeed
-	// 	else if (dist < 1)
-	// 		pos->y += dist - 1;
-	// }
-	// // else if (dist < 0 && dist > -1)
-	// // {
-	// // 	dir.y = 0;
-	// // 	pos->y += dist - 0.5;
-	// // }
-	// pos->y += vel.y;
+	if ((wishdir.x || wishdir.y || wishdir.z)) //&& sqrtf(vel.x * vel.x + vel.z * vel.z) < MAX_SPEED)
+	{
+		vel.x += wishdir.x;
+		vel.y += wishdir.y;
+		vel.z += wishdir.z;
+	}
+	else if (!in_air && wishdir.x == 0 && wishdir.z == 0)
+	{
+		vel.x *= 0.9;
+		vel.z *= 0.9;
+	}
+	if (in_air)
+		vel.y += 0.002;		//gravity
+	else if (vel.y > 0)
+		vel.y = 0;
 }
 
 int				is_tri_side(t_tri tri, t_ray c)
