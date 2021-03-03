@@ -16,8 +16,8 @@ void	pixel_put(int x, int y, int color, t_window *window)
 {
 	if (x < 0 || y < 0 || x >= RES_X || y >= RES_Y)
 		return;
-	//window->depth_buffer[x + (y * (int)RES_X)] = dist;
-	window->frame_buffer[x + (y * (int)RES_X)] = color;
+	//window->depth_buffer[x + (y * RES_X)] = dist;
+	window->frame_buffer[x + (y * RES_X)] = color;
 }
 
 t_vec3	move2z(t_vec3 *p1, t_vec3 *p2)
@@ -119,8 +119,8 @@ void	camera_offset(t_vec3 *vertex, t_level *level)
 	vertex->y /= vertex->z / fov;
 
 	//move to center of screen
-	vertex->x += RES_X / 2;
-	vertex->y += RES_Y / 2;
+	vertex->x += RES_X / 2.0;
+	vertex->y += RES_Y / 2.0;
 }
 
 void	put_edit_mode(int mode, t_window *window)
@@ -245,8 +245,8 @@ void	select_vert(t_level *l, int x, int y)
 	rot_cam(&up, lon, lat + (M_PI / 2));
 	vec_cross(&side, up, cam);
 
-	float ym = (1/RES_Y * y - 0.5);
-	float xm = (1/RES_X * x - 0.5);
+	float ym = (1.0 / RES_Y * y - 0.5);
+	float xm = (1.0 / RES_X * x - 0.5);
 
 	r.pos.x = l->pos.x;
 	r.pos.y = l->pos.y;

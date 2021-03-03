@@ -16,7 +16,7 @@ static void	button_pixel_put(int x, int y, int color, unsigned *texture)
 {
 	if (x < 0 || y < 0 || x >= RES_X || y >= RES_Y)
 		return;
-	texture[x + (y * (int)RES_X)] = color;
+	texture[x + (y * RES_X)] = color;
 }
 
 static void	put_text(char *text, t_window *window, SDL_Texture *texture)
