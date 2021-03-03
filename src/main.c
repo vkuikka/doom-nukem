@@ -556,7 +556,7 @@ int			main(int argc, char **argv)
 				else
 				{
 					SDL_SetRelativeMouseMode(SDL_FALSE);
-					SDL_WarpMouseInWindow(window->SDLwindow, RES_X / 2.0, RES_Y / 2.0);
+					SDL_WarpMouseInWindow(window->SDLwindow, RES_X / 2, RES_Y / 2);
 				}
 			}
 		}
