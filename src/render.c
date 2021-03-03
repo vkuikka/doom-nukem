@@ -28,12 +28,12 @@ void		fill_pixels(unsigned *grid, int gap)
 		{
 			if (!(x % gap))
 			{
-				color = grid[x + (y * (int)RES_X)];
+				color = grid[x + (y * RES_X)];
 				if ((y + 1) % gap && y + 1 < RES_Y)
-					grid[x + ((y + 1) * (int)RES_X)] = color;
+					grid[x + ((y + 1) * RES_X)] = color;
 			}
 			else
-				grid[x + (y * (int)RES_X)] = color;
+				grid[x + (y * RES_X)] = color;
 			x++;
 		}
 		y++;
@@ -182,7 +182,7 @@ int			render(void *data_pointer)
 	for (int x = t->id; x < RES_X; x += THREAD_AMOUNT)
 	{
 		t_vec3 tmp;
-		tmp.x = 1 / RES_X * x - 0.5;
+		tmp.x = 1.0 / RES_X * x - 0.5;
 		tmp.y = 0;
 		tmp.z = 1;
 		for (int y = 0; y < RES_Y; y++)
@@ -192,11 +192,11 @@ int			render(void *data_pointer)
 #endif
 			if (!(x % pixel_gap) && !(y % pixel_gap))
 			{
-				t->window->frame_buffer[x + (y * (int)RES_X)] = t->level->fog_color;
-				t->window->depth_buffer[x + (y * (int)RES_X)] = 0;
+				t->window->frame_buffer[x + (y * RES_X)] = t->level->fog_color;
+				t->window->depth_buffer[x + (y * RES_X)] = 0;
 
-				float ym = (1/RES_Y*y - 0.5);	//multiply these to change fov
-				float xm = (1/RES_X*x - 0.5);
+				float ym = (1.0 / RES_Y * y - 0.5);	//multiply these to change fov
+				float xm = (1.0 / RES_X * x - 0.5);
 
 				r.dir.x = cam.x + up.x * ym + side.x * xm;
 				r.dir.y = cam.y + up.y * ym + side.y * xm;
@@ -209,18 +209,18 @@ int			render(void *data_pointer)
 					float dist;
 					dist = cast_face(t->level->obj[side].tris[j], r, &color, t->img);
 					if (dist > 0 &&
-						(dist < t->window->depth_buffer[x + (y * (int)RES_X)] ||
-								t->window->depth_buffer[x + (y * (int)RES_X)] == 0))
+						(dist < t->window->depth_buffer[x + (y * RES_X)] ||
+								t->window->depth_buffer[x + (y * RES_X)] == 0))
 					{
-						t->window->depth_buffer[x + (y * (int)RES_X)] = dist;
+						t->window->depth_buffer[x + (y * RES_X)] = dist;
 						if (t->level->enable_fog)
-							t->window->frame_buffer[x + (y * (int)RES_X)] = fog(color, dist, t->level->fog_color);
+							t->window->frame_buffer[x + (y * RES_X)] = fog(color, dist, t->level->fog_color);
 						else
-							t->window->frame_buffer[x + (y * (int)RES_X)] = color;
+							t->window->frame_buffer[x + (y * RES_X)] = color;
 					}
 				}
-				if (!t->level->enable_fog && !t->window->depth_buffer[x + (y * (int)RES_X)])
-					t->window->frame_buffer[x + (y * (int)RES_X)] = skybox(*t->level, r);
+				if (!t->level->enable_fog && !t->window->depth_buffer[x + (y * RES_X)])
+					t->window->frame_buffer[x + (y * RES_X)] = skybox(*t->level, r);
 			}
 		}
 	}

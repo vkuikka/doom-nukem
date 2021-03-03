@@ -3,17 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   doom-nukem.h                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: alcohen <alcohen@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/02/22 15:36:38 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/03/03 23:48:18 by alcohen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef DOOM_NUKEM_H
 # define DOOM_NUKEM_H
-# define RES_X 800.0
-# define RES_Y 600.0
+# define RES_X 800
+# define RES_Y 600
 # define THREAD_AMOUNT 20
 # define TARGETFPS 35
 # define TICKRATE 128
