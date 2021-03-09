@@ -18,7 +18,11 @@ int		face_color(float u, float v, t_tri t, t_bmp *img)
 	int 	y;
 	float	w;
 
+
 	w = 1 - u - v;
+	// return((((int)(u * 255) & 0xff) << 24) +
+	// 		(((int)(v * 255) & 0xff) << 16) +
+	// 		(((int)(w * 255) & 0xff) << 8) + 0xff);
 	x =	((t.verts[0].txtr.x * img->width * w +
 			t.verts[1].txtr.x * img->width * v +
 			t.verts[2].txtr.x * img->width * u) / (float)(u + v + w));
@@ -37,10 +41,6 @@ int		face_color(float u, float v, t_tri t, t_bmp *img)
 	global_seginfo = "set color 1\n";
 	return (img->image[x + (y * img->width)]);
 }
-
-	// col = (((int)(0 * 255) & 0xff) << 24) +
-	// 		(((int)(v * 255) & 0xff) << 16) +
-	// 		(((int)(0 * 255) & 0xff) << 8) + 0xff;
 
 	//	following is code for showing uv map usage on screen
 

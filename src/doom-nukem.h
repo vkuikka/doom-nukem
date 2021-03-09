@@ -211,4 +211,7 @@ void		init_buttons(t_window *window);
 void		draw_buttons(void);
 void		button(int *var, char *text);
 
+void		player_movement(t_vec3 *pos, t_level *level);
+int			physics(void *data_pointer);
+
 #endif
