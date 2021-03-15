@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   doom-nukem.h                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alcohen <alcohen@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/03/03 23:48:18 by alcohen          ###   ########.fr       */
+/*   Updated: 2021/03/15 17:58:44 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,6 +98,7 @@ typedef struct			s_tri
 	struct s_vec3		v0v2;		//vector between vertices 2 and 0
 	int					isquad;
 	int					isgrid;
+	int					isenemy;
 }						t_tri;
 
 typedef struct			s_obj
@@ -214,4 +215,5 @@ void		button(int *var, char *text);
 void		player_movement(t_vec3 *pos, t_level *level);
 int			physics(void *data_pointer);
 
+void		enemies(t_level *level);
 #endif

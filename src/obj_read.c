@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/02/04 15:32:06 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/03/15 17:31:05 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -256,6 +256,7 @@ void	load_obj(char *filename, t_obj *obj)
 		{
 			set_tri(file[i], verts, uvs, obj, j);
 			obj->tris[j].isquad = 0;
+			obj->tris[j].isenemy = 0;
 			j++;
 		}
 		free(file[i]);
