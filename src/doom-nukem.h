@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/03/15 17:58:44 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/03/15 18:23:16 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -187,6 +187,7 @@ void		vec_copy(t_vec3 *res, t_vec3 vec);
 void		vec2_copy(t_vec2 *res, t_vec2 vec);
 float		vec_angle(t_vec3 v1, t_vec3 v2);
 void		vec_mult(t_vec3 *res, float mult);
+void		vec_div(t_vec3 *res, float div);
 
 void		init_window(t_window **window);
 t_level		*init_level();

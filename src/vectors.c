@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/07 18:13:00 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/02/09 19:36:59 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/03/15 18:22:58 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,4 +106,11 @@ void		vec_mult(t_vec3 *res, float mult)
 	res->x = res->x * mult;
 	res->y = res->y * mult;
 	res->z = res->z * mult;
+}
+
+void		vec_div(t_vec3 *res, float div)
+{
+	res->x = res->x / div;
+	res->y = res->y / div;
+	res->z = res->z / div;
 }
