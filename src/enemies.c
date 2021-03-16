@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/14 17:08:49 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/03/15 18:40:48 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/03/16 19:07:43 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,8 @@ static float	find_angle(t_vec3 v1, t_vec3 v2)
 	float	angle;
 
 	angle = M_PI - vec_angle(v1, v2);
+	if (isnan(angle))
+		return (0);
 	rotate_vertex(M_PI / 2, &v2, 0);
 	angle *= vec_dot(v1, v2) < 0 ? -1 : 1;
 	return (angle);
@@ -49,8 +51,7 @@ static void		turn_sprite(t_tri *tri, t_vec3 dir)
 	vec_div(&face_mid, vert);
 	vec_sub(&rot_vert, dir, face_mid);
 	rot_vert.y = 0;
-	angle = find_angle(normal, rot_vert);
-	if (isnan(angle) || !angle)
+	if (!(angle = find_angle(normal, rot_vert)))
 		return;
 	while (vert--)
 	{
