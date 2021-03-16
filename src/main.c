@@ -289,6 +289,7 @@ int			main(int argc, char **argv)
 			}
 		}
 		level->pos = pos;
+		enemies(level);
 		t_obj *tmp = level->obj;
 		int faces_visible = level->obj->tri_amount;
 		int faces_left = culled[0].tri_amount;
