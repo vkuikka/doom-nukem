@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/14 17:08:49 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/03/16 19:07:43 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/03/16 19:13:01 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ static void		turn_sprite(t_tri *tri, t_vec3 dir)
 	ft_memset(&face_mid, 0, sizeof(int) * 3);
 	while (vert < 3 + tri->isquad)
 		vec_add(&face_mid, face_mid, tri->verts[vert++].pos);
-	vec_div(&face_mid, vert);
+	vec_div(&face_mid, (float)vert);
 	vec_sub(&rot_vert, dir, face_mid);
 	rot_vert.y = 0;
 	if (!(angle = find_angle(normal, rot_vert)))
