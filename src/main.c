@@ -225,7 +225,7 @@ int			main(int argc, char **argv)
 			{
 				if (event.key.keysym.scancode == SDL_SCANCODE_PERIOD)
 					level->quality += 1;
-				else if (event.key.keysym.scancode == SDL_SCANCODE_COMMA)
+				else if (event.key.keysym.scancode == SDL_SCANCODE_COMMA && level->quality > 0)
 					level->quality -= 1;
 				else if (event.key.keysym.scancode == SDL_SCANCODE_N)
 					player_movement(NULL, NULL);
