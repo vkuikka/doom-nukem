@@ -3,12 +3,23 @@
 /*                                                        :::      ::::::::   */
 /*   doom-nukem.h                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: alcohen <alcohen@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/03/15 18:23:16 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/03/21 22:20:14 by alcohen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+# include <math.h>
+# include <fcntl.h>
+# include <sys/time.h>
+# include "get_next_line.h"
+# include "SDL2/SDL.h"
+# include "SDL2/SDL_ttf.h"
+
+# include <stdlib.h>
+# include <stdio.h>
+# include <signal.h>
 
 #ifndef DOOM_NUKEM_H
 # define DOOM_NUKEM_H
@@ -26,20 +37,18 @@
 
 # define WALL_CLIP_DIST 0.3
 
+#define TRUE    1
+#define FALSE   0
+
 #ifndef FLT_MAX
-#define FLT_MAX 3.40282347E+38
+    #define FLT_MAX 3.40282347E+38
 #endif
 
-# include <math.h>
-# include <fcntl.h>
-# include <sys/time.h>
-# include "get_next_line.h"
-# include "SDL2/SDL.h"
-# include "SDL2/SDL_ttf.h"
+typedef enum    e_render_mode
+{
+    RENDER_MODE_RAYCAST_ALL, RENDER_MODE_RAYCAST_CULLED, RENDER_MODE_WIREFRAME
+} render_mode;
 
-# include <stdlib.h>
-# include <stdio.h>
-# include <signal.h>
 char		*global_seginfo;
 
 typedef struct			s_bmp
@@ -190,7 +199,7 @@ void		vec_mult(t_vec3 *res, float mult);
 void		vec_div(t_vec3 *res, float div);
 
 void		init_window(t_window **window);
-t_level		*init_level();
+t_level		*init_level(void);
 
 int			render(void *t);
 float		cast_face(t_tri t, t_ray ray, int *col, t_bmp *img);

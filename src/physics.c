@@ -1,6 +1,6 @@
 #include "doom-nukem.h"
 
-float	cast_all(t_ray vec, t_level *l, float *dist_u, float *dist_d, int *index)
+float	        cast_all(t_ray vec, t_level *l, float *dist_u, float *dist_d, int *index)
 {
 	int		color;
 	float	res = 1000000;
@@ -27,7 +27,7 @@ float	cast_all(t_ray vec, t_level *l, float *dist_u, float *dist_d, int *index)
 	return (res);
 }
 
-t_vec3	player_input(int noclip, t_level *level, int in_air, t_vec3 vel)
+t_vec3	        player_input(int noclip, t_level *level, int in_air, t_vec3 vel)
 {
 	const Uint8		*keys = SDL_GetKeyboardState(NULL);
 	t_vec3			wishdir;
@@ -76,7 +76,7 @@ t_vec3	player_input(int noclip, t_level *level, int in_air, t_vec3 vel)
 	return (wishdir);
 }
 
-void	player_collision(t_vec3 *vel, t_vec3 *pos, t_level *level)
+void	        player_collision(t_vec3 *vel, t_vec3 *pos, t_level *level)
 {
 	t_ray			r;
 	float			dist = 0;
@@ -103,10 +103,10 @@ void	player_collision(t_vec3 *vel, t_vec3 *pos, t_level *level)
 	}
 }
 
-void	player_movement(t_vec3 *pos, t_level *level)
+void	        player_movement(t_vec3 *pos, t_level *level)
 {
 	static t_vec3	vel = {0, 0, 0};
-	static int		noclip = 1;
+	static int		noclip = TRUE;
 	static float	asd = 0;
 	t_ray			r;
 	float			dist;
@@ -114,7 +114,7 @@ void	player_movement(t_vec3 *pos, t_level *level)
 
 	if (level == NULL)
 	{
-		noclip = noclip ? 0 : 1;
+		noclip = noclip ? FALSE : TRUE;
 		return;
 	}
 	r.pos.x = pos->x;
@@ -126,12 +126,12 @@ void	player_movement(t_vec3 *pos, t_level *level)
 	dist = cast_all(r, level, NULL, NULL, NULL);
 	if (dist > 0 && dist <= PLAYER_HEIGHT && !noclip)
 	{
-		in_air = 0;
+		in_air = FALSE;
 		if (dist < PLAYER_HEIGHT)
 			pos->y -= PLAYER_HEIGHT - dist;
 	}
 	else
-		in_air = 1;
+		in_air = TRUE;
 	t_vec3 wishdir = player_input(noclip, level, in_air, vel);
 	vel.y = fmax(fmin(vel.y, 0.5), -0.5);
 
@@ -169,7 +169,7 @@ void	player_movement(t_vec3 *pos, t_level *level)
 }
 
 
-float		get_hz(void)
+float	        get_hz(void)
 {
 	static float oldTime = 0;
 	float newTime = SDL_GetTicks();
@@ -216,7 +216,7 @@ float		avghz(float hz)
 
 #endif
 
-unsigned long getTimeInNanoseconds(void) {
+unsigned long   getTimeInNanoseconds(void) {
 #if defined(_WIN32)
     LARGE_INTEGER freq;
     LARGE_INTEGER count;
@@ -253,7 +253,7 @@ unsigned long getTimeInNanoseconds(void) {
 #endif
 }
 
-int			physics(void *data_pointer)
+int     	    physics(void *data_pointer)
 {
 	t_physthread	*data = data_pointer;
 	unsigned long	start;
