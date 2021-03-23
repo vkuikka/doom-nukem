@@ -161,7 +161,7 @@ int			render(void *data_pointer)
 	int			pixel_gap = t->level->quality;
 	int			rand_amount = 10000000;
 
-	if (t->level->quality > 7)
+	if (t->level->quality >= NOISE_QUALITY_LIMIT)
 	{
 		srand(SDL_GetTicks());
 		rand_amount = 2;
