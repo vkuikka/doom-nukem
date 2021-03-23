@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/03/15 18:23:16 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/03/23 20:11:56 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 # define THREAD_AMOUNT 20
 # define TARGETFPS 35
 # define TICKRATE 128
+# define NOISE_QUALITY_LIMIT 8
 
 # define MOVE_SPEED 7.0 / TICKRATE
 # define JUMP_SPEED 5.0 / TICKRATE

@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/08 14:38:45 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/02/02 16:06:35 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/03/23 20:13:03 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@ t_level			*init_level()
 	l->pos.z = 0;
 	l->look_side = 0;
 	l->look_up = 0;
+	l->quality = NOISE_QUALITY_LIMIT - 1;
 	l->txtr = NULL;
 
 	global_seginfo = "load_obj\n";
