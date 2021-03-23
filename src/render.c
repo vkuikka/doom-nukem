@@ -159,7 +159,7 @@ int			render(void *data_pointer)
 	t_ray		r;
 	float		angle = t->level->look_side;
 	int			pixel_gap = t->level->quality;
-	int			rand_amount = 10000000;
+	int			rand_amount = 0;
 
 	if (t->level->quality >= NOISE_QUALITY_LIMIT)
 	{
@@ -188,7 +188,7 @@ int			render(void *data_pointer)
 		for (int y = 0; y < RES_Y; y++)
 		{
 #if TARGETFPS < 100
-			if (rand() % rand_amount)	//skip random pixel
+			if (!rand_amount || rand() % rand_amount)	//skip random pixel
 #endif
 			if (!(x % pixel_gap) && !(y % pixel_gap))
 			{
