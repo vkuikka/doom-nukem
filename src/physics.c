@@ -2,14 +2,13 @@
 
 float	cast_all(t_ray vec, t_level *l, float *dist_u, float *dist_d, int *index)
 {
-	int		color;
-	float	res = 1000000;
+	float	res = FLT_MAX;
 
 	vec_normalize(&vec.dir);
 	for (int j = 0; j < l->allfaces->tri_amount; j++)
 	{
 		float tmp;
-		tmp = cast_face(l->allfaces->tris[j], vec, &color, NULL);
+		tmp = cast_face(l->allfaces->tris[j], vec, NULL, NULL);
 		if (dist_u != NULL)
 		{
 			if (tmp > 0 && tmp < *dist_d)
@@ -112,6 +111,7 @@ void	player_movement(t_vec3 *pos, t_level *level)
 	float			dist;
 	int				in_air;
 
+	global_seginfo = "player_movement\n";
 	if (level == NULL)
 	{
 		noclip = noclip ? 0 : 1;

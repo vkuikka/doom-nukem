@@ -180,11 +180,8 @@ int			main(int argc, char **argv)
 
 	relmouse = 0;
 	rendermode = 1;
-	global_seginfo = "bmp_read\n";
 	bmp = bmp_read("out.bmp");
-	global_seginfo = "init_level\n";
 	level = init_level();
-	global_seginfo = "init_window\n";
 	init_window(&window);
 	init_buttons(window);
 	if (!(culled = (t_obj*)malloc(sizeof(t_obj) * 2)))

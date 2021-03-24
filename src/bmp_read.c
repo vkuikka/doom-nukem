@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   bmp_read.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/01/03 03:51:15by rpehkone         ###   ########.fr        */
+/*   Updated: 2021/03/24 04:07:24 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ t_bmp	bmp_read(char *str)
 	int					y;
 	t_bmp				res;
 
+	global_seginfo = "bmp_read\n";
 	if (!(img = fopen(str, "rb")))
 	{
 		printf("%s\n", str);

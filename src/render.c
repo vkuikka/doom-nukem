@@ -81,7 +81,7 @@ float		cast_face(t_tri t, t_ray ray, int *col, t_bmp *img)
 	// if (t.isgrid)
 	// 	printf("%f %f\n", u, v);
     float dist = vec_dot(qvec, t.v0v2) * invdet;
-	if (img)
+	if (img && col)
 	{
 		*col = face_color(u, v, t, img);
 		global_seginfo = "set color 2\n";
