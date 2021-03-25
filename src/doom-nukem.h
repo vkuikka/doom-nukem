@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/03/25 23:09:53 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/03/25 23:41:05 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -225,5 +225,6 @@ int			physics(void *data_pointer);
 
 void		enemies(t_level *level);
 int			fog(int color, float dist, unsigned fog_color);
+int			skybox(t_level l, t_ray r);
 
 #endif
