@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/03/23 20:11:56 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/03/25 23:09:53 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,12 @@
 # define NOCLIP_SPEED 20.0 / TICKRATE
 
 # define PLAYER_HEIGHT 1.75
+
+# define WF_UNSELECTED_COL 0x333333ff
+# define WF_SELECTED_COL 0xffaa00ff
+# define WF_TRI_COL 0x802222ff
+# define WF_NORMAL_COL 0x00fffffff
+# define WF_BACKGROUND_COL 0x99		//1 byte value
 
 # define WALL_CLIP_DIST 0.3
 
@@ -218,4 +224,6 @@ void		player_movement(t_vec3 *pos, t_level *level);
 int			physics(void *data_pointer);
 
 void		enemies(t_level *level);
+int			fog(int color, float dist, unsigned fog_color);
+
 #endif
