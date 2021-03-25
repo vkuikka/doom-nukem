@@ -47,7 +47,7 @@
 typedef enum    e_render_mode
 {
 	RENDER_MODE_RAYCAST_ALL, RENDER_MODE_RAYCAST_CULLED, RENDER_MODE_WIREFRAME
-} render_mode;
+}				t_render_mode;
 
 char		*global_seginfo;
 
