@@ -15,8 +15,8 @@
 void        segv_handler(int sig)
 {
 	printf ("\n\033[1m\033[31m\tSEGFAULT: %s\n\033[0m", global_seginfo);
-    abort();
-    (void)sig;
+	abort();
+	(void)sig;
 }
 
 int			is_tri_side(t_tri tri, t_ray c)
@@ -209,13 +209,13 @@ int			main(int argc, char **argv)
 	t_physthread	physicsdata;
 	t_vec3		pos;
 
-    #if __APPLE__
-        struct sigaction act;
-        act.sa_handler = segv_handler;
-        sigemptyset(&act.sa_mask);
-        act.sa_flags = 0;
-        sigaction(SIGSEGV, &act, NULL);
-    #endif
+	#if __APPLE__
+		struct sigaction act;
+		act.sa_handler = segv_handler;
+		sigemptyset(&act.sa_mask);
+		act.sa_flags = 0;
+		sigaction(SIGSEGV, &act, NULL);
+	#endif
 
 	relmouse = 0;
 	rendermode = RENDER_MODE_RAYCAST_CULLED;

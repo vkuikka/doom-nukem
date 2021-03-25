@@ -41,12 +41,12 @@
 #define FALSE   0
 
 #ifndef FLT_MAX
-    #define FLT_MAX 3.40282347E+38
+	#define FLT_MAX 3.40282347E+38
 #endif
 
 typedef enum    e_render_mode
 {
-    RENDER_MODE_RAYCAST_ALL, RENDER_MODE_RAYCAST_CULLED, RENDER_MODE_WIREFRAME
+	RENDER_MODE_RAYCAST_ALL, RENDER_MODE_RAYCAST_CULLED, RENDER_MODE_WIREFRAME
 } render_mode;
 
 char		*global_seginfo;
