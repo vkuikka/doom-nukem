@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/21 17:32:09 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/03/24 15:00:05 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/03/25 23:39:47 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,24 @@ unsigned	crossfade(unsigned color1, unsigned color2, unsigned fade, unsigned r1)
 	unsigned newg = (g1 * (0xff - fade) + g2 * fade) / 0xff;
 	unsigned newb = (b1 * (0xff - fade) + b2 * fade) / 0xff;
 	return ((newr << 8 * 3) + (newg << 8 * 2) + (newb << 8 * 1) + 0xff);
+}
+
+int			skybox(t_level l, t_ray r)
+{
+	int		color;
+	float	dist;
+
+	color = 0;
+	r.pos.x = 0;
+	r.pos.y = 0;
+	r.pos.z = 0;
+	for (int i = 0; i < l.sky.obj.tri_amount; i++)
+	{
+		dist = cast_face(l.sky.obj.tris[i] , r, &color, &l.sky.img);
+		if (dist > 0 && color)
+			return (color);
+	}
+	return (color);
 }
 
 int			fog(int color, float dist, unsigned fog_color)

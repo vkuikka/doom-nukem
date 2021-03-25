@@ -61,24 +61,6 @@ float		cast_face(t_tri t, t_ray ray, int *col, t_bmp *img)
 	return dist;
 }
 
-int			skybox(t_level l, t_ray r)
-{
-	int		color;
-	float	dist;
-
-	color = 0;
-	r.pos.x = 0;
-	r.pos.y = 0;
-	r.pos.z = 0;
-	for (int i = 0; i < l.sky.obj.tri_amount; i++)
-	{
-		dist = cast_face(l.sky.obj.tris[i] , r, &color, &l.sky.img);
-		if (dist > 0 && color)
-			return (color);
-	}
-	return (color);
-}
-
 void		rot_cam(t_vec3 *cam, const float lon, const float lat)
 {
 	const float	phi = (M_PI / 2 - lat);
