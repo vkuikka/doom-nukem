@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/05 16:44:10 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/02/04 15:31:12 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/03/25 23:08:32 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,10 @@ void	pixel_put(int x, int y, int color, t_window *window)
 {
 	if (x < 0 || y < 0 || x >= RES_X || y >= RES_Y)
 		return;
-	//window->depth_buffer[x + (y * RES_X)] = dist;
-	window->frame_buffer[x + (y * RES_X)] = color;
+	if (window->frame_buffer[x + (y * RES_X)] != WF_SELECTED_COL &&
+		(window->frame_buffer[x + (y * RES_X)] != WF_TRI_COL ||
+		color == WF_SELECTED_COL))
+		window->frame_buffer[x + (y * RES_X)] = color;
 }
 
 t_vec3	move2z(t_vec3 *p1, t_vec3 *p2)
@@ -33,7 +35,7 @@ t_vec3	move2z(t_vec3 *p1, t_vec3 *p2)
 	return (intersection);
 }
 
-void	print_line(t_vec3 start, t_vec3 stop, int color[2], t_window *window)
+void	print_line(t_vec3 start, t_vec3 stop, int color, t_window *window)
 {
 	t_vec3	step;
 	t_vec3	pos;
@@ -55,7 +57,7 @@ void	print_line(t_vec3 start, t_vec3 stop, int color[2], t_window *window)
 	step.y = (stop.y - start.y) / (float)step.z;
 	while (pos.z <= step.z && i < 10000)
 	{
-		pixel_put(pos.x, pos.y, crossfade(color[0], color[1], 0xff * (pos.z / step.z), 0), window);
+		pixel_put(pos.x, pos.y, color, window);
 		pos.x += step.x;
 		pos.y += step.y;
 		pos.z++;
@@ -299,7 +301,7 @@ void	wireframe(t_window *window, t_level *level)
 	global_seginfo = "wireframe start\n";
 	const Uint8	*keys = SDL_GetKeyboardState(NULL);
 
-	ft_memset(window->frame_buffer, 0x99, RES_X * RES_Y * sizeof(int));
+	ft_memset(window->frame_buffer, WF_BACKGROUND_COL, RES_X * RES_Y * sizeof(int));
 	ft_memset(window->depth_buffer, 0, RES_X * RES_Y * sizeof(int));
 
 	global_seginfo = "wireframe loop\n";
@@ -325,23 +327,17 @@ void	wireframe(t_window *window, t_level *level)
 			camera_offset(&start, level);
 			camera_offset(&stop, level);
 
-			int color[2];
 			if (level->obj[0].tris[i].verts[next].selected &&
 				level->obj[0].tris[i].verts[j].selected)
-			{
-				color[0] = 0xffaa00;
-				color[1] = 0xffaa00;
-			}
+				print_line(start, stop, WF_SELECTED_COL, window);
+			else if (level->obj[0].tris[i].isquad)
+				print_line(start, stop, WF_UNSELECTED_COL, window);
 			else
-			{
-				color[0] = 0x333333;
-				color[1] = 0x333333;
-			}
-			print_line(start, stop, color, window);
+				print_line(start, stop, WF_TRI_COL, window);
 			if (mode == 0)
 			{
 				if (level->obj[0].tris[i].verts[j].selected)
-					put_vertex(start, 0xffaa00ff, window);
+					put_vertex(start, WF_SELECTED_COL, window);
 				else
 					put_vertex(start, 0, window);
 			}
@@ -371,12 +367,11 @@ void	wireframe(t_window *window, t_level *level)
 		normal.z = avg.z - normal_dir.z * normal_len;
 		camera_offset(&avg, level);
 		camera_offset(&normal, level);
-		int color[2] = {0x00ffff, 0x00ffff};
-		print_line(avg, normal, color, window);
+		print_line(avg, normal, WF_NORMAL_COL, window);
 		if (mode == 2)
 		{
 			if (selected == i)
-				put_vertex(avg, 0xffaa00ff, window);
+				put_vertex(avg, WF_SELECTED_COL, window);
 			else
 				put_vertex(avg, 0, window);
 		}
