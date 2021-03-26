@@ -170,10 +170,10 @@ int			render(void *data_pointer)
 
 				int		*color = (int*)&t->window->frame_buffer[x + (y * RES_X)];
 				float	*dist = &t->window->depth_buffer[x + (y * RES_X)];
-				if (!t->level->enable_fog)
+				if (!t->level->ui->fog)
 					*color = skybox(*t->level, r);
 				*dist = cast_all_color(r, &t->level->obj[x >= RES_X / 2], t->img, color);
-				if (t->level->enable_fog)
+				if (t->level->ui->fog)
 					*color = fog(*color, *dist, t->level->fog_color);
 			}
 		}

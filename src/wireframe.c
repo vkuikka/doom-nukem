@@ -17,7 +17,7 @@ void	pixel_put(int x, int y, int color, t_window *window)
 	if (x < 0 || y < 0 || x >= RES_X || y >= RES_Y)
 		return;
 	if (window->frame_buffer[x + (y * RES_X)] != WF_SELECTED_COL &&
-		(window->frame_buffer[x + (y * RES_X)] != WF_TRI_COL ||
+		(window->frame_buffer[x + (y * RES_X)] != WF_NOT_QUAD_WARNING ||
 		color == WF_SELECTED_COL))
 		window->frame_buffer[x + (y * RES_X)] = color;
 }
@@ -125,82 +125,6 @@ void	camera_offset(t_vec3 *vertex, t_level *level)
 	vertex->y += RES_Y / 2.0;
 }
 
-void	put_edit_mode(int mode, t_window *window)
-{
-	char mode_selector[3][14][14] =
-	{{"..............",
-	"..............",
-	"..............",
-	"..............",
-	"..............",
-	"......xxx.....",
-	"......xxx.....",
-	"......xxx.....",
-	"..............",
-	"..............",
-	"..............",
-	"..............",
-	"..............",
-	".............."},
-
-	{"..............",
-	"..............",
-	"..............",
-	"...x..........",
-	"....x.........",
-	".....x........",
-	"......x.......",
-	".......x......",
-	"........x.....",
-	".........x....",
-	"..........x...",
-	"...........x..",
-	"..............",
-	".............."},
-
-	{"..............",
-	"..............",
-	"..xxxxxxxxxx..",
-	"...xxxxxxxxx..",
-	"....xxxxxxxx..",
-	".....xxxxxxx..",
-	"......xxxxxx..",
-	".......xxxxx..",
-	"........xxxx..",
-	".........xxx..",
-	"..........xx..",
-	"...........x..",
-	"..............",
-	".............."}};
-
-	for (int i = 0; i < 3; i++)
-	{
-		for (int x = 0; x < 14; x++)
-		{
-			for (int y = 0; y < 14; y++)
-			{
-				if (mode_selector[i][y][x] == '.')
-				{
-					if (mode == i)
-						pixel_put(x + 2 + i + i * 14, y + 1, 0x6666ddff, window);
-					else
-						pixel_put(x + 2 + i + i * 14, y + 1, 0x777777ff, window);
-				}
-				else
-					pixel_put(x + 2 + i + i * 14, y + 1, 0xccccccff, window);
-			}
-		}
-	}
-	for (int y = 0; y < 16; y++)
-	{
-		for (int x = 0; x < 14 * 3 + 5; x++)
-		{
-			if (y == 0 || y == 15 || x == 0 || x == 1 || x == 16 || x == 31 || x == 46)
-				pixel_put(x, y, 0x444444ff, window);
-		}
-	}
-}
-
 int		find_select(t_ray vec, t_level *l)
 {
 	int		color;
@@ -260,36 +184,6 @@ void	select_vert(t_level *l, int x, int y)
 	find_select(r, l);
 }
 
-int		select_mode(int mode, t_level *l)
-{
-	static int	pressed = 0;
-	const Uint8	*keys = SDL_GetKeyboardState(NULL);
-	int			x;
-	int			y;
-
-	if (!pressed && !SDL_GetRelativeMouseMode() && SDL_GetMouseState(&x, &y) & SDL_BUTTON(SDL_BUTTON_LEFT))
-	{
-		if (y <= 17 && (x >= 2 && x <= 17))
-			return (0);
-		else if (y <= 17 && (x >= 18 && x <= 32))
-			return (1);
-		else if (y <= 17 && (x >= 33 && x <= 47))
-			return (2);
-		else
-			select_vert(l, x, y);
-		pressed = TRUE;
-	}
-	if (!(SDL_GetMouseState(&x, &y) & SDL_BUTTON(SDL_BUTTON_LEFT)))
-		pressed = 0;
-	if (keys[SDL_SCANCODE_1])
-		return (0);
-	else if (keys[SDL_SCANCODE_2])
-		return (1);
-	else if (keys[SDL_SCANCODE_3])
-		return (2);
-	return (mode);
-}
-
 void	wireframe(t_window *window, t_level *level)
 {
 	static int	selected = 0;
@@ -299,7 +193,6 @@ void	wireframe(t_window *window, t_level *level)
 	t_vec3		avg;
 
 	global_seginfo = "wireframe start\n";
-	const Uint8	*keys = SDL_GetKeyboardState(NULL);
 
 	ft_memset(window->frame_buffer, WF_BACKGROUND_COL, RES_X * RES_Y * sizeof(int));
 	ft_memset(window->depth_buffer, 0, RES_X * RES_Y * sizeof(int));
@@ -330,10 +223,10 @@ void	wireframe(t_window *window, t_level *level)
 			if (level->obj[0].tris[i].verts[next].selected &&
 				level->obj[0].tris[i].verts[j].selected)
 				print_line(start, stop, WF_SELECTED_COL, window);
-			else if (level->obj[0].tris[i].isquad)
-				print_line(start, stop, WF_UNSELECTED_COL, window);
+			else if (level->ui->show_quads && !level->obj[0].tris[i].isquad)
+				print_line(start, stop, WF_NOT_QUAD_WARNING, window);
 			else
-				print_line(start, stop, WF_TRI_COL, window);
+				print_line(start, stop, WF_UNSELECTED_COL, window);
 			if (mode == 0)
 			{
 				if (level->obj[0].tris[i].verts[j].selected)
@@ -377,11 +270,9 @@ void	wireframe(t_window *window, t_level *level)
 		}
 	}
 	global_seginfo = "wireframe 4\n";
-	mode = select_mode(mode, level);
 	// for (int asd = 0; asd < level->obj[0].tri_amount; asd++)
 	// 	for (int qwe = 0; qwe < 3 + level->obj[0].tris[asd].isquad; qwe++)
 	// 		if (level->obj[0].tris[asd].verts[qwe].selected)
 	// 			printf("%d\n", asd);
-	put_edit_mode(mode, window);
 	global_seginfo = "wireframe end\n";
 }

@@ -189,8 +189,8 @@ void			culling(t_level *level, int *visible, t_obj *culled)
 	for (int j = 0; j < level->obj->tri_amount; j++)
 	{
 		if (level->obj->tris[j].isgrid || (fov_culling(c, level->obj->tris[j]) &&
-			(level->obj->distance_culling_mask[j] || distance_culling(level->obj->tris[j], level->pos)) &&
-			(level->obj->backface_culling_mask[j] || backface_culling(c[2], level->obj->tris[j]))))
+			(!level->ui->distance_culling || level->obj->distance_culling_mask[j] || distance_culling(level->obj->tris[j], level->pos)) &&
+			(!level->ui->backface_culling || level->obj->backface_culling_mask[j] || backface_culling(c[2], level->obj->tris[j]))))
 		{
 			culled[0].tris[k] = level->obj->tris[j];
 			k++;

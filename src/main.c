@@ -81,14 +81,14 @@ void		split_obj(t_obj *culled, t_level *level, int *faces_left, int *faces_right
 	(*faces_right) = right_amount;
 }
 
-void	    action_loop(t_window *window, t_level *l, t_bmp *bmp, t_obj *culled, int *faces_left, int *faces_right, int rendermode)
+void	    action_loop(t_window *window, t_level *l, t_bmp *bmp, t_obj *culled, int *faces_left, int *faces_right)
 {
 	SDL_Thread		*threads[THREAD_AMOUNT];
 	t_rthread		**thread_data;
 	int				window_horizontal_size;
 	int				i;
 
-	if (rendermode != RENDER_MODE_WIREFRAME)
+	if (!l->ui->wireframe)
 	{
 		global_seginfo = "split_obj\n";
 		split_obj(culled, l, faces_left, faces_right);
@@ -96,7 +96,7 @@ void	    action_loop(t_window *window, t_level *l, t_bmp *bmp, t_obj *culled, in
 	}
 	if (SDL_LockTexture(window->texture, NULL, (void**)&window->frame_buffer, &window_horizontal_size) != 0)
 		ft_error("failed to lock texture\n");
-	if (rendermode == RENDER_MODE_WIREFRAME)
+	if (l->ui->wireframe)
 	{
 		global_seginfo = "wireframe\n";
 		wireframe(window, l);
@@ -157,15 +157,54 @@ int		    get_fps(int i)
 	return (fps[i]);
 }
 
-int			main(int argc, char **argv)
+static void		read_input(t_window *window, t_level *level)
 {
 	SDL_Event	event;
+	static int	relmouse = 0;
+
+	while (SDL_PollEvent(&event))
+	{
+		if (event.type == SDL_QUIT || event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
+			exit(0);
+		else if (event.type == SDL_MOUSEMOTION && relmouse)
+		{
+			level->look_side += (float)event.motion.xrel / 600;
+			level->look_up -= (float)event.motion.yrel / 600;
+		}
+		else if (event.key.repeat == 0 && event.type == SDL_KEYDOWN)
+		{
+			if (event.key.keysym.scancode == SDL_SCANCODE_PERIOD)
+				level->quality += 1;
+			else if (event.key.keysym.scancode == SDL_SCANCODE_COMMA && level->quality > 1)
+				level->quality -= 1;
+			else if (event.key.keysym.scancode == SDL_SCANCODE_CAPSLOCK)
+				level->ui->noclip = level->ui->noclip ? FALSE : TRUE;
+			else if (event.key.keysym.scancode == SDL_SCANCODE_Z)
+				level->ui->wireframe = level->ui->wireframe ? FALSE : TRUE;
+			else if (event.key.keysym.scancode == SDL_SCANCODE_X)
+				level->ui->show_quads = level->ui->show_quads ? FALSE : TRUE;
+			else if (event.key.keysym.scancode == SDL_SCANCODE_TAB)
+			{
+				relmouse = relmouse ? 0 : 1;
+				if (relmouse)
+					SDL_SetRelativeMouseMode(SDL_TRUE);
+				else
+				{
+					SDL_SetRelativeMouseMode(SDL_FALSE);
+					SDL_WarpMouseInWindow(window->SDLwindow, RES_X / 2, RES_Y / 2);
+				}
+			}
+		}
+	}
+}
+
+int			main(int argc, char **argv)
+{
 	t_window	*window;
+	t_editor_ui	ui;
 	t_level		*level;
 	unsigned	frametime;
 	t_bmp		bmp;
-	int			rendermode;
-	int			relmouse;
 	t_obj		*culled;
 	t_physthread	physicsdata;
 	t_vec3		pos;
@@ -178,13 +217,12 @@ int			main(int argc, char **argv)
 	sigaction(SIGSEGV, &act, NULL);
 #endif
 
-	relmouse = 0;
-	rendermode = RENDER_MODE_RAYCAST_CULLED;
 	global_seginfo = "bmp_read\n";
 	bmp = bmp_read("out.bmp");
 	level = init_level();
 	init_window(&window);
-	init_buttons(window);
+	init_buttons(window, &ui);
+	level->ui = &ui;
 	if (!(culled = (t_obj*)malloc(sizeof(t_obj) * 2)))
 		ft_error("memory allocation failed\n");
 	if (!(culled[0].tris = (t_tri*)malloc(sizeof(t_tri) * level->obj->tri_amount)))
@@ -203,52 +241,19 @@ int			main(int argc, char **argv)
 	float physhz = 0;
 	physicsdata.hz = &physhz;
 	physicsdata.pos = &pos;
-	pos.x = level->pos.x;
-	pos.y = level->pos.y;
-	pos.z = level->pos.z;
+	pos = level->pos;
 	SDL_CreateThread(physics, "physics", (void*)&physicsdata);
 	while (1)
 	{
 		frametime = SDL_GetTicks();
-		while (SDL_PollEvent(&event))
-		{
-			if (event.type == SDL_QUIT || event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
-				return (0);
-			else if (event.type == SDL_MOUSEMOTION && relmouse)
-			{
-				level->look_side += (float)event.motion.xrel / 600;
-				level->look_up -= (float)event.motion.yrel / 600;
-			}
-			else if (event.key.repeat == 0 && event.type == SDL_KEYDOWN)
-			{
-				if (event.key.keysym.scancode == SDL_SCANCODE_PERIOD)
-					level->quality += 1;
-				else if (event.key.keysym.scancode == SDL_SCANCODE_COMMA && level->quality > 1)
-					level->quality -= 1;
-				else if (event.key.keysym.scancode == SDL_SCANCODE_N)
-					player_movement(NULL, NULL);
-				else if (event.key.keysym.scancode == SDL_SCANCODE_M)
-					rendermode = rendermode == RENDER_MODE_WIREFRAME ? RENDER_MODE_RAYCAST_ALL : rendermode + 1;
-				else if (event.key.keysym.scancode == SDL_SCANCODE_TAB)
-				{
-					relmouse = relmouse ? 0 : 1;
-					if (relmouse)
-						SDL_SetRelativeMouseMode(SDL_TRUE);
-					else
-					{
-						SDL_SetRelativeMouseMode(SDL_FALSE);
-						SDL_WarpMouseInWindow(window->SDLwindow, RES_X / 2, RES_Y / 2);
-					}
-				}
-			}
-		}
+		read_input(window, level);
 		level->pos = pos;
 		enemies(level);
 		t_obj *tmp = level->obj;
 		int faces_visible = level->obj->tri_amount;
 		int faces_left = culled[0].tri_amount;
 		int faces_right = culled[0].tri_amount;
-		if (rendermode == RENDER_MODE_RAYCAST_CULLED)
+		if (!level->ui->wireframe)
 		{
 			faces_visible = 0;
 			culling(level, &faces_visible, culled);
@@ -259,9 +264,7 @@ int			main(int argc, char **argv)
 				culled[0].tris[i] = level->obj[0].tris[i];
 			culled[0].tri_amount = level->obj[0].tri_amount;
 		}
-		button(&level->enable_fog, "fog");
-		button(&rendermode, "culling");
-		action_loop(window, level, &bmp, culled, &faces_left, &faces_right, rendermode);
+		action_loop(window, level, &bmp, culled, &faces_left, &faces_right);
 		level->obj = tmp;
 
 		frametime = SDL_GetTicks() - frametime;
