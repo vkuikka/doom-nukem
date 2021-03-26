@@ -67,57 +67,60 @@ void		rot_cam(t_vec3 *cam, const float lon, const float lat)
 	cam->z = radius * sin(phi) * sin(theta);
 }
 
-float		cast_all_color(t_ray r, t_obj *obj, t_bmp *texture, int *color)
+void		cast_transparent(t_ray r, t_obj *obj, t_bmp *texture, t_cast_result *res)
 {
-	int		i;
-	int		tmp_color;
-	int		mix_color;
-	int		transparent_face;
-	float	transparent_dist;
 	float	tmp_dist;
-	float	dist;
+	int		tmp_color;
+	int		transparent_face;
+	int		i;
 
 	i = 0;
-	dist = FLT_MAX;
-	while (i < obj->tri_amount)
-	{
-		if (!obj->tris[i].opacity &&
-			0 < (tmp_dist = cast_face(obj->tris[i], r, &tmp_color, texture)) &&
-			dist > tmp_dist)
-		{
-			dist = tmp_dist;
-			*color = tmp_color;
-		}
-		i++;
-	}
-	i = 0;
-
-	transparent_dist = 0;
-	transparent_face = 0;
+	res->transparent_dist = 0;
 	while (i < obj->tri_amount)
 	{
 		if (obj->tris[i].opacity &&
 			0 < (tmp_dist = cast_face(obj->tris[i], r, &tmp_color, texture)) &&
-			tmp_dist < dist && tmp_dist > transparent_dist)
+			tmp_dist < res->dist && tmp_dist > res->transparent_dist)
 		{
-			transparent_dist = tmp_dist;
+			res->transparent_dist = tmp_dist;
 			transparent_face = i;
-			mix_color = tmp_color;
+			res->transparent_color = tmp_color;
 		}
 		i++;
-		if (i == obj->tri_amount && transparent_dist)
+		if (i == obj->tri_amount && res->transparent_dist)
 		{
+			res->dist = res->transparent_dist;
+			*res->color = crossfade((unsigned)*res->color >> 8,
+res->transparent_color >> 8, obj->tris[transparent_face].opacity * 0xff, 0);
+			res->transparent_dist = 0;
 			i = 0;
-			dist = transparent_dist;
-			*color = *color >> 8;
-			mix_color = mix_color >> 8;
-			*color = crossfade(*color, mix_color, obj->tris[transparent_face].opacity * 0xff, 0);
-			transparent_face = 0;
-			transparent_dist = 0;
-			mix_color = 0;
 		}
 	}
-	return (dist);
+}
+
+float		cast_all_color(t_ray r, t_obj *obj, t_bmp *texture, int *color)
+{
+	t_cast_result	res;
+	int				i;
+	int				tmp_color;
+	float			tmp_dist;
+
+	i = 0;
+	res.dist = FLT_MAX;
+	res.color = color;
+	while (i < obj->tri_amount)
+	{
+		if (!obj->tris[i].opacity &&
+			0 < (tmp_dist = cast_face(obj->tris[i], r, &tmp_color, texture)) &&
+			tmp_dist < res.dist)
+		{
+			res.dist = tmp_dist;
+			*res.color = tmp_color;
+		}
+		i++;
+	}
+	cast_transparent(r, obj, texture, &res);
+	return (res.dist);
 }
 
 int			render(void *data_pointer)
@@ -169,11 +172,11 @@ int			render(void *data_pointer)
 
 				int		*color = (int*)&t->window->frame_buffer[x + (y * RES_X)];
 				float	*dist = &t->window->depth_buffer[x + (y * RES_X)];
-				if (!*dist && !t->level->enable_fog)
+				if (!t->level->enable_fog)
 					*color = skybox(*t->level, r);
+				*dist = cast_all_color(r, &t->level->obj[x >= RES_X / 2], t->img, color);
 				if (t->level->enable_fog)
 					*color = fog(*color, *dist, t->level->fog_color);
-				*dist = cast_all_color(r, &t->level->obj[x >= RES_X / 2], t->img, color);
 			}
 		}
 	}

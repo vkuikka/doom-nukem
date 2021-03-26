@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/03/26 18:01:21 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/03/26 21:03:46 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -188,6 +188,14 @@ typedef struct __attribute__((__packed__))	s_bmp_image {
 	unsigned char							r;
 	unsigned char							a;
 }											t_bmp_image;
+
+typedef struct			s_cast_result
+{
+	float				dist;
+	int					*color;
+	float				transparent_dist;
+	int					transparent_color;
+}						t_cast_result;
 
 void		vec_normalize(t_vec3 *vec);						//makes vector length 1
 float		vec_dot(t_vec3 ve1, t_vec3 ve2);			//dot product of two vectors
