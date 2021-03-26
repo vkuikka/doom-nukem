@@ -19,30 +19,67 @@ static void	button_pixel_put(int x, int y, int color, unsigned *texture)
 	texture[x + (y * RES_X)] = color;
 }
 
+static int	get_ui_width(int x)
+{
+	static int	max_x = 0;
+	int			tmp;
+
+	if (!x)
+	{
+		tmp = max_x;
+		max_x = 0;
+		return (tmp);
+	}
+	if (x > max_x)
+		max_x = x;
+	return (0);
+}
+
 static void	put_text(char *text, t_window *window, SDL_Texture *texture)
 {
-	TTF_Font* font = TTF_OpenFont("Roboto-Medium.ttf", 13);
+	TTF_Font*	font;
+	SDL_Color	color;
+
+	font = TTF_OpenFont("Roboto-Medium.ttf", 13);
 	if (!font)
 	{
 		printf("TTF_OpenFont: %s\n", TTF_GetError());
 		ft_error("font open fail");
 	}
-	SDL_Color White = {0, 0, 0};
-	SDL_Surface* surfaceMessage = TTF_RenderText_Solid(font, text, White);
+	color.r = 0xff;
+	color.g = 0xff;
+	color.b = 0xff;
+	color.a = 0xff;
+	SDL_Surface* surfaceMessage = TTF_RenderText_Solid(font, text, color);
 	SDL_Texture* Message = SDL_CreateTextureFromSurface(window->SDLrenderer, surfaceMessage);
-	SDL_Rect Message_rect;
+	SDL_Rect text_rect;
 	static int y = 0;
-	Message_rect.x = 14;
-	Message_rect.y = y;
-	Message_rect.w = 0;
-	Message_rect.h = 0;
-	TTF_SizeText(font, text, &Message_rect.w, &Message_rect.h);
-	y += Message_rect.h - 2;
+	text_rect.x = 14;
+	text_rect.y = y;
+	text_rect.w = 0;
+	text_rect.h = 0;
+	TTF_SizeText(font, text, &text_rect.w, &text_rect.h);
+	y += text_rect.h - 2;
 	SDL_SetRenderTarget(window->SDLrenderer, texture);
-	SDL_RenderCopy(window->SDLrenderer, Message, NULL, &Message_rect);
+	SDL_RenderCopy(window->SDLrenderer, Message, NULL, &text_rect);
 	SDL_SetRenderTarget(window->SDLrenderer, NULL);
 	SDL_FreeSurface(surfaceMessage);
 	SDL_DestroyTexture(Message);
+	get_ui_width(text_rect.x);
+}
+
+static void	print_ui_background(SDL_Renderer *SDLrenderer)
+{
+	static SDL_Texture *background = NULL;
+	SDL_Rect rect;
+
+	rect.x = 0;
+	rect.y = 0;
+	rect.w = get_ui_width(0);
+	rect.h = 100;
+	// if (!background)
+		// background = SDL_CreateTexture(SDLrenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, RES_X, RES_Y);
+	// SDL_FillRect(screenSurface, &rect, SDL_MapRGB(...))
 }
 
 static void	draw_buttons_internal(SDL_Texture *get_text, SDL_Texture *get_button, t_window *get_window, char *text)
@@ -63,6 +100,7 @@ static void	draw_buttons_internal(SDL_Texture *get_text, SDL_Texture *get_button
 	}
 	if (!text)
 	{
+		print_ui_background(window->SDLrenderer);
 		SDL_UnlockTexture(button_texture);
 		SDL_RenderCopy(window->SDLrenderer, button_texture, NULL, NULL);
 		if (SDL_LockTexture(button_texture, NULL, (void**)&pixels, &width) != 0)
@@ -137,11 +175,14 @@ void	text(char *text)
 
 void	button(int *var, char *text)
 {
-	//char **seen = malloc//tai kato vaan toi address
-	//void **vars = malloc
-
 	add_button(NULL, var, text, 0);
 	draw_buttons_internal(NULL, NULL, NULL, text);
+}
+
+void	int_slider(int *var, char *str, int min, int max)
+{
+	text(str);
+	// clamp(var, min, max);
 }
 
 void	add_button_text(t_editor_ui *get_buttons)
@@ -152,9 +193,9 @@ void	add_button_text(t_editor_ui *get_buttons)
 		buttons = get_buttons;
 	if (get_buttons)
 		return ;
-	// sprintf("render scale 1/%d", (1 / quality) * 100)
-	// text(" ");
-	// int_slider("render scale", 1, 20);1/n .. 1/7%
+	//char[100] render_scale_text;
+	// sprintf(&render_scale_text, "render scale 1/%d", (1 / quality) * 100)
+	// int_slider(&render_scale_text, "render scale", 1, 20);1/n .. 1/7%
 	button(&buttons->noclip, "noclip");
 	button(&buttons->wireframe, "wireframe");
 	button(&buttons->show_quads, "quad visualize");
