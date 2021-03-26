@@ -81,7 +81,7 @@ void		split_obj(t_obj *culled, t_level *level, int *faces_left, int *faces_right
 	(*faces_right) = right_amount;
 }
 
-void	    action_loop(t_window *window, t_level *l, t_bmp *bmp, t_obj *culled, int *faces_left, int *faces_right)
+void	    render(t_window *window, t_level *l, t_bmp *bmp, t_obj *culled, int *faces_left, int *faces_right)
 {
 	SDL_Thread		*threads[THREAD_AMOUNT];
 	t_rthread		**thread_data;
@@ -106,7 +106,7 @@ void	    action_loop(t_window *window, t_level *l, t_bmp *bmp, t_obj *culled, in
 		i = 0;
 		if (!(thread_data = (t_rthread**)malloc(sizeof(t_rthread*) * THREAD_AMOUNT)))
 			ft_error("memory allocation failed\n");
-		global_seginfo = "render\n";
+		global_seginfo = "raycast\n";
 		while (i < THREAD_AMOUNT)
 		{
 			if (!(thread_data[i] = (t_rthread*)malloc(sizeof(t_rthread))))
@@ -115,7 +115,7 @@ void	    action_loop(t_window *window, t_level *l, t_bmp *bmp, t_obj *culled, in
 			thread_data[i]->level = l;
 			thread_data[i]->window = window;
 			thread_data[i]->img = bmp;
-			threads[i] = SDL_CreateThread(render, "asd", (void*)thread_data[i]);
+			threads[i] = SDL_CreateThread(raycast, "asd", (void*)thread_data[i]);
 			i++;
 		}
 		i = 0;
@@ -264,7 +264,7 @@ int			main(int argc, char **argv)
 				culled[0].tris[i] = level->obj[0].tris[i];
 			culled[0].tri_amount = level->obj[0].tri_amount;
 		}
-		action_loop(window, level, &bmp, culled, &faces_left, &faces_right);
+		render(window, level, &bmp, culled, &faces_left, &faces_right);
 		level->obj = tmp;
 
 		frametime = SDL_GetTicks() - frametime;

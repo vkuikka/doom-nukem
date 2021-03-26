@@ -230,7 +230,7 @@ void		vec_div(t_vec3 *res, float div);
 void		init_window(t_window **window);
 t_level		*init_level(void);
 
-int			render(void *t);
+int			raycast(void *t);
 float		cast_face(t_tri t, t_ray ray, int *col, t_bmp *img);
 void		fill_pixels(unsigned *grid, int pixel_gap);
 unsigned	crossfade(unsigned color1, unsigned color2, unsigned fade, unsigned r1);

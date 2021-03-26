@@ -121,7 +121,7 @@ float		cast_all_color(t_ray r, t_obj *obj, t_bmp *texture, int *color)
 	return (res.dist);
 }
 
-int			render(void *data_pointer)
+int			raycast(void *data_pointer)
 {
 	t_rthread	*t = data_pointer;
 	t_ray		r;
