@@ -82,18 +82,16 @@ void		cast_transparent(t_ray r, t_obj *obj, t_bmp *texture, t_cast_result *res)
 			0 < (tmp_dist = cast_face(obj->tris[i], r, &tmp_color, texture)) &&
 			tmp_dist < res->dist && tmp_dist > res->transparent_dist)
 		{
-			res->transparent_dist = tmp_dist;
 			transparent_face = i;
+			res->transparent_dist = tmp_dist;
 			res->transparent_color = tmp_color;
 		}
-		i++;
-		if (i == obj->tri_amount && res->transparent_dist)
+		if (++i == obj->tri_amount && res->transparent_dist && !(i = 0))
 		{
 			res->dist = res->transparent_dist;
 			*res->color = crossfade((unsigned)*res->color >> 8,
 res->transparent_color >> 8, obj->tris[transparent_face].opacity * 0xff, 0);
 			res->transparent_dist = 0;
-			i = 0;
 		}
 	}
 }
