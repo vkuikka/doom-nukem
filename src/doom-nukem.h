@@ -14,24 +14,21 @@
 # define DOOM_NUKEM_H
 # define RES_X 800
 # define RES_Y 600
-# define THREAD_AMOUNT 20
-# define TARGETFPS 35
 # define TICKRATE 128
+# define THREAD_AMOUNT 8
 # define NOISE_QUALITY_LIMIT 8
 
+# define NOCLIP_SPEED 20.0 / TICKRATE
 # define MOVE_SPEED 7.0 / TICKRATE
 # define JUMP_SPEED 5.0 / TICKRATE
-# define NOCLIP_SPEED 20.0 / TICKRATE
-
 # define PLAYER_HEIGHT 1.75
+# define WALL_CLIP_DIST 0.3
 
 # define WF_UNSELECTED_COL 0x333333ff
 # define WF_SELECTED_COL 0xffaa00ff
 # define WF_TRI_COL 0x802222ff
 # define WF_NORMAL_COL 0x00fffffff
 # define WF_BACKGROUND_COL 0x99		//1 byte value
-
-# define WALL_CLIP_DIST 0.3
 
 #ifndef FLT_MAX
 #define FLT_MAX 3.40282347E+38
