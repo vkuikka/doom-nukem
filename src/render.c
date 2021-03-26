@@ -157,9 +157,7 @@ int			render(void *data_pointer)
 		tmp.z = 1;
 		for (int y = 0; y < RES_Y; y++)
 		{
-#if TARGETFPS < 100
 			if (!rand_amount || rand() % rand_amount)	//skip random pixel
-#endif
 			if (!(x % pixel_gap) && !(y % pixel_gap))
 			{
 				t->window->frame_buffer[x + (y * RES_X)] = 0;

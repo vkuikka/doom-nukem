@@ -3,14 +3,21 @@
 /*                                                        :::      ::::::::   */
 /*   find_quads.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/21 16:54:13 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/01/29 03:44:59 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/01/29 03:44:59 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom-nukem.h"
+
+/*
+ * Purpose of file: Iterate 3D object and find all pairs of perfectly
+ * mirrored triangles and convert those to quads, because we can
+ * raycast the same surface area with no additional cost.
+ * Faces found here get an isquad property (t_tri.isquad)
+*/
 
 void	set_fourth_vertex(t_tri *a)
 {

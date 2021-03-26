@@ -12,14 +12,14 @@
 
 #include "doom-nukem.h"
 
-void segv_handler(int sig)
+void        segv_handler(int sig)
 {
 	printf ("\n\033[1m\033[31m\tSEGFAULT: %s\n\033[0m", global_seginfo);
-    abort();
-    (void)sig;
+	abort();
+	(void)sig;
 }
 
-int				is_tri_side(t_tri tri, t_ray c)
+int			is_tri_side(t_tri tri, t_ray c)
 {
 	t_vec3   end;
 
@@ -28,12 +28,12 @@ int				is_tri_side(t_tri tri, t_ray c)
 	{
 		vec_sub(&end, tri.verts[i].pos, c.pos);
 		if (vec_dot(end, c.dir) <= 0)
-			return (0);
+			return (FALSE);
 	}
-	return (1);
+	return (TRUE);
 }
 
-void			split_obj(t_obj *culled, t_level *level, int *faces_left, int *faces_right)
+void		split_obj(t_obj *culled, t_level *level, int *faces_left, int *faces_right)
 {
 	int		right_amount = 0;
 	int		left_amount = 0;
@@ -81,14 +81,14 @@ void			split_obj(t_obj *culled, t_level *level, int *faces_left, int *faces_righ
 	(*faces_right) = right_amount;
 }
 
-void	action_loop(t_window *window, t_level *l, t_bmp *bmp, t_obj *culled, int *faces_left, int *faces_right, int rendermode)
+void	    action_loop(t_window *window, t_level *l, t_bmp *bmp, t_obj *culled, int *faces_left, int *faces_right, int rendermode)
 {
 	SDL_Thread		*threads[THREAD_AMOUNT];
 	t_rthread		**thread_data;
 	int				window_horizontal_size;
 	int				i;
 
-	if (rendermode != 2)
+	if (rendermode != RENDER_MODE_WIREFRAME)
 	{
 		global_seginfo = "split_obj\n";
 		split_obj(culled, l, faces_left, faces_right);
@@ -96,7 +96,7 @@ void	action_loop(t_window *window, t_level *l, t_bmp *bmp, t_obj *culled, int *f
 	}
 	if (SDL_LockTexture(window->texture, NULL, (void**)&window->frame_buffer, &window_horizontal_size) != 0)
 		ft_error("failed to lock texture\n");
-	if (rendermode == 2)
+	if (rendermode == RENDER_MODE_WIREFRAME)
 	{
 		global_seginfo = "wireframe\n";
 		wireframe(window, l);
@@ -139,7 +139,7 @@ void	action_loop(t_window *window, t_level *l, t_bmp *bmp, t_obj *culled, int *f
 	return ;
 }
 
-int		get_fps(int i)
+int		    get_fps(int i)
 {
 	struct timeval	time;
 	static long		s[2];
@@ -164,7 +164,7 @@ int			main(int argc, char **argv)
 	t_level		*level;
 	unsigned	frametime;
 	t_bmp		bmp;
-	int			rendermode;//0 raycast all, 1 raycast culled, 2 wireframe
+	int			rendermode;
 	int			relmouse;
 	t_obj		*culled;
 	t_physthread	physicsdata;
@@ -179,7 +179,8 @@ int			main(int argc, char **argv)
 #endif
 
 	relmouse = 0;
-	rendermode = 1;
+	rendermode = RENDER_MODE_RAYCAST_CULLED;
+	global_seginfo = "bmp_read\n";
 	bmp = bmp_read("out.bmp");
 	level = init_level();
 	init_window(&window);
@@ -227,7 +228,7 @@ int			main(int argc, char **argv)
 				else if (event.key.keysym.scancode == SDL_SCANCODE_N)
 					player_movement(NULL, NULL);
 				else if (event.key.keysym.scancode == SDL_SCANCODE_M)
-					rendermode = rendermode == 2 ? 1 : 2;
+					rendermode = rendermode == RENDER_MODE_WIREFRAME ? RENDER_MODE_RAYCAST_ALL : rendermode + 1;
 				else if (event.key.keysym.scancode == SDL_SCANCODE_TAB)
 				{
 					relmouse = relmouse ? 0 : 1;
@@ -247,7 +248,7 @@ int			main(int argc, char **argv)
 		int faces_visible = level->obj->tri_amount;
 		int faces_left = culled[0].tri_amount;
 		int faces_right = culled[0].tri_amount;
-		if (rendermode == 1)
+		if (rendermode == RENDER_MODE_RAYCAST_CULLED)
 		{
 			faces_visible = 0;
 			culling(level, &faces_visible, culled);
