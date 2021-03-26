@@ -69,10 +69,13 @@ void		rot_cam(t_vec3 *cam, const float lon, const float lat)
 
 float		cast_all_color(t_ray r, t_obj *obj, t_bmp *texture, int *color)
 {
+	int		i;
+	int		tmp_color;
+	int		mix_color;
+	int		transparent_face;
+	float	transparent_dist;
 	float	tmp_dist;
 	float	dist;
-	int		tmp_color;
-	int		i;
 
 	i = 0;
 	dist = FLT_MAX;
@@ -88,18 +91,35 @@ float		cast_all_color(t_ray r, t_obj *obj, t_bmp *texture, int *color)
 		i++;
 	}
 	i = 0;
+
+	transparent_dist = 0;
+	transparent_face = 0;
 	while (i < obj->tri_amount)
 	{
 		if (obj->tris[i].opacity &&
 			0 < (tmp_dist = cast_face(obj->tris[i], r, &tmp_color, texture)) &&
-			dist > tmp_dist)
+			tmp_dist < dist && tmp_dist > transparent_dist)
 		{
-			*color = *color >> 8;
-			tmp_color = tmp_color >> 8;
-			*color = crossfade(*color, tmp_color, obj->tris[i].opacity * 0xff, 0);
+			transparent_dist = tmp_dist;
+			transparent_face = i;
+			mix_color = tmp_color;
 		}
 		i++;
+		if (i == obj->tri_amount && transparent_dist)
+		{
+			i = 0;
+			dist = transparent_dist;
+			transparent_face = 0;
+			transparent_dist = 0;
+
+			*color = *color >> 8;
+			mix_color = mix_color >> 8;
+			*color = crossfade(*color, mix_color, obj->tris[i].opacity * 0xff, 0);
+			mix_color = 0;
+		}
 	}
+	if (transparent_dist)
+		return (transparent_dist);
 	return (dist);
 }
 
