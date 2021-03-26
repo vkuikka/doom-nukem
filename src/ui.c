@@ -152,7 +152,9 @@ void	add_button_text(t_editor_ui *get_buttons)
 		buttons = get_buttons;
 	if (get_buttons)
 		return ;
-	// slider("render scale");1/n .. 1/7%
+	// sprintf("render scale 1/%d", (1 / quality) * 100)
+	// text(" ");
+	// int_slider("render scale", 1, 20);1/n .. 1/7%
 	button(&buttons->noclip, "noclip");
 	button(&buttons->wireframe, "wireframe");
 	button(&buttons->show_quads, "quad visualize");
@@ -162,14 +164,15 @@ void	add_button_text(t_editor_ui *get_buttons)
 	text("Level:");
 	button(&buttons->fog, "fog");
 	// color(buttons->color, "fog color");
+	// button(, "set spawn point");
 	text("Culling:");
 	// button(&buttons->pause_culling_position, "\tpause");
 	button(&buttons->backface_culling, "\tbackface");
 	button(&buttons->distance_culling, "\tdistance");
-	// slider(buttons->distance_culling_distance, "\tz far clip distance");
+	// slider(buttons->distance_culling_distance, "\tz far clip distance", 2, 50);
 	// text("Selected face:");
-	// slider("transparency");
-	// slider("flip normal");
+	// slider("transparency", 0, 1);
+	// button("flip normal");
 	// button("\tforce disable culling");
 	// button("\tmirror");
 	// button("\tinfinite");
