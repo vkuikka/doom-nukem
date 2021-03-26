@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/21 17:32:09 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/03/25 23:39:47 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/03/26 03:26:43 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,9 +56,9 @@ int			fog(int color, float dist, unsigned fog_color)
 {
 	float	fade;
 
-	if (dist < 20)
+	if (dist < RENDER_DISTANCE)
 	{
-		fade = (dist + 1) / 20;
+		fade = (dist + 1) / RENDER_DISTANCE;
 		fade = fade > 1 ? 1 : fade;
 		return (crossfade(color >> 8, fog_color >> 8, 0xff * fade, 0));
 	}
@@ -104,6 +104,7 @@ int		face_color(float u, float v, t_tri t, t_bmp *img)
 	// return((((int)(u * 255) & 0xff) << 24) +
 	// 		(((int)(v * 255) & 0xff) << 16) +
 	// 		(((int)(w * 255) & 0xff) << 8) + 0xff);
+	global_seginfo = "face_color\n";
 	x =	((t.verts[0].txtr.x * img->width * w +
 			t.verts[1].txtr.x * img->width * v +
 			t.verts[2].txtr.x * img->width * u) / (float)(u + v + w));
@@ -119,7 +120,6 @@ int		face_color(float u, float v, t_tri t, t_bmp *img)
 		x = x % img->width;
 	else if (x < 0)
 		x = -x % img->width;
-	global_seginfo = "set color 1\n";
 	return (img->image[x + (y * img->width)]);
 }
 

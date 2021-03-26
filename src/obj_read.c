@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/03/15 17:31:05 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/03/26 21:14:40 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -279,6 +279,7 @@ void	load_obj(char *filename, t_obj *obj)
 		for (int k = 0; k < 3 + obj->tris[asd].isquad; k++)
 			obj->tris[asd].verts[k].selected = 0;
 		obj->tris[asd].isgrid = 0;
+		obj->tris[asd].opacity = 0;
 	}
 	printf("faces = %d\n", obj->tri_amount);
 }

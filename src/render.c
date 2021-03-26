@@ -50,14 +50,9 @@ float		cast_face(t_tri t, t_ray ray, int *col, t_bmp *img)
 	}
 	else if (v < 0 || u + v > 1)
 		return 0;
-	// if (t.isgrid)
-	// 	printf("%f %f\n", u, v);
     float dist = vec_dot(qvec, t.v0v2) * invdet;
 	if (img && col)
-	{
 		*col = face_color(u, v, t, img);
-		global_seginfo = "set color 2\n";
-	}
 	return dist;
 }
 
@@ -70,6 +65,60 @@ void		rot_cam(t_vec3 *cam, const float lon, const float lat)
 	cam->x = radius * sin(phi) * cos(theta);
 	cam->y = radius * cos(phi);
 	cam->z = radius * sin(phi) * sin(theta);
+}
+
+void		cast_transparent(t_ray r, t_obj *obj, t_bmp *texture, t_cast_result *res)
+{
+	float	tmp_dist;
+	int		tmp_color;
+	int		transparent_face;
+	int		i;
+
+	i = 0;
+	res->transparent_dist = 0;
+	while (i < obj->tri_amount)
+	{
+		if (obj->tris[i].opacity &&
+			0 < (tmp_dist = cast_face(obj->tris[i], r, &tmp_color, texture)) &&
+			tmp_dist < res->dist && tmp_dist > res->transparent_dist)
+		{
+			transparent_face = i;
+			res->transparent_dist = tmp_dist;
+			res->transparent_color = tmp_color;
+		}
+		if (++i == obj->tri_amount && res->transparent_dist && !(i = 0))
+		{
+			res->dist = res->transparent_dist;
+			*res->color = crossfade((unsigned)*res->color >> 8,
+res->transparent_color >> 8, obj->tris[transparent_face].opacity * 0xff, 0);
+			res->transparent_dist = 0;
+		}
+	}
+}
+
+float		cast_all_color(t_ray r, t_obj *obj, t_bmp *texture, int *color)
+{
+	t_cast_result	res;
+	int				i;
+	int				tmp_color;
+	float			tmp_dist;
+
+	i = 0;
+	res.dist = FLT_MAX;
+	res.color = color;
+	while (i < obj->tri_amount)
+	{
+		if (!obj->tris[i].opacity &&
+			0 < (tmp_dist = cast_face(obj->tris[i], r, &tmp_color, texture)) &&
+			tmp_dist < res.dist)
+		{
+			res.dist = tmp_dist;
+			*res.color = tmp_color;
+		}
+		i++;
+	}
+	cast_transparent(r, obj, texture, &res);
+	return (res.dist);
 }
 
 int			render(void *data_pointer)
@@ -109,7 +158,7 @@ int			render(void *data_pointer)
 			if (!rand_amount || rand() % rand_amount)	//skip random pixel
 			if (!(x % pixel_gap) && !(y % pixel_gap))
 			{
-				t->window->frame_buffer[x + (y * RES_X)] = t->level->fog_color;
+				t->window->frame_buffer[x + (y * RES_X)] = 0;
 				t->window->depth_buffer[x + (y * RES_X)] = 0;
 
 				float ym = (1.0 / RES_Y * y - 0.5);	//multiply these to change fov
@@ -119,25 +168,13 @@ int			render(void *data_pointer)
 				r.dir.y = cam.y + up.y * ym + side.y * xm;
 				r.dir.z = cam.z + up.z * ym + side.z * xm;
 
-				int side = x < RES_X / 2 ? 0 : 1;
-				for (int j = 0; j < t->level->obj[side].tri_amount; j++)
-				{
-					int color;
-					float dist;
-					dist = cast_face(t->level->obj[side].tris[j], r, &color, t->img);
-					if (dist > 0 &&
-						(dist < t->window->depth_buffer[x + (y * RES_X)] ||
-								t->window->depth_buffer[x + (y * RES_X)] == 0))
-					{
-						t->window->depth_buffer[x + (y * RES_X)] = dist;
-						if (t->level->enable_fog)
-							t->window->frame_buffer[x + (y * RES_X)] = fog(color, dist, t->level->fog_color);
-						else
-							t->window->frame_buffer[x + (y * RES_X)] = color;
-					}
-				}
-				if (!t->level->enable_fog && !t->window->depth_buffer[x + (y * RES_X)])
-					t->window->frame_buffer[x + (y * RES_X)] = skybox(*t->level, r);
+				int		*color = (int*)&t->window->frame_buffer[x + (y * RES_X)];
+				float	*dist = &t->window->depth_buffer[x + (y * RES_X)];
+				if (!t->level->enable_fog)
+					*color = skybox(*t->level, r);
+				*dist = cast_all_color(r, &t->level->obj[x >= RES_X / 2], t->img, color);
+				if (t->level->enable_fog)
+					*color = fog(*color, *dist, t->level->fog_color);
 			}
 		}
 	}

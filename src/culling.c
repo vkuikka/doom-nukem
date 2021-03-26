@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/20 17:50:56 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/02/04 15:41:19 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/03/26 03:21:01 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,7 +115,7 @@ static int		distance_culling(t_tri tri, t_vec3 player)
 		if (len > max)
 			max = len;
 	}
-	if (min < 20)
+	if (min < RENDER_DISTANCE)
 		return (1);
 	t_vec3	v1v2;
 	vec_sub(&v1v2, tri.verts[2].pos, tri.verts[1].pos);

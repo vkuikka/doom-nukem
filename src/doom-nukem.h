@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   doom-nukem.h                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alcohen <alcohen@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/03/21 22:20:14 by alcohen          ###   ########.fr       */
+/*   Updated: 2021/03/26 21:03:46 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@
 # define TICKRATE 128
 # define THREAD_AMOUNT 8
 # define NOISE_QUALITY_LIMIT 8
+# define RENDER_DISTANCE 20
 
 # define NOCLIP_SPEED 20.0 / TICKRATE
 # define MOVE_SPEED 7.0 / TICKRATE
@@ -112,6 +113,8 @@ typedef struct			s_tri
 	int					isquad;
 	int					isgrid;
 	int					isenemy;
+	float				opacity;
+	// float				reflectivity;
 }						t_tri;
 
 typedef struct			s_obj
@@ -136,7 +139,6 @@ typedef struct			s_level
 	struct s_skybox		sky;
 	float				look_side;	//side look angle
 	float				look_up;	//up and down look angle
-	int					*txtr;		//pointer to the level texture
 	int					quality;
 	int					enable_fog;
 	unsigned			fog_color;
@@ -186,6 +188,14 @@ typedef struct __attribute__((__packed__))	s_bmp_image {
 	unsigned char							r;
 	unsigned char							a;
 }											t_bmp_image;
+
+typedef struct			s_cast_result
+{
+	float				dist;
+	int					*color;
+	float				transparent_dist;
+	int					transparent_color;
+}						t_cast_result;
 
 void		vec_normalize(t_vec3 *vec);						//makes vector length 1
 float		vec_dot(t_vec3 ve1, t_vec3 ve2);			//dot product of two vectors
