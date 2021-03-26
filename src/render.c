@@ -109,17 +109,14 @@ float		cast_all_color(t_ray r, t_obj *obj, t_bmp *texture, int *color)
 		{
 			i = 0;
 			dist = transparent_dist;
-			transparent_face = 0;
-			transparent_dist = 0;
-
 			*color = *color >> 8;
 			mix_color = mix_color >> 8;
-			*color = crossfade(*color, mix_color, obj->tris[i].opacity * 0xff, 0);
+			*color = crossfade(*color, mix_color, obj->tris[transparent_face].opacity * 0xff, 0);
+			transparent_face = 0;
+			transparent_dist = 0;
 			mix_color = 0;
 		}
 	}
-	if (transparent_dist)
-		return (transparent_dist);
 	return (dist);
 }
 
