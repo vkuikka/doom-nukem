@@ -114,12 +114,15 @@ static void	add_button(unsigned *get_texture, int *var, char *text, int clear)
 		texture = get_texture;
 		return ;
 	}
-	int color = *var ? 0x00ff00ff : 0xff0000ff;
+	int color = *var ? 0x008020ff : 0x303030ff;
 	for (int y = 0; y < 10; y++)
 	{
 		for (int x = 0; x < 10; x++)
 		{
-			button_pixel_put(x + 2, y + 4 + dy, color, texture);
+			if (y < 1 || y > 8 || x < 1 || x > 8)
+				button_pixel_put(x + 2, y + 4 + dy, 0x404040ff, texture);
+			else
+				button_pixel_put(x + 2, y + 4 + dy, color, texture);
 		}
 	}
 	edit_var(var, dy);
