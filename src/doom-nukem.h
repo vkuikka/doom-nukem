@@ -35,12 +35,12 @@
 # define PLAYER_HEIGHT 1.75
 # define WALL_CLIP_DIST 0.3
 
-#define TRUE    1
-#define FALSE   0
+# define TRUE 1
+# define FALSE 0
 
 # define WF_UNSELECTED_COL 0x333333ff
 # define WF_SELECTED_COL 0xffaa00ff
-# define WF_TRI_COL 0x802222ff
+# define WF_NOT_QUAD_WARNING 0x802222ff
 # define WF_NORMAL_COL 0x00fffffff
 # define WF_BACKGROUND_COL 0x99		//1 byte value
 
@@ -140,7 +140,22 @@ typedef struct			s_level
 	int					quality;
 	int					enable_fog;
 	unsigned			fog_color;
+	struct s_editor_ui	*ui;
 }						t_level;
+
+typedef struct			s_editor_ui
+{
+	int					editor_active;
+	int					noclip;
+	int					wireframe;
+	int					fog;
+	unsigned			fog_color;
+	int					show_quads;
+	int					pause_culling_position;
+	int					backface_culling;
+	int					distance_culling;
+	unsigned			distance_culling_distance;
+}						t_editor_ui;
 
 typedef struct			s_physthread
 {
@@ -222,7 +237,7 @@ void		find_quads(t_obj *obj);
 void		rotate_vertex(float angle, t_vec3 *vertex, int axis);
 void		rot_cam(t_vec3 *cam, const float lon, const float lat);
 
-void		init_buttons(t_window *window);
+void		init_buttons(t_window *window, t_editor_ui *buttons);
 void		draw_buttons(void);
 void		button(int *var, char *text);
 

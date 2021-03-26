@@ -104,6 +104,11 @@ static void	add_button(unsigned *get_texture, int *var, char *text, int clear)
 		dy = 0;
 		return ;
 	}
+	if (clear == 42)
+	{
+		dy += 14;
+		return ;
+	}
 	if (get_texture)
 	{
 		texture = get_texture;
@@ -121,32 +126,10 @@ static void	add_button(unsigned *get_texture, int *var, char *text, int clear)
 	dy += 14;
 }
 
-static int		did_change(void)
+void	text(char *text)
 {
-	return (1);
-}
-
-void	init_buttons(t_window *window)
-{
-	SDL_Texture *text_texture = SDL_CreateTexture(window->SDLrenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, RES_X, RES_Y);
-	SDL_Texture *button_texture = SDL_CreateTexture(window->SDLrenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, RES_X, RES_Y);
-	unsigned	*pixels;
-	signed		width;
-	
-	TTF_Init();
-	SDL_SetTextureBlendMode(text_texture, SDL_BLENDMODE_BLEND);
-	SDL_SetTextureBlendMode(button_texture, SDL_BLENDMODE_BLEND);
-	if (SDL_LockTexture(button_texture, NULL, (void**)&pixels, &width) != 0)
-		ft_error("failed to lock texture\n");
-	draw_buttons_internal(text_texture, button_texture, window, NULL);
-	add_button(pixels, 0, NULL, 0); 
- }
-
-void	draw_buttons(void)
-{
-	if (did_change())
-		draw_buttons_internal(NULL, NULL, NULL, NULL);
-		add_button(NULL, 0, NULL, 1);
+	add_button(NULL, NULL, NULL, 42);
+	draw_buttons_internal(NULL, NULL, NULL, text);
 }
 
 void	button(int *var, char *text)
@@ -154,7 +137,61 @@ void	button(int *var, char *text)
 	//char **seen = malloc//tai kato vaan toi address
 	//void **vars = malloc
 
-	if (did_change())
-		add_button(NULL, var, text, 0);
-		draw_buttons_internal(NULL, NULL, NULL, text);
+	add_button(NULL, var, text, 0);
+	draw_buttons_internal(NULL, NULL, NULL, text);
 }
+
+void	add_button_text(t_editor_ui *get_buttons)
+{
+	static t_editor_ui *buttons = NULL;
+
+	if (get_buttons)
+		buttons = get_buttons;
+	if (get_buttons)
+		return ;
+	button(&buttons->noclip, "noclip");
+	button(&buttons->wireframe, "wireframe");
+	button(&buttons->show_quads, "quad visualize");
+	// button(&buttons->show_quads, "normals");
+	// text(" ");
+	// text("Level:");
+	button(&buttons->fog, "fog");
+	// color(buttons->color, "fog color");
+	// text("Culling:");
+	button(&buttons->pause_culling_position, "\tpause");
+	button(&buttons->backface_culling, "\tbackface");
+	button(&buttons->distance_culling, "\tdistance");
+	// slider(buttons->distance_culling_distance, "\tz far clip distance");
+	// text("Selected face:");
+	// slider("transparency");
+	// slider("flip normal");
+	// button("\tforce disable culling");
+	// button("\tmirror");
+	// button("\tinfinite");
+	//oisko jos hover n'it' hightlightaa facet miss' se on p''ll'
+}
+
+void	draw_buttons(void)
+{
+	add_button_text(NULL);
+	draw_buttons_internal(NULL, NULL, NULL, NULL);
+	add_button(NULL, 0, NULL, 1);
+}
+
+void	init_buttons(t_window *window, t_editor_ui *buttons)
+{
+	SDL_Texture *text_texture = SDL_CreateTexture(window->SDLrenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, RES_X, RES_Y);
+	SDL_Texture *button_texture = SDL_CreateTexture(window->SDLrenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, RES_X, RES_Y);
+	unsigned	*pixels;
+	signed		width;
+	
+	ft_bzero(buttons, sizeof(t_editor_ui));
+	TTF_Init();
+	SDL_SetTextureBlendMode(text_texture, SDL_BLENDMODE_BLEND);
+	SDL_SetTextureBlendMode(button_texture, SDL_BLENDMODE_BLEND);
+	if (SDL_LockTexture(button_texture, NULL, (void**)&pixels, &width) != 0)
+		ft_error("failed to lock texture\n");
+	draw_buttons_internal(text_texture, button_texture, window, NULL);
+	add_button(pixels, 0, NULL, 0); 
+	add_button_text(buttons);
+ }

@@ -112,11 +112,6 @@ void	        player_movement(t_vec3 *pos, t_level *level)
 	int				in_air;
 
 	global_seginfo = "player_movement\n";
-	if (level == NULL)
-	{
-		noclip = noclip ? FALSE : TRUE;
-		return;
-	}
 	r.pos.x = pos->x;
 	r.pos.y = pos->y;
 	r.pos.z = pos->z;
@@ -124,7 +119,7 @@ void	        player_movement(t_vec3 *pos, t_level *level)
 	r.dir.y = 1;
 	r.dir.z = 0;
 	dist = cast_all(r, level, NULL, NULL, NULL);
-	if (dist > 0 && dist <= PLAYER_HEIGHT && !noclip)
+	if (dist > 0 && dist <= PLAYER_HEIGHT && !level->ui->noclip)
 	{
 		in_air = FALSE;
 		if (dist < PLAYER_HEIGHT)
@@ -132,10 +127,10 @@ void	        player_movement(t_vec3 *pos, t_level *level)
 	}
 	else
 		in_air = TRUE;
-	t_vec3 wishdir = player_input(noclip, level, in_air, vel);
+	t_vec3 wishdir = player_input(level->ui->noclip, level, in_air, vel);
 	vel.y = fmax(fmin(vel.y, 0.5), -0.5);
 
-	if (noclip)
+	if (level->ui->noclip)
 	{
 		pos->x += wishdir.x;
 		pos->y += wishdir.y;
@@ -178,6 +173,7 @@ float	        get_hz(void)
 	oldTime = newTime;
 	return (fps);
 }
+
 float		avghz(float hz)
 {
 	struct timeval	time;
@@ -271,4 +267,3 @@ int     	    physics(void *data_pointer)
 	}
 	return (0);
 }
-

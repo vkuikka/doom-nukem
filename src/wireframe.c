@@ -17,7 +17,7 @@ void	pixel_put(int x, int y, int color, t_window *window)
 	if (x < 0 || y < 0 || x >= RES_X || y >= RES_Y)
 		return;
 	if (window->frame_buffer[x + (y * RES_X)] != WF_SELECTED_COL &&
-		(window->frame_buffer[x + (y * RES_X)] != WF_TRI_COL ||
+		(window->frame_buffer[x + (y * RES_X)] != WF_NOT_QUAD_WARNING ||
 		color == WF_SELECTED_COL))
 		window->frame_buffer[x + (y * RES_X)] = color;
 }
@@ -330,10 +330,10 @@ void	wireframe(t_window *window, t_level *level)
 			if (level->obj[0].tris[i].verts[next].selected &&
 				level->obj[0].tris[i].verts[j].selected)
 				print_line(start, stop, WF_SELECTED_COL, window);
-			else if (level->obj[0].tris[i].isquad)
-				print_line(start, stop, WF_UNSELECTED_COL, window);
+			else if (level->ui->show_quads && !level->obj[0].tris[i].isquad)
+				print_line(start, stop, WF_NOT_QUAD_WARNING, window);
 			else
-				print_line(start, stop, WF_TRI_COL, window);
+				print_line(start, stop, WF_UNSELECTED_COL, window);
 			if (mode == 0)
 			{
 				if (level->obj[0].tris[i].verts[j].selected)

@@ -81,14 +81,14 @@ void		split_obj(t_obj *culled, t_level *level, int *faces_left, int *faces_right
 	(*faces_right) = right_amount;
 }
 
-void	    action_loop(t_window *window, t_level *l, t_bmp *bmp, t_obj *culled, int *faces_left, int *faces_right, int rendermode)
+void	    action_loop(t_window *window, t_level *l, t_bmp *bmp, t_obj *culled, int *faces_left, int *faces_right)
 {
 	SDL_Thread		*threads[THREAD_AMOUNT];
 	t_rthread		**thread_data;
 	int				window_horizontal_size;
 	int				i;
 
-	if (rendermode != RENDER_MODE_WIREFRAME)
+	if (!l->ui->wireframe)
 	{
 		global_seginfo = "split_obj\n";
 		split_obj(culled, l, faces_left, faces_right);
@@ -96,7 +96,7 @@ void	    action_loop(t_window *window, t_level *l, t_bmp *bmp, t_obj *culled, in
 	}
 	if (SDL_LockTexture(window->texture, NULL, (void**)&window->frame_buffer, &window_horizontal_size) != 0)
 		ft_error("failed to lock texture\n");
-	if (rendermode == RENDER_MODE_WIREFRAME)
+	if (l->ui->wireframe)
 	{
 		global_seginfo = "wireframe\n";
 		wireframe(window, l);
@@ -177,8 +177,10 @@ static void		read_input(t_window *window, t_level *level)
 				level->quality += 1;
 			else if (event.key.keysym.scancode == SDL_SCANCODE_COMMA && level->quality > 1)
 				level->quality -= 1;
-			else if (event.key.keysym.scancode == SDL_SCANCODE_N)
-				player_movement(NULL, NULL);//change to ui struct
+			else if (event.key.keysym.scancode == SDL_SCANCODE_CAPSLOCK)
+				level->ui->noclip = level->ui->noclip ? FALSE : TRUE;
+			else if (event.key.keysym.scancode == SDL_SCANCODE_Z)
+				level->ui->wireframe = level->ui->wireframe ? FALSE : TRUE;
 			else if (event.key.keysym.scancode == SDL_SCANCODE_TAB)
 			{
 				relmouse = relmouse ? 0 : 1;
@@ -197,11 +199,10 @@ static void		read_input(t_window *window, t_level *level)
 int			main(int argc, char **argv)
 {
 	t_window	*window;
-	t_editor_ui	buttons;
+	t_editor_ui	ui;
 	t_level		*level;
 	unsigned	frametime;
 	t_bmp		bmp;
-	int			rendermode;
 	t_obj		*culled;
 	t_physthread	physicsdata;
 	t_vec3		pos;
@@ -218,7 +219,8 @@ int			main(int argc, char **argv)
 	bmp = bmp_read("out.bmp");
 	level = init_level();
 	init_window(&window);
-	init_buttons(window, &buttons);
+	init_buttons(window, &ui);
+	level->ui = &ui;
 	if (!(culled = (t_obj*)malloc(sizeof(t_obj) * 2)))
 		ft_error("memory allocation failed\n");
 	if (!(culled[0].tris = (t_tri*)malloc(sizeof(t_tri) * level->obj->tri_amount)))
@@ -249,7 +251,7 @@ int			main(int argc, char **argv)
 		int faces_visible = level->obj->tri_amount;
 		int faces_left = culled[0].tri_amount;
 		int faces_right = culled[0].tri_amount;
-		if (rendermode == RENDER_MODE_RAYCAST_CULLED)
+		if (!level->ui->wireframe)
 		{
 			faces_visible = 0;
 			culling(level, &faces_visible, culled);
@@ -260,7 +262,7 @@ int			main(int argc, char **argv)
 				culled[0].tris[i] = level->obj[0].tris[i];
 			culled[0].tri_amount = level->obj[0].tri_amount;
 		}
-		action_loop(window, level, &bmp, culled, &faces_left, &faces_right, rendermode);
+		action_loop(window, level, &bmp, culled, &faces_left, &faces_right);
 		level->obj = tmp;
 
 		frametime = SDL_GetTicks() - frametime;

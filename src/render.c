@@ -130,7 +130,7 @@ int			render(void *data_pointer)
 								t->window->depth_buffer[x + (y * RES_X)] == 0))
 					{
 						t->window->depth_buffer[x + (y * RES_X)] = dist;
-						if (t->level->enable_fog)
+						if (t->level->ui->fog)
 							t->window->frame_buffer[x + (y * RES_X)] = fog(color, dist, t->level->fog_color);
 						else
 							t->window->frame_buffer[x + (y * RES_X)] = color;
