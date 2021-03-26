@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/03/25 23:41:05 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/03/26 17:40:15 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 # define TARGETFPS 35
 # define TICKRATE 128
 # define NOISE_QUALITY_LIMIT 8
+# define RENDER_DISTANCE 20
 
 # define MOVE_SPEED 7.0 / TICKRATE
 # define JUMP_SPEED 5.0 / TICKRATE
@@ -106,6 +107,8 @@ typedef struct			s_tri
 	int					isquad;
 	int					isgrid;
 	int					isenemy;
+	float				opacity;
+	// float				reflectivity;
 }						t_tri;
 
 typedef struct			s_obj
@@ -130,7 +133,6 @@ typedef struct			s_level
 	struct s_skybox		sky;
 	float				look_side;	//side look angle
 	float				look_up;	//up and down look angle
-	int					*txtr;		//pointer to the level texture
 	int					quality;
 	int					enable_fog;
 	unsigned			fog_color;
