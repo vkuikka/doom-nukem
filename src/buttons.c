@@ -99,14 +99,14 @@ static void	add_button(unsigned *get_texture, int *var, char *text, int clear)
 	static unsigned *texture;
 
 	static int dy = 0;
-	if (clear)
-	{
-		dy = 0;
-		return ;
-	}
 	if (clear == 42)
 	{
 		dy += 14;
+		return ;
+	}
+	else if (clear)
+	{
+		dy = 0;
 		return ;
 	}
 	if (get_texture)
@@ -149,16 +149,18 @@ void	add_button_text(t_editor_ui *get_buttons)
 		buttons = get_buttons;
 	if (get_buttons)
 		return ;
+	// slider("render scale");1/n .. 1/7%
 	button(&buttons->noclip, "noclip");
 	button(&buttons->wireframe, "wireframe");
 	button(&buttons->show_quads, "quad visualize");
+	// button(, "face/vert selection");
 	// button(&buttons->show_quads, "normals");
-	// text(" ");
-	// text("Level:");
+	text(" ");
+	text("Level:");
 	button(&buttons->fog, "fog");
 	// color(buttons->color, "fog color");
-	// text("Culling:");
-	button(&buttons->pause_culling_position, "\tpause");
+	text("Culling:");
+	// button(&buttons->pause_culling_position, "\tpause");
 	button(&buttons->backface_culling, "\tbackface");
 	button(&buttons->distance_culling, "\tdistance");
 	// slider(buttons->distance_culling_distance, "\tz far clip distance");
@@ -186,6 +188,8 @@ void	init_buttons(t_window *window, t_editor_ui *buttons)
 	signed		width;
 	
 	ft_bzero(buttons, sizeof(t_editor_ui));
+	buttons->backface_culling = 1;
+	buttons->distance_culling = 1;
 	TTF_Init();
 	SDL_SetTextureBlendMode(text_texture, SDL_BLENDMODE_BLEND);
 	SDL_SetTextureBlendMode(button_texture, SDL_BLENDMODE_BLEND);

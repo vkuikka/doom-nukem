@@ -181,6 +181,8 @@ static void		read_input(t_window *window, t_level *level)
 				level->ui->noclip = level->ui->noclip ? FALSE : TRUE;
 			else if (event.key.keysym.scancode == SDL_SCANCODE_Z)
 				level->ui->wireframe = level->ui->wireframe ? FALSE : TRUE;
+			else if (event.key.keysym.scancode == SDL_SCANCODE_X)
+				level->ui->show_quads = level->ui->show_quads ? FALSE : TRUE;
 			else if (event.key.keysym.scancode == SDL_SCANCODE_TAB)
 			{
 				relmouse = relmouse ? 0 : 1;
