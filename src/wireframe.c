@@ -277,7 +277,7 @@ int		select_mode(int mode, t_level *l)
 			return (2);
 		else
 			select_vert(l, x, y);
-		pressed = 1;
+		pressed = TRUE;
 	}
 	if (!(SDL_GetMouseState(&x, &y) & SDL_BUTTON(SDL_BUTTON_LEFT)))
 		pressed = 0;

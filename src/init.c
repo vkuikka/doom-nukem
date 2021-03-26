@@ -24,7 +24,7 @@ SDL_Texture		*empty_texture(SDL_Renderer *renderer)
 	return (texture);
 }
 
-t_level			*init_level()
+t_level			*init_level(void)
 {
 	t_level		*l;
 
