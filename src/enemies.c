@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/14 17:08:49 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/03/16 19:13:01 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/03/24 04:06:47 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,6 +67,7 @@ void			enemies(t_level *level)
 	int		face;
 
 	face = 0;
+	global_seginfo = "enemies\n";
 	while (face < level->obj[0].tri_amount)
 	{
 		if (level->obj[0].tris[face].isenemy)

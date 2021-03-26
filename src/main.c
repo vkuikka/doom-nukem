@@ -157,45 +157,6 @@ int		    get_fps(int i)
 	return (fps[i]);
 }
 
-int		    did_move(t_level *level)
-{
-	static int		last_side = 0;
-	static int		last_up = 0;
-	static t_vec3	pos;
-	int				res = 0;
-
-	if (last_side != level->look_side && last_up != level->look_up && !vec_cmp(pos, level->pos))
-		res = 1;
-	last_side = level->look_side;
-	last_up = level->look_up;
-	pos = level->pos;
-	return (res);
-}
-
-void	    set_quality(int frametime, t_level *level, int currentfps)
-{
-	static int	lastfps = 0;
-	static int	s = 0;
-	const int	pause_time = 2;//seconds until can improve quality
-	int			minfps = TARGETFPS - 10;
-	int		    maxfps = TARGETFPS + 10;
-
-	if (lastfps != currentfps)
-		s++;
-	lastfps = currentfps;
-	if (frametime > 1000 / minfps)
-		level->quality += 2;
-	else if (s == pause_time && did_move(level) && frametime < 1000 / maxfps)
-		level->quality -= 2;
-	did_move(level);//update statics
-	if (s == pause_time)
-		s = 0;
-	if (level->quality < 0)
-		level->quality = 1;
-	else if (level->quality > 13)
-		level->quality = 13;
-}
-
 int			main(int argc, char **argv)
 {
 	SDL_Event	event;
@@ -221,10 +182,7 @@ int			main(int argc, char **argv)
 	rendermode = RENDER_MODE_RAYCAST_CULLED;
 	global_seginfo = "bmp_read\n";
 	bmp = bmp_read("out.bmp");
-	global_seginfo = "init_level\n";
 	level = init_level();
-	level->quality = 1;
-	global_seginfo = "init_window\n";
 	init_window(&window);
 	init_buttons(window);
 	if (!(culled = (t_obj*)malloc(sizeof(t_obj) * 2)))
@@ -261,30 +219,26 @@ int			main(int argc, char **argv)
 				level->look_side += (float)event.motion.xrel / 600;
 				level->look_up -= (float)event.motion.yrel / 600;
 			}
-			/*else if (event.key.repeat == 0 && event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_RIGHT)
-				level->look_side += 0.1;
-			else if (event.key.repeat == 0 && event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_LEFT)
-				level->look_side -= 0.1;
-			else if (event.key.repeat == 0 && event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_UP)
-				level->look_up += 0.1;
-			else if (event.key.repeat == 0 && event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_DOWN)
-				level->look_up -= 0.1;*/
-			else if (event.key.repeat == 0 && event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_N)
-				player_movement(NULL, NULL);
-			else if (event.key.repeat == 0 && event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_M)
+			else if (event.key.repeat == 0 && event.type == SDL_KEYDOWN)
 			{
-				rendermode = rendermode == RENDER_MODE_WIREFRAME ? RENDER_MODE_RAYCAST_ALL : rendermode + 1;
-				level->quality = 1;
-			}
-			else if (event.key.repeat == 0 && event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_TAB)
-			{
-				relmouse = relmouse ? 0 : 1;
-				if (relmouse)
-					SDL_SetRelativeMouseMode(SDL_TRUE);
-				else
+				if (event.key.keysym.scancode == SDL_SCANCODE_PERIOD)
+					level->quality += 1;
+				else if (event.key.keysym.scancode == SDL_SCANCODE_COMMA && level->quality > 1)
+					level->quality -= 1;
+				else if (event.key.keysym.scancode == SDL_SCANCODE_N)
+					player_movement(NULL, NULL);
+				else if (event.key.keysym.scancode == SDL_SCANCODE_M)
+					rendermode = rendermode == RENDER_MODE_WIREFRAME ? RENDER_MODE_RAYCAST_ALL : rendermode + 1;
+				else if (event.key.keysym.scancode == SDL_SCANCODE_TAB)
 				{
-					SDL_SetRelativeMouseMode(SDL_FALSE);
-					SDL_WarpMouseInWindow(window->SDLwindow, RES_X / 2, RES_Y / 2);
+					relmouse = relmouse ? 0 : 1;
+					if (relmouse)
+						SDL_SetRelativeMouseMode(SDL_TRUE);
+					else
+					{
+						SDL_SetRelativeMouseMode(SDL_FALSE);
+						SDL_WarpMouseInWindow(window->SDLwindow, RES_X / 2, RES_Y / 2);
+					}
 				}
 			}
 		}
@@ -311,15 +265,9 @@ int			main(int argc, char **argv)
 		level->obj = tmp;
 
 		frametime = SDL_GetTicks() - frametime;
-		//printf("time: %d ms\n", frametime);
 		char buf[50];
 		int fps = get_fps(0);
-		set_quality(frametime, level, fps);
 		sprintf(buf, "%.2fhz %dfps %d(%dL %dR)faces quality: %d", physhz, fps, faces_visible, faces_left, faces_right, level->quality);
 		SDL_SetWindowTitle(window->SDLwindow, buf);
-
-		//SDL_Delay(2);
-		//if (frametime < 100)
-		//	usleep(10000);
 	}
 }

@@ -12,34 +12,6 @@
 
 #include "doom-nukem.h"
 
-void		fill_pixels(unsigned *grid, int gap)
-{
-	int		color;
-	int		i;
-	int		x;
-	int		y;
-
-	y = 0;
-	while (y < RES_Y)
-	{
-		x = 0;
-		color = 0;
-		while (x < RES_X)
-		{
-			if (!(x % gap))
-			{
-				color = grid[x + (y * RES_X)];
-				if ((y + 1) % gap && y + 1 < RES_Y)
-					grid[x + ((y + 1) * RES_X)] = color;
-			}
-			else
-				grid[x + (y * RES_X)] = color;
-			x++;
-		}
-		y++;
-	}
-}
-
 float		cast_face(t_tri t, t_ray ray, int *col, t_bmp *img)
 {
 	t_vec3	pvec;
@@ -81,66 +53,13 @@ float		cast_face(t_tri t, t_ray ray, int *col, t_bmp *img)
 	// if (t.isgrid)
 	// 	printf("%f %f\n", u, v);
     float dist = vec_dot(qvec, t.v0v2) * invdet;
-	if (img)
+	if (img && col)
 	{
 		*col = face_color(u, v, t, img);
 		global_seginfo = "set color 2\n";
 	}
 	return dist;
 }
-
-unsigned	crossfade(unsigned color1, unsigned color2, unsigned fade, unsigned r1)
-{
-	unsigned g1;
-	unsigned b1;
-	unsigned r2;
-	unsigned g2;
-	unsigned b2;
-
-	r1 = ((color1 % (0x1000000)) >> 8 * 2);
-	g1 = ((color1 % (0x10000)) >> 8 * 1);
-	b1 = (color1 % (0x100));
-	r2 = ((color2 % (0x1000000)) >> 8 * 2);
-	g2 = ((color2 % (0x10000)) >> 8 * 1);
-	b2 = (color2 % (0x100));
-
-	unsigned newr = (r1 * (0xff - fade) + r2 * fade) / 0xff;
-	unsigned newg = (g1 * (0xff - fade) + g2 * fade) / 0xff;
-	unsigned newb = (b1 * (0xff - fade) + b2 * fade) / 0xff;
-	return ((newr << 8 * 3) + (newg << 8 * 2) + (newb << 8 * 1) + 0xff);
-}
-
-int			fog(int color, float dist, unsigned fog_color)
-{
-	float	fade;
-
-	if (dist < 20)
-	{
-		fade = (dist + 1) / 20;
-		fade = fade > 1 ? 1 : fade;
-		return (crossfade(color >> 8, fog_color >> 8, 0xff * fade, 0));
-	}
-	return (fog_color);
-}
-
-int			skybox(t_level l, t_ray r)
-{
-	int		color;
-	float	dist;
-
-	color = 0;
-	r.pos.x = 0;
-	r.pos.y = 0;
-	r.pos.z = 0;
-	for (int i = 0; i < l.sky.obj.tri_amount; i++)
-	{
-		dist = cast_face(l.sky.obj.tris[i] , r, &color, &l.sky.img);
-		if (dist > 0 && color)
-			return (color);
-	}
-	return (color);
-}
-
 
 void		rot_cam(t_vec3 *cam, const float lon, const float lat)
 {
@@ -159,9 +78,9 @@ int			render(void *data_pointer)
 	t_ray		r;
 	float		angle = t->level->look_side;
 	int			pixel_gap = t->level->quality;
-	int			rand_amount = 10000000;
+	int			rand_amount = 0;
 
-	if (t->level->quality > 7)
+	if (t->level->quality >= NOISE_QUALITY_LIMIT)
 	{
 		srand(SDL_GetTicks());
 		rand_amount = 2;
@@ -187,9 +106,7 @@ int			render(void *data_pointer)
 		tmp.z = 1;
 		for (int y = 0; y < RES_Y; y++)
 		{
-#if TARGETFPS < 100
-			if (rand() % rand_amount)	//skip random pixel
-#endif
+			if (!rand_amount || rand() % rand_amount)	//skip random pixel
 			if (!(x % pixel_gap) && !(y % pixel_gap))
 			{
 				t->window->frame_buffer[x + (y * RES_X)] = t->level->fog_color;

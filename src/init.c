@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/08 14:38:45 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/02/02 16:06:35 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/03/24 04:16:35 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ t_level			*init_level(void)
 {
 	t_level		*l;
 
+	global_seginfo = "init_level\n";
 	if (!(l = (t_level *)malloc(sizeof(t_level))) ||
 		!(l->obj = (t_obj *)malloc(sizeof(t_obj) * 1)))
 		ft_error("memory allocation failed\n");
@@ -37,6 +38,7 @@ t_level			*init_level(void)
 	l->pos.z = 0;
 	l->look_side = 0;
 	l->look_up = 0;
+	l->quality = NOISE_QUALITY_LIMIT - 1;
 	l->txtr = NULL;
 
 	global_seginfo = "load_obj\n";
@@ -69,6 +71,7 @@ t_level			*init_level(void)
 
 void			init_window(t_window **window)
 {
+	global_seginfo = "init_window\n";
 	if (SDL_Init(SDL_INIT_EVERYTHING))// || !IMG_Init(IMG_INIT_PNG))
 		ft_error("could not initialize SDL\n");
 	if (!(*window = (t_window *)malloc(sizeof(t_window))))
