@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/03/27 12:35:15 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/03/27 22:55:24 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,6 +143,10 @@ typedef struct			s_level
 	int					enable_fog;
 	unsigned			fog_color;
 	struct s_editor_ui	*ui;
+	struct s_vec3		sun_dir;
+	int					shadow_color;
+	float				direct_shadow_contrast;;
+	float				sun_contrast;
 }						t_level;
 
 typedef struct			s_editor_ui

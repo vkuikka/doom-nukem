@@ -96,6 +96,33 @@ res->transparent_color >> 8, obj->tris[transparent_face].opacity * 0xff, 0);
 	}
 }
 
+float		rt_shadow(t_ray r, t_rthread *t, t_tri hit)
+{
+	t_vec3			normal;
+	int				direct_shadow;
+	int				i;
+
+	vec_add(&r.pos, r.dir, r.pos);
+	r.dir.x = t->level->sun_dir.x;
+	r.dir.y = t->level->sun_dir.y;
+	r.dir.z = t->level->sun_dir.z;
+	direct_shadow = 0;
+	i = 0;
+	while (i < t->level->allfaces->tri_amount && !direct_shadow)
+	{
+		if (0 > cast_face(t->level->allfaces->tris[i], r, NULL, NULL))
+			direct_shadow = 1;
+		i++;
+	}
+	if (!direct_shadow)
+	{
+		vec_cross(&normal, hit.v0v1, hit.v0v2);
+		vec_normalize(&normal);
+		return ((1 - vec_dot(normal, t->level->sun_dir)) * t->level->sun_contrast);
+	}
+	return (t->level->direct_shadow_contrast);
+}
+
 int			cast_reflection(t_ray r, t_rthread *t, t_tri hit)
 {
 	float			dist;
@@ -161,16 +188,20 @@ float		cast_all_color(t_ray r, t_rthread *t, int side, int *color)
 		}
 		i++;
 	}
-	cast_transparent(r, &t->level->obj[side], t->img, &res);
-	if (hit != -1 && t->level->obj[side].tris[hit].reflectivity)
+	if (hit == -1)
+		return (res.dist);
+	if (t->level->obj[side].tris[hit].opacity)
+		cast_transparent(r, &t->level->obj[side], t->img, &res);
+	vec_mult(&r.dir, res.dist - 0.00001);
+	if (t->level->obj[side].tris[hit].reflectivity)
 	{
-		vec_normalize(&r.dir);
-		vec_mult(&r.dir, res.dist);
 		tmp_color = cast_reflection(r, t, t->level->obj[side].tris[hit]);
 		*res.color = crossfade((unsigned)*res.color >> 8,
-		tmp_color >> 8, t->level->obj[side].tris[hit].reflectivity * 0xff, 0);
+			tmp_color >> 8, t->level->obj[side].tris[hit].reflectivity * 0xff, 0);
 	}
-
+	if (t->level->sun_contrast || t->level->direct_shadow_contrast)
+		*res.color = crossfade((unsigned)*res.color >> 8, t->level->shadow_color,
+			rt_shadow(r, t, t->level->obj[side].tris[hit]) * 0xff, 0);
 	return (res.dist);
 }
 
