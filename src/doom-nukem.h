@@ -6,20 +6,9 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/03/27 12:17:48 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/03/27 12:35:15 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-# include <math.h>
-# include <fcntl.h>
-# include <sys/time.h>
-# include "get_next_line.h"
-# include "SDL2/SDL.h"
-# include "SDL2/SDL_ttf.h"
-
-# include <stdlib.h>
-# include <stdio.h>
-# include <signal.h>
 
 #ifndef DOOM_NUKEM_H
 # define DOOM_NUKEM_H
@@ -45,11 +34,22 @@
 # define WF_NORMAL_COL 0x00fffffff
 # define WF_BACKGROUND_COL 0x99		//1 byte value
 
-#ifndef FLT_MAX
-	#define FLT_MAX 3.40282347E+38
-#endif
+# ifndef FLT_MAX
+#  define FLT_MAX 3.40282347E+38
+# endif
 
-typedef enum    e_render_mode
+# include <math.h>
+# include <fcntl.h>
+# include <sys/time.h>
+# include "get_next_line.h"
+# include "SDL2/SDL.h"
+# include "SDL2/SDL_ttf.h"
+
+# include <stdlib.h>
+# include <stdio.h>
+# include <signal.h>
+
+typedef enum	e_render_mode
 {
 	RENDER_MODE_RAYCAST_ALL, RENDER_MODE_RAYCAST_CULLED, RENDER_MODE_WIREFRAME
 }				t_render_mode;
