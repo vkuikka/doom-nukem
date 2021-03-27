@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/03/26 21:03:46 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/03/27 12:17:48 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,7 +114,7 @@ typedef struct			s_tri
 	int					isgrid;
 	int					isenemy;
 	float				opacity;
-	// float				reflectivity;
+	float				reflectivity;
 }						t_tri;
 
 typedef struct			s_obj
