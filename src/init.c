@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/08 14:38:45 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/03/26 02:57:44 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/03/27 23:09:08 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,14 @@ t_level			*init_level(void)
 	l->look_side = 0;
 	l->look_up = 0;
 	l->quality = NOISE_QUALITY_LIMIT - 1;
+	l->sun_contrast = 0;	//max 1
+	l->shadow_color = 0;
+	l->direct_shadow_contrast = 0;	//max 1
+
+	l->sun_dir.x = 1;
+	l->sun_dir.y = 1;
+	l->sun_dir.z = 1;
+	vec_normalize(&l->sun_dir);
 
 	global_seginfo = "load_obj\n";
 	// load_obj("level/two.obj", &l->obj[0]);

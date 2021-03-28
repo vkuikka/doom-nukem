@@ -96,28 +96,112 @@ res->transparent_color >> 8, obj->tris[transparent_face].opacity * 0xff, 0);
 	}
 }
 
-float		cast_all_color(t_ray r, t_obj *obj, t_bmp *texture, int *color)
+float		rt_shadow(t_ray r, t_rthread *t, t_tri hit)
+{
+	t_vec3			normal;
+	int				direct_shadow;
+	int				i;
+
+	vec_add(&r.pos, r.dir, r.pos);
+	r.dir.x = t->level->sun_dir.x;
+	r.dir.y = t->level->sun_dir.y;
+	r.dir.z = t->level->sun_dir.z;
+	direct_shadow = 0;
+	i = 0;
+	while (i < t->level->allfaces->tri_amount && !direct_shadow)
+	{
+		if (0 > cast_face(t->level->allfaces->tris[i], r, NULL, NULL))
+			direct_shadow = 1;
+		i++;
+	}
+	if (!direct_shadow)
+	{
+		vec_cross(&normal, hit.v0v1, hit.v0v2);
+		vec_normalize(&normal);
+		return ((1 - vec_dot(normal, t->level->sun_dir)) * t->level->sun_contrast);
+	}
+	return (t->level->direct_shadow_contrast);
+}
+
+int			cast_reflection(t_ray r, t_rthread *t, t_tri hit)
+{
+	float			dist;
+	float			tmp_dist;
+	int				tmp_color;
+	int				res_col;
+	int				i;
+
+	t_ray	normal;
+	vec_add(&normal.pos, r.dir, r.pos);
+	vec_normalize(&r.dir);
+	vec_cross(&normal.dir, hit.v0v1, hit.v0v2);
+	vec_normalize(&normal.dir);
+	vec_mult(&normal.dir, vec_dot(r.dir, normal.dir) * -2);
+	vec_add(&r.dir, r.dir, normal.dir);
+	vec_normalize(&r.dir);
+	r.pos.x = normal.pos.x;
+	r.pos.y = normal.pos.y;
+	r.pos.z = normal.pos.z;
+	dist = FLT_MAX;
+	res_col = 0;
+	i = 0;
+	while (i < t->level->allfaces->tri_amount)
+	{
+		if (0 < (tmp_dist = cast_face(t->level->allfaces->tris[i], r, &tmp_color, t->img)) &&
+			tmp_dist < dist)
+		{
+			res_col = tmp_color;
+			dist = tmp_dist;
+		}
+		i++;
+	}
+	if (dist == FLT_MAX)
+		res_col = skybox(*t->level, r);
+	return (res_col);
+}
+
+float		cast_all_color(t_ray r, t_rthread *t, int side, int *color)
 {
 	t_cast_result	res;
 	int				i;
 	int				tmp_color;
 	float			tmp_dist;
+	int				hit;
 
 	i = 0;
 	res.dist = FLT_MAX;
 	res.color = color;
-	while (i < obj->tri_amount)
+	hit = -1;
+	while (i < t->level->obj[side].tri_amount)
 	{
-		if (!obj->tris[i].opacity &&
-			0 < (tmp_dist = cast_face(obj->tris[i], r, &tmp_color, texture)) &&
+		if ((!t->level->obj[side].tris[i].opacity ||
+			t->level->obj[side].tris[i].reflectivity) &&
+			0 < (tmp_dist = cast_face(t->level->obj[side].tris[i], r, &tmp_color, t->img)) &&
 			tmp_dist < res.dist)
 		{
-			res.dist = tmp_dist;
-			*res.color = tmp_color;
+			if (!t->level->obj[side].tris[i].opacity)
+			{
+				res.dist = tmp_dist;
+				*res.color = tmp_color;
+			}
+			hit = i;
 		}
 		i++;
 	}
-	cast_transparent(r, obj, texture, &res);
+	if (hit == -1)
+		return (res.dist);
+	if (t->level->obj[side].tris[hit].opacity)
+		cast_transparent(r, &t->level->obj[side], t->img, &res);
+	vec_mult(&r.dir, res.dist - 0.00001);
+	if (t->level->obj[side].tris[hit].reflectivity)
+	{
+		tmp_color = cast_reflection(r, t, t->level->obj[side].tris[hit]);
+		*res.color = crossfade((unsigned)*res.color >> 8,
+			tmp_color >> 8, t->level->obj[side].tris[hit].reflectivity * 0xff, 0);
+	}
+	if (t->level->sun_contrast || t->level->direct_shadow_contrast)
+		*res.color = crossfade((unsigned)*res.color >> 8, t->level->shadow_color,
+			rt_shadow(r, t, t->level->obj[side].tris[hit]) * 0xff, 0);
 	return (res.dist);
 }
 
@@ -172,7 +256,7 @@ int			raycast(void *data_pointer)
 				float	*dist = &t->window->depth_buffer[x + (y * RES_X)];
 				if (!t->level->ui->fog)
 					*color = skybox(*t->level, r);
-				*dist = cast_all_color(r, &t->level->obj[x >= RES_X / 2], t->img, color);
+				*dist = cast_all_color(r, t, x >= RES_X / 2, color);
 				if (t->level->ui->fog)
 					*color = fog(*color, *dist, t->level->fog_color);
 			}
