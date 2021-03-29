@@ -220,14 +220,14 @@ void	add_button_text(t_editor_ui *get_buttons)
 	//oisko jos hover n'it' hightlightaa facet miss' se on p''ll'
 }
 
-void	draw_buttons(void)
+void	ui_render(void)
 {
 	add_button_text(NULL);
 	draw_buttons_internal(NULL, NULL, NULL, NULL);
 	add_button(NULL, 0, NULL, 1);
 }
 
-void	init_buttons(t_window *window, t_editor_ui *buttons)
+void	init_ui(t_window *window, t_editor_ui *buttons)
 {
 	SDL_Texture *text_texture = SDL_CreateTexture(window->SDLrenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, RES_X, RES_Y);
 	SDL_Texture *button_texture = SDL_CreateTexture(window->SDLrenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, RES_X, RES_Y);

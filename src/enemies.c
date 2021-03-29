@@ -62,7 +62,14 @@ static void		turn_sprite(t_tri *tri, t_vec3 dir)
 	calc_vectors(tri);
 }
 
-void			enemies(t_level *level)
+//called from physics
+void			enemies_update_physics(t_level *level)
+{
+	// add shooting and movement functions here
+}
+
+//called from render
+void			enemies_update_sprites(t_level *level)
 {
 	int		face;
 
@@ -73,7 +80,7 @@ void			enemies(t_level *level)
 		if (level->obj[0].tris[face].isenemy)
 		{
 			turn_sprite(&level->obj[0].tris[face], level->pos);
-			// add shooting and movement functions here
+			//get sprite texture from enemy rotation
 		}
 		face++;
 	}
