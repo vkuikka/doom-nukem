@@ -81,25 +81,25 @@ void		split_obj(t_obj *culled, t_level *level, int *faces_left, int *faces_right
 	(*faces_right) = right_amount;
 }
 
-void	    render(t_window *window, t_level *l, t_bmp *bmp, t_obj *culled, int *faces_left, int *faces_right)
+void	    render(t_window *window, t_level *level, t_bmp *bmp, t_obj *culled, int *faces_left, int *faces_right)
 {
 	SDL_Thread		*threads[THREAD_AMOUNT];
 	t_rthread		**thread_data;
 	int				window_horizontal_size;
 	int				i;
 
-	if (!l->ui->wireframe)
+	if (!level->ui->wireframe)
 	{
 		global_seginfo = "split_obj\n";
-		split_obj(culled, l, faces_left, faces_right);
-		l->obj = culled;
+		split_obj(culled, level, faces_left, faces_right);
+		level->obj = culled;
 	}
 	if (SDL_LockTexture(window->texture, NULL, (void**)&window->frame_buffer, &window_horizontal_size) != 0)
 		ft_error("failed to lock texture\n");
-	if (l->ui->wireframe)
+	if (level->ui->wireframe)
 	{
 		global_seginfo = "wireframe\n";
-		wireframe(window, l);
+		wireframe(window, level);
 	}
 	else
 	{
@@ -112,7 +112,7 @@ void	    render(t_window *window, t_level *l, t_bmp *bmp, t_obj *culled, int *fa
 			if (!(thread_data[i] = (t_rthread*)malloc(sizeof(t_rthread))))
 				ft_error("memory allocation failed\n");
 			thread_data[i]->id = i;
-			thread_data[i]->level = l;
+			thread_data[i]->level = level;
 			thread_data[i]->window = window;
 			thread_data[i]->img = bmp;
 			threads[i] = SDL_CreateThread(raycast, "asd", (void*)thread_data[i]);
@@ -128,7 +128,7 @@ void	    render(t_window *window, t_level *l, t_bmp *bmp, t_obj *culled, int *fa
 		}
 		free(thread_data);
 		global_seginfo = "fill_pixels\n";
-		fill_pixels(window->frame_buffer, l->quality);
+		fill_pixels(window->frame_buffer, level->quality);
 	}
 
 	SDL_UnlockTexture(window->texture);

@@ -26,54 +26,54 @@ SDL_Texture		*empty_texture(SDL_Renderer *renderer)
 
 t_level			*init_level(void)
 {
-	t_level		*l;
+	t_level		*level;
 
 	global_seginfo = "init_level\n";
-	if (!(l = (t_level *)malloc(sizeof(t_level))) ||
-		!(l->obj = (t_obj *)malloc(sizeof(t_obj) * 1)))
+	if (!(level = (t_level *)malloc(sizeof(t_level))) ||
+		!(level->obj = (t_obj *)malloc(sizeof(t_obj) * 1)))
 		ft_error("memory allocation failed\n");
 
-	l->pos.x = 0;
-	l->pos.y = -5;
-	l->pos.z = 0;
-	l->look_side = 0;
-	l->look_up = 0;
-	l->quality = NOISE_QUALITY_LIMIT - 1;
-	l->sun_contrast = 0;	//max 1
-	l->shadow_color = 0;
-	l->direct_shadow_contrast = 0;	//max 1
+	level->pos.x = 0;
+	level->pos.y = -5;
+	level->pos.z = 0;
+	level->look_side = 0;
+	level->look_up = 0;
+	level->quality = NOISE_QUALITY_LIMIT - 1;
+	level->sun_contrast = 0;	//max 1
+	level->shadow_color = 0;
+	level->direct_shadow_contrast = 0;	//max 1
 
-	l->sun_dir.x = 1;
-	l->sun_dir.y = 1;
-	l->sun_dir.z = 1;
-	vec_normalize(&l->sun_dir);
+	level->sun_dir.x = 1;
+	level->sun_dir.y = 1;
+	level->sun_dir.z = 1;
+	vec_normalize(&level->sun_dir);
 
 	global_seginfo = "load_obj\n";
-	// load_obj("level/two.obj", &l->obj[0]);
-	// load_obj("level/test.obj", &l->obj[0]);
-	// load_obj("level/cube.obj", &l->obj[0]);
-	// load_obj("level/island.obj", &l->obj[0]);
-	// load_obj("level/cache.obj", &l->obj[0]);
-	// load_obj("level/ship.obj", &l->obj[0]);
-	load_obj("level/ship_2.obj", &l->obj[0]);
-	// load_obj("level/one_tri.obj", &l->obj[0]);
-	// load_obj("level/tri_test.obj", &l->obj[0]);
-	// load_obj("level/torus.obj", &l->obj[0]);
-	// load_obj("level/monkey.obj", &l->obj[0]);
-	// load_obj("level/teapot_decimated.obj", &l->obj[0]);
+	// load_obj("level/two.obj", &level->obj[0]);
+	// load_obj("level/test.obj", &level->obj[0]);
+	// load_obj("level/cube.obj", &level->obj[0]);
+	// load_obj("level/island.obj", &level->obj[0]);
+	// load_obj("level/cache.obj", &level->obj[0]);
+	// load_obj("level/ship.obj", &level->obj[0]);
+	load_obj("level/ship_2.obj", &level->obj[0]);
+	// load_obj("level/one_tri.obj", &level->obj[0]);
+	// load_obj("level/tri_test.obj", &level->obj[0]);
+	// load_obj("level/torus.obj", &level->obj[0]);
+	// load_obj("level/monkey.obj", &level->obj[0]);
+	// load_obj("level/teapot_decimated.obj", &level->obj[0]);
 
 	global_seginfo = "load skybox obj\n";
-	load_obj("skybox.obj", &l->sky.obj);
+	load_obj("skybox.obj", &level->sky.obj);
 	global_seginfo = "load skybox texture\n";
-	l->sky.img = bmp_read("skybox.bmp");
+	level->sky.img = bmp_read("skybox.bmp");
 
 	// level->fog_color = 0xffffffff;//fog
 	// level->fog_color = 0x000000ff;//night
 	// level->fog_color = 0xff0000ff;
 	// level->fog_color = 0xb19a6aff;//sandstorm
-	l->fog_color = 0xddddddff;//smoke
-	l->enable_fog = 0;
-	return (l);
+	level->fog_color = 0xddddddff;//smoke
+	level->enable_fog = 0;
+	return (level);
 }
 
 void			init_window(t_window **window)
