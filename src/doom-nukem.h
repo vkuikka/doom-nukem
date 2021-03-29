@@ -159,9 +159,9 @@ typedef struct			s_editor_ui
 
 typedef struct			s_physthread
 {
-	float				*hz;
+	float				hz;
 	struct s_level		*level;
-	struct s_vec3		*pos;
+	struct s_vec3		pos;
 }						t_physthread;
 
 typedef struct			s_rthread
@@ -201,7 +201,6 @@ typedef struct __attribute__((__packed__))	s_bmp_image {
 	unsigned char							r;
 	unsigned char							a;
 }											t_bmp_image;
-
 typedef struct			s_cast_result
 {
 	float				dist;
@@ -249,6 +248,8 @@ void		init_ui(t_window *window, t_editor_ui *buttons);
 void		ui_render(void);
 void		button(int *var, char *text);
 
+void		init_physics(t_level *level);
+void		physics_sync(t_level *level, t_physthread *get_data);
 void		player_movement(t_vec3 *pos, t_level *level);
 int			physics(void *data_pointer);
 

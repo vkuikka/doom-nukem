@@ -40,6 +40,7 @@ void		split_obj(t_level *level)
 	t_ray	right;
 	t_ray	left;
 
+	global_seginfo = "split_obj\n";
 	left.pos.x = level->pos.x;
 	left.pos.y = level->pos.y;
 	left.pos.z = level->pos.z;
@@ -197,8 +198,6 @@ int			main(int argc, char **argv)
 	t_level		*level;
 	unsigned	frametime;
 	t_bmp		bmp;
-	t_physthread	physicsdata;
-	t_vec3		pos;
 
 #if __APPLE__
 	struct sigaction act;
@@ -208,39 +207,22 @@ int			main(int argc, char **argv)
 	sigaction(SIGSEGV, &act, NULL);
 #endif
 
-	global_seginfo = "bmp_read\n";
 	bmp = bmp_read("out.bmp");
 	level = init_level();
 	init_window(&window);
 	init_ui(window, &ui);
 	level->ui = &ui;
-
-	if (!(level->visible.tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount)))
-		ft_error("memory allocation failed\n");
-	if (!(level->ssp = (t_obj*)malloc(sizeof(t_obj) * 2)))
-		ft_error("memory allocation failed\n");
-	if (!(level->ssp[0].tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount)))
-		ft_error("memory allocation failed\n");
-	if (!(level->ssp[1].tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount)))
-		ft_error("memory allocation failed\n");
-
-	physicsdata.level = level;
-	float physhz = 0;
-	physicsdata.hz = &physhz;
-	physicsdata.pos = &pos;
-	pos = level->pos;
-	SDL_CreateThread(physics, "physics", (void*)&physicsdata);
+	init_physics(level);
 	while (1)
 	{
 		frametime = SDL_GetTicks();
 		read_input(window, level);
-		level->pos = pos;
+		physics_sync(level, NULL);
 		enemies_update_sprites(level);
 		culling(level);
-		global_seginfo = "split_obj\n";
 		split_obj(level);
 		render(window, level, &bmp);
-		frametime = SDL_GetTicks() - frametime;
 		int fps = get_fps(0);
+		frametime = SDL_GetTicks() - frametime;
 	}
 }
