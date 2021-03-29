@@ -259,12 +259,36 @@ int     	    physics(void *data_pointer)
 	{
 		start = getTimeInNanoseconds();
 		global_seginfo = "player_movement\n";
-		player_movement(data->pos, data->level);// sometimes gets only visible faces?...
+		player_movement(&data->pos, data->level);
 		enemies_update_physics(data->level);
 		SDL_Delay(5);
-		*data->hz = avghz(get_hz());
+		data->hz = avghz(get_hz());
 		while (getTimeInNanoseconds() - start < target)
 			;
 	}
 	return (0);
+}
+
+void		physics_sync(t_level *level, t_physthread *get_data)
+{
+	static t_physthread *data = NULL;
+
+	if (get_data)
+	{
+		data = get_data;
+		return ;
+	}
+	level->pos = data->pos;
+}
+
+void		init_physics(t_level *level)
+{
+	t_physthread	*data;
+
+	if (!(data = (t_physthread*)malloc(sizeof(t_physthread))))
+		ft_error("memory allocation failed\n");
+	data->level = level;
+	data->pos = level->pos;
+	SDL_CreateThread(physics, "physics", (void*)data);
+	physics_sync(NULL, data);
 }
