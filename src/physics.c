@@ -260,6 +260,7 @@ int     	    physics(void *data_pointer)
 		start = getTimeInNanoseconds();
 		global_seginfo = "player_movement\n";
 		player_movement(data->pos, data->level);// sometimes gets only visible faces?...
+		enemies_update_physics(data->level);
 		SDL_Delay(5);
 		*data->hz = avghz(get_hz());
 		while (getTimeInNanoseconds() - start < target)

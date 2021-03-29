@@ -243,14 +243,16 @@ void		find_quads(t_obj *obj);
 void		rotate_vertex(float angle, t_vec3 *vertex, int axis);
 void		rot_cam(t_vec3 *cam, const float lon, const float lat);
 
-void		init_buttons(t_window *window, t_editor_ui *buttons);
-void		draw_buttons(void);
+void		init_ui(t_window *window, t_editor_ui *buttons);
+void		ui_render(void);
 void		button(int *var, char *text);
 
 void		player_movement(t_vec3 *pos, t_level *level);
 int			physics(void *data_pointer);
 
-void		enemies(t_level *level);
+void		enemies_update_physics(t_level *level);
+void		enemies_update_sprites(t_level *level);
+
 int			fog(int color, float dist, unsigned fog_color, t_level *level);
 int			skybox(t_level l, t_ray r);
 

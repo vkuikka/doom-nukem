@@ -134,7 +134,7 @@ void	    render(t_window *window, t_level *level, t_bmp *bmp, t_obj *culled, int
 	SDL_UnlockTexture(window->texture);
 	SDL_RenderClear(window->SDLrenderer);
 	SDL_RenderCopy(window->SDLrenderer, window->texture, NULL, NULL);
-	draw_buttons();
+	ui_render();
 	SDL_RenderPresent(window->SDLrenderer);
 	return ;
 }
@@ -221,7 +221,7 @@ int			main(int argc, char **argv)
 	bmp = bmp_read("out.bmp");
 	level = init_level();
 	init_window(&window);
-	init_buttons(window, &ui);
+	init_ui(window, &ui);
 	level->ui = &ui;
 	if (!(culled = (t_obj*)malloc(sizeof(t_obj) * 2)))
 		ft_error("memory allocation failed\n");
@@ -248,7 +248,7 @@ int			main(int argc, char **argv)
 		frametime = SDL_GetTicks();
 		read_input(window, level);
 		level->pos = pos;
-		enemies(level);
+		enemies_update_sprites(level);
 		t_obj *tmp = level->obj;
 		int faces_visible = level->obj->tri_amount;
 		int faces_left = culled[0].tri_amount;
