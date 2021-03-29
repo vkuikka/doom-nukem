@@ -67,12 +67,6 @@ t_level			*init_level(void)
 	global_seginfo = "load skybox texture\n";
 	level->sky.img = bmp_read("skybox.bmp");
 
-	// level->fog_color = 0xffffffff;//fog
-	// level->fog_color = 0x000000ff;//night
-	// level->fog_color = 0xff0000ff;
-	// level->fog_color = 0xb19a6aff;//sandstorm
-	level->fog_color = 0xddddddff;//smoke
-	level->enable_fog = 0;
 	return (level);
 }
 

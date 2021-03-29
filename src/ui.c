@@ -237,6 +237,14 @@ void	init_buttons(t_window *window, t_editor_ui *buttons)
 	ft_bzero(buttons, sizeof(t_editor_ui));
 	buttons->backface_culling = 1;
 	buttons->distance_culling = 1;
+	buttons->render_distance = 20;
+
+	// buttons->fog_color = 0xffffffff;//fog
+	// buttons->fog_color = 0x000000ff;//night
+	// buttons->fog_color = 0xff0000ff;
+	buttons->fog_color = 0xb19a6aff;//sandstorm
+	// buttons->fog_color = 0xddddddff;//smoke
+
 	TTF_Init();
 	SDL_SetTextureBlendMode(text_texture, SDL_BLENDMODE_BLEND);
 	SDL_SetTextureBlendMode(button_texture, SDL_BLENDMODE_BLEND);

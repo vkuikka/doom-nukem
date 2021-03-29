@@ -52,13 +52,13 @@ int			skybox(t_level l, t_ray r)
 	return (color);
 }
 
-int			fog(int color, float dist, unsigned fog_color)
+int			fog(int color, float dist, unsigned fog_color, t_level *level)
 {
 	float	fade;
 
-	if (dist < RENDER_DISTANCE)
+	if (dist < level->ui->render_distance)
 	{
-		fade = (dist + 1) / RENDER_DISTANCE;
+		fade = (dist + 1) / (level->ui->render_distance - 1);
 		fade = fade > 1 ? 1 : fade;
 		return (crossfade(color >> 8, fog_color >> 8, 0xff * fade, 0));
 	}
