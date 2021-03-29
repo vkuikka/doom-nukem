@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   doom-nukem.h                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/03/27 22:55:24 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/03/29 23:26:53 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,6 +73,12 @@ typedef struct			s_ivec3
 	int					z;
 }						t_ivec3;
 
+typedef struct			s_ivec2
+{
+	int					x;
+	int					y;
+}						t_ivec2;
+
 typedef struct			s_vec3
 {
 	float				x;
@@ -138,7 +144,6 @@ typedef struct			s_level
 	struct s_skybox		sky;
 	float				look_side;	//side look angle
 	float				look_up;	//up and down look angle
-	int					quality;
 	struct s_editor_ui	*ui;
 	struct s_vec3		sun_dir;
 	int					shadow_color;
@@ -151,6 +156,8 @@ typedef struct			s_editor_ui
 	int					editor_active;
 	int					noclip;
 	int					wireframe;
+	int					raycast_quality;
+	int					wireframe_culling_visual;
 	int					fog;
 	unsigned			fog_color;
 	int					show_quads;
@@ -158,7 +165,20 @@ typedef struct			s_editor_ui
 	int					backface_culling;
 	int					distance_culling;
 	float				render_distance;
+
+	//info
+	float				physhz;
+	unsigned			frametime;
 }						t_editor_ui;
+
+typedef struct			s_ui_state
+{
+	int					ui_max_width;
+	int					ui_text_y_pos;
+	int					ui_text_x_offset;
+	int					ui_text_color;
+	char				*text;
+}						t_ui_state;
 
 typedef struct			s_physthread
 {
@@ -247,9 +267,13 @@ void		find_quads(t_obj *obj);
 void		rotate_vertex(float angle, t_vec3 *vertex, int axis);
 void		rot_cam(t_vec3 *cam, const float lon, const float lat);
 
-void		init_ui(t_window *window, t_editor_ui *buttons);
-void		ui_render(void);
+void		init_ui(t_window *window, t_level *level);
+void		ui_render(t_level *level);
+void		ui_config(t_level *level);
+void		set_text_color(int color);
+void		text(char *text);
 void		button(int *var, char *text);
+void		int_slider(int *var, char *str, int min, int max);
 
 void		init_physics(t_level *level);
 void		physics_sync(t_level *level, t_physthread *get_data);

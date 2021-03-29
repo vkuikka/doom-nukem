@@ -208,10 +208,10 @@ int			raycast(void *data_pointer)
 	t_rthread	*t = data_pointer;
 	t_ray		r;
 	float		angle = t->level->look_side;
-	int			pixel_gap = t->level->quality;
+	int			pixel_gap = t->level->ui->raycast_quality;
 	int			rand_amount = 0;
 
-	if (t->level->quality >= NOISE_QUALITY_LIMIT)
+	if (t->level->ui->raycast_quality >= NOISE_QUALITY_LIMIT)
 	{
 		srand(SDL_GetTicks());
 		rand_amount = 2;

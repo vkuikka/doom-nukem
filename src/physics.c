@@ -279,6 +279,7 @@ void		physics_sync(t_level *level, t_physthread *get_data)
 		return ;
 	}
 	level->pos = data->pos;
+	level->ui->physhz = data->hz;
 }
 
 void		init_physics(t_level *level)
