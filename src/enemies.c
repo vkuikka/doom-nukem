@@ -75,11 +75,11 @@ void			enemies_update_sprites(t_level *level)
 
 	face = 0;
 	global_seginfo = "enemies\n";
-	while (face < level->obj[0].tri_amount)
+	while (face < level->all.tri_amount)
 	{
-		if (level->obj[0].tris[face].isenemy)
+		if (level->all.tris[face].isenemy)
 		{
-			turn_sprite(&level->obj[0].tris[face], level->pos);
+			turn_sprite(&level->all.tris[face], level->pos);
 			//get sprite texture from enemy rotation
 		}
 		face++;

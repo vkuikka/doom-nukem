@@ -29,8 +29,7 @@ t_level			*init_level(void)
 	t_level		*level;
 
 	global_seginfo = "init_level\n";
-	if (!(level = (t_level *)malloc(sizeof(t_level))) ||
-		!(level->obj = (t_obj *)malloc(sizeof(t_obj) * 1)))
+	if (!(level = (t_level *)malloc(sizeof(t_level))))
 		ft_error("memory allocation failed\n");
 
 	level->pos.x = 0;
@@ -49,18 +48,18 @@ t_level			*init_level(void)
 	vec_normalize(&level->sun_dir);
 
 	global_seginfo = "load_obj\n";
-	// load_obj("level/two.obj", &level->obj[0]);
-	// load_obj("level/test.obj", &level->obj[0]);
-	// load_obj("level/cube.obj", &level->obj[0]);
-	// load_obj("level/island.obj", &level->obj[0]);
-	// load_obj("level/cache.obj", &level->obj[0]);
-	// load_obj("level/ship.obj", &level->obj[0]);
-	load_obj("level/ship_2.obj", &level->obj[0]);
-	// load_obj("level/one_tri.obj", &level->obj[0]);
-	// load_obj("level/tri_test.obj", &level->obj[0]);
-	// load_obj("level/torus.obj", &level->obj[0]);
-	// load_obj("level/monkey.obj", &level->obj[0]);
-	// load_obj("level/teapot_decimated.obj", &level->obj[0]);
+	// load_obj("level/two.obj", &level->all);
+	// load_obj("level/test.obj", &level->all);
+	// load_obj("level/cube.obj", &level->all);
+	// load_obj("level/island.obj", &level->all);
+	// load_obj("level/cache.obj", &level->all);
+	// load_obj("level/ship.obj", &level->all);
+	load_obj("level/ship_2.obj", &level->all);
+	// load_obj("level/one_tri.obj", &level->all);
+	// load_obj("level/tri_test.obj", &level->all);
+	// load_obj("level/torus.obj", &level->all);
+	// load_obj("level/monkey.obj", &level->all);
+	// load_obj("level/teapot_decimated.obj", &level->all);
 
 	global_seginfo = "load skybox obj\n";
 	load_obj("skybox.obj", &level->sky.obj);

@@ -131,27 +131,27 @@ int		find_select(t_ray vec, t_level *l)
 	int		dist = -1;
 	int		res;
 
-	for (int j = 0; j < l->obj[0].tri_amount; j++)
+	for (int j = 0; j < l->all.tri_amount; j++)
 	{
 		float tmp;
-		tmp = cast_face(l->obj[0].tris[j], vec, &color, NULL);
+		tmp = cast_face(l->all.tris[j], vec, &color, NULL);
 		if (tmp > 0 && (tmp < dist || dist == -1))
 		{
 			dist = tmp;
 			res = j;
 		}
 	}
-	for (int i = 0; i < 3 + l->obj[0].tris[res].isquad; i++)
+	for (int i = 0; i < 3 + l->all.tris[res].isquad; i++)
 	{
-		if (l->obj[0].tris[res].verts[i].selected)
+		if (l->all.tris[res].verts[i].selected)
 		{
-			l->obj[0].tris[res].verts[i].selected = 0;
-			l->obj[0].tris[res].isgrid = 0;
+			l->all.tris[res].verts[i].selected = 0;
+			l->all.tris[res].isgrid = 0;
 		}
 		else
 		{
-			l->obj[0].tris[res].verts[i].selected = 1;
-			l->obj[0].tris[res].isgrid = 1;
+			l->all.tris[res].verts[i].selected = 1;
+			l->all.tris[res].isgrid = 1;
 		}
 	}
 	return (res);
@@ -198,9 +198,9 @@ void	wireframe(t_window *window, t_level *level)
 	ft_memset(window->depth_buffer, 0, RES_X * RES_Y * sizeof(int));
 
 	global_seginfo = "wireframe loop\n";
-	for (int i = 0; i < level->obj[0].tri_amount; i++)
+	for (int i = 0; i < level->all.tri_amount; i++)
 	{
-		int amount = level->obj[0].tris[i].isquad ? 4 : 3;
+		int amount = level->all.tris[i].isquad ? 4 : 3;
 		for (int j = 0; j < amount; j++)
 		{
 			int		next;
@@ -209,27 +209,27 @@ void	wireframe(t_window *window, t_level *level)
 			else
 				next = (j + 1) % 3;
 
-			start.x = level->obj[0].tris[i].verts[j].pos.x;
-			start.y = level->obj[0].tris[i].verts[j].pos.y;
-			start.z = level->obj[0].tris[i].verts[j].pos.z;
-			stop.x = level->obj[0].tris[i].verts[next].pos.x;
-			stop.y = level->obj[0].tris[i].verts[next].pos.y;
-			stop.z = level->obj[0].tris[i].verts[next].pos.z;
+			start.x = level->all.tris[i].verts[j].pos.x;
+			start.y = level->all.tris[i].verts[j].pos.y;
+			start.z = level->all.tris[i].verts[j].pos.z;
+			stop.x = level->all.tris[i].verts[next].pos.x;
+			stop.y = level->all.tris[i].verts[next].pos.y;
+			stop.z = level->all.tris[i].verts[next].pos.z;
 
 			global_seginfo = "wireframe 1\n";
 			camera_offset(&start, level);
 			camera_offset(&stop, level);
 
-			if (level->obj[0].tris[i].verts[next].selected &&
-				level->obj[0].tris[i].verts[j].selected)
+			if (level->all.tris[i].verts[next].selected &&
+				level->all.tris[i].verts[j].selected)
 				print_line(start, stop, WF_SELECTED_COL, window);
-			else if (level->ui->show_quads && !level->obj[0].tris[i].isquad)
+			else if (level->ui->show_quads && !level->all.tris[i].isquad)
 				print_line(start, stop, WF_NOT_QUAD_WARNING_COL, window);
 			else
 				print_line(start, stop, WF_UNSELECTED_COL, window);
 			if (mode == 0)
 			{
-				if (level->obj[0].tris[i].verts[j].selected)
+				if (level->all.tris[i].verts[j].selected)
 					put_vertex(start, WF_SELECTED_COL, window);
 				else
 					put_vertex(start, 0, window);
@@ -242,15 +242,15 @@ void	wireframe(t_window *window, t_level *level)
 		avg.z = 0;
 		for (int j = 0; j < amount; j++)
 		{
-			avg.x += level->obj[0].tris[i].verts[j].pos.x;
-			avg.y += level->obj[0].tris[i].verts[j].pos.y;
-			avg.z += level->obj[0].tris[i].verts[j].pos.z;
+			avg.x += level->all.tris[i].verts[j].pos.x;
+			avg.y += level->all.tris[i].verts[j].pos.y;
+			avg.z += level->all.tris[i].verts[j].pos.z;
 		}
 		avg.x /= amount;
 		avg.y /= amount;
 		avg.z /= amount;
 		t_vec3	normal_dir;
-		vec_cross(&normal_dir, level->obj[0].tris[i].v0v1, level->obj[0].tris[i].v0v2);
+		vec_cross(&normal_dir, level->all.tris[i].v0v1, level->all.tris[i].v0v2);
 		vec_normalize(&normal_dir);
 		global_seginfo = "wireframe 3\n";
 		t_vec3 normal;
@@ -270,9 +270,9 @@ void	wireframe(t_window *window, t_level *level)
 		}
 	}
 	global_seginfo = "wireframe 4\n";
-	// for (int asd = 0; asd < level->obj[0].tri_amount; asd++)
-	// 	for (int qwe = 0; qwe < 3 + level->obj[0].tris[asd].isquad; qwe++)
-	// 		if (level->obj[0].tris[asd].verts[qwe].selected)
+	// for (int asd = 0; asd < level->all.tri_amount; asd++)
+	// 	for (int qwe = 0; qwe < 3 + level->all.tris[asd].isquad; qwe++)
+	// 		if (level->all.tris[asd].verts[qwe].selected)
 	// 			printf("%d\n", asd);
 	global_seginfo = "wireframe end\n";
 }

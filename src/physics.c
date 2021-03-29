@@ -5,10 +5,10 @@ float	        cast_all(t_ray vec, t_level *l, float *dist_u, float *dist_d, int 
 	float	res = FLT_MAX;
 
 	vec_normalize(&vec.dir);
-	for (int j = 0; j < l->allfaces->tri_amount; j++)
+	for (int j = 0; j < l->all.tri_amount; j++)
 	{
 		float tmp;
-		tmp = cast_face(l->allfaces->tris[j], vec, NULL, NULL);
+		tmp = cast_face(l->all.tris[j], vec, NULL, NULL);
 		if (dist_u != NULL)
 		{
 			if (tmp > 0 && tmp < *dist_d)
@@ -91,7 +91,7 @@ void	        player_collision(t_vec3 *vel, t_vec3 *pos, t_level *level)
 	if (dist > 0 && dist <= vec_length(*vel) + WALL_CLIP_DIST)
 	{
 		t_vec3	normal;
-		vec_cross(&normal, level->allfaces->tris[index].v0v1, level->allfaces->tris[index].v0v2);
+		vec_cross(&normal, level->all.tris[index].v0v1, level->all.tris[index].v0v2);
 		vec_normalize(&normal);
 		vec_mult(&normal, vec_dot(*vel, normal));
 		t_vec3	clip;
