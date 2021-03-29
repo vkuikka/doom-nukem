@@ -127,8 +127,10 @@ typedef struct			s_skybox
 
 typedef struct			s_level
 {
-	struct s_obj		*obj;		//array of objects in the level
-	struct s_obj		*allfaces;
+	// struct s_obj		*all_objs;	//(if want to add multiple objects) array of objects in the level
+	struct s_obj		all;		//all faces
+	struct s_obj		visible;	//visible faces
+	struct s_obj		*ssp;		//screen space partition
 	struct s_vec3		pos;		//player position
 	struct s_skybox		sky;
 	float				look_side;	//side look angle
@@ -237,7 +239,7 @@ void		wireframe(t_window *window, t_level *level);
 void		load_obj(char *filename, t_obj *obj);
 t_bmp		bmp_read(char *str);
 
-void		culling(t_level *level, int *visible, t_obj *culled);
+void		culling(t_level *level);
 void		find_quads(t_obj *obj);
 
 void		rotate_vertex(float angle, t_vec3 *vertex, int axis);
