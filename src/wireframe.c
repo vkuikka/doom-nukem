@@ -125,47 +125,47 @@ void	camera_offset(t_vec3 *vertex, t_level *level)
 	vertex->y += RES_Y / 2.0;
 }
 
-int		find_select(t_ray vec, t_level *l)
+int		find_select(t_ray vec, t_level *level)
 {
 	int		color;
 	int		dist = -1;
 	int		res;
 
-	for (int j = 0; j < l->all.tri_amount; j++)
+	for (int i = 0; i < level->all.tri_amount; i++)
 	{
 		float tmp;
-		tmp = cast_face(l->all.tris[j], vec, &color, NULL);
+		tmp = cast_face(level->all.tris[i], vec, &color, NULL);
 		if (tmp > 0 && (tmp < dist || dist == -1))
 		{
 			dist = tmp;
-			res = j;
+			res = i;
 		}
 	}
-	for (int i = 0; i < 3 + l->all.tris[res].isquad; i++)
+	for (int i = 0; i < 3 + level->all.tris[res].isquad; i++)
 	{
-		if (l->all.tris[res].verts[i].selected)
+		if (level->all.tris[res].verts[i].selected)
 		{
-			l->all.tris[res].verts[i].selected = 0;
-			l->all.tris[res].isgrid = 0;
+			level->all.tris[res].verts[i].selected = 0;
+			level->all.tris[res].isgrid = 0;
 		}
 		else
 		{
-			l->all.tris[res].verts[i].selected = 1;
-			l->all.tris[res].isgrid = 1;
+			level->all.tris[res].verts[i].selected = 1;
+			level->all.tris[res].isgrid = 1;
 		}
 	}
 	return (res);
 }
 
-void	select_vert(t_level *l, int x, int y)
+void	select_vert(t_level *level, int x, int y)
 {
 	t_ray	r;
 	t_vec3	cam;
 	t_vec3	up;
 	t_vec3	side;
 
-	float lon = -l->look_side + M_PI/2;
-	float lat = -l->look_up;
+	float lon = -level->look_side + M_PI/2;
+	float lat = -level->look_up;
 
 	rot_cam(&cam, lon, lat);
 	rot_cam(&up, lon, lat + (M_PI / 2));
@@ -174,14 +174,14 @@ void	select_vert(t_level *l, int x, int y)
 	float ym = (1.0 / RES_Y * y - 0.5);
 	float xm = (1.0 / RES_X * x - 0.5);
 
-	r.pos.x = l->pos.x;
-	r.pos.y = l->pos.y;
-	r.pos.z = l->pos.z;
+	r.pos.x = level->pos.x;
+	r.pos.y = level->pos.y;
+	r.pos.z = level->pos.z;
 	r.dir.x = cam.x + up.x * ym + side.x * xm;
 	r.dir.y = cam.y + up.y * ym + side.y * xm;
 	r.dir.z = cam.z + up.z * ym + side.z * xm;
 
-	find_select(r, l);
+	find_select(r, level);
 }
 
 void	wireframe(t_window *window, t_level *level)
