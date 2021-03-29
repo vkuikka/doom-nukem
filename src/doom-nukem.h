@@ -17,7 +17,6 @@
 # define TICKRATE 128
 # define THREAD_AMOUNT 8
 # define NOISE_QUALITY_LIMIT 8
-# define RENDER_DISTANCE 20
 
 # define NOCLIP_SPEED 20.0 / TICKRATE
 # define MOVE_SPEED 7.0 / TICKRATE
@@ -30,7 +29,7 @@
 
 # define WF_UNSELECTED_COL 0x333333ff
 # define WF_SELECTED_COL 0xffaa00ff
-# define WF_NOT_QUAD_WARNING 0x802222ff
+# define WF_NOT_QUAD_WARNING_COL 0x802222ff
 # define WF_NORMAL_COL 0x00fffffff
 # define WF_BACKGROUND_COL 0x99		//1 byte value
 
@@ -48,11 +47,6 @@
 # include <stdlib.h>
 # include <stdio.h>
 # include <signal.h>
-
-typedef enum	e_render_mode
-{
-	RENDER_MODE_RAYCAST_ALL, RENDER_MODE_RAYCAST_CULLED, RENDER_MODE_WIREFRAME
-}				t_render_mode;
 
 char		*global_seginfo;
 
@@ -140,8 +134,6 @@ typedef struct			s_level
 	float				look_side;	//side look angle
 	float				look_up;	//up and down look angle
 	int					quality;
-	int					enable_fog;
-	unsigned			fog_color;
 	struct s_editor_ui	*ui;
 	struct s_vec3		sun_dir;
 	int					shadow_color;
@@ -160,7 +152,7 @@ typedef struct			s_editor_ui
 	int					pause_culling_position;
 	int					backface_culling;
 	int					distance_culling;
-	unsigned			distance_culling_distance;
+	float				render_distance;
 }						t_editor_ui;
 
 typedef struct			s_physthread
@@ -259,7 +251,7 @@ void		player_movement(t_vec3 *pos, t_level *level);
 int			physics(void *data_pointer);
 
 void		enemies(t_level *level);
-int			fog(int color, float dist, unsigned fog_color);
+int			fog(int color, float dist, unsigned fog_color, t_level *level);
 int			skybox(t_level l, t_ray r);
 
 #endif

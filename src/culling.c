@@ -98,7 +98,7 @@ static int		fov_culling(t_ray c[3], t_tri tri)
 	return (0);
 }
 
-static int		distance_culling(t_tri tri, t_vec3 player)
+static int		distance_culling(t_tri tri, t_vec3 player, float render_distance)
 {
 	t_vec3	v;
 	float	min = FLT_MAX;
@@ -115,7 +115,7 @@ static int		distance_culling(t_tri tri, t_vec3 player)
 		if (len > max)
 			max = len;
 	}
-	if (min < RENDER_DISTANCE)
+	if (min < render_distance)
 		return (1);
 	t_vec3	v1v2;
 	vec_sub(&v1v2, tri.verts[2].pos, tri.verts[1].pos);
@@ -189,7 +189,7 @@ void			culling(t_level *level, int *visible, t_obj *culled)
 	for (int j = 0; j < level->obj->tri_amount; j++)
 	{
 		if (level->obj->tris[j].isgrid || (fov_culling(c, level->obj->tris[j]) &&
-			(!level->ui->distance_culling || level->obj->distance_culling_mask[j] || distance_culling(level->obj->tris[j], level->pos)) &&
+			(!level->ui->distance_culling || level->obj->distance_culling_mask[j] || distance_culling(level->obj->tris[j], level->pos, level->ui->render_distance)) &&
 			(!level->ui->backface_culling || level->obj->backface_culling_mask[j] || backface_culling(c[2], level->obj->tris[j]))))
 		{
 			culled[0].tris[k] = level->obj->tris[j];

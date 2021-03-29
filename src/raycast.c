@@ -258,7 +258,7 @@ int			raycast(void *data_pointer)
 					*color = skybox(*t->level, r);
 				*dist = cast_all_color(r, t, x >= RES_X / 2, color);
 				if (t->level->ui->fog)
-					*color = fog(*color, *dist, t->level->fog_color);
+					*color = fog(*color, *dist, t->level->ui->fog_color, t->level);
 			}
 		}
 	}
