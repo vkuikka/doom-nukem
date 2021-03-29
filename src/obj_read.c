@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/03/27 12:19:21 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/03/29 21:33:41 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -257,6 +257,11 @@ void	load_obj(char *filename, t_obj *obj)
 			set_tri(file[i], verts, uvs, obj, j);
 			obj->tris[j].isquad = 0;
 			obj->tris[j].isenemy = 0;
+			obj->tris[j].isgrid = 0;
+			obj->tris[j].opacity = 0;
+			obj->tris[j].reflectivity = 0;
+			for (int k = 0; k < 3 + obj->tris[j].isquad; k++)
+				obj->tris[j].verts[k].selected = 0;
 			j++;
 		}
 		free(file[i]);
@@ -265,22 +270,7 @@ void	load_obj(char *filename, t_obj *obj)
 	free(file);
 	free(verts);
 	free(uvs);
-	/*for (int i = 0; i < tri_amount; i++)
-	{
-		float y = obj->tris[i].verts[0].pos[1];
-		if (obj->tris[i].verts[1].pos[1] == y &&
-			obj->tris[i].verts[2].pos[1] == y)
-			obj->distance_culling_mask[i] = 1;
-	}*/
 	global_seginfo = "load_obj quads\n";
 	find_quads(obj);
-	for (int asd = 0; asd < obj[0].tri_amount; asd++)
-	{
-		for (int k = 0; k < 3 + obj->tris[asd].isquad; k++)
-			obj->tris[asd].verts[k].selected = 0;
-		obj->tris[asd].isgrid = 0;
-		obj->tris[asd].opacity = 0;
-		obj->tris[asd].reflectivity = 0;
-	}
 	printf("faces = %d\n", obj->tri_amount);
 }

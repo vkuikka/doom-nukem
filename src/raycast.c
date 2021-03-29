@@ -174,9 +174,7 @@ float		cast_all_color(t_ray r, t_rthread *t, int side, int *color)
 	hit = -1;
 	while (i < t->level->ssp[side].tri_amount)
 	{
-		if ((!t->level->ssp[side].tris[i].opacity ||
-			t->level->ssp[side].tris[i].reflectivity) &&
-			0 < (tmp_dist = cast_face(t->level->ssp[side].tris[i], r, &tmp_color, t->img)) &&
+		if (0 < (tmp_dist = cast_face(t->level->ssp[side].tris[i], r, &tmp_color, t->img)) &&
 			tmp_dist < res.dist)
 		{
 			if (!t->level->ssp[side].tris[i].opacity)
