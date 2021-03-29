@@ -109,6 +109,9 @@ typedef struct			s_tri
 	int					isenemy;
 	float				opacity;
 	float				reflectivity;
+	// int					breakable;
+	// int					broken;
+	// int					*reflection_culling_mask;
 }						t_tri;
 
 typedef struct			s_obj

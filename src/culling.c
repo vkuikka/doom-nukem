@@ -166,6 +166,22 @@ static int		backface_culling(t_ray r, t_tri tri)
 	return (0);
 }
 
+void		reflection_culling(t_level *level)
+{
+	for (int i = 0; i < level->visible.tri_amount; i++)
+	{
+		if (level->visible.tris[i].reflectivity)
+		{
+			//ft_bzero(mask);
+			for (int k = 0; k < level->all.tri_amount; k++)
+			{
+				// if (normal_plane_culling() && backface_culling(normal), distance?, occlusion)
+					// level->visible->tris[i]->reflection_culling_mask[k] = 1;
+			}
+		}
+	}
+}
+
 void			culling(t_level *level)
 {
 	float		angle = level->look_side;
@@ -197,5 +213,6 @@ void			culling(t_level *level)
 		}
 	}
 	level->visible.tri_amount = visible_amount;
+	reflection_culling(level);
 	global_seginfo = "culling end\n";
 }
