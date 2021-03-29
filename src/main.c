@@ -121,33 +121,15 @@ void		render(t_window *window, t_level *level, t_bmp *bmp)
 		}
 		free(thread_data);
 		global_seginfo = "fill_pixels\n";
-		fill_pixels(window->frame_buffer, level->quality);
+		fill_pixels(window->frame_buffer, level->ui->raycast_quality);
 	}
 
 	SDL_UnlockTexture(window->texture);
 	SDL_RenderClear(window->SDLrenderer);
 	SDL_RenderCopy(window->SDLrenderer, window->texture, NULL, NULL);
-	ui_render();
+	ui_render(level);
 	SDL_RenderPresent(window->SDLrenderer);
 	return ;
-}
-
-int		    get_fps(int i)
-{
-	struct timeval	time;
-	static long		s[2];
-	static int		frames[2];
-	static int		fps[2];
-
-	frames[i]++;
-	gettimeofday(&time, NULL);
-	if (s[i] != time.tv_sec)
-	{
-		s[i] = time.tv_sec;
-		fps[i] = frames[i];
-		frames[i] = 0;
-	}
-	return (fps[i]);
 }
 
 static void		read_input(t_window *window, t_level *level)
@@ -167,9 +149,9 @@ static void		read_input(t_window *window, t_level *level)
 		else if (event.key.repeat == 0 && event.type == SDL_KEYDOWN)
 		{
 			if (event.key.keysym.scancode == SDL_SCANCODE_PERIOD)
-				level->quality += 1;
-			else if (event.key.keysym.scancode == SDL_SCANCODE_COMMA && level->quality > 1)
-				level->quality -= 1;
+				level->ui->raycast_quality += 1;
+			else if (event.key.keysym.scancode == SDL_SCANCODE_COMMA && level->ui->raycast_quality > 1)
+				level->ui->raycast_quality -= 1;
 			else if (event.key.keysym.scancode == SDL_SCANCODE_CAPSLOCK)
 				level->ui->noclip = level->ui->noclip ? FALSE : TRUE;
 			else if (event.key.keysym.scancode == SDL_SCANCODE_Z)
@@ -210,8 +192,7 @@ int			main(int argc, char **argv)
 	bmp = bmp_read("out.bmp");
 	level = init_level();
 	init_window(&window);
-	init_ui(window, &ui);
-	level->ui = &ui;
+	init_ui(window, level);
 	init_physics(level);
 	while (1)
 	{
@@ -222,7 +203,6 @@ int			main(int argc, char **argv)
 		culling(level);
 		split_obj(level);
 		render(window, level, &bmp);
-		int fps = get_fps(0);
-		frametime = SDL_GetTicks() - frametime;
+		level->ui->frametime = SDL_GetTicks() - frametime;
 	}
 }

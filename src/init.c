@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   init.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/08 14:38:45 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/03/27 23:09:08 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/03/29 23:13:41 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,6 @@ t_level			*init_level(void)
 	level->pos.z = 0;
 	level->look_side = 0;
 	level->look_up = 0;
-	level->quality = NOISE_QUALITY_LIMIT - 1;
 	level->sun_contrast = 0;	//max 1
 	level->shadow_color = 0;
 	level->direct_shadow_contrast = 0;	//max 1
