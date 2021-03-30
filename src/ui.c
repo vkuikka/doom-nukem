@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/06 08:50:56 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/03/30 08:26:31 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/03/30 11:02:29 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -296,8 +296,10 @@ void	init_ui(t_window *window, t_level *level)
 	ui = (t_editor_ui*)malloc(sizeof(t_editor_ui));
 	level->ui = ui;
 	ft_bzero(ui, sizeof(t_editor_ui));
-	ui->backface_culling = 1;
-	ui->distance_culling = 1;
+	ui->backface_culling = TRUE;
+	ui->distance_culling = TRUE;
+	ui->wireframe_on_top = TRUE;
+	ui->wireframe_culling_visual = TRUE;
 	ui->render_distance = 20;
 	ui->raycast_quality = NOISE_QUALITY_LIMIT - 1;
 	// ui->fog_color = 0xffffffff;//fog

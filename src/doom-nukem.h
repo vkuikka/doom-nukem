@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/03/30 10:12:51 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/03/30 11:05:53 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@
 # define WF_BACKGROUND_COL 0x99		//1 byte value
 
 # define UI_FONT_SIZE 13
-# define UI_EDITOR_SETTINGS_TEXT_COLOR 0x6666ffff
+# define UI_EDITOR_SETTINGS_TEXT_COLOR 0x2222ffff
 # define UI_LEVEL_SETTINGS_TEXT_COLOR 0xffffffff
 # define UI_INFO_TEXT_COLOR 0xff5500ff
 
@@ -163,6 +163,7 @@ typedef struct			s_editor_ui
 	int					editor_active;
 	int					noclip;
 	int					wireframe;
+	int					wireframe_on_top;
 	int					raycast_quality;
 	int					wireframe_culling_visual;
 	int					fog;
