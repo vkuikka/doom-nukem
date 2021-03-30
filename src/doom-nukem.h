@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/03/29 23:26:53 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/03/30 08:03:34 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -177,6 +177,7 @@ typedef struct			s_ui_state
 	int					ui_text_y_pos;
 	int					ui_text_x_offset;
 	int					ui_text_color;
+	int					m1down;
 	char				*text;
 }						t_ui_state;
 
