@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/05 16:44:10 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/03/30 10:19:02 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/03/30 10:58:25 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,8 +107,6 @@ void	put_vertex(t_vec3 vertex, int color, t_window *window)
 
 void	camera_offset(t_vec3 *vertex, t_level *level)
 {
-	float fov = 600;
-
 	//move vertices to camera position
 	vertex->x -= level->pos.x;
 	vertex->y -= level->pos.y;
@@ -119,8 +117,8 @@ void	camera_offset(t_vec3 *vertex, t_level *level)
 	rotate_vertex(-level->look_up, vertex, 1);
 
 	//add perspective
-	vertex->x /= vertex->z / fov;
-	vertex->y /= vertex->z / fov;
+	vertex->x /= vertex->z / RES_X;
+	vertex->y /= vertex->z / RES_Y;
 
 	//move to center of screen
 	vertex->x += RES_X / 2.0;
@@ -265,9 +263,8 @@ void	render_wireframe(t_window *window, t_level *level, t_obj *obj, int is_visib
 void	wireframe(t_window *window, t_level *level)
 {
 	global_seginfo = "wireframe start\n";
-
-	ft_memset(window->frame_buffer, WF_BACKGROUND_COL, RES_X * RES_Y * sizeof(int));
-	ft_memset(window->depth_buffer, 0, RES_X * RES_Y * sizeof(int));
+	if (!level->ui->wireframe_on_top)
+		ft_memset(window->frame_buffer, WF_BACKGROUND_COL, RES_X * RES_Y * sizeof(int));
 	if (level->ui->wireframe_culling_visual)
 		render_wireframe(window, level, &level->visible, TRUE);
 	render_wireframe(window, level, &level->all, FALSE);

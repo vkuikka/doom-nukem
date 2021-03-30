@@ -89,12 +89,7 @@ void		render(t_window *window, t_level *level, t_bmp *bmp)
 
 	if (SDL_LockTexture(window->texture, NULL, (void**)&window->frame_buffer, &window_horizontal_size) != 0)
 		ft_error("failed to lock texture\n");
-	if (level->ui->wireframe)
-	{
-		global_seginfo = "wireframe\n";
-		wireframe(window, level);
-	}
-	else
+	if (!level->ui->wireframe || (level->ui->wireframe && level->ui->wireframe_on_top))
 	{
 		i = 0;
 		if (!(thread_data = (t_rthread**)malloc(sizeof(t_rthread*) * THREAD_AMOUNT)))
@@ -122,6 +117,11 @@ void		render(t_window *window, t_level *level, t_bmp *bmp)
 		free(thread_data);
 		global_seginfo = "fill_pixels\n";
 		fill_pixels(window->frame_buffer, level->ui->raycast_quality);
+	}
+	if (level->ui->wireframe)
+	{
+		global_seginfo = "wireframe\n";
+		wireframe(window, level);
 	}
 
 	SDL_UnlockTexture(window->texture);

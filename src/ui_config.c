@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/03/30 10:03:29 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/03/30 11:22:12 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,8 +40,9 @@ void	ui_config(t_level *level)
 	set_text_color(UI_EDITOR_SETTINGS_TEXT_COLOR);
 	button(&ui->noclip, "noclip");
 	button(&ui->wireframe, "wireframe");
+	button(&ui->wireframe_on_top, "wireframe on top");
 	button(&ui->show_quads, "quad visualize");
-	button(&ui->wireframe_culling_visual, "visualize culling in wireframe");
+	button(&ui->wireframe_culling_visual, "culling visualize");
 	// button(, "face/vert selection");
 	sprintf(buf, "pixel gap %d", ui->raycast_quality);
 	text(buf);
