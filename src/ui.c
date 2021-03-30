@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/06 08:50:56 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/03/30 08:01:44 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/03/30 08:26:31 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ static void	put_text(char *text, t_window *window, SDL_Texture *texture, t_ivec2
 
 	if (!font)
 	{
-		font = TTF_OpenFont("Roboto-Medium.ttf", 13);
+		font = TTF_OpenFont("Roboto-Medium.ttf", UI_FONT_SIZE);
 		if (!font)
 		{
 			printf("TTF_OpenFont: %s\n", TTF_GetError());
