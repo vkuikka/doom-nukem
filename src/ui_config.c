@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/03/30 08:31:18 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/03/30 10:03:29 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,7 @@ void	ui_config(t_level *level)
 	button(&ui->noclip, "noclip");
 	button(&ui->wireframe, "wireframe");
 	button(&ui->show_quads, "quad visualize");
+	button(&ui->wireframe_culling_visual, "visualize culling in wireframe");
 	// button(, "face/vert selection");
 	sprintf(buf, "pixel gap %d", ui->raycast_quality);
 	text(buf);
@@ -61,7 +62,6 @@ void	ui_config(t_level *level)
 	// call(, "remove enemies");
 	text("culling:");
 	// button(&ui->pause_culling_position, "\tpause");
-	// button(&ui->wireframe_culling_visual, "visualize culling in wireframe");
 	button(&ui->backface_culling, "backface");
 	button(&ui->distance_culling, "distance");
 	int test = ui->render_distance;
