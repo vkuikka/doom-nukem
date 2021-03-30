@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   wireframe.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/05 16:44:10 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/03/25 23:08:32 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/03/30 10:19:02 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@ void	pixel_put(int x, int y, int color, t_window *window)
 	if (x < 0 || y < 0 || x >= RES_X || y >= RES_Y)
 		return;
 	if (window->frame_buffer[x + (y * RES_X)] != WF_SELECTED_COL &&
+		window->frame_buffer[x + (y * RES_X)] != WF_VISIBLE_COL &&
+		window->frame_buffer[x + (y * RES_X)] != WF_VISIBLE_NORMAL_COL &&
 		(window->frame_buffer[x + (y * RES_X)] != WF_NOT_QUAD_WARNING_COL ||
 		color == WF_SELECTED_COL))
 		window->frame_buffer[x + (y * RES_X)] = color;
@@ -105,7 +107,7 @@ void	put_vertex(t_vec3 vertex, int color, t_window *window)
 
 void	camera_offset(t_vec3 *vertex, t_level *level)
 {
-	float fov = 500;
+	float fov = 600;
 
 	//move vertices to camera position
 	vertex->x -= level->pos.x;
@@ -184,23 +186,46 @@ void	select_vert(t_level *level, int x, int y)
 	find_select(r, level);
 }
 
-void	wireframe(t_window *window, t_level *level)
+void	put_normal(t_window *window, t_level *level, t_tri tri, int color)
 {
-	static int	selected = 0;
-	static int	mode = 0;
+	t_vec3	avg;
+	int		amount;
+
+	amount = tri.isquad ? 4 : 3;
+	avg.x = 0;
+	avg.y = 0;
+	avg.z = 0;
+	for (int j = 0; j < amount; j++)
+	{
+		avg.x += tri.verts[j].pos.x;
+		avg.y += tri.verts[j].pos.y;
+		avg.z += tri.verts[j].pos.z;
+	}
+	avg.x /= amount;
+	avg.y /= amount;
+	avg.z /= amount;
+	t_vec3	normal_dir;
+	vec_cross(&normal_dir, tri.v0v1, tri.v0v2);
+	vec_normalize(&normal_dir);
+	t_vec3 normal;
+	float normal_len = 0.3;
+	normal.x = avg.x - normal_dir.x * normal_len;
+	normal.y = avg.y - normal_dir.y * normal_len;
+	normal.z = avg.z - normal_dir.z * normal_len;
+	camera_offset(&avg, level);
+	camera_offset(&normal, level);
+	put_vertex(avg, 0, window);
+	print_line(avg, normal, color, window);
+}
+
+void	render_wireframe(t_window *window, t_level *level, t_obj *obj, int is_visible)
+{
 	t_vec3		start;
 	t_vec3		stop;
-	t_vec3		avg;
 
-	global_seginfo = "wireframe start\n";
-
-	ft_memset(window->frame_buffer, WF_BACKGROUND_COL, RES_X * RES_Y * sizeof(int));
-	ft_memset(window->depth_buffer, 0, RES_X * RES_Y * sizeof(int));
-
-	global_seginfo = "wireframe loop\n";
-	for (int i = 0; i < level->all.tri_amount; i++)
+	for (int i = 0; i < obj->tri_amount; i++)
 	{
-		int amount = level->all.tris[i].isquad ? 4 : 3;
+		int amount = obj->tris[i].isquad ? 4 : 3;
 		for (int j = 0; j < amount; j++)
 		{
 			int		next;
@@ -208,68 +233,44 @@ void	wireframe(t_window *window, t_level *level)
 				next = (int[4]){1, 3, 0, 2}[j];
 			else
 				next = (j + 1) % 3;
-
-			start.x = level->all.tris[i].verts[j].pos.x;
-			start.y = level->all.tris[i].verts[j].pos.y;
-			start.z = level->all.tris[i].verts[j].pos.z;
-			stop.x = level->all.tris[i].verts[next].pos.x;
-			stop.y = level->all.tris[i].verts[next].pos.y;
-			stop.z = level->all.tris[i].verts[next].pos.z;
-
+			start = obj->tris[i].verts[j].pos;
+			stop = obj->tris[i].verts[next].pos;
 			global_seginfo = "wireframe 1\n";
 			camera_offset(&start, level);
 			camera_offset(&stop, level);
-
-			if (level->all.tris[i].verts[next].selected &&
-				level->all.tris[i].verts[j].selected)
+			if (obj->tris[i].verts[next].selected &&
+				obj->tris[i].verts[j].selected)
 				print_line(start, stop, WF_SELECTED_COL, window);
-			else if (level->ui->show_quads && !level->all.tris[i].isquad)
+			else if (is_visible)
+				print_line(start, stop, WF_VISIBLE_COL, window);
+			else if (level->ui->show_quads && !obj->tris[i].isquad)
 				print_line(start, stop, WF_NOT_QUAD_WARNING_COL, window);
 			else
 				print_line(start, stop, WF_UNSELECTED_COL, window);
-			if (mode == 0)
+			// if (mode == 0)
 			{
-				if (level->all.tris[i].verts[j].selected)
+				if (obj->tris[i].verts[j].selected)
 					put_vertex(start, WF_SELECTED_COL, window);
 				else
 					put_vertex(start, 0, window);
 			}
-			//put_vertex(stop, 0, window);
 		}
-		global_seginfo = "wireframe 2\n";
-		avg.x = 0;
-		avg.y = 0;
-		avg.z = 0;
-		for (int j = 0; j < amount; j++)
-		{
-			avg.x += level->all.tris[i].verts[j].pos.x;
-			avg.y += level->all.tris[i].verts[j].pos.y;
-			avg.z += level->all.tris[i].verts[j].pos.z;
-		}
-		avg.x /= amount;
-		avg.y /= amount;
-		avg.z /= amount;
-		t_vec3	normal_dir;
-		vec_cross(&normal_dir, level->all.tris[i].v0v1, level->all.tris[i].v0v2);
-		vec_normalize(&normal_dir);
-		global_seginfo = "wireframe 3\n";
-		t_vec3 normal;
-		float normal_len = 0.3;
-		normal.x = avg.x - normal_dir.x * normal_len;
-		normal.y = avg.y - normal_dir.y * normal_len;
-		normal.z = avg.z - normal_dir.z * normal_len;
-		camera_offset(&avg, level);
-		camera_offset(&normal, level);
-		print_line(avg, normal, WF_NORMAL_COL, window);
-		if (mode == 2)
-		{
-			if (selected == i)
-				put_vertex(avg, WF_SELECTED_COL, window);
-			else
-				put_vertex(avg, 0, window);
-		}
+		if (is_visible)
+			put_normal(window, level, obj->tris[i], WF_VISIBLE_NORMAL_COL);
+		else
+			put_normal(window, level, obj->tris[i], WF_NORMAL_COL);
 	}
-	global_seginfo = "wireframe 4\n";
+}
+
+void	wireframe(t_window *window, t_level *level)
+{
+	global_seginfo = "wireframe start\n";
+
+	ft_memset(window->frame_buffer, WF_BACKGROUND_COL, RES_X * RES_Y * sizeof(int));
+	ft_memset(window->depth_buffer, 0, RES_X * RES_Y * sizeof(int));
+	if (level->ui->wireframe_culling_visual)
+		render_wireframe(window, level, &level->visible, TRUE);
+	render_wireframe(window, level, &level->all, FALSE);
 	// for (int asd = 0; asd < level->all.tri_amount; asd++)
 	// 	for (int qwe = 0; qwe < 3 + level->all.tris[asd].isquad; qwe++)
 	// 		if (level->all.tris[asd].verts[qwe].selected)
