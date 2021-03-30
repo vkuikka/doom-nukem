@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/03/29 23:23:51 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/03/30 08:31:18 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ void	ui_config(t_level *level)
 	t_editor_ui			*ui;
 
 	ui = level->ui;
-	set_text_color(0x6666ffff);
+	set_text_color(UI_EDITOR_SETTINGS_TEXT_COLOR);
 	button(&ui->noclip, "noclip");
 	button(&ui->wireframe, "wireframe");
 	button(&ui->show_quads, "quad visualize");
@@ -48,7 +48,7 @@ void	ui_config(t_level *level)
 	int_slider(&ui->raycast_quality, buf, 1, 20);
 
 	text("");
-	set_text_color(0xeeeeeeff);
+	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
 	text("level:");
 	//file_browse("level", ".dnukem_level", &set_level(char *filename));
 	//file_browse("map", ".obj", &set_map(char *filename));
@@ -83,7 +83,7 @@ void	ui_config(t_level *level)
 	//oisko jos hover n'it' hightlightaa facet miss' se on p''ll'
 
 	text("");
-	set_text_color(0xff6600ff);
+	set_text_color(UI_INFO_TEXT_COLOR);
 	sprintf(buf, "fps:               %d",  get_fps());
 	text(buf);
 	sprintf(buf, "tickrate:      %.1fhz",  ui->physhz);

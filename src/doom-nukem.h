@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/03/30 08:03:34 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/03/30 08:39:40 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,11 @@
 # define WF_NOT_QUAD_WARNING_COL 0x802222ff
 # define WF_NORMAL_COL 0x00fffffff
 # define WF_BACKGROUND_COL 0x99		//1 byte value
+
+# define UI_FONT_SIZE 13
+# define UI_EDITOR_SETTINGS_TEXT_COLOR 0x6666ffff
+# define UI_LEVEL_SETTINGS_TEXT_COLOR 0xffffffff
+# define UI_INFO_TEXT_COLOR 0xff5500ff
 
 # ifndef FLT_MAX
 #  define FLT_MAX 3.40282347E+38
