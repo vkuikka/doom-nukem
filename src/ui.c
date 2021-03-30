@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/06 08:50:56 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/03/29 23:31:54 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/03/30 07:20:55 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,7 +130,6 @@ static void	ui_render_internal(SDL_Texture *get_text, SDL_Texture *get_streaming
 
 static void	edit_slider_var(float *unit, int yloc)
 {
-	static int	drag[1000];
 	int			x;
 	int			y;
 
@@ -143,18 +142,20 @@ static void	edit_slider_var(float *unit, int yloc)
 
 static void	edit_button_var(int *var, int yloc)
 {
-	static int	last[1000];
+	static int	m1down = 0;
 	int			x;
 	int			y;
 
 	if (!SDL_GetRelativeMouseMode() && SDL_GetMouseState(&x, &y) & SDL_BUTTON(SDL_BUTTON_LEFT))
 	{
-		if (last[yloc] == 0 && x >= 2 && x <= 11 && y >= yloc && y <= yloc + 14)
+		if (!m1down && x >= 2 && x <= 11 && y >= yloc && y <= yloc + 14)
+		{
 			*var = *var ? 0 : 1;
-		last[yloc] = 1;
+			m1down = 1;
+		}
 	}
-	else
-		last[yloc] = 0;
+	else if (m1down)
+		m1down = 0;
 }
 
 static void	button_pixel_put(int x, int y, int color, unsigned *texture)
