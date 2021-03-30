@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/06 08:50:56 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/03/30 07:20:55 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/03/30 08:01:44 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,19 +128,26 @@ static void	ui_render_internal(SDL_Texture *get_text, SDL_Texture *get_streaming
 	}
 }
 
-static void	edit_slider_var(float *unit, int yloc)
+static void	edit_slider_var(float *unit, t_ui_state *state)
 {
 	int			x;
 	int			y;
 
 	if (!SDL_GetRelativeMouseMode() && SDL_GetMouseState(&x, &y) & SDL_BUTTON(SDL_BUTTON_LEFT))
 	{
-		if (y >= yloc + 4 && y <= yloc + 15 && x < 109 && x > 2)
+		if (state->m1down == state->ui_text_y_pos ||
+			(!state->m1down && y >= state->ui_text_y_pos + 4 &&
+			y <= state->ui_text_y_pos + 15 && x < 109 && x > 2))
+		{
 			*unit = (float)(x - 4) / (float)100;
+			state->m1down = state->ui_text_y_pos;
+		}
 	}
+	else if (state->m1down)
+		state->m1down = 0;
 }
 
-static void	edit_button_var(int *var, int yloc)
+static void	edit_button_var(int *var, t_ui_state *state)
 {
 	static int	m1down = 0;
 	int			x;
@@ -148,14 +155,14 @@ static void	edit_button_var(int *var, int yloc)
 
 	if (!SDL_GetRelativeMouseMode() && SDL_GetMouseState(&x, &y) & SDL_BUTTON(SDL_BUTTON_LEFT))
 	{
-		if (!m1down && x >= 2 && x <= 11 && y >= yloc && y <= yloc + 14)
+		if (!state->m1down && x >= 2 && x <= 11 && y >= state->ui_text_y_pos && y <= state->ui_text_y_pos + 14)
 		{
 			*var = *var ? 0 : 1;
-			m1down = 1;
+			state->m1down = 1;
 		}
 	}
-	else if (m1down)
-		m1down = 0;
+	else if (state->m1down)
+		state->m1down = 0;
 }
 
 static void	button_pixel_put(int x, int y, int color, unsigned *texture)
@@ -185,7 +192,6 @@ static void	render_button_streaming(unsigned *get_texture, int *var, int dy)
 				button_pixel_put(x + 2, y + 4 + dy, color, texture);
 		}
 	}
-	edit_button_var(var, dy);
 }
 
 static void	render_slider_streaming(unsigned *get_texture, float unit, int dy)
@@ -231,6 +237,7 @@ void	button(int *var, char *text)
 	state->text = text;
 	state->ui_text_x_offset = 14;
 	render_button_streaming(NULL, var, state->ui_text_y_pos);
+	edit_button_var(var, state);
 	ui_render_internal(NULL, NULL, NULL, state);
 }
 
@@ -257,7 +264,7 @@ void	int_slider(int *var, char *str, int min, int max)
 	*var -= min;
 	unit = (float)*var / (float)(max - min);
 	render_slider_streaming(NULL, unit, state->ui_text_y_pos);
-	edit_slider_var(&unit, state->ui_text_y_pos);
+	edit_slider_var(&unit, state);
 	unit = clamp(unit, 0, 1);
 	*var = min + ((max - min) * unit);
 	state->ui_text_y_pos += 14;
@@ -265,8 +272,12 @@ void	int_slider(int *var, char *str, int min, int max)
 
 void	ui_render(t_level *level)
 {
-	t_ui_state	state;
+	static t_ui_state	state = {0, 0, 0, 0, 0, 0};
 
+	state.ui_max_width = 0;
+	state.ui_text_color = 0;
+	state.ui_text_x_offset = 0;
+	state.ui_text_y_pos = 0;
 	get_ui_state(&state);
 	ui_config(level);
 	ui_render_internal(NULL, NULL, NULL, NULL);

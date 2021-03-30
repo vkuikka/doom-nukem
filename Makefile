@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+         #
+#    By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/12/08 13:46:11 by vkuikka           #+#    #+#              #
-#    Updated: 2021/03/14 17:10:15 by vkuikka          ###   ########.fr        #
+#    Updated: 2021/03/30 08:05:04 by rpehkone         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
