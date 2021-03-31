@@ -146,6 +146,8 @@ static void		read_input(t_window *window, t_level *level)
 			level->look_side += (float)event.motion.xrel / 600;
 			level->look_up -= (float)event.motion.yrel / 600;
 		}
+		else if (event.type == SDL_MOUSEBUTTONDOWN && !relmouse && level->ui->wireframe)
+			select_face(level, event.button.x, event.button.y);
 		else if (event.key.repeat == 0 && event.type == SDL_KEYDOWN)
 		{
 			if (event.key.keysym.scancode == SDL_SCANCODE_PERIOD)

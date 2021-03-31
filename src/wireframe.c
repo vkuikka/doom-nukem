@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   wireframe.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/05 16:44:10 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/03/30 10:58:25 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/03/31 19:02:39 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,64 +125,6 @@ void	camera_offset(t_vec3 *vertex, t_level *level)
 	vertex->y += RES_Y / 2.0;
 }
 
-int		find_select(t_ray vec, t_level *level)
-{
-	int		color;
-	int		dist = -1;
-	int		res;
-
-	for (int i = 0; i < level->all.tri_amount; i++)
-	{
-		float tmp;
-		tmp = cast_face(level->all.tris[i], vec, &color, NULL);
-		if (tmp > 0 && (tmp < dist || dist == -1))
-		{
-			dist = tmp;
-			res = i;
-		}
-	}
-	for (int i = 0; i < 3 + level->all.tris[res].isquad; i++)
-	{
-		if (level->all.tris[res].verts[i].selected)
-		{
-			level->all.tris[res].verts[i].selected = 0;
-			level->all.tris[res].isgrid = 0;
-		}
-		else
-		{
-			level->all.tris[res].verts[i].selected = 1;
-			level->all.tris[res].isgrid = 1;
-		}
-	}
-	return (res);
-}
-
-void	select_vert(t_level *level, int x, int y)
-{
-	t_ray	r;
-	t_vec3	cam;
-	t_vec3	up;
-	t_vec3	side;
-
-	float lon = -level->look_side + M_PI/2;
-	float lat = -level->look_up;
-
-	rot_cam(&cam, lon, lat);
-	rot_cam(&up, lon, lat + (M_PI / 2));
-	vec_cross(&side, up, cam);
-
-	float ym = (1.0 / RES_Y * y - 0.5);
-	float xm = (1.0 / RES_X * x - 0.5);
-
-	r.pos.x = level->pos.x;
-	r.pos.y = level->pos.y;
-	r.pos.z = level->pos.z;
-	r.dir.x = cam.x + up.x * ym + side.x * xm;
-	r.dir.y = cam.y + up.y * ym + side.y * xm;
-	r.dir.z = cam.z + up.z * ym + side.z * xm;
-
-	find_select(r, level);
-}
 
 void	put_normal(t_window *window, t_level *level, t_tri tri, int color)
 {
