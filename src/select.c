@@ -3,14 +3,32 @@
 /*                                                        :::      ::::::::   */
 /*   select.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/31 18:32:46 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/03/31 19:03:17 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/03/31 20:46:05 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom-nukem.h"
+
+static void	deselect_all_faces(t_level *level)
+{
+	int	i;
+	int	j;
+
+	i = 0;
+	while (i < level->all.tri_amount)
+	{
+		j = 0;
+		while (j < 3 + level->all.tris[i].isquad)
+		{
+			level->all.tris[i].verts[j].selected = 0;
+			j++;
+		}
+		i++;
+	}
+}
 
 static void	raycast_face_selection(t_ray vec, t_level *level)
 {
@@ -43,6 +61,8 @@ static void	raycast_face_selection(t_ray vec, t_level *level)
 			i++;
 		}
 	}
+	else
+		deselect_all_faces(level);
 }
 
 void	select_face(t_level *level, int x, int y)
