@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   wireframe.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/05 16:44:10 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/03/31 19:02:39 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/03/31 19:21:39 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,11 +16,12 @@ void	pixel_put(int x, int y, int color, t_window *window)
 {
 	if (x < 0 || y < 0 || x >= RES_X || y >= RES_Y)
 		return;
-	if (window->frame_buffer[x + (y * RES_X)] != WF_SELECTED_COL &&
+	if (color == WF_SELECTED_COL ||
+		(window->frame_buffer[x + (y * RES_X)] != WF_SELECTED_COL &&
 		window->frame_buffer[x + (y * RES_X)] != WF_VISIBLE_COL &&
 		window->frame_buffer[x + (y * RES_X)] != WF_VISIBLE_NORMAL_COL &&
 		(window->frame_buffer[x + (y * RES_X)] != WF_NOT_QUAD_WARNING_COL ||
-		color == WF_SELECTED_COL))
+		color == WF_SELECTED_COL)))
 		window->frame_buffer[x + (y * RES_X)] = color;
 }
 
