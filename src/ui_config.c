@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/03/30 11:22:12 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/03/31 21:16:56 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,46 @@ int		    get_fps(void)
 	return (fps);
 }
 
+
+void	ui_config_selected_faces(t_level *level)
+{
+	char buf[100];
+	// int	selected_amount;
+
+	// selected_amount = 0;
+	for (int i = 0; i < level->all.tri_amount; i++)
+	{
+		int counter = 0;
+		int j = 0;
+		while (j < 3 + level->all.tris[i].isquad)
+		{
+			if (level->all.tris[i].verts[j].selected)
+				counter++;
+			j++;
+		}
+			// selected_amount++;
+		if (counter == 4)
+		{
+			text("");
+			//if (selected_amount == 1)
+				text("Selected face:");
+			// else if (selected_amount > 1)
+				// text("%d selected faces (toggle all):");
+			sprintf(buf, "reflectivity: %.0f%%", 100 * level->all.tris[i].reflectivity);
+			float_slider(&level->all.tris[i].reflectivity, buf, 0, 1);
+			sprintf(buf, "opacity: %.0f%%", 100 * level->all.tris[i].opacity);
+			float_slider(&level->all.tris[i].opacity, buf, 0, 1);
+			button(&level->all.tris[i].isgrid, "grid");
+			button(&level->all.tris[i].isenemy, "enemy");
+			// call("flip normal");
+			// call("set animation start");
+			// call("set animation stop");
+			// slider("animation length", 0, 60);
+			// button("\tforce disable culling");
+			// button("\breakable");
+		}
+	}
+}
 
 void	ui_config(t_level *level)
 {
@@ -65,23 +105,8 @@ void	ui_config(t_level *level)
 	// button(&ui->pause_culling_position, "\tpause");
 	button(&ui->backface_culling, "backface");
 	button(&ui->distance_culling, "distance");
-	int test = ui->render_distance;
 	sprintf(buf, "render distance: %.1fm", ui->render_distance);
-	int_slider(&test, buf, 2, 50);
-	// slider(&ui->culling_distance, "culling distance", 2, 50);
-	ui->render_distance = test;
-
-	// text("Selected face:");
-	// slider("oppacity", 0, 1);
-	// slider("reflectivity", 0, 1);
-	// call("flip normal");
-	// slider("animation length", 0, 60);
-	// call("set animation start");
-	// call("set animation stop");
-	// button("\tforce disable culling");
-	// button("\tinfinite");
-	// button("\breakable");
-	//oisko jos hover n'it' hightlightaa facet miss' se on p''ll'
+	float_slider(&ui->render_distance, buf, 2, 50);
 
 	text("");
 	set_text_color(UI_INFO_TEXT_COLOR);
@@ -97,4 +122,7 @@ void	ui_config(t_level *level)
 	text(buf);
 	sprintf(buf, "faces right:  %d",  level->ssp[1].tri_amount);
 	text(buf);
+
+	set_text_color(UI_FACE_SELECTION_TEXT_COLOR);
+	ui_config_selected_faces(level);
 }
