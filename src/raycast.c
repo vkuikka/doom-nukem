@@ -123,40 +123,49 @@ float		rt_shadow(t_ray r, t_rthread *t, t_tri hit)
 	return (t->level->direct_shadow_contrast);
 }
 
-int			cast_reflection(t_ray r, t_rthread *t, t_tri hit)
+int			cast_reflection(t_ray *r, t_rthread *t, t_tri hit, int depth)
 {
 	float			dist;
 	float			tmp_dist;
 	int				tmp_color;
 	int				res_col;
+	int				new_hit;
 	int				i;
 
 	t_ray	normal;
-	vec_add(&normal.pos, r.dir, r.pos);
-	vec_normalize(&r.dir);
+	vec_add(&normal.pos, r->dir, r->pos);
+	vec_normalize(&r->dir);
 	vec_cross(&normal.dir, hit.v0v1, hit.v0v2);
 	vec_normalize(&normal.dir);
-	vec_mult(&normal.dir, vec_dot(r.dir, normal.dir) * -2);
-	vec_add(&r.dir, r.dir, normal.dir);
-	vec_normalize(&r.dir);
-	r.pos.x = normal.pos.x;
-	r.pos.y = normal.pos.y;
-	r.pos.z = normal.pos.z;
+	vec_mult(&normal.dir, vec_dot(r->dir, normal.dir) * -2);
+	vec_add(&r->dir, r->dir, normal.dir);
+	vec_normalize(&r->dir);
+	r->pos.x = normal.pos.x;
+	r->pos.y = normal.pos.y;
+	r->pos.z = normal.pos.z;
 	dist = FLT_MAX;
 	res_col = 0;
 	i = 0;
 	while (i < t->level->all.tri_amount)
 	{
-		if (0 < (tmp_dist = cast_face(t->level->all.tris[i], r, &tmp_color, t->img)) &&
+		if (0 < (tmp_dist = cast_face(t->level->all.tris[i], *r, &tmp_color, t->img)) &&
 			tmp_dist < dist)
 		{
 			res_col = tmp_color;
 			dist = tmp_dist;
+			new_hit = i;
 		}
 		i++;
 	}
 	if (dist == FLT_MAX)
-		res_col = skybox(*t->level, r);
+		return (skybox(*t->level, *r));
+	if (depth < REFLECTION_DEPTH)
+	{
+		vec_mult(&r->dir, dist - 0.00001);
+		res_col = crossfade((unsigned)res_col >> 8,
+			cast_reflection(r, t, t->level->all.tris[new_hit], depth + 1) >> 8,
+			t->level->all.tris[new_hit].reflectivity * 0xff, 0);
+	}
 	return (res_col);
 }
 
@@ -191,15 +200,15 @@ float		cast_all_color(t_ray r, t_rthread *t, int side, int *color)
 	if (t->level->ssp[side].tris[hit].opacity)
 		cast_transparent(r, &t->level->ssp[side], t->img, &res);
 	vec_mult(&r.dir, res.dist - 0.00001);
-	if (t->level->ssp[side].tris[hit].reflectivity)
-	{
-		tmp_color = cast_reflection(r, t, t->level->ssp[side].tris[hit]);
-		*res.color = crossfade((unsigned)*res.color >> 8,
-			tmp_color >> 8, t->level->ssp[side].tris[hit].reflectivity * 0xff, 0);
-	}
 	if (t->level->sun_contrast || t->level->direct_shadow_contrast)
 		*res.color = crossfade((unsigned)*res.color >> 8, t->level->shadow_color,
 			rt_shadow(r, t, t->level->ssp[side].tris[hit]) * 0xff, 0);
+	if (t->level->ssp[side].tris[hit].reflectivity)
+	{
+		tmp_color = cast_reflection(&r, t, t->level->ssp[side].tris[hit], 0);
+		*res.color = crossfade((unsigned)*res.color >> 8,
+			tmp_color >> 8, t->level->ssp[side].tris[hit].reflectivity * 0xff, 0);
+	}
 	return (res.dist);
 }
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   doom-nukem.h                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/03/30 11:05:53 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/03/31 16:43:40 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@
 # define JUMP_SPEED 5.0 / TICKRATE
 # define PLAYER_HEIGHT 1.75
 # define WALL_CLIP_DIST 0.3
+# define REFLECTION_DEPTH 3
 
 # define TRUE 1
 # define FALSE 0
