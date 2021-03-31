@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/03/31 19:26:02 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/03/31 20:17:44 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@
 # define UI_EDITOR_SETTINGS_TEXT_COLOR 0x2222ffff
 # define UI_LEVEL_SETTINGS_TEXT_COLOR 0xffffffff
 # define UI_INFO_TEXT_COLOR 0xff5500ff
+# define UI_FACE_SELECTION_TEXT_COLOR 0xffffffff
 
 # ifndef FLT_MAX
 #  define FLT_MAX 3.40282347E+38
@@ -159,6 +160,16 @@ typedef struct			s_level
 	float				sun_contrast;
 }						t_level;
 
+typedef struct			s_ui_state
+{
+	int					ui_max_width;
+	int					ui_text_y_pos;
+	int					ui_text_x_offset;
+	int					ui_text_color;
+	int					m1down;
+	char				*text;
+}						t_ui_state;
+
 typedef struct			s_editor_ui
 {
 	int					editor_active;
@@ -178,17 +189,8 @@ typedef struct			s_editor_ui
 	//info
 	float				physhz;
 	unsigned			frametime;
+	struct s_ui_state	state;
 }						t_editor_ui;
-
-typedef struct			s_ui_state
-{
-	int					ui_max_width;
-	int					ui_text_y_pos;
-	int					ui_text_x_offset;
-	int					ui_text_color;
-	int					m1down;
-	char				*text;
-}						t_ui_state;
 
 typedef struct			s_physthread
 {

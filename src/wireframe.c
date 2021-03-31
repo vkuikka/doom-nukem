@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/05 16:44:10 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/03/31 19:21:39 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/03/31 20:25:43 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -196,7 +196,7 @@ void	render_wireframe(t_window *window, t_level *level, t_obj *obj, int is_visib
 					put_vertex(start, 0, window);
 			}
 		}
-		if (is_visible)
+		if (is_visible || !level->ui->wireframe_culling_visual)
 			put_normal(window, level, obj->tris[i], WF_VISIBLE_NORMAL_COL);
 		else
 			put_normal(window, level, obj->tris[i], WF_NORMAL_COL);
