@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/06 08:50:56 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/03/31 20:18:12 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/03/31 20:52:29 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -258,6 +258,26 @@ float	clamp(float var, float min, float max)
 }
 
 void	int_slider(int *var, char *str, int min, int max)
+{
+	t_ui_state	*state;
+	float		unit;
+
+	text(str);
+	state = get_ui_state(NULL);
+	state->text = "";
+	state->ui_text_x_offset = 14;
+
+	*var = clamp(*var, min, max);
+	*var -= min;
+	unit = (float)*var / (float)(max - min);
+	render_slider_streaming(NULL, unit, state->ui_text_y_pos);
+	edit_slider_var(&unit, state);
+	unit = clamp(unit, 0, 1);
+	*var = min + ((max - min) * unit);
+	state->ui_text_y_pos += 14;
+}
+
+void	float_slider(float *var, char *str, float min, float max)
 {
 	t_ui_state	*state;
 	float		unit;
