@@ -3,16 +3,16 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+         #
+#    By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/12/08 13:46:11 by vkuikka           #+#    #+#              #
-#    Updated: 2021/03/30 08:38:47 by rpehkone         ###   ########.fr        #
+#    Updated: 2021/03/31 16:55:11 by vkuikka          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = dnukem
 SRCDIR = src/
-SRC = main.c color.c culling.c vectors.c init.c raycast.c obj_read.c bmp_read.c find_quads.c wireframe.c ui.c ui_config.c physics.c enemies.c
+SRC = main.c color.c culling.c vectors.c init.c raycast.c obj_read.c bmp_read.c find_quads.c wireframe.c ui.c ui_config.c physics.c enemies.c shaders.c
 LIB = libft/libft.a -L x86_64-w64-mingw32/lib/
 INCLUDE = libft/includes -I x86_64-w64-mingw32/include/
 #FLAGS = -Wall -Wextra -Werror
