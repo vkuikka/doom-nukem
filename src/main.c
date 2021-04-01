@@ -116,7 +116,8 @@ void		render(t_window *window, t_level *level, t_bmp *bmp)
 		}
 		free(thread_data);
 		global_seginfo = "fill_pixels\n";
-		fill_pixels(window->frame_buffer, level->ui->raycast_quality);
+		fill_pixels(window->frame_buffer, level->ui->raycast_quality,
+					level->ui->blur, level->ui->smooth_pixels);
 	}
 	if (level->ui->wireframe)
 	{

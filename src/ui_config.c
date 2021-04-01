@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ui_config.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/03/31 21:16:56 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/04/01 17:33:32 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ void	ui_config_selected_faces(t_level *level)
 			j++;
 		}
 			// selected_amount++;
-		if (counter == 4)
+		if (counter == 3 + level->all.tris[i].isquad)
 		{
 			text("");
 			//if (selected_amount == 1)
@@ -61,6 +61,7 @@ void	ui_config_selected_faces(t_level *level)
 			float_slider(&level->all.tris[i].opacity, buf, 0, 1);
 			button(&level->all.tris[i].isgrid, "grid");
 			button(&level->all.tris[i].isenemy, "enemy");
+			button(&level->all.tris[i].shader, "water");
 			// call("flip normal");
 			// call("set animation start");
 			// call("set animation stop");
@@ -78,16 +79,21 @@ void	ui_config(t_level *level)
 
 	ui = level->ui;
 	set_text_color(UI_EDITOR_SETTINGS_TEXT_COLOR);
-	button(&ui->noclip, "noclip");
-	button(&ui->wireframe, "wireframe");
-	button(&ui->wireframe_on_top, "wireframe on top");
-	button(&ui->show_quads, "quad visualize");
-	button(&ui->wireframe_culling_visual, "culling visualize");
-	// button(, "face/vert selection");
 	sprintf(buf, "pixel gap %d", ui->raycast_quality);
 	text(buf);
 	sprintf(buf, "render scale %.0f%%", 100.0 / (float)ui->raycast_quality);
 	int_slider(&ui->raycast_quality, buf, 1, 20);
+	button(&ui->noclip, "noclip");
+	button(&ui->blur, "blur");
+	button(&ui->smooth_pixels, "smooth pixel transition");
+	button(&ui->wireframe, "wireframe");
+	if (ui->wireframe)
+	{
+		button(&ui->wireframe_on_top, "wireframe on top");
+		button(&ui->show_quads, "quad visualize");
+		button(&ui->wireframe_culling_visual, "culling visualize");
+	}
+	// button(, "face/vert selection");
 
 	text("");
 	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
