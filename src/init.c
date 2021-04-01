@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   init.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/08 14:38:45 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/03/29 23:13:41 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/04/01 15:16:35 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,4 +92,6 @@ void			init_window(t_window **window)
 	window[0]->frame_buffer = NULL;
 	if (!(window[0]->depth_buffer = (float *)malloc(sizeof(float) * (RES_X * RES_Y))))
 		ft_error("memory allocation failed\n");
+	// if (!(window[0]->index_buffer = (int *)malloc(sizeof(int) * (RES_X * RES_Y))))
+	// 	ft_error("memory allocation failed\n");
 }

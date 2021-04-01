@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/21 17:32:09 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/03/26 03:26:43 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/01 17:23:22 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,37 @@ int			fog(int color, float dist, unsigned fog_color, t_level *level)
 	return (fog_color);
 }
 
-void		fill_pixels(unsigned *grid, int gap)
+void		blur_pixels(unsigned *color, int gap)
+{
+	int		res;
+	int		x;
+	int		y;
+
+	y = gap;
+	res = 0;
+	while (y < RES_Y - gap)
+	{
+		x = gap;
+		while (x < RES_X - gap)
+		{
+			res = color[x + (y * RES_X)];
+			int col1 = color[x - gap + (y * RES_X)];
+			int col2 = color[x + ((y - gap) * RES_X)];
+			int col3 = color[x + gap + (y * RES_X)];
+			int col4 = color[x + ((y + gap) * RES_X)];
+			float fade = 1.0 / 4.0;
+			res = crossfade(res >> 8, col1 >> 8, fade * 0xff, 0);
+			res = crossfade(res >> 8, col2 >> 8, fade * 0xff, 0);
+			res = crossfade(res >> 8, col3 >> 8, fade * 0xff, 0);
+			res = crossfade(res >> 8, col4 >> 8, fade * 0xff, 0);
+			color[x + (y * RES_X)] = res;
+			x += gap;
+		}
+		y += gap;
+	}
+}
+
+void		fill_pixels(unsigned *grid, int gap, int blur, int smooth)
 {
 	int		color;
 	int		i;
@@ -73,13 +103,31 @@ void		fill_pixels(unsigned *grid, int gap)
 	int		y;
 
 	y = 0;
+	if (blur)
+		blur_pixels(grid, gap);
 	while (y < RES_Y)
 	{
 		x = 0;
 		color = 0;
 		while (x < RES_X)
 		{
-			if (!(x % gap))
+			if (smooth)
+			{
+				if (x % gap || y % gap)
+				{
+					int col1 = grid[x - x % gap + ((y - y % gap) * RES_X)];
+					int col2 = grid[x - x % gap + gap + ((y - y % gap) * RES_X)];
+					int col3 = grid[x - x % gap + ((y - y % gap + gap) * RES_X)];
+					int col4 = grid[x - x % gap + gap + ((y - y % gap + gap) * RES_X)];
+					float dx = x % gap / (float)gap;
+					float dy = y % gap / (float)gap;
+					int re1 = crossfade(col1 >> 8, col3 >> 8, dy * 0xff, 0);
+					int re2 = crossfade(col2 >> 8, col4 >> 8, dy * 0xff, 0);
+					color = crossfade(re1 >> 8, re2 >> 8, dx * 0xff, 0);
+					grid[x + (y * RES_X)] = color;
+				}
+			}
+			else if (!(x % gap))
 			{
 				color = grid[x + (y * RES_X)];
 				if ((y + 1) % gap && y + 1 < RES_Y)

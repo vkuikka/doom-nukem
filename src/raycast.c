@@ -97,6 +97,12 @@ t_cast_result	cast_all_color(t_ray r, t_rthread *t, int side)
 	if (t->level->ssp[side].tris[hit].opacity)
 		transparency(r, &t->level->ssp[side], t->img, &res);
 	vec_mult(&r.dir, res.dist - 0.00001);
+	if (t->level->ssp[side].tris[hit].shader == 1)
+	{
+		t_vec3 tmp;
+		vec_add(&tmp, r.dir, r.pos);
+		res.color = crossfade(0x000022, 0x001133, wave_shader(tmp) * 0xff, 0);
+	}
 	if (t->level->sun_contrast || t->level->direct_shadow_contrast)
 		res.color = crossfade((unsigned)res.color >> 8, t->level->shadow_color,
 			shadow(r, t, t->level->ssp[side].tris[hit]) * 0xff, 0);
