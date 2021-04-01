@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/31 16:52:44 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/03/31 16:56:15 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/01 00:01:09 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,4 +112,26 @@ int			reflection(t_ray *r, t_rthread *t, t_tri hit, int depth)
 			t->level->all.tris[new_hit].reflectivity * 0xff, 0);
 	}
 	return (res_col);
+}
+
+float	wave_shader(t_vec3 mod)
+{
+	float			time;
+	float			oscillation;
+	float			res;
+
+	time = SDL_GetTicks() / 1000.0;
+	oscillation = (sin(time) + 1) / 2;
+	mod.x += sin(mod.z / 2) / 2 + (-sin(mod.z / 2) * oscillation * 4) / 4;
+	mod.x += time;
+	mod.x /= 2;
+	if (mod.x < 0)
+		mod.x = 2 - fmod(fabs(mod.x), 2);
+	else
+		mod.x = fmod(mod.x, 2);
+	if (mod.x > 1)
+		mod.x = 2 - mod.x;
+	res = sin(mod.x + oscillation / 2);
+	res = fmod(res, 1);
+	return (res);
 }
