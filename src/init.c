@@ -92,6 +92,4 @@ void			init_window(t_window **window)
 	window[0]->frame_buffer = NULL;
 	if (!(window[0]->depth_buffer = (float *)malloc(sizeof(float) * (RES_X * RES_Y))))
 		ft_error("memory allocation failed\n");
-	// if (!(window[0]->index_buffer = (int *)malloc(sizeof(int) * (RES_X * RES_Y))))
-	// 	ft_error("memory allocation failed\n");
 }
