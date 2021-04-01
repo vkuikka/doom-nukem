@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/04/01 09:10:18 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/04/01 17:12:53 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,6 @@ int		    get_fps(void)
 	}
 	return (fps);
 }
-
 
 void	ui_config_selected_faces(t_level *level)
 {
@@ -109,6 +108,7 @@ void	ui_config(t_level *level)
 	float_slider(&ui->direct_shadow_contrast, "shadow", 0, 1);
 	sprintf(buf, "sun dir: (%.2f, %.2f, %.2f)", ui->sun_dir.x, ui->sun_dir.y, ui->sun_dir.z);
 	text(buf);
+	//vec3_slider
 	float_slider(&ui->sun_dir.x, NULL, -1, 1);
 	float_slider(&ui->sun_dir.y, NULL, -1, 1);
 	float_slider(&ui->sun_dir.z, NULL, -1, 1);

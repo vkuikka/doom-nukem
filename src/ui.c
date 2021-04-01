@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/06 08:50:56 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/04/01 08:53:20 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/04/01 17:11:58 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,8 @@ static t_ivec2	put_text(char *text, t_window *window, SDL_Texture *texture, t_iv
 			ft_error("font open fail");
 		}
 	}
-	SDL_Surface* surfaceMessage = TTF_RenderText_Solid(font, text, get_text_color());
+	// SDL_Surface* surfaceMessage = TTF_RenderText_Solid(font, text, get_text_color());
+	SDL_Surface* surfaceMessage = TTF_RenderText_Blended(font, text, get_text_color());
 	SDL_Texture* Message = SDL_CreateTextureFromSurface(window->SDLrenderer, surfaceMessage);
 	SDL_Rect text_rect;
 	text_rect.w = 0;
@@ -92,35 +93,36 @@ static void	ui_render_background(SDL_Renderer *SDLrenderer)
 	// SDL_FillRect(screenSurface, &rect, SDL_MapRGB(...))
 }
 
-static void	ui_render_internal(SDL_Texture *get_text, SDL_Texture *get_streaming, t_window *get_window, t_ui_state *state)
+static t_ivec2	ui_render_internal(SDL_Texture *get_text, SDL_Texture *get_streaming, t_window *get_window, t_ui_state *state)
 {
 	static SDL_Texture *text_texture;
 	static SDL_Texture *streaming_texture;
 	static t_window *window;
 	unsigned	*pixels = NULL;
 	signed		width;
+	t_ivec2 size;
 	
 	if (get_text)//on init
 	{
 		text_texture = get_text;
 		streaming_texture = get_streaming;
 		window = get_window;
-		return ;
+		return (size);
 	}
 	if (state)//add line of text
 	{
 		t_ivec2 text_pos;
 		text_pos.x = state->ui_text_x_offset;
 		text_pos.y = state->ui_text_y_pos;
-		t_ivec2 size;
 		size = put_text(state->text, window, text_texture, text_pos);
 		if (state->ui_max_width < text_pos.x + size.x)
 			state->ui_max_width = text_pos.x + size.x;
 		state->ui_text_y_pos += 14;
+		return (size);
 	}
 	else//render
 	{
-		ui_render_background(window->SDLrenderer);
+		// ui_render_background(window->SDLrenderer);
 		SDL_UnlockTexture(streaming_texture);
 		SDL_RenderCopy(window->SDLrenderer, streaming_texture, NULL, NULL);
 		if (SDL_LockTexture(streaming_texture, NULL, (void**)&pixels, &width) != 0)
@@ -129,10 +131,13 @@ static void	ui_render_internal(SDL_Texture *get_text, SDL_Texture *get_streaming
 		SDL_RenderCopy(window->SDLrenderer, text_texture, NULL, NULL);
 
 		//maybe this on windows
-		// SDL_SetRenderTarget(window->SDLrenderer, text_texture);
-		// SDL_RenderClear(window->SDLrenderer);
-		// SDL_SetRenderTarget(window->SDLrenderer, NULL);
+		// SDL_SetRenderDrawColor(window->SDLrenderer, 255, 0, 0, 255);
+		SDL_SetRenderTarget(window->SDLrenderer, text_texture);
+		SDL_RenderClear(window->SDLrenderer);
+		SDL_RenderPresent(window->SDLrenderer);
+		SDL_SetRenderTarget(window->SDLrenderer, NULL);
 	}
+	return (size);
 }
 
 static void	edit_slider_var(float *unit, t_ui_state *state)
@@ -154,9 +159,23 @@ static void	edit_slider_var(float *unit, t_ui_state *state)
 		state->m1down = 0;
 }
 
+static int	edit_call_var(t_ui_state *state, t_ivec2 size)
+{
+	int			x;
+	int			y;
+
+	if (!SDL_GetRelativeMouseMode() && SDL_GetMouseState(&x, &y) & SDL_BUTTON(SDL_BUTTON_LEFT))
+	{
+		if (!state->m1down && x >= 3 && x <= size.x + 6 && y >= state->ui_text_y_pos + 4 && y <= state->ui_text_y_pos + size.y + 2)
+		{
+			return (1);
+		}
+	}
+	return (0);
+}
+
 static void	edit_button_var(int *var, t_ui_state *state)
 {
-	static int	m1down = 0;
 	int			x;
 	int			y;
 
@@ -177,6 +196,27 @@ static void	button_pixel_put(int x, int y, int color, unsigned *texture)
 	if (x < 0 || y < 0 || x >= RES_X || y >= RES_Y)
 		return;
 	texture[x + (y * RES_X)] = color;
+}
+
+static void	render_call_streaming(unsigned *get_texture, int dy, t_ivec2 *size)
+{
+	static unsigned *texture;
+
+	if (get_texture)
+	{
+		texture = get_texture;
+		return ;
+	}
+	for (int y = 0; y < size->y - 1; y++)
+	{
+		for (int x = 0; x < size->x + 4; x++)
+		{
+			// if (y < 1 || y > 8 || x < 1 || x > 8)
+				button_pixel_put(x + 2, y + 2 + dy, 0x404040ff, texture);
+			// else
+				// button_pixel_put(x + 2, y + 4 + dy, 0x303030ff, texture);
+		}
+	}
 }
 
 static void	render_button_streaming(unsigned *get_texture, int *var, int dy)
@@ -299,6 +339,22 @@ void	float_slider(float *var, char *str, float min, float max)
 	state->ui_text_y_pos += 14;
 }
 
+void	call(char *str, void (*f)(t_level*), t_level *level)
+{
+	t_ui_state	*state;
+
+	state = get_ui_state(NULL);
+	state->text = str;
+	state->ui_text_x_offset = 4;
+	t_ivec2 size;
+	size = ui_render_internal(NULL, NULL, NULL, state);
+	state->ui_text_y_pos -= 14;
+	render_call_streaming(NULL, state->ui_text_y_pos, &size);
+	if (edit_call_var(state, size))
+		(*f)(level);
+	state->ui_text_y_pos += 14;
+}
+
 void	ui_render(t_level *level)
 {
 	level->ui->state.ui_max_width = 0;
@@ -313,8 +369,8 @@ void	ui_render(t_level *level)
 void	init_ui(t_window *window, t_level *level)
 {
 	//maybe this on windows
-	// SDL_Texture *text_texture = SDL_CreateTexture(window->SDLrenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, RES_X, RES_Y);
-	SDL_Texture *text_texture = SDL_CreateTexture(window->SDLrenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, RES_X, RES_Y);
+	SDL_Texture *text_texture = SDL_CreateTexture(window->SDLrenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, RES_X, RES_Y);
+	// SDL_Texture *text_texture = SDL_CreateTexture(window->SDLrenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, RES_X, RES_Y);
 	SDL_Texture *ui_texture = SDL_CreateTexture(window->SDLrenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, RES_X, RES_Y);
 	unsigned	*pixels;
 	signed		width;
@@ -345,9 +401,12 @@ void	init_ui(t_window *window, t_level *level)
 	TTF_Init();
 	SDL_SetTextureBlendMode(text_texture, SDL_BLENDMODE_BLEND);
 	SDL_SetTextureBlendMode(ui_texture, SDL_BLENDMODE_BLEND);
+	// if (SDL_LockTexture(text_texture, NULL, (void**)&pixels, &width) != 0)
+	// 	ft_error("failed to lock texture\n");
 	if (SDL_LockTexture(ui_texture, NULL, (void**)&pixels, &width) != 0)
 		ft_error("failed to lock texture\n");
 	ui_render_internal(text_texture, ui_texture, window, NULL);
 	render_button_streaming(pixels, 0, 0);
 	render_slider_streaming(pixels, 0, 0);
+	render_call_streaming(pixels, 0, NULL);
  }

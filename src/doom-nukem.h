@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/01 08:37:18 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/04/01 11:01:54 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -288,6 +288,7 @@ void		text(char *text);
 void		button(int *var, char *text);
 void		int_slider(int *var, char *str, int min, int max);
 void		float_slider(float *var, char *str, float min, float max);
+void		call(char *str, void (*f)(t_level*), t_level *level);
 
 void		init_physics(t_level *level);
 void		physics_sync(t_level *level, t_physthread *get_data);
