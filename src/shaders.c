@@ -6,13 +6,13 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/31 16:52:44 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/01 00:01:09 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/01 15:16:18 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom-nukem.h"
 
-void		transparency(t_ray r, t_obj *obj, t_bmp *texture, t_cast_result *res)
+void		transparency(t_ray r, t_obj *obj, t_bmp *txt, t_cast_result *res)
 {
 	float	tmp_dist;
 	int		tmp_color;
@@ -24,7 +24,7 @@ void		transparency(t_ray r, t_obj *obj, t_bmp *texture, t_cast_result *res)
 	while (i < obj->tri_amount)
 	{
 		if (obj->tris[i].opacity &&
-			0 < (tmp_dist = cast_face(obj->tris[i], r, &tmp_color, texture)) &&
+			0 < (tmp_dist = cast_face(obj->tris[i], r, &tmp_color, txt)) &&
 			tmp_dist < res->dist && tmp_dist > res->transparent_dist)
 		{
 			transparent_face = i;
@@ -34,7 +34,7 @@ void		transparency(t_ray r, t_obj *obj, t_bmp *texture, t_cast_result *res)
 		if (++i == obj->tri_amount && res->transparent_dist && !(i = 0))
 		{
 			res->dist = res->transparent_dist;
-			*res->color = crossfade((unsigned)*res->color >> 8,
+			res->color = crossfade((unsigned)res->color >> 8,
 res->transparent_color >> 8, obj->tris[transparent_face].opacity * 0xff, 0);
 			res->transparent_dist = 0;
 		}

@@ -23,25 +23,22 @@ float		cast_face(t_tri t, t_ray ray, int *col, t_bmp *img)
 	float u = vec_dot(tvec, pvec) * invdet;
 	if (t.isgrid)
 	{
-		int test = 1;
 		if (u < 0)
-			test = -1;
-		u -= (int)u / 1;
-		u *= test;
+			u = 1 - fabs(u - (int)u);
+		else
+			u = fabs(u - (int)u);
 	}
 	if (u < 0 || u > 1)
 		return 0;
-
 	t_vec3 qvec;
 	vec_cross(&qvec, tvec, t.v0v1);
 	float v = vec_dot(ray.dir, qvec) * invdet;
 	if (t.isgrid)
 	{
-		int test = 1;
 		if (v < 0)
-			test = -1;
-		v -= (int)v / 1;
-		v *= test;
+			v = 1 - fabs(v - (int)v);
+		else
+			v = fabs(v - (int)v);
 	}
 	if (t.isquad)
 	{
@@ -67,7 +64,7 @@ void		rot_cam(t_vec3 *cam, const float lon, const float lat)
 	cam->z = radius * sin(phi) * sin(theta);
 }
 
-float		cast_all_color(t_ray r, t_rthread *t, int side, int *color)
+t_cast_result	cast_all_color(t_ray r, t_rthread *t, int side)
 {
 	t_cast_result	res;
 	int				i;
@@ -77,7 +74,6 @@ float		cast_all_color(t_ray r, t_rthread *t, int side, int *color)
 
 	i = 0;
 	res.dist = FLT_MAX;
-	res.color = color;
 	hit = -1;
 	while (i < t->level->ssp[side].tri_amount)
 	{
@@ -87,27 +83,30 @@ float		cast_all_color(t_ray r, t_rthread *t, int side, int *color)
 			if (!t->level->ssp[side].tris[i].opacity)
 			{
 				res.dist = tmp_dist;
-				*res.color = tmp_color;
+				res.color = tmp_color;
 			}
 			hit = i;
 		}
 		i++;
 	}
 	if (hit == -1)
-		return (res.dist);
+	{
+		res.color = skybox(*t->level, r);
+		return (res);
+	}
 	if (t->level->ssp[side].tris[hit].opacity)
 		transparency(r, &t->level->ssp[side], t->img, &res);
 	vec_mult(&r.dir, res.dist - 0.00001);
 	if (t->level->sun_contrast || t->level->direct_shadow_contrast)
-		*res.color = crossfade((unsigned)*res.color >> 8, t->level->shadow_color,
+		res.color = crossfade((unsigned)res.color >> 8, t->level->shadow_color,
 			shadow(r, t, t->level->ssp[side].tris[hit]) * 0xff, 0);
 	if (t->level->ssp[side].tris[hit].reflectivity)
 	{
 		tmp_color = reflection(&r, t, t->level->ssp[side].tris[hit], 0);
-		*res.color = crossfade((unsigned)*res.color >> 8,
+		res.color = crossfade((unsigned)res.color >> 8,
 			tmp_color >> 8, t->level->ssp[side].tris[hit].reflectivity * 0xff, 0);
 	}
-	return (res.dist);
+	return (res);
 }
 
 int			raycast(void *data_pointer)
@@ -147,9 +146,6 @@ int			raycast(void *data_pointer)
 			if (!rand_amount || rand() % rand_amount)	//skip random pixel
 			if (!(x % pixel_gap) && !(y % pixel_gap))
 			{
-				t->window->frame_buffer[x + (y * RES_X)] = 0;
-				t->window->depth_buffer[x + (y * RES_X)] = 0;
-
 				float ym = (1.0 / RES_Y * y - 0.5);	//multiply these to change fov
 				float xm = (1.0 / RES_X * x - 0.5);
 
@@ -157,13 +153,12 @@ int			raycast(void *data_pointer)
 				r.dir.y = cam.y + up.y * ym + side.y * xm;
 				r.dir.z = cam.z + up.z * ym + side.z * xm;
 
-				int		*color = (int*)&t->window->frame_buffer[x + (y * RES_X)];
-				float	*dist = &t->window->depth_buffer[x + (y * RES_X)];
-				if (!t->level->ui->fog)
-					*color = skybox(*t->level, r);
-				*dist = cast_all_color(r, t, x >= RES_X / 2, color);
+				t_cast_result	res;
+				res = cast_all_color(r, t, x >= RES_X / 2);
 				if (t->level->ui->fog)
-					*color = fog(*color, *dist, t->level->ui->fog_color, t->level);
+					res.color = fog(res.color, res.dist, t->level->ui->fog_color, t->level);
+				t->window->frame_buffer[x + (y * RES_X)] = res.color;
+				t->window->depth_buffer[x + (y * RES_X)] = res.dist;
 			}
 		}
 	}

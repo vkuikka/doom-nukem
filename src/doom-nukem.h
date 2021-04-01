@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   doom-nukem.h                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/01 00:04:03 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/01 15:18:09 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -239,7 +239,7 @@ typedef struct __attribute__((__packed__))	s_bmp_image {
 typedef struct			s_cast_result
 {
 	float				dist;
-	int					*color;
+	int					color;
 	float				transparent_dist;
 	int					transparent_color;
 }						t_cast_result;
