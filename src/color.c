@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/21 17:32:09 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/01 17:23:22 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/01 18:37:17 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,6 +95,39 @@ void		blur_pixels(unsigned *color, int gap)
 	}
 }
 
+int			smooth_color(unsigned *pixels, int gap, int x, int y)
+{
+	int		dx;
+	int		dy;
+	int		re1 = 0;
+	int		re2 = 0;
+	int		tmp = 0;
+
+	dx = x - x % gap;
+	dy = y - y % gap;
+	if (x >= RES_X - gap && y >= RES_Y - gap)
+		return(pixels[dx + ((y - y % gap) * RES_X)]);
+	if (x >= RES_X - gap)
+	{
+		re1 = pixels[dx + dy * RES_X];
+		re2 = pixels[dx + (dy + gap) * RES_X];
+		return(crossfade(re1 >> 8, re2 >> 8, y % gap / (float)gap * 0xff, 0));
+	}
+	if (y >= RES_Y - gap)
+	{
+		re1 = pixels[dx + dy * RES_X];
+		re2 = pixels[dx + gap + dy * RES_X];
+		return(crossfade(re1 >> 8, re2 >> 8, x % gap / (float)gap * 0xff, 0));
+	}
+	re1 = pixels[dx + dy * RES_X];
+	re2 = pixels[dx + (dy + gap) * RES_X];
+	tmp = crossfade(re1 >> 8, re2 >> 8, y % gap / (float)gap * 0xff, 0);
+	re1 = pixels[dx + gap + dy * RES_X];
+	re2 = pixels[dx + gap + (dy + gap) * RES_X];
+	re1 = crossfade(re1 >> 8, re2 >> 8, y % gap / (float)gap * 0xff, 0);
+	return(crossfade(tmp >> 8, re1 >> 8, x % gap / (float)gap * 0xff, 0));
+}
+
 void		fill_pixels(unsigned *grid, int gap, int blur, int smooth)
 {
 	int		color;
@@ -114,18 +147,7 @@ void		fill_pixels(unsigned *grid, int gap, int blur, int smooth)
 			if (smooth)
 			{
 				if (x % gap || y % gap)
-				{
-					int col1 = grid[x - x % gap + ((y - y % gap) * RES_X)];
-					int col2 = grid[x - x % gap + gap + ((y - y % gap) * RES_X)];
-					int col3 = grid[x - x % gap + ((y - y % gap + gap) * RES_X)];
-					int col4 = grid[x - x % gap + gap + ((y - y % gap + gap) * RES_X)];
-					float dx = x % gap / (float)gap;
-					float dy = y % gap / (float)gap;
-					int re1 = crossfade(col1 >> 8, col3 >> 8, dy * 0xff, 0);
-					int re2 = crossfade(col2 >> 8, col4 >> 8, dy * 0xff, 0);
-					color = crossfade(re1 >> 8, re2 >> 8, dx * 0xff, 0);
-					grid[x + (y * RES_X)] = color;
-				}
+					grid[x + (y * RES_X)] = smooth_color(grid, gap, x, y);
 			}
 			else if (!(x % gap))
 			{
