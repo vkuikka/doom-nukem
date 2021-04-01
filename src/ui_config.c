@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/03/31 21:16:56 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/04/01 09:10:18 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,9 +84,7 @@ void	ui_config(t_level *level)
 	button(&ui->show_quads, "quad visualize");
 	button(&ui->wireframe_culling_visual, "culling visualize");
 	// button(, "face/vert selection");
-	sprintf(buf, "pixel gap %d", ui->raycast_quality);
-	text(buf);
-	sprintf(buf, "render scale %.0f%%", 100.0 / (float)ui->raycast_quality);
+	sprintf(buf, "render scale: %d (%.0f%%)", ui->raycast_quality,100.0 / (float)ui->raycast_quality);
 	int_slider(&ui->raycast_quality, buf, 1, 20);
 
 	text("");
@@ -107,6 +105,14 @@ void	ui_config(t_level *level)
 	button(&ui->distance_culling, "distance");
 	sprintf(buf, "render distance: %.1fm", ui->render_distance);
 	float_slider(&ui->render_distance, buf, 2, 50);
+	float_slider(&ui->sun_contrast, "sun", 0, 1);
+	float_slider(&ui->direct_shadow_contrast, "shadow", 0, 1);
+	sprintf(buf, "sun dir: (%.2f, %.2f, %.2f)", ui->sun_dir.x, ui->sun_dir.y, ui->sun_dir.z);
+	text(buf);
+	float_slider(&ui->sun_dir.x, NULL, -1, 1);
+	float_slider(&ui->sun_dir.y, NULL, -1, 1);
+	float_slider(&ui->sun_dir.z, NULL, -1, 1);
+	vec_normalize(&level->ui->sun_dir);
 
 	text("");
 	set_text_color(UI_INFO_TEXT_COLOR);

@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/06 08:50:56 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/03/31 20:52:29 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/04/01 08:53:20 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -262,7 +262,8 @@ void	int_slider(int *var, char *str, int min, int max)
 	t_ui_state	*state;
 	float		unit;
 
-	text(str);
+	if (str)
+		text(str);
 	state = get_ui_state(NULL);
 	state->text = "";
 	state->ui_text_x_offset = 14;
@@ -282,7 +283,8 @@ void	float_slider(float *var, char *str, float min, float max)
 	t_ui_state	*state;
 	float		unit;
 
-	text(str);
+	if (str)
+		text(str);
 	state = get_ui_state(NULL);
 	state->text = "";
 	state->ui_text_x_offset = 14;
@@ -332,6 +334,13 @@ void	init_ui(t_window *window, t_level *level)
 	// ui->fog_color = 0xff0000ff;
 	ui->fog_color = 0xb19a6aff;//sandstorm
 	// ui->fog_color = 0xddddddff;//smoke
+
+	level->ui->sun_contrast = 0;	//max 1
+	level->ui->direct_shadow_contrast = 0;	//max 1
+	level->ui->sun_dir.x = 1;
+	level->ui->sun_dir.y = 1;
+	level->ui->sun_dir.z = 1;
+	vec_normalize(&level->ui->sun_dir);
 
 	TTF_Init();
 	SDL_SetTextureBlendMode(text_texture, SDL_BLENDMODE_BLEND);

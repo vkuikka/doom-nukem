@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/01 00:04:03 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/01 08:37:18 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -154,10 +154,7 @@ typedef struct			s_level
 	float				look_side;	//side look angle
 	float				look_up;	//up and down look angle
 	struct s_editor_ui	*ui;
-	struct s_vec3		sun_dir;
 	int					shadow_color;
-	float				direct_shadow_contrast;;
-	float				sun_contrast;
 }						t_level;
 
 typedef struct			s_ui_state
@@ -185,6 +182,10 @@ typedef struct			s_editor_ui
 	int					backface_culling;
 	int					distance_culling;
 	float				render_distance;
+
+	float				sun_contrast;
+	float				direct_shadow_contrast;;
+	struct s_vec3		sun_dir;
 
 	//info
 	float				physhz;
