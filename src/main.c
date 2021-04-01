@@ -146,7 +146,9 @@ static void		read_input(t_window *window, t_level *level)
 			level->look_side += (float)event.motion.xrel / 600;
 			level->look_up -= (float)event.motion.yrel / 600;
 		}
-		else if (event.type == SDL_MOUSEBUTTONDOWN && !relmouse && level->ui->wireframe)
+		else if (event.type == SDL_MOUSEBUTTONDOWN && !relmouse && level->ui->wireframe &&
+				(event.button.x > level->ui->state.ui_max_width ||
+				event.button.y > level->ui->state.ui_text_y_pos))
 			select_face(level, event.button.x, event.button.y);
 		else if (event.key.repeat == 0 && event.type == SDL_KEYDOWN)
 		{

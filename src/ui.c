@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/06 08:50:56 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/03/30 11:02:29 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/03/31 20:52:29 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ static SDL_Color get_text_color(void)
 	return (res);
 }
 
-static void	put_text(char *text, t_window *window, SDL_Texture *texture, t_ivec2 pos)
+static t_ivec2	put_text(char *text, t_window *window, SDL_Texture *texture, t_ivec2 pos)
 {
 	static TTF_Font*	font = NULL;
 
@@ -72,6 +72,10 @@ static void	put_text(char *text, t_window *window, SDL_Texture *texture, t_ivec2
 	SDL_SetRenderTarget(window->SDLrenderer, NULL);
 	SDL_FreeSurface(surfaceMessage);
 	SDL_DestroyTexture(Message);
+	t_ivec2 size;
+	size.x = text_rect.w;
+	size.y = text_rect.h;
+	return (size);
 }
 
 static void	ui_render_background(SDL_Renderer *SDLrenderer)
@@ -108,7 +112,10 @@ static void	ui_render_internal(SDL_Texture *get_text, SDL_Texture *get_streaming
 		t_ivec2 text_pos;
 		text_pos.x = state->ui_text_x_offset;
 		text_pos.y = state->ui_text_y_pos;
-		put_text(state->text, window, text_texture, text_pos);
+		t_ivec2 size;
+		size = put_text(state->text, window, text_texture, text_pos);
+		if (state->ui_max_width < text_pos.x + size.x)
+			state->ui_max_width = text_pos.x + size.x;
 		state->ui_text_y_pos += 14;
 	}
 	else//render
@@ -270,15 +277,33 @@ void	int_slider(int *var, char *str, int min, int max)
 	state->ui_text_y_pos += 14;
 }
 
+void	float_slider(float *var, char *str, float min, float max)
+{
+	t_ui_state	*state;
+	float		unit;
+
+	text(str);
+	state = get_ui_state(NULL);
+	state->text = "";
+	state->ui_text_x_offset = 14;
+
+	*var = clamp(*var, min, max);
+	*var -= min;
+	unit = (float)*var / (float)(max - min);
+	render_slider_streaming(NULL, unit, state->ui_text_y_pos);
+	edit_slider_var(&unit, state);
+	unit = clamp(unit, 0, 1);
+	*var = min + ((max - min) * unit);
+	state->ui_text_y_pos += 14;
+}
+
 void	ui_render(t_level *level)
 {
-	static t_ui_state	state = {0, 0, 0, 0, 0, 0};
-
-	state.ui_max_width = 0;
-	state.ui_text_color = 0;
-	state.ui_text_x_offset = 0;
-	state.ui_text_y_pos = 0;
-	get_ui_state(&state);
+	level->ui->state.ui_max_width = 0;
+	level->ui->state.ui_text_color = 0;
+	level->ui->state.ui_text_x_offset = 0;
+	level->ui->state.ui_text_y_pos = 0;
+	get_ui_state(&level->ui->state);
 	ui_config(level);
 	ui_render_internal(NULL, NULL, NULL, NULL);
 }

@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   doom-nukem.h                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
 /*   Updated: 2021/04/01 00:04:03 by vkuikka          ###   ########.fr       */
@@ -31,8 +31,8 @@
 # define WF_UNSELECTED_COL 0x333333ff
 # define WF_SELECTED_COL 0xffaa00ff
 # define WF_NOT_QUAD_WARNING_COL 0x802222ff
-# define WF_NORMAL_COL 0x00fffffff
-# define WF_VISIBLE_NORMAL_COL 0x0000ffff
+# define WF_NORMAL_COL 0xff0000ff
+# define WF_VISIBLE_NORMAL_COL 0x00ffffff
 # define WF_VISIBLE_COL 0x00ff00ff
 # define WF_BACKGROUND_COL 0x99		//1 byte value
 
@@ -40,6 +40,7 @@
 # define UI_EDITOR_SETTINGS_TEXT_COLOR 0x2222ffff
 # define UI_LEVEL_SETTINGS_TEXT_COLOR 0xffffffff
 # define UI_INFO_TEXT_COLOR 0xff5500ff
+# define UI_FACE_SELECTION_TEXT_COLOR 0xffffffff
 
 # ifndef FLT_MAX
 #  define FLT_MAX 3.40282347E+38
@@ -159,6 +160,16 @@ typedef struct			s_level
 	float				sun_contrast;
 }						t_level;
 
+typedef struct			s_ui_state
+{
+	int					ui_max_width;
+	int					ui_text_y_pos;
+	int					ui_text_x_offset;
+	int					ui_text_color;
+	int					m1down;
+	char				*text;
+}						t_ui_state;
+
 typedef struct			s_editor_ui
 {
 	int					editor_active;
@@ -178,17 +189,8 @@ typedef struct			s_editor_ui
 	//info
 	float				physhz;
 	unsigned			frametime;
+	struct s_ui_state	state;
 }						t_editor_ui;
-
-typedef struct			s_ui_state
-{
-	int					ui_max_width;
-	int					ui_text_y_pos;
-	int					ui_text_x_offset;
-	int					ui_text_color;
-	int					m1down;
-	char				*text;
-}						t_ui_state;
 
 typedef struct			s_physthread
 {
@@ -284,6 +286,7 @@ void		set_text_color(int color);
 void		text(char *text);
 void		button(int *var, char *text);
 void		int_slider(int *var, char *str, int min, int max);
+void		float_slider(float *var, char *str, float min, float max);
 
 void		init_physics(t_level *level);
 void		physics_sync(t_level *level, t_physthread *get_data);
