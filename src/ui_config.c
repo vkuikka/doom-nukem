@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ui_config.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/04/01 17:33:32 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/02 16:18:26 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,10 +69,6 @@ void	ui_config_selected_faces(t_level *level)
 			// button("\breakable");
 		}
 	}
-}
-
-void	set_ui_dir(t_level *level)
-{
 }
 
 void	set_obj(t_level *level, char *filename)
@@ -147,9 +143,9 @@ void	ui_render_directory_loopdir(t_level *level, int type, char *extension, int 
 			(find && ft_strlen(ent->d_name) > ft_strlen(extension) &&
 			!ft_strcmp(extension, &ent->d_name[ft_strlen(ent->d_name) - ft_strlen(extension)])))
 			{
-				if (type == DT_REG && call(ent->d_name, &set_ui_dir, level))
+				if (type == DT_REG && call(ent->d_name, NULL, level))
 					make_fileopen_call(level, ent->d_name);
-				else if (type == DT_DIR && call(ent->d_name, &set_ui_dir, level))
+				else if (type == DT_DIR && call(ent->d_name, NULL, level))
 					path_in_dir(level->ui->state.directory, ent->d_name);
 			}
 	}
@@ -160,7 +156,7 @@ void	ui_render_directory(t_level *level)
 {
 	set_text_color(UI_FACE_SELECTION_TEXT_COLOR);
 	text(level->ui->state.directory);
-	if (call("close", &set_ui_dir, level))
+	if (call("close", NULL, level))
 		level->ui->state.is_directory_open = 0;
 	if (call("up dir ..", NULL, level))
 		path_up_dir(level->ui->state.directory);
