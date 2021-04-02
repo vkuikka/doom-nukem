@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/06 08:50:56 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/04/02 08:39:14 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/04/02 10:27:28 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -205,7 +205,7 @@ static void	edit_button_var(int *var, t_ui_state *state)
 		state->m1down = 0;
 }
 
-static void	render_call_streaming(unsigned *get_texture, int dy, t_ivec2 *size)
+static void	render_call_streaming(unsigned *get_texture, int dy, t_ivec2 *size, int color)
 {
 	static unsigned *texture;
 
@@ -219,7 +219,7 @@ static void	render_call_streaming(unsigned *get_texture, int dy, t_ivec2 *size)
 		for (int x = 0; x < size->x + 4; x++)
 		{
 			// if (y < 1 || y > 8 || x < 1 || x > 8)
-				button_pixel_put(x + 2, y + 2 + dy, 0x404040ff, texture);
+				button_pixel_put(x + 2, y + 2 + dy, color, texture);
 			// else
 				// button_pixel_put(x + 2, y + 4 + dy, 0x303030ff, texture);
 		}
@@ -364,14 +364,18 @@ int		call(char *str, void (*f)(t_level*), t_level *level)
 {
 	int res = 0;
 	t_ui_state	*state;
+	int color_tmp;
 
 	state = get_ui_state(NULL);
 	state->text = str;
 	state->ui_text_x_offset = 4;
+	color_tmp = state->ui_text_color;
+	state->ui_text_color = UI_BACKGROUND_COL;
 	t_ivec2 size;
 	size = ui_render_internal(NULL, NULL, NULL, state);
 	state->ui_text_y_pos -= 14;
-	render_call_streaming(NULL, state->ui_text_y_pos, &size);
+	state->ui_text_color = color_tmp;
+	render_call_streaming(NULL, state->ui_text_y_pos, &size, state->ui_text_color);
 	if (edit_call_var(state, size))
 	{
 		res = 1;
@@ -393,8 +397,28 @@ void	ui_render(t_level *level)
 	ui_render_internal(NULL, NULL, NULL, NULL);
 }
 
+void	init_ui_state(t_level *level)
+{
+	global_seginfo = "inint ui state in\n";
+	if (!(level->ui->state.directory = (char*)malloc(sizeof(char) * PATH_MAX)))
+		ft_error("memory allocation failed\n");
+	if (!(level->ui->state.extension = (char*)malloc(sizeof(char) * NAME_MAX)))
+		ft_error("memory allocation failed\n");
+
+	ft_memset(level->ui->state.directory, 0, PATH_MAX - 1);
+	ft_memset(level->ui->state.extension, 0, NAME_MAX - 1);
+	global_seginfo = "inint ui state get path\n";
+	int path_max_size = PATH_MAX - 2;
+	_NSGetExecutablePath(level->ui->state.directory, &path_max_size);
+
+	path_up_dir(level->ui->state.directory);
+	path_up_dir(level->ui->state.directory);
+	global_seginfo = "inint ui state out\n";
+}
+
 void	init_ui(t_window *window, t_level *level)
 {
+	global_seginfo = "inint ui in\n";
 	//maybe this on windows
 	SDL_Texture *text_texture = SDL_CreateTexture(window->SDLrenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, RES_X, RES_Y);
 	// SDL_Texture *text_texture = SDL_CreateTexture(window->SDLrenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, RES_X, RES_Y);
@@ -425,10 +449,7 @@ void	init_ui(t_window *window, t_level *level)
 	level->ui->sun_dir.z = 1;
 	vec_normalize(&level->ui->sun_dir);
 
-	level->ui->state.directory = malloc(255);
-	level->ui->state.extension = malloc(255);
-	level->ui->state.directory[0] = '.';
-	level->ui->state.directory[1] = 0;
+	init_ui_state(level);
 	TTF_Init();
 	SDL_SetTextureBlendMode(text_texture, SDL_BLENDMODE_BLEND);
 	SDL_SetTextureBlendMode(ui_texture, SDL_BLENDMODE_BLEND);
@@ -439,6 +460,7 @@ void	init_ui(t_window *window, t_level *level)
 	ui_render_internal(text_texture, ui_texture, window, NULL);
 	render_button_streaming(pixels, 0, 0);
 	render_slider_streaming(pixels, 0, 0);
-	render_call_streaming(pixels, 0, NULL);
+	render_call_streaming(pixels, 0, NULL, 0);
 	ui_render_background(pixels);
+	global_seginfo = "inint ui out\n";
  }

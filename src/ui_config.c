@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/04/02 07:44:11 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/04/02 14:31:21 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,6 +86,49 @@ void	set_skybox(t_level *level, char *filename)
 	level->sky.img = bmp_read(filename);
 }
 
+void	path_in_dir(char *path, char *folder)
+{
+	int i;
+	int j;
+
+	i = 0;
+	j = 0;
+	printf("%s\n", path);
+	while (path[i])
+		i++;
+	path[i] = '/';
+	i++;
+	while (folder[j])
+	{
+		path[i] = folder[j];
+		i++;
+		j++;
+	}
+	path[i] = '\0';
+	printf("%s\n", path);
+}
+
+void	make_fileopen_call(t_level *level, char *file)
+{
+	char absolute_filename[PATH_MAX + NAME_MAX];
+
+	ft_strcpy(absolute_filename, level->ui->state.directory);
+	path_in_dir(absolute_filename, file);
+	level->ui->state.open_file(level, absolute_filename);
+}
+
+void	path_up_dir(char *path)
+{
+	int i;
+
+	i = 0;
+	while (path[i])
+		i++;
+	while (i && path[i] != '/')
+		i--;
+	if (i)
+		path[i] = '\0';
+}
 
 void	ui_render_directory_loopdir(t_level *level, int type, char *extension, int find)
 {
@@ -104,10 +147,9 @@ void	ui_render_directory_loopdir(t_level *level, int type, char *extension, int 
 			!ft_strcmp(extension, &ent->d_name[ft_strlen(ent->d_name) - ft_strlen(extension)])))
 			{
 				if (type == DT_REG && call(ent->d_name, &set_ui_dir, level))
-					level->ui->state.open_file(level, ent->d_name);
+					make_fileopen_call(level, ent->d_name);
 				else if (type == DT_DIR && call(ent->d_name, &set_ui_dir, level))
-					ft_strcpy(level->ui->state.directory, ent->d_name)
-					;//directory = (level, ent->d_name);
+					path_in_dir(level->ui->state.directory, ent->d_name);
 			}
 	}
 	closedir(dir);
@@ -116,11 +158,12 @@ void	ui_render_directory_loopdir(t_level *level, int type, char *extension, int 
 void	ui_render_directory(t_level *level)
 {
 	set_text_color(UI_FACE_SELECTION_TEXT_COLOR);
+	text(level->ui->state.directory);
 	if (call("close", &set_ui_dir, level))
 		level->ui->state.is_directory_open = 0;
+	if (call("up dir ..", NULL, level))
+		path_up_dir(level->ui->state.directory);
 	set_text_color(UI_EDITOR_SETTINGS_TEXT_COLOR);
-	if (call("..", NULL, level))
-		ft_strcpy(level->ui->state.directory, "..");
 	ui_render_directory_loopdir(level, DT_DIR, NULL, 0);
 	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
 	ui_render_directory_loopdir(level, DT_REG, level->ui->state.extension, 1);

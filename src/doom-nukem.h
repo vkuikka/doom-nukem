@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/02 08:36:51 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/04/02 10:21:05 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,7 @@
 # include <math.h>
 # include <fcntl.h>
 # include <dirent.h>
+# include <sys/syslimits.h>//for PATH_MAX && NAME_MAX
 # include <sys/time.h>
 # include "get_next_line.h"
 # include "SDL2/SDL.h"
@@ -170,9 +171,7 @@ typedef struct			s_ui_state
 
 	int					is_directory_open;
 	char				*directory;
-	char				*title;
 	char				*extension;
-	char				*to_open;
 	void				(*open_file)(t_level*, char*);
 }						t_ui_state;
 
@@ -299,6 +298,7 @@ void		int_slider(int *var, char *str, int min, int max);
 void		float_slider(float *var, char *str, float min, float max);
 int			call(char *str, void (*f)(t_level*), t_level *level);
 void		file_browser(char *str, char *extension, void (*f)(t_level*, char*));
+void		path_up_dir(char *path);
 
 void		init_physics(t_level *level);
 void		physics_sync(t_level *level, t_physthread *get_data);
