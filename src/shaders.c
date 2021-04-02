@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   shaders.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/31 16:52:44 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/01 15:22:39 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/02 17:08:38 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ void		transparency(t_ray r, t_obj *obj, t_bmp *txtr, t_cast_result *res)
 		{
 			res->dist = res->transparent_dist;
 			res->color = crossfade((unsigned)res->color >> 8,
-res->transparent_color >> 8, obj->tris[transparent_face].opacity * 0xff, 0);
+res->transparent_color >> 8, obj->tris[transparent_face].opacity * 0xff);
 			res->transparent_dist = 0;
 		}
 	}
@@ -109,7 +109,7 @@ int			reflection(t_ray *r, t_rthread *t, t_tri hit, int depth)
 		vec_mult(&r->dir, dist - 0.00001);
 		res_col = crossfade((unsigned)res_col >> 8,
 			reflection(r, t, t->level->all.tris[new_hit], depth + 1) >> 8,
-			t->level->all.tris[new_hit].reflectivity * 0xff, 0);
+			t->level->all.tris[new_hit].reflectivity * 0xff);
 	}
 	return (res_col);
 }

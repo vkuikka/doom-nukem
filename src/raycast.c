@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   render.c                                           :+:      :+:    :+:   */
+/*   raycast.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/01/30 04:08:34by vkuikka           ###   ########.fr       */
+/*   Updated: 2021/04/02 17:08:34 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,16 +101,16 @@ t_cast_result	cast_all_color(t_ray r, t_rthread *t, int side)
 	{
 		t_vec3 tmp;
 		vec_add(&tmp, r.dir, r.pos);
-		res.color = crossfade(0x000022, 0x001133, wave_shader(tmp) * 0xff, 0);
+		res.color = crossfade(0x000022, 0x001133, wave_shader(tmp) * 0xff);
 	}
 	if (t->level->ui->sun_contrast || t->level->ui->direct_shadow_contrast)
 		res.color = crossfade((unsigned)res.color >> 8, t->level->shadow_color,
-			shadow(r, t, t->level->ssp[side].tris[hit]) * 0xff, 0);
+			shadow(r, t, t->level->ssp[side].tris[hit]) * 0xff);
 	if (t->level->ssp[side].tris[hit].reflectivity)
 	{
 		tmp_color = reflection(&r, t, t->level->ssp[side].tris[hit], 0);
 		res.color = crossfade((unsigned)res.color >> 8,
-			tmp_color >> 8, t->level->ssp[side].tris[hit].reflectivity * 0xff, 0);
+			tmp_color >> 8, t->level->ssp[side].tris[hit].reflectivity * 0xff);
 	}
 	return (res);
 }

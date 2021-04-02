@@ -6,31 +6,25 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/21 17:32:09 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/01 18:37:17 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/02 17:10:22 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom-nukem.h"
 
-
-unsigned	crossfade(unsigned color1, unsigned color2, unsigned fade, unsigned r1)
+unsigned	crossfade(unsigned color1, unsigned color2, unsigned fade)
 {
-	unsigned g1;
-	unsigned b1;
-	unsigned r2;
-	unsigned g2;
-	unsigned b2;
+	unsigned char	*rgb1;
+	unsigned char	*rgb2;
+	unsigned int	newr;
+	unsigned int	newg;
+	unsigned int	newb;
 
-	r1 = ((color1 % (0x1000000)) >> 8 * 2);
-	g1 = ((color1 % (0x10000)) >> 8 * 1);
-	b1 = (color1 % (0x100));
-	r2 = ((color2 % (0x1000000)) >> 8 * 2);
-	g2 = ((color2 % (0x10000)) >> 8 * 1);
-	b2 = (color2 % (0x100));
-
-	unsigned newr = (r1 * (0xff - fade) + r2 * fade) / 0xff;
-	unsigned newg = (g1 * (0xff - fade) + g2 * fade) / 0xff;
-	unsigned newb = (b1 * (0xff - fade) + b2 * fade) / 0xff;
+	rgb1 = (unsigned char*)&color1;
+	rgb2 = (unsigned char*)&color2;
+	newr = (rgb1[2] * (0xff - fade) + rgb2[2] * fade) / 0xff;
+	newg = (rgb1[1] * (0xff - fade) + rgb2[1] * fade) / 0xff;
+	newb = (rgb1[0] * (0xff - fade) + rgb2[0] * fade) / 0xff;
 	return ((newr << 8 * 3) + (newg << 8 * 2) + (newb << 8 * 1) + 0xff);
 }
 
@@ -60,7 +54,7 @@ int			fog(int color, float dist, unsigned fog_color, t_level *level)
 	{
 		fade = (dist + 1) / (level->ui->render_distance - 1);
 		fade = fade > 1 ? 1 : fade;
-		return (crossfade(color >> 8, fog_color >> 8, 0xff * fade, 0));
+		return (crossfade(color >> 8, fog_color >> 8, 0xff * fade));
 	}
 	return (fog_color);
 }
@@ -84,10 +78,10 @@ void		blur_pixels(unsigned *color, int gap)
 			int col3 = color[x + gap + (y * RES_X)];
 			int col4 = color[x + ((y + gap) * RES_X)];
 			float fade = 1.0 / 4.0;
-			res = crossfade(res >> 8, col1 >> 8, fade * 0xff, 0);
-			res = crossfade(res >> 8, col2 >> 8, fade * 0xff, 0);
-			res = crossfade(res >> 8, col3 >> 8, fade * 0xff, 0);
-			res = crossfade(res >> 8, col4 >> 8, fade * 0xff, 0);
+			res = crossfade(res >> 8, col1 >> 8, fade * 0xff);
+			res = crossfade(res >> 8, col2 >> 8, fade * 0xff);
+			res = crossfade(res >> 8, col3 >> 8, fade * 0xff);
+			res = crossfade(res >> 8, col4 >> 8, fade * 0xff);
 			color[x + (y * RES_X)] = res;
 			x += gap;
 		}
@@ -111,21 +105,21 @@ int			smooth_color(unsigned *pixels, int gap, int x, int y)
 	{
 		re1 = pixels[dx + dy * RES_X];
 		re2 = pixels[dx + (dy + gap) * RES_X];
-		return(crossfade(re1 >> 8, re2 >> 8, y % gap / (float)gap * 0xff, 0));
+		return(crossfade(re1 >> 8, re2 >> 8, y % gap / (float)gap * 0xff));
 	}
 	if (y >= RES_Y - gap)
 	{
 		re1 = pixels[dx + dy * RES_X];
 		re2 = pixels[dx + gap + dy * RES_X];
-		return(crossfade(re1 >> 8, re2 >> 8, x % gap / (float)gap * 0xff, 0));
+		return(crossfade(re1 >> 8, re2 >> 8, x % gap / (float)gap * 0xff));
 	}
 	re1 = pixels[dx + dy * RES_X];
 	re2 = pixels[dx + (dy + gap) * RES_X];
-	tmp = crossfade(re1 >> 8, re2 >> 8, y % gap / (float)gap * 0xff, 0);
+	tmp = crossfade(re1 >> 8, re2 >> 8, y % gap / (float)gap * 0xff);
 	re1 = pixels[dx + gap + dy * RES_X];
 	re2 = pixels[dx + gap + (dy + gap) * RES_X];
-	re1 = crossfade(re1 >> 8, re2 >> 8, y % gap / (float)gap * 0xff, 0);
-	return(crossfade(tmp >> 8, re1 >> 8, x % gap / (float)gap * 0xff, 0));
+	re1 = crossfade(re1 >> 8, re2 >> 8, y % gap / (float)gap * 0xff);
+	return(crossfade(tmp >> 8, re1 >> 8, x % gap / (float)gap * 0xff));
 }
 
 void		fill_pixels(unsigned *grid, int gap, int blur, int smooth)

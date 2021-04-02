@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/01 17:34:18 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/02 17:04:29 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -277,7 +277,7 @@ t_level		*init_level(void);
 int			raycast(void *t);
 float		cast_face(t_tri t, t_ray ray, int *col, t_bmp *img);
 void		fill_pixels(unsigned *grid, int pixel_gap, int blur, int smooth);
-unsigned	crossfade(unsigned color1, unsigned color2, unsigned fade, unsigned r1);
+unsigned	crossfade(unsigned color1, unsigned color2, unsigned fade);
 int			face_color(float u, float v, t_tri t, t_bmp *img);
 
 void		wireframe(t_window *window, t_level *level);
