@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/02 07:38:21 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/04/02 08:36:51 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,7 @@
 # define UI_LEVEL_SETTINGS_TEXT_COLOR 0xffffffff
 # define UI_INFO_TEXT_COLOR 0xff5500ff
 # define UI_FACE_SELECTION_TEXT_COLOR 0xffffffff
+# define UI_BACKGROUND_COL 0x222222bb
 
 # ifndef FLT_MAX
 #  define FLT_MAX 3.40282347E+38

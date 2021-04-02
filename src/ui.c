@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/06 08:50:56 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/04/02 07:48:31 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/04/02 08:39:14 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,13 @@ t_ui_state	*get_ui_state(t_ui_state *get_state)
 	else
 		return (state);
 	return (NULL);
+}
+
+static void	button_pixel_put(int x, int y, int color, unsigned *texture)
+{
+	if (x < 0 || y < 0 || x >= RES_X || y >= RES_Y)
+		return;
+	texture[x + (y * RES_X)] = color;
 }
 
 void		set_text_color(int color)
@@ -79,18 +86,22 @@ static t_ivec2	put_text(char *text, t_window *window, SDL_Texture *texture, t_iv
 	return (size);
 }
 
-static void	ui_render_background(SDL_Renderer *SDLrenderer)
-{
-	static SDL_Texture *background = NULL;
-	SDL_Rect rect;
 
-	rect.x = 0;
-	rect.y = 0;
-	rect.w = 100;
-	rect.h = 100;
-	// if (!background)
-		// background = SDL_CreateTexture(SDLrenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, RES_X, RES_Y);
-	// SDL_FillRect(screenSurface, &rect, SDL_MapRGB(...))
+static void	ui_render_background(unsigned *get_texture)
+{
+	static unsigned *texture;
+	t_ui_state	*state;
+
+	state = get_ui_state(NULL);
+	if (get_texture)
+	{
+		texture = get_texture;
+		return ;
+	}
+	for (int y = 0; y < state->ui_text_y_pos + 6; y++)
+		for (int x = 0; x < state->ui_max_width + 4; x++)
+			if (!texture[x + (y * RES_X)])
+				button_pixel_put(x, y, UI_BACKGROUND_COL, texture);
 }
 
 static t_ivec2	ui_render_internal(SDL_Texture *get_text, SDL_Texture *get_streaming, t_window *get_window, t_ui_state *state)
@@ -122,7 +133,7 @@ static t_ivec2	ui_render_internal(SDL_Texture *get_text, SDL_Texture *get_stream
 	}
 	else//render
 	{
-		// ui_render_background(window->SDLrenderer);
+		ui_render_background(NULL);
 		SDL_UnlockTexture(streaming_texture);
 		SDL_RenderCopy(window->SDLrenderer, streaming_texture, NULL, NULL);
 		if (SDL_LockTexture(streaming_texture, NULL, (void**)&pixels, &width) != 0)
@@ -192,13 +203,6 @@ static void	edit_button_var(int *var, t_ui_state *state)
 	}
 	else if (state->m1down)
 		state->m1down = 0;
-}
-
-static void	button_pixel_put(int x, int y, int color, unsigned *texture)
-{
-	if (x < 0 || y < 0 || x >= RES_X || y >= RES_Y)
-		return;
-	texture[x + (y * RES_X)] = color;
 }
 
 static void	render_call_streaming(unsigned *get_texture, int dy, t_ivec2 *size)
@@ -436,4 +440,5 @@ void	init_ui(t_window *window, t_level *level)
 	render_button_streaming(pixels, 0, 0);
 	render_slider_streaming(pixels, 0, 0);
 	render_call_streaming(pixels, 0, NULL);
+	ui_render_background(pixels);
  }
