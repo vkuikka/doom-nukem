@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   ui.c                                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/06 08:50:56 by rpehkone          #+#    #+#             */
 /*   Updated: 2021/04/02 10:27:28 by rpehkone         ###   ########.fr       */
@@ -430,10 +430,12 @@ void	init_ui(t_window *window, t_level *level)
 	ui = (t_editor_ui*)malloc(sizeof(t_editor_ui));
 	level->ui = ui;
 	ft_bzero(ui, sizeof(t_editor_ui));
+	ui->blur = FALSE;
+	ui->smooth_pixels = FALSE;
 	ui->backface_culling = TRUE;
 	ui->distance_culling = TRUE;
 	ui->wireframe_on_top = TRUE;
-	ui->wireframe_culling_visual = TRUE;
+	ui->wireframe_culling_visual = FALSE;
 	ui->render_distance = 20;
 	ui->raycast_quality = NOISE_QUALITY_LIMIT - 1;
 	// ui->fog_color = 0xffffffff;//fog

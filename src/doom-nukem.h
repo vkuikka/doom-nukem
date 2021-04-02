@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/01 15:18:09 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/01 17:34:18 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,6 +127,7 @@ typedef struct			s_tri
 	int					isenemy;
 	float				opacity;
 	float				reflectivity;
+	int					shader;
 	// int					breakable;
 	// int					broken;
 	// int					*reflection_culling_mask;
@@ -184,6 +185,8 @@ typedef struct			s_editor_ui
 	int					raycast_quality;
 	int					wireframe_culling_visual;
 	int					fog;
+	int					blur;
+	int					smooth_pixels;
 	unsigned			fog_color;
 	int					show_quads;
 	int					pause_culling_position;
@@ -273,7 +276,7 @@ t_level		*init_level(void);
 
 int			raycast(void *t);
 float		cast_face(t_tri t, t_ray ray, int *col, t_bmp *img);
-void		fill_pixels(unsigned *grid, int pixel_gap);
+void		fill_pixels(unsigned *grid, int pixel_gap, int blur, int smooth);
 unsigned	crossfade(unsigned color1, unsigned color2, unsigned fade, unsigned r1);
 int			face_color(float u, float v, t_tri t, t_bmp *img);
 
