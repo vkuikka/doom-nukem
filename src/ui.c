@@ -325,7 +325,7 @@ void	init_ui(t_window *window, t_level *level)
 	ui->smooth_pixels = FALSE;
 	ui->backface_culling = TRUE;
 	ui->distance_culling = TRUE;
-	ui->wireframe_on_top = FALSE;
+	ui->wireframe_on_top = TRUE;
 	ui->wireframe_culling_visual = FALSE;
 	ui->render_distance = 20;
 	ui->raycast_quality = NOISE_QUALITY_LIMIT - 1;
