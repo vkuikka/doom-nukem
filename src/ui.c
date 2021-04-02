@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/06 08:50:56 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/04/01 17:06:18 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/02 10:27:28 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,13 @@ t_ui_state	*get_ui_state(t_ui_state *get_state)
 	else
 		return (state);
 	return (NULL);
+}
+
+static void	button_pixel_put(int x, int y, int color, unsigned *texture)
+{
+	if (x < 0 || y < 0 || x >= RES_X || y >= RES_Y)
+		return;
+	texture[x + (y * RES_X)] = color;
 }
 
 void		set_text_color(int color)
@@ -59,7 +66,8 @@ static t_ivec2	put_text(char *text, t_window *window, SDL_Texture *texture, t_iv
 			ft_error("font open fail");
 		}
 	}
-	SDL_Surface* surfaceMessage = TTF_RenderText_Solid(font, text, get_text_color());
+	// SDL_Surface* surfaceMessage = TTF_RenderText_Solid(font, text, get_text_color());
+	SDL_Surface* surfaceMessage = TTF_RenderText_Blended(font, text, get_text_color());
 	SDL_Texture* Message = SDL_CreateTextureFromSurface(window->SDLrenderer, surfaceMessage);
 	SDL_Rect text_rect;
 	text_rect.w = 0;
@@ -78,49 +86,54 @@ static t_ivec2	put_text(char *text, t_window *window, SDL_Texture *texture, t_iv
 	return (size);
 }
 
-static void	ui_render_background(SDL_Renderer *SDLrenderer)
-{
-	static SDL_Texture *background = NULL;
-	SDL_Rect rect;
 
-	rect.x = 0;
-	rect.y = 0;
-	rect.w = 100;
-	rect.h = 100;
-	// if (!background)
-		// background = SDL_CreateTexture(SDLrenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, RES_X, RES_Y);
-	// SDL_FillRect(screenSurface, &rect, SDL_MapRGB(...))
+static void	ui_render_background(unsigned *get_texture)
+{
+	static unsigned *texture;
+	t_ui_state	*state;
+
+	state = get_ui_state(NULL);
+	if (get_texture)
+	{
+		texture = get_texture;
+		return ;
+	}
+	for (int y = 0; y < state->ui_text_y_pos + 6; y++)
+		for (int x = 0; x < state->ui_max_width + 4; x++)
+			if (!texture[x + (y * RES_X)])
+				button_pixel_put(x, y, UI_BACKGROUND_COL, texture);
 }
 
-static void	ui_render_internal(SDL_Texture *get_text, SDL_Texture *get_streaming, t_window *get_window, t_ui_state *state)
+static t_ivec2	ui_render_internal(SDL_Texture *get_text, SDL_Texture *get_streaming, t_window *get_window, t_ui_state *state)
 {
 	static SDL_Texture *text_texture;
 	static SDL_Texture *streaming_texture;
 	static t_window *window;
 	unsigned	*pixels = NULL;
 	signed		width;
+	t_ivec2 size;
 	
 	if (get_text)//on init
 	{
 		text_texture = get_text;
 		streaming_texture = get_streaming;
 		window = get_window;
-		return ;
+		return (size);
 	}
 	if (state)//add line of text
 	{
 		t_ivec2 text_pos;
 		text_pos.x = state->ui_text_x_offset;
 		text_pos.y = state->ui_text_y_pos;
-		t_ivec2 size;
 		size = put_text(state->text, window, text_texture, text_pos);
 		if (state->ui_max_width < text_pos.x + size.x)
 			state->ui_max_width = text_pos.x + size.x;
 		state->ui_text_y_pos += 14;
+		return (size);
 	}
 	else//render
 	{
-		ui_render_background(window->SDLrenderer);
+		ui_render_background(NULL);
 		SDL_UnlockTexture(streaming_texture);
 		SDL_RenderCopy(window->SDLrenderer, streaming_texture, NULL, NULL);
 		if (SDL_LockTexture(streaming_texture, NULL, (void**)&pixels, &width) != 0)
@@ -129,10 +142,13 @@ static void	ui_render_internal(SDL_Texture *get_text, SDL_Texture *get_streaming
 		SDL_RenderCopy(window->SDLrenderer, text_texture, NULL, NULL);
 
 		//maybe this on windows
-		// SDL_SetRenderTarget(window->SDLrenderer, text_texture);
-		// SDL_RenderClear(window->SDLrenderer);
-		// SDL_SetRenderTarget(window->SDLrenderer, NULL);
+		// SDL_SetRenderDrawColor(window->SDLrenderer, 255, 0, 0, 255);
+		SDL_SetRenderTarget(window->SDLrenderer, text_texture);
+		SDL_RenderClear(window->SDLrenderer);
+		SDL_RenderPresent(window->SDLrenderer);
+		SDL_SetRenderTarget(window->SDLrenderer, NULL);
 	}
+	return (size);
 }
 
 static void	edit_slider_var(float *unit, t_ui_state *state)
@@ -154,9 +170,26 @@ static void	edit_slider_var(float *unit, t_ui_state *state)
 		state->m1down = 0;
 }
 
+static int	edit_call_var(t_ui_state *state, t_ivec2 size)
+{
+	int			x;
+	int			y;
+
+	if (!SDL_GetRelativeMouseMode() && SDL_GetMouseState(&x, &y) & SDL_BUTTON(SDL_BUTTON_LEFT))
+	{
+		if (!state->m1down && x >= 3 && x <= size.x + 6 && y >= state->ui_text_y_pos + 4 && y <= state->ui_text_y_pos + size.y + 2)
+		{
+			state->m1down = 1;
+			return (1);
+		}
+	}
+	else if (state->m1down)
+		state->m1down = 0;
+	return (0);
+}
+
 static void	edit_button_var(int *var, t_ui_state *state)
 {
-	static int	m1down = 0;
 	int			x;
 	int			y;
 
@@ -172,11 +205,25 @@ static void	edit_button_var(int *var, t_ui_state *state)
 		state->m1down = 0;
 }
 
-static void	button_pixel_put(int x, int y, int color, unsigned *texture)
+static void	render_call_streaming(unsigned *get_texture, int dy, t_ivec2 *size, int color)
 {
-	if (x < 0 || y < 0 || x >= RES_X || y >= RES_Y)
-		return;
-	texture[x + (y * RES_X)] = color;
+	static unsigned *texture;
+
+	if (get_texture)
+	{
+		texture = get_texture;
+		return ;
+	}
+	for (int y = 0; y < size->y - 1; y++)
+	{
+		for (int x = 0; x < size->x + 4; x++)
+		{
+			// if (y < 1 || y > 8 || x < 1 || x > 8)
+				button_pixel_put(x + 2, y + 2 + dy, color, texture);
+			// else
+				// button_pixel_put(x + 2, y + 4 + dy, 0x303030ff, texture);
+		}
+	}
 }
 
 static void	render_button_streaming(unsigned *get_texture, int *var, int dy)
@@ -262,7 +309,8 @@ void	int_slider(int *var, char *str, int min, int max)
 	t_ui_state	*state;
 	float		unit;
 
-	text(str);
+	if (str)
+		text(str);
 	state = get_ui_state(NULL);
 	state->text = "";
 	state->ui_text_x_offset = 14;
@@ -282,7 +330,8 @@ void	float_slider(float *var, char *str, float min, float max)
 	t_ui_state	*state;
 	float		unit;
 
-	text(str);
+	if (str)
+		text(str);
 	state = get_ui_state(NULL);
 	state->text = "";
 	state->ui_text_x_offset = 14;
@@ -297,6 +346,46 @@ void	float_slider(float *var, char *str, float min, float max)
 	state->ui_text_y_pos += 14;
 }
 
+void	file_browser(char *str, char *extension, void (*f)(t_level*, char*))
+{
+	t_ui_state	*state;
+
+	state = get_ui_state(NULL);
+	if (call(str, NULL, NULL))
+	{
+		state->is_directory_open = 1;
+		// state->title malloc extension;
+		ft_strcpy(state->extension, extension);
+		state->open_file = *f;;
+	}
+}
+
+int		call(char *str, void (*f)(t_level*), t_level *level)
+{
+	int res = 0;
+	t_ui_state	*state;
+	int color_tmp;
+
+	state = get_ui_state(NULL);
+	state->text = str;
+	state->ui_text_x_offset = 4;
+	color_tmp = state->ui_text_color;
+	state->ui_text_color = UI_BACKGROUND_COL;
+	t_ivec2 size;
+	size = ui_render_internal(NULL, NULL, NULL, state);
+	state->ui_text_y_pos -= 14;
+	state->ui_text_color = color_tmp;
+	render_call_streaming(NULL, state->ui_text_y_pos, &size, state->ui_text_color);
+	if (edit_call_var(state, size))
+	{
+		res = 1;
+		if (*f)
+			(*f)(level);
+	}
+	state->ui_text_y_pos += 14;
+	return (res);
+}
+
 void	ui_render(t_level *level)
 {
 	level->ui->state.ui_max_width = 0;
@@ -308,11 +397,31 @@ void	ui_render(t_level *level)
 	ui_render_internal(NULL, NULL, NULL, NULL);
 }
 
+void	init_ui_state(t_level *level)
+{
+	global_seginfo = "inint ui state in\n";
+	if (!(level->ui->state.directory = (char*)malloc(sizeof(char) * PATH_MAX)))
+		ft_error("memory allocation failed\n");
+	if (!(level->ui->state.extension = (char*)malloc(sizeof(char) * NAME_MAX)))
+		ft_error("memory allocation failed\n");
+
+	ft_memset(level->ui->state.directory, 0, PATH_MAX - 1);
+	ft_memset(level->ui->state.extension, 0, NAME_MAX - 1);
+	global_seginfo = "inint ui state get path\n";
+	int path_max_size = PATH_MAX - 2;
+	_NSGetExecutablePath(level->ui->state.directory, &path_max_size);
+
+	path_up_dir(level->ui->state.directory);
+	path_up_dir(level->ui->state.directory);
+	global_seginfo = "inint ui state out\n";
+}
+
 void	init_ui(t_window *window, t_level *level)
 {
+	global_seginfo = "inint ui in\n";
 	//maybe this on windows
-	// SDL_Texture *text_texture = SDL_CreateTexture(window->SDLrenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, RES_X, RES_Y);
-	SDL_Texture *text_texture = SDL_CreateTexture(window->SDLrenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, RES_X, RES_Y);
+	SDL_Texture *text_texture = SDL_CreateTexture(window->SDLrenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, RES_X, RES_Y);
+	// SDL_Texture *text_texture = SDL_CreateTexture(window->SDLrenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, RES_X, RES_Y);
 	SDL_Texture *ui_texture = SDL_CreateTexture(window->SDLrenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, RES_X, RES_Y);
 	unsigned	*pixels;
 	signed		width;
@@ -335,12 +444,25 @@ void	init_ui(t_window *window, t_level *level)
 	ui->fog_color = 0xb19a6aff;//sandstorm
 	// ui->fog_color = 0xddddddff;//smoke
 
+	level->ui->sun_contrast = 0;	//max 1
+	level->ui->direct_shadow_contrast = 0;	//max 1
+	level->ui->sun_dir.x = 1;
+	level->ui->sun_dir.y = 1;
+	level->ui->sun_dir.z = 1;
+	vec_normalize(&level->ui->sun_dir);
+
+	init_ui_state(level);
 	TTF_Init();
 	SDL_SetTextureBlendMode(text_texture, SDL_BLENDMODE_BLEND);
 	SDL_SetTextureBlendMode(ui_texture, SDL_BLENDMODE_BLEND);
+	// if (SDL_LockTexture(text_texture, NULL, (void**)&pixels, &width) != 0)
+	// 	ft_error("failed to lock texture\n");
 	if (SDL_LockTexture(ui_texture, NULL, (void**)&pixels, &width) != 0)
 		ft_error("failed to lock texture\n");
 	ui_render_internal(text_texture, ui_texture, window, NULL);
 	render_button_streaming(pixels, 0, 0);
 	render_slider_streaming(pixels, 0, 0);
+	render_call_streaming(pixels, 0, NULL, 0);
+	ui_render_background(pixels);
+	global_seginfo = "inint ui out\n";
  }

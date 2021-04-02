@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   shaders.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/31 16:52:44 by vkuikka           #+#    #+#             */
 /*   Updated: 2021/04/01 15:22:39 by vkuikka          ###   ########.fr       */
@@ -48,9 +48,9 @@ float		shadow(t_ray r, t_rthread *t, t_tri hit)
 	int				i;
 
 	vec_add(&r.pos, r.dir, r.pos);
-	r.dir.x = t->level->sun_dir.x;
-	r.dir.y = t->level->sun_dir.y;
-	r.dir.z = t->level->sun_dir.z;
+	r.dir.x = t->level->ui->sun_dir.x;
+	r.dir.y = t->level->ui->sun_dir.y;
+	r.dir.z = t->level->ui->sun_dir.z;
 	direct_shadow = 0;
 	i = 0;
 	while (i < t->level->all.tri_amount && !direct_shadow)
@@ -63,9 +63,9 @@ float		shadow(t_ray r, t_rthread *t, t_tri hit)
 	{
 		vec_cross(&normal, hit.v0v1, hit.v0v2);
 		vec_normalize(&normal);
-		return ((1 - vec_dot(normal, t->level->sun_dir)) * t->level->sun_contrast);
+		return ((1 - vec_dot(normal, t->level->ui->sun_dir)) * t->level->ui->sun_contrast);
 	}
-	return (t->level->direct_shadow_contrast);
+	return (t->level->ui->direct_shadow_contrast);
 }
 
 int			reflection(t_ray *r, t_rthread *t, t_tri hit, int depth)

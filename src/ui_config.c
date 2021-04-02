@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ui_config.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/04/01 17:33:32 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/02 16:18:26 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,6 @@ int		    get_fps(void)
 	}
 	return (fps);
 }
-
 
 void	ui_config_selected_faces(t_level *level)
 {
@@ -72,16 +71,118 @@ void	ui_config_selected_faces(t_level *level)
 	}
 }
 
+void	set_obj(t_level *level, char *filename)
+{
+	//free obj
+	load_obj(filename, &level->all);
+}
+
+void	set_skybox(t_level *level, char *filename)
+{
+	//free skybox
+	level->sky.img = bmp_read(filename);
+}
+
+void	path_in_dir(char *path, char *folder)
+{
+	int i;
+	int j;
+
+	i = 0;
+	j = 0;
+	printf("%s\n", path);
+	while (path[i])
+		i++;
+	path[i] = '/';
+	i++;
+	while (folder[j])
+	{
+		path[i] = folder[j];
+		i++;
+		j++;
+	}
+	path[i] = '\0';
+	printf("%s\n", path);
+}
+
+void	make_fileopen_call(t_level *level, char *file)
+{
+	char absolute_filename[PATH_MAX + NAME_MAX];
+
+	ft_strcpy(absolute_filename, level->ui->state.directory);
+	path_in_dir(absolute_filename, file);
+	level->ui->state.open_file(level, absolute_filename);
+}
+
+void	path_up_dir(char *path)
+{
+	int i;
+
+	i = 0;
+	while (path[i])
+		i++;
+	while (i && path[i] != '/')
+		i--;
+	if (i)
+		path[i] = '\0';
+}
+
+void	ui_render_directory_loopdir(t_level *level, int type, char *extension, int find)
+{
+	DIR *dir = opendir(level->ui->state.directory);
+
+	if (!dir)
+		ft_error("Cannot open directory\n");
+	struct dirent *ent;
+	while ((ent = readdir(dir)) != NULL)
+	{
+		if (ent->d_type == type && ent->d_name[0] != '.')
+			if (type == DT_DIR ||
+			(!find && ft_strlen(ent->d_name) > ft_strlen(extension) &&
+			ft_strcmp(extension, &ent->d_name[ft_strlen(ent->d_name) - ft_strlen(extension)])) ||
+			(find && ft_strlen(ent->d_name) > ft_strlen(extension) &&
+			!ft_strcmp(extension, &ent->d_name[ft_strlen(ent->d_name) - ft_strlen(extension)])))
+			{
+				if (type == DT_REG && call(ent->d_name, NULL, level))
+					make_fileopen_call(level, ent->d_name);
+				else if (type == DT_DIR && call(ent->d_name, NULL, level))
+					path_in_dir(level->ui->state.directory, ent->d_name);
+			}
+	}
+	closedir(dir);
+}
+
+void	ui_render_directory(t_level *level)
+{
+	set_text_color(UI_FACE_SELECTION_TEXT_COLOR);
+	text(level->ui->state.directory);
+	if (call("close", NULL, level))
+		level->ui->state.is_directory_open = 0;
+	if (call("up dir ..", NULL, level))
+		path_up_dir(level->ui->state.directory);
+	set_text_color(UI_EDITOR_SETTINGS_TEXT_COLOR);
+	ui_render_directory_loopdir(level, DT_DIR, NULL, 0);
+	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
+	ui_render_directory_loopdir(level, DT_REG, level->ui->state.extension, 1);
+	set_text_color(UI_INFO_TEXT_COLOR);
+	ui_render_directory_loopdir(level, DT_REG, level->ui->state.extension, 0);
+}
+
+
 void	ui_config(t_level *level)
 {
 	char				 buf[100];
 	t_editor_ui			*ui;
 
 	ui = level->ui;
+	if (level->ui->state.is_directory_open)
+	{
+		ui_render_directory(level);
+		return ;
+	}
 	set_text_color(UI_EDITOR_SETTINGS_TEXT_COLOR);
-	sprintf(buf, "pixel gap %d", ui->raycast_quality);
-	text(buf);
-	sprintf(buf, "render scale %.0f%%", 100.0 / (float)ui->raycast_quality);
+	// button(, "face/vert selection");
+	sprintf(buf, "render scale: %d (%.0f%%)", ui->raycast_quality,100.0 / (float)ui->raycast_quality);
 	int_slider(&ui->raycast_quality, buf, 1, 20);
 	button(&ui->noclip, "noclip");
 	button(&ui->blur, "blur");
@@ -98,10 +199,10 @@ void	ui_config(t_level *level)
 	text("");
 	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
 	text("level:");
-	//file_browse("level", ".dnukem_level", &set_level(char *filename));
-	//file_browse("map", ".obj", &set_map(char *filename));
-	//file_browse("texture", ".bmp", &set_texture(char *filename));
-	//file_browse("skybox", ".bmp", &set_skybox(char *filename));
+	//file_browser("select level", ".dnukem_level", &set_level;
+	file_browser("select obj", ".obj", &set_obj);
+	// file_browser("select texture", ".bmp", &set_texture;
+	file_browser("select skybox", ".bmp", &set_skybox);
 	button(&ui->fog, "fog");
 	// color(ui->color, "fog color");
 	// call(, "set spawn point");
@@ -113,6 +214,15 @@ void	ui_config(t_level *level)
 	button(&ui->distance_culling, "distance");
 	sprintf(buf, "render distance: %.1fm", ui->render_distance);
 	float_slider(&ui->render_distance, buf, 2, 50);
+	float_slider(&ui->sun_contrast, "sun", 0, 1);
+	float_slider(&ui->direct_shadow_contrast, "shadow", 0, 1);
+	sprintf(buf, "sun dir: (%.2f, %.2f, %.2f)", ui->sun_dir.x, ui->sun_dir.y, ui->sun_dir.z);
+	text(buf);
+	//vec3_slider
+	float_slider(&ui->sun_dir.x, NULL, -1, 1);
+	float_slider(&ui->sun_dir.y, NULL, -1, 1);
+	float_slider(&ui->sun_dir.z, NULL, -1, 1);
+	vec_normalize(&level->ui->sun_dir);
 
 	text("");
 	set_text_color(UI_INFO_TEXT_COLOR);

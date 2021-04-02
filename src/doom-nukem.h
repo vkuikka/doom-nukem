@@ -37,10 +37,11 @@
 # define WF_BACKGROUND_COL 0x99		//1 byte value
 
 # define UI_FONT_SIZE 13
-# define UI_EDITOR_SETTINGS_TEXT_COLOR 0x2222ffff
+# define UI_EDITOR_SETTINGS_TEXT_COLOR 0x4444ffff
 # define UI_LEVEL_SETTINGS_TEXT_COLOR 0xffffffff
 # define UI_INFO_TEXT_COLOR 0xff5500ff
 # define UI_FACE_SELECTION_TEXT_COLOR 0xffffffff
+# define UI_BACKGROUND_COL 0x222222bb
 
 # ifndef FLT_MAX
 #  define FLT_MAX 3.40282347E+38
@@ -48,6 +49,8 @@
 
 # include <math.h>
 # include <fcntl.h>
+# include <dirent.h>
+# include <sys/syslimits.h>//for PATH_MAX && NAME_MAX
 # include <sys/time.h>
 # include "get_next_line.h"
 # include "SDL2/SDL.h"
@@ -155,10 +158,7 @@ typedef struct			s_level
 	float				look_side;	//side look angle
 	float				look_up;	//up and down look angle
 	struct s_editor_ui	*ui;
-	struct s_vec3		sun_dir;
 	int					shadow_color;
-	float				direct_shadow_contrast;;
-	float				sun_contrast;
 }						t_level;
 
 typedef struct			s_ui_state
@@ -169,6 +169,11 @@ typedef struct			s_ui_state
 	int					ui_text_color;
 	int					m1down;
 	char				*text;
+
+	int					is_directory_open;
+	char				*directory;
+	char				*extension;
+	void				(*open_file)(t_level*, char*);
 }						t_ui_state;
 
 typedef struct			s_editor_ui
@@ -188,6 +193,10 @@ typedef struct			s_editor_ui
 	int					backface_culling;
 	int					distance_culling;
 	float				render_distance;
+
+	float				sun_contrast;
+	float				direct_shadow_contrast;;
+	struct s_vec3		sun_dir;
 
 	//info
 	float				physhz;
@@ -290,6 +299,9 @@ void		text(char *text);
 void		button(int *var, char *text);
 void		int_slider(int *var, char *str, int min, int max);
 void		float_slider(float *var, char *str, float min, float max);
+int			call(char *str, void (*f)(t_level*), t_level *level);
+void		file_browser(char *str, char *extension, void (*f)(t_level*, char*));
+void		path_up_dir(char *path);
 
 void		init_physics(t_level *level);
 void		physics_sync(t_level *level, t_physthread *get_data);
