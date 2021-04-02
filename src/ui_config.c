@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/04/01 17:12:53 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/04/02 07:44:11 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,12 +70,76 @@ void	ui_config_selected_faces(t_level *level)
 	}
 }
 
+void	set_ui_dir(t_level *level)
+{
+}
+
+void	set_obj(t_level *level, char *filename)
+{
+	//free obj
+	load_obj(filename, &level->all);
+}
+
+void	set_skybox(t_level *level, char *filename)
+{
+	//free skybox
+	level->sky.img = bmp_read(filename);
+}
+
+
+void	ui_render_directory_loopdir(t_level *level, int type, char *extension, int find)
+{
+	DIR *dir = opendir(level->ui->state.directory);
+
+	if (!dir)
+		ft_error("Cannot open directory\n");
+	struct dirent *ent;
+	while ((ent = readdir(dir)) != NULL)
+	{
+		if (ent->d_type == type && ent->d_name[0] != '.')
+			if (type == DT_DIR ||
+			(!find && ft_strlen(ent->d_name) > ft_strlen(extension) &&
+			ft_strcmp(extension, &ent->d_name[ft_strlen(ent->d_name) - ft_strlen(extension)])) ||
+			(find && ft_strlen(ent->d_name) > ft_strlen(extension) &&
+			!ft_strcmp(extension, &ent->d_name[ft_strlen(ent->d_name) - ft_strlen(extension)])))
+			{
+				if (type == DT_REG && call(ent->d_name, &set_ui_dir, level))
+					level->ui->state.open_file(level, ent->d_name);
+				else if (type == DT_DIR && call(ent->d_name, &set_ui_dir, level))
+					ft_strcpy(level->ui->state.directory, ent->d_name)
+					;//directory = (level, ent->d_name);
+			}
+	}
+	closedir(dir);
+}
+
+void	ui_render_directory(t_level *level)
+{
+	set_text_color(UI_FACE_SELECTION_TEXT_COLOR);
+	if (call("close", &set_ui_dir, level))
+		level->ui->state.is_directory_open = 0;
+	set_text_color(UI_EDITOR_SETTINGS_TEXT_COLOR);
+	if (call("..", NULL, level))
+		ft_strcpy(level->ui->state.directory, "..");
+	ui_render_directory_loopdir(level, DT_DIR, NULL, 0);
+	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
+	ui_render_directory_loopdir(level, DT_REG, level->ui->state.extension, 1);
+	set_text_color(UI_INFO_TEXT_COLOR);
+	ui_render_directory_loopdir(level, DT_REG, level->ui->state.extension, 0);
+}
+
+
 void	ui_config(t_level *level)
 {
 	char				 buf[100];
 	t_editor_ui			*ui;
 
 	ui = level->ui;
+	if (level->ui->state.is_directory_open)
+	{
+		ui_render_directory(level);
+		return ;
+	}
 	set_text_color(UI_EDITOR_SETTINGS_TEXT_COLOR);
 	button(&ui->noclip, "noclip");
 	button(&ui->wireframe, "wireframe");
@@ -89,10 +153,10 @@ void	ui_config(t_level *level)
 	text("");
 	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
 	text("level:");
-	//file_browse("level", ".dnukem_level", &set_level(char *filename));
-	//file_browse("map", ".obj", &set_map(char *filename));
-	//file_browse("texture", ".bmp", &set_texture(char *filename));
-	//file_browse("skybox", ".bmp", &set_skybox(char *filename));
+	//file_browser("select level", ".dnukem_level", &set_level;
+	file_browser("select obj", ".obj", &set_obj);
+	// file_browser("select texture", ".bmp", &set_texture;
+	file_browser("select skybox", ".bmp", &set_skybox);
 	button(&ui->fog, "fog");
 	// color(ui->color, "fog color");
 	// call(, "set spawn point");

@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/06 08:50:56 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/04/01 17:11:58 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/04/02 07:48:31 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -168,9 +168,12 @@ static int	edit_call_var(t_ui_state *state, t_ivec2 size)
 	{
 		if (!state->m1down && x >= 3 && x <= size.x + 6 && y >= state->ui_text_y_pos + 4 && y <= state->ui_text_y_pos + size.y + 2)
 		{
+			state->m1down = 1;
 			return (1);
 		}
 	}
+	else if (state->m1down)
+		state->m1down = 0;
 	return (0);
 }
 
@@ -339,8 +342,23 @@ void	float_slider(float *var, char *str, float min, float max)
 	state->ui_text_y_pos += 14;
 }
 
-void	call(char *str, void (*f)(t_level*), t_level *level)
+void	file_browser(char *str, char *extension, void (*f)(t_level*, char*))
 {
+	t_ui_state	*state;
+
+	state = get_ui_state(NULL);
+	if (call(str, NULL, NULL))
+	{
+		state->is_directory_open = 1;
+		// state->title malloc extension;
+		ft_strcpy(state->extension, extension);
+		state->open_file = *f;;
+	}
+}
+
+int		call(char *str, void (*f)(t_level*), t_level *level)
+{
+	int res = 0;
 	t_ui_state	*state;
 
 	state = get_ui_state(NULL);
@@ -351,8 +369,13 @@ void	call(char *str, void (*f)(t_level*), t_level *level)
 	state->ui_text_y_pos -= 14;
 	render_call_streaming(NULL, state->ui_text_y_pos, &size);
 	if (edit_call_var(state, size))
-		(*f)(level);
+	{
+		res = 1;
+		if (*f)
+			(*f)(level);
+	}
 	state->ui_text_y_pos += 14;
+	return (res);
 }
 
 void	ui_render(t_level *level)
@@ -398,6 +421,10 @@ void	init_ui(t_window *window, t_level *level)
 	level->ui->sun_dir.z = 1;
 	vec_normalize(&level->ui->sun_dir);
 
+	level->ui->state.directory = malloc(255);
+	level->ui->state.extension = malloc(255);
+	level->ui->state.directory[0] = '.';
+	level->ui->state.directory[1] = 0;
 	TTF_Init();
 	SDL_SetTextureBlendMode(text_texture, SDL_BLENDMODE_BLEND);
 	SDL_SetTextureBlendMode(ui_texture, SDL_BLENDMODE_BLEND);
