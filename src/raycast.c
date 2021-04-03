@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/02 17:08:34 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/03 21:29:35 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,6 +94,7 @@ t_cast_result	cast_all_color(t_ray r, t_rthread *t, int side)
 		res.color = skybox(*t->level, r);
 		return (res);
 	}
+	res.normal = t->level->ssp[side].tris[hit].normal;
 	if (t->level->ssp[side].tris[hit].opacity)
 		transparency(r, &t->level->ssp[side], t->img, &res);
 	vec_mult(&r.dir, res.dist - 0.00001);
@@ -101,14 +102,14 @@ t_cast_result	cast_all_color(t_ray r, t_rthread *t, int side)
 	{
 		t_vec3 tmp;
 		vec_add(&tmp, r.dir, r.pos);
-		res.color = crossfade(0x000022, 0x001133, wave_shader(tmp) * 0xff);
+		res.color = wave_shader(tmp, &res.normal, 0x070C5A, 0x020540);
 	}
 	if (t->level->ui->sun_contrast || t->level->ui->direct_shadow_contrast)
 		res.color = crossfade((unsigned)res.color >> 8, t->level->shadow_color,
-			shadow(r, t, t->level->ssp[side].tris[hit]) * 0xff);
+			shadow(r, t, res.normal) * 0xff);
 	if (t->level->ssp[side].tris[hit].reflectivity)
 	{
-		tmp_color = reflection(&r, t, t->level->ssp[side].tris[hit], 0);
+		tmp_color = reflection(&r, t, res.normal, 0);
 		res.color = crossfade((unsigned)res.color >> 8,
 			tmp_color >> 8, t->level->ssp[side].tris[hit].reflectivity * 0xff);
 	}

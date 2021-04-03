@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/31 16:52:44 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/02 17:08:38 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/03 21:27:31 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,9 +41,8 @@ res->transparent_color >> 8, obj->tris[transparent_face].opacity * 0xff);
 	}
 }
 
-float		shadow(t_ray r, t_rthread *t, t_tri hit)
+float		shadow(t_ray r, t_rthread *t, t_vec3 normal)
 {
-	t_vec3			normal;
 	int				direct_shadow;
 	int				i;
 
@@ -60,15 +59,11 @@ float		shadow(t_ray r, t_rthread *t, t_tri hit)
 		i++;
 	}
 	if (!direct_shadow)
-	{
-		vec_cross(&normal, hit.v0v1, hit.v0v2);
-		vec_normalize(&normal);
 		return ((1 - vec_dot(normal, t->level->ui->sun_dir)) * t->level->ui->sun_contrast);
-	}
 	return (t->level->ui->direct_shadow_contrast);
 }
 
-int			reflection(t_ray *r, t_rthread *t, t_tri hit, int depth)
+int			reflection(t_ray *r, t_rthread *t, t_vec3 normal_dir, int depth)
 {
 	float			dist;
 	float			tmp_dist;
@@ -80,8 +75,7 @@ int			reflection(t_ray *r, t_rthread *t, t_tri hit, int depth)
 	t_ray	normal;
 	vec_add(&normal.pos, r->dir, r->pos);
 	vec_normalize(&r->dir);
-	vec_cross(&normal.dir, hit.v0v1, hit.v0v2);
-	vec_normalize(&normal.dir);
+	normal.dir = normal_dir;
 	vec_mult(&normal.dir, vec_dot(r->dir, normal.dir) * -2);
 	vec_add(&r->dir, r->dir, normal.dir);
 	vec_normalize(&r->dir);
@@ -108,13 +102,13 @@ int			reflection(t_ray *r, t_rthread *t, t_tri hit, int depth)
 	{
 		vec_mult(&r->dir, dist - 0.00001);
 		res_col = crossfade((unsigned)res_col >> 8,
-			reflection(r, t, t->level->all.tris[new_hit], depth + 1) >> 8,
+			reflection(r, t, t->level->all.tris[new_hit].normal, depth + 1) >> 8,
 			t->level->all.tris[new_hit].reflectivity * 0xff);
 	}
 	return (res_col);
 }
 
-float	wave_shader(t_vec3 mod)
+int		wave_shader(t_vec3 mod, t_vec3 *normal, int col1, int col2)
 {
 	float			time;
 	float			oscillation;
@@ -122,16 +116,16 @@ float	wave_shader(t_vec3 mod)
 
 	time = SDL_GetTicks() / 1000.0;
 	oscillation = (sin(time) + 1) / 2;
-	mod.x += sin(mod.z / 2) / 2 + (-sin(mod.z / 2) * oscillation * 4) / 4;
-	mod.x += time;
-	mod.x /= 2;
-	if (mod.x < 0)
-		mod.x = 2 - fmod(fabs(mod.x), 2);
+	float	tmp = 2 * M_PI / 6 * (sin(mod.z) / 5 + sin(mod.x) / 4 + mod.x + time);
+	tmp = sin(tmp);
+	res = fabs(tmp);
+	if (res < 0)
+		normal->x += res / 5;
 	else
-		mod.x = fmod(mod.x, 2);
-	if (mod.x > 1)
-		mod.x = 2 - mod.x;
-	res = sin(mod.x + oscillation / 2);
-	res = fmod(res, 1);
+		normal->x -= res / 5;
+	normal->y = 1;
+	normal->z = 0;
+	vec_normalize(normal);
+	res = crossfade(col1, col2, res * 0xff);
 	return (res);
 }

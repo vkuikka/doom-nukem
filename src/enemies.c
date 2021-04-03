@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/14 17:08:49 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/03/24 04:06:47 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/02 20:21:26 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,8 @@ static void		turn_sprite(t_tri *tri, t_vec3 dir)
 		vec_add(&tri->verts[vert].pos, rot_vert, face_mid);
 	}
 	calc_vectors(tri);
+	vec_cross(&tri->normal, tri->v0v1, tri->v0v2);
+	vec_normalize(&tri->normal);
 }
 
 //called from physics

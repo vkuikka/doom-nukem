@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/02 17:04:29 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/03 21:28:19 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,6 +122,7 @@ typedef struct			s_tri
 	struct s_vert		verts[4];	//vertex coordinates of 3d triangle
 	struct s_vec3		v0v1;		//vector between vertices 1 and 0
 	struct s_vec3		v0v2;		//vector between vertices 2 and 0
+	struct s_vec3		normal;
 	int					isquad;
 	int					isgrid;
 	int					isenemy;
@@ -254,6 +255,7 @@ typedef struct			s_cast_result
 	int					color;
 	float				transparent_dist;
 	int					transparent_color;
+	struct s_vec3		normal;
 }						t_cast_result;
 
 void		vec_normalize(t_vec3 *vec);						//makes vector length 1
@@ -315,9 +317,9 @@ int			fog(int color, float dist, unsigned fog_color, t_level *level);
 int			skybox(t_level l, t_ray r);
 
 void		transparency(t_ray r, t_obj *obj, t_bmp *texture, t_cast_result *res);
-float		shadow(t_ray r, t_rthread *t, t_tri hit);
-int			reflection(t_ray *r, t_rthread *t, t_tri hit, int depth);
-float		wave_shader(t_vec3 mod);
+float		shadow(t_ray r, t_rthread *t, t_vec3 normal);
+int			reflection(t_ray *r, t_rthread *t, t_vec3 normal, int depth);
+int			wave_shader(t_vec3 mod, t_vec3 *normal, int col1, int col2);
 
 void		select_face(t_level *level, int x, int y);
 
