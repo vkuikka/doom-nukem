@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/31 16:52:44 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/03 21:39:48 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/03 21:42:30 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,10 +119,7 @@ unsigned		wave_shader(t_vec3 mod, t_vec3 *normal, unsigned col1, unsigned col2)
 	float	tmp = 2 * M_PI / 6 * (sin(mod.z) / 5 + sin(mod.x) / 4 + mod.x + time);
 	tmp = sin(tmp);
 	res = fabs(tmp);
-	if (res < 0)
-		normal->x += res / 5;
-	else
-		normal->x -= res / 5;
+	normal->x -= res / 5;
 	normal->y = 1;
 	normal->z = 0;
 	vec_normalize(normal);
