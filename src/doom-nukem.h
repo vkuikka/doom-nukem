@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/03 21:28:19 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/03 21:40:11 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -319,7 +319,7 @@ int			skybox(t_level l, t_ray r);
 void		transparency(t_ray r, t_obj *obj, t_bmp *texture, t_cast_result *res);
 float		shadow(t_ray r, t_rthread *t, t_vec3 normal);
 int			reflection(t_ray *r, t_rthread *t, t_vec3 normal, int depth);
-int			wave_shader(t_vec3 mod, t_vec3 *normal, int col1, int col2);
+unsigned	wave_shader(t_vec3 mod, t_vec3 *normal, unsigned col1, unsigned col2);
 
 void		select_face(t_level *level, int x, int y);
 

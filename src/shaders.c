@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/31 16:52:44 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/03 21:27:31 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/03 21:39:48 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,7 +108,7 @@ int			reflection(t_ray *r, t_rthread *t, t_vec3 normal_dir, int depth)
 	return (res_col);
 }
 
-int		wave_shader(t_vec3 mod, t_vec3 *normal, int col1, int col2)
+unsigned		wave_shader(t_vec3 mod, t_vec3 *normal, unsigned col1, unsigned col2)
 {
 	float			time;
 	float			oscillation;
@@ -126,6 +126,6 @@ int		wave_shader(t_vec3 mod, t_vec3 *normal, int col1, int col2)
 	normal->y = 1;
 	normal->z = 0;
 	vec_normalize(normal);
-	res = crossfade(col1, col2, res * 0xff);
-	return (res);
+	col1 = crossfade(col1, col2, res * 0xff);
+	return (col1);
 }
