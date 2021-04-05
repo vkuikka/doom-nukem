@@ -83,17 +83,20 @@ void	set_skybox(t_level *level, char *filename)
 	level->sky.img = bmp_read(filename);
 }
 
-void	path_in_dir(char *path, char *folder)
+void	go_in_dir(char *path, char *folder)
 {
 	int i;
 	int j;
 
 	i = 0;
 	j = 0;
-	printf("%s\n", path);
 	while (path[i])
 		i++;
+#ifdef __APPLE__
 	path[i] = '/';
+#elif _WIN32
+	path[i] = '\\';
+#endif
 	i++;
 	while (folder[j])
 	{
@@ -102,7 +105,6 @@ void	path_in_dir(char *path, char *folder)
 		j++;
 	}
 	path[i] = '\0';
-	printf("%s\n", path);
 }
 
 void	make_fileopen_call(t_level *level, char *file)
@@ -110,7 +112,7 @@ void	make_fileopen_call(t_level *level, char *file)
 	char absolute_filename[PATH_MAX + NAME_MAX];
 
 	ft_strcpy(absolute_filename, level->ui->state.directory);
-	path_in_dir(absolute_filename, file);
+	go_in_dir(absolute_filename, file);
 	level->ui->state.open_file(level, absolute_filename);
 }
 
@@ -121,19 +123,25 @@ void	path_up_dir(char *path)
 	i = 0;
 	while (path[i])
 		i++;
+#ifdef __APPLE__
 	while (i && path[i] != '/')
+#elif _WIN32
+	while (i && path[i] != '\\')
+#endif
 		i--;
 	if (i)
 		path[i] = '\0';
 }
 
-void	ui_render_directory_loopdir(t_level *level, int type, char *extension, int find)
+#ifdef __APPLE__
+void	ui_render_directory_loopdir(t_level *level, int find_dir, char *extension, int find)
 {
 	DIR *dir = opendir(level->ui->state.directory);
 
 	if (!dir)
 		ft_error("Cannot open directory\n");
 	struct dirent *ent;
+	int type = find_dir ? DT_DIR : DT_REG;
 	while ((ent = readdir(dir)) != NULL)
 	{
 		if (ent->d_type == type && ent->d_name[0] != '.')
@@ -146,11 +154,42 @@ void	ui_render_directory_loopdir(t_level *level, int type, char *extension, int 
 				if (type == DT_REG && call(ent->d_name, NULL, level))
 					make_fileopen_call(level, ent->d_name);
 				else if (type == DT_DIR && call(ent->d_name, NULL, level))
-					path_in_dir(level->ui->state.directory, ent->d_name);
+					go_in_dir(level->ui->state.directory, ent->d_name);
 			}
 	}
 	closedir(dir);
 }
+
+#elif _WIN32
+void	ui_render_directory_loopdir(t_level *level, int find_dir, char *extension, int find_ext)
+{
+	WIN32_FIND_DATA data;
+	HANDLE			dir;
+	char			*dirname;
+
+	dirname = ft_strjoin(level->ui->state.directory, "\\*");
+	dir = FindFirstFile(dirname, &data);
+	if (dir == INVALID_HANDLE_VALUE)
+		ft_error("Cannot open directory\n");
+	while (FindNextFile(dir, &data))
+	{
+		if (data.cFileName[0] != '.')
+			if (find_dir && data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY && call(data.cFileName, NULL, level))
+				go_in_dir(level->ui->state.directory, data.cFileName);
+			else if (!find_dir)
+				if (find_ext && ft_strlen(data.cFileName) > ft_strlen(extension) &&
+				!ft_strcmp(extension, &data.cFileName[ft_strlen(data.cFileName) - ft_strlen(extension)]) &&
+				call(data.cFileName, NULL, level))
+					make_fileopen_call(level, data.cFileName);
+				else if (!find_ext && ft_strlen(data.cFileName) > ft_strlen(extension) &&
+				ft_strcmp(extension, &data.cFileName[ft_strlen(data.cFileName) - ft_strlen(extension)]) &&
+				call(data.cFileName, NULL, level))
+					make_fileopen_call(level, data.cFileName);
+	}
+	FindClose(dir);
+	free(dirname);
+}
+#endif
 
 void	ui_render_directory(t_level *level)
 {
@@ -161,11 +200,11 @@ void	ui_render_directory(t_level *level)
 	if (call("up dir ..", NULL, level))
 		path_up_dir(level->ui->state.directory);
 	set_text_color(UI_EDITOR_SETTINGS_TEXT_COLOR);
-	ui_render_directory_loopdir(level, DT_DIR, NULL, 0);
+	ui_render_directory_loopdir(level, 1, NULL, 0);
 	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
-	ui_render_directory_loopdir(level, DT_REG, level->ui->state.extension, 1);
+	ui_render_directory_loopdir(level, 0, level->ui->state.extension, 1);
 	set_text_color(UI_INFO_TEXT_COLOR);
-	ui_render_directory_loopdir(level, DT_REG, level->ui->state.extension, 0);
+	ui_render_directory_loopdir(level, 0, level->ui->state.extension, 0);
 }
 
 

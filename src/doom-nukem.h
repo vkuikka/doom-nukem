@@ -43,19 +43,23 @@
 # define UI_FACE_SELECTION_TEXT_COLOR 0xffffffff
 # define UI_BACKGROUND_COL 0x222222bb
 
-# ifndef FLT_MAX
-#  define FLT_MAX 3.40282347E+38
-# endif
 
 # include <math.h>
 # include <fcntl.h>
+#ifdef __APPLE__
 # include <dirent.h>
 # include <sys/syslimits.h>//for PATH_MAX && NAME_MAX
-# include <sys/time.h>
+#elif _WIN32
+# define WIN32_LEAN_AND_MEAN
+# include <windows.h>
+# include <float.h>
+# define NAME_MAX 2000
+#endif
 # include "get_next_line.h"
 # include "SDL2/SDL.h"
 # include "SDL2/SDL_ttf.h"
 
+# include <sys/time.h>
 # include <stdlib.h>
 # include <stdio.h>
 # include <signal.h>

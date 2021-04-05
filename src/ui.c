@@ -408,10 +408,16 @@ void	init_ui_state(t_level *level)
 	ft_memset(level->ui->state.directory, 0, PATH_MAX - 1);
 	ft_memset(level->ui->state.extension, 0, NAME_MAX - 1);
 	global_seginfo = "inint ui state get path\n";
+
+#ifdef __APPLE__
 	int path_max_size = PATH_MAX - 2;
 	_NSGetExecutablePath(level->ui->state.directory, &path_max_size);
-
 	path_up_dir(level->ui->state.directory);
+#elif _WIN32
+	TCHAR szFileName[PATH_MAX];
+	GetModuleFileName(NULL, szFileName, PATH_MAX);
+	ft_strcpy(level->ui->state.directory, szFileName);
+#endif
 	path_up_dir(level->ui->state.directory);
 	global_seginfo = "inint ui state out\n";
 }
