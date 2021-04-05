@@ -77,6 +77,12 @@ void	set_obj(t_level *level, char *filename)
 	load_obj(filename, &level->all);
 }
 
+void	set_texture(t_level *level, char *filename)
+{
+	//free texture
+	level->texture = bmp_read(filename);
+}
+
 void	set_skybox(t_level *level, char *filename)
 {
 	//free skybox
@@ -240,7 +246,7 @@ void	ui_config(t_level *level)
 	text("level:");
 	//file_browser("select level", ".dnukem_level", &set_level;
 	file_browser("select obj", ".obj", &set_obj);
-	// file_browser("select texture", ".bmp", &set_texture;
+	file_browser("select texture", ".bmp", &set_texture);
 	file_browser("select skybox", ".bmp", &set_skybox);
 	button(&ui->fog, "fog");
 	// color(ui->color, "fog color");

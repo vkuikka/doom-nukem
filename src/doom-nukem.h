@@ -158,6 +158,7 @@ typedef struct			s_level
 	struct s_obj		all;		//all faces
 	struct s_obj		visible;	//visible faces
 	struct s_obj		*ssp;		//screen space partition
+	struct s_bmp		texture;
 	struct s_vec3		pos;		//player position
 	struct s_skybox		sky;
 	float				look_side;	//side look angle
@@ -221,7 +222,6 @@ typedef struct			s_rthread
 	int					id;
 	struct s_level		*level;
 	struct s_window		*window;
-	struct s_bmp		*img;
 }						t_rthread;
 
 typedef struct __attribute__((__packed__))	s_bmp_fileheader {

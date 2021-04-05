@@ -87,7 +87,7 @@ int			reflection(t_ray *r, t_rthread *t, t_vec3 normal_dir, int depth)
 	i = 0;
 	while (i < t->level->all.tri_amount)
 	{
-		if (0 < (tmp_dist = cast_face(t->level->all.tris[i], *r, &tmp_color, t->img)) &&
+		if (0 < (tmp_dist = cast_face(t->level->all.tris[i], *r, &tmp_color, &t->level->texture)) &&
 			tmp_dist < dist)
 		{
 			res_col = tmp_color;

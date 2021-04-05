@@ -80,7 +80,7 @@ void		split_obj(t_level *level)
 	level->ssp[1].tri_amount = right_amount;
 }
 
-void		render(t_window *window, t_level *level, t_bmp *bmp)
+void		render(t_window *window, t_level *level)
 {
 	SDL_Thread		*threads[THREAD_AMOUNT];
 	t_rthread		**thread_data;
@@ -102,7 +102,6 @@ void		render(t_window *window, t_level *level, t_bmp *bmp)
 			thread_data[i]->id = i;
 			thread_data[i]->level = level;
 			thread_data[i]->window = window;
-			thread_data[i]->img = bmp;
 			threads[i] = SDL_CreateThread(raycast, "asd", (void*)thread_data[i]);
 			i++;
 		}
@@ -184,7 +183,6 @@ int			main(int argc, char **argv)
 	t_editor_ui	ui;
 	t_level		*level;
 	unsigned	frametime;
-	t_bmp		bmp;
 
 #if __APPLE__
 	struct sigaction act;
@@ -194,8 +192,8 @@ int			main(int argc, char **argv)
 	sigaction(SIGSEGV, &act, NULL);
 #endif
 
-	bmp = bmp_read("out.bmp");
 	level = init_level();
+	level->texture = bmp_read("out.bmp");
 	init_window(&window);
 	init_ui(window, level);
 	init_physics(level);
@@ -207,7 +205,7 @@ int			main(int argc, char **argv)
 		enemies_update_sprites(level);
 		culling(level);
 		split_obj(level);
-		render(window, level, &bmp);
+		render(window, level);
 		level->ui->frametime = SDL_GetTicks() - frametime;
 	}
 }

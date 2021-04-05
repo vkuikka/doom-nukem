@@ -77,7 +77,7 @@ t_cast_result	cast_all_color(t_ray r, t_rthread *t, int side)
 	hit = -1;
 	while (i < t->level->ssp[side].tri_amount)
 	{
-		if (0 < (tmp_dist = cast_face(t->level->ssp[side].tris[i], r, &tmp_color, t->img)) &&
+		if (0 < (tmp_dist = cast_face(t->level->ssp[side].tris[i], r, &tmp_color, &t->level->texture)) &&
 			tmp_dist < res.dist)
 		{
 			if (!t->level->ssp[side].tris[i].opacity)
@@ -96,7 +96,7 @@ t_cast_result	cast_all_color(t_ray r, t_rthread *t, int side)
 	}
 	res.normal = t->level->ssp[side].tris[hit].normal;
 	if (t->level->ssp[side].tris[hit].opacity)
-		transparency(r, &t->level->ssp[side], t->img, &res);
+		transparency(r, &t->level->ssp[side], &t->level->texture, &res);
 	vec_mult(&r.dir, res.dist - 0.00001);
 	if (t->level->ssp[side].tris[hit].shader == 1)
 	{
