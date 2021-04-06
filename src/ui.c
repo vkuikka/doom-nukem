@@ -374,10 +374,16 @@ void	file_browser(char *str, char *extension, void (*f)(t_level*, char*))
 	}
 }
 
-void	text_input(char *str)
+void	text_input(char *str, t_level *level)
 {
-	if ((!str[0] && call("input:", NULL, NULL)) || (str[0] && call(str, NULL, NULL)))
-		SDL_StartTextInput();
+	char *filename;
+
+	if (str[0])
+		filename = ft_strjoin(str, ".doom-nukem");
+	if ((!str[0] && call("input:", NULL, NULL)) || (str[0] && call(filename, NULL, NULL)))
+		level->ui->state.text_input_enable = TRUE;
+	if (str[0])
+		free(filename);
 }
 
 int		call(char *str, void (*f)(t_level*), t_level *level)

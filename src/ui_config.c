@@ -222,7 +222,7 @@ void	ui_render_directory(t_level *level)
 	set_text_color(UI_FACE_SELECTION_TEXT_COLOR);
 	if (level->ui->state.is_serialize_open)
 	{
-		text_input(level->ui->state.save_filename);
+		text_input(level->ui->state.save_filename, level);
 		if (call("save", NULL, level))
 		{
 			//serialize(level);

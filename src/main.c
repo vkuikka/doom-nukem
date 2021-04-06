@@ -132,6 +132,43 @@ void		render(t_window *window, t_level *level)
 	return ;
 }
 
+static void		read_text_input(t_level *level, SDL_Event event)
+{
+	int	i;
+	int	k;
+
+	i = 0;
+	if (event.type == SDL_TEXTINPUT)
+	{
+		while (i < SDL_TEXTINPUTEVENT_TEXT_SIZE)
+		{
+			char c = event.text.text[i];
+			if(c < ' ' || c > '~')
+				break;
+			k = 0;
+			while (level->ui->state.save_filename[k])
+				k++;
+			level->ui->state.save_filename[k] = c;
+			k++;
+			level->ui->state.save_filename[k] = '\0';
+			i++;
+		}
+	}
+	else if (event.type == SDL_KEYDOWN)
+		if (event.key.keysym.scancode == SDL_SCANCODE_BACKSPACE)
+		{
+			while (level->ui->state.save_filename[i])
+				i++;
+			if (!i)
+				level->ui->state.text_input_enable = FALSE;
+			else
+			{
+				i--;
+				level->ui->state.save_filename[i] = '\0';
+			}
+		}
+}
+
 static void		read_input(t_window *window, t_level *level)
 {
 	SDL_Event	event;
@@ -150,6 +187,10 @@ static void		read_input(t_window *window, t_level *level)
 				(event.button.x > level->ui->state.ui_max_width ||
 				event.button.y > level->ui->state.ui_text_y_pos))
 			select_face(level, event.button.x, event.button.y);
+		else if (event.type == SDL_MOUSEBUTTONDOWN)
+			level->ui->state.text_input_enable = FALSE;
+		else if (level->ui->state.text_input_enable)
+			read_text_input(level, event);
 		else if (event.key.repeat == 0 && event.type == SDL_KEYDOWN)
 		{
 			if (event.key.keysym.scancode == SDL_SCANCODE_PERIOD)
