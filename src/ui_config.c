@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/04/02 16:18:26 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/04/06 16:06:32 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -225,13 +225,12 @@ void	ui_render_directory(t_level *level)
 		text_input(level->ui->state.save_filename, level);
 		if (call("save", NULL, level))
 		{
-			//serialize(level);
+			save_level(level);
 			level->ui->state.is_serialize_open = FALSE;
 			level->ui->state.is_directory_open = FALSE;
 		}
 	}
 }
-
 
 void	ui_config(t_level *level)
 {
@@ -262,7 +261,7 @@ void	ui_config(t_level *level)
 
 	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
 	text("level:");
-	//file_browser("select level", ".dnukem_level", &set_level;
+	file_browser("select level", ".doom-nukem", &open_level);
 	file_browser("select obj", ".obj", &set_obj);
 	file_browser("select texture", ".bmp", &set_texture);
 	file_browser("select skybox", ".bmp", &set_skybox);
