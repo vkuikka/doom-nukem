@@ -185,11 +185,17 @@ void	ui_render_directory_loopdir(t_level *level, int find_dir, char *extension, 
 				if (find_ext && ft_strlen(data.cFileName) > ft_strlen(extension) &&
 				!ft_strcmp(extension, &data.cFileName[ft_strlen(data.cFileName) - ft_strlen(extension)]) &&
 				call(data.cFileName, NULL, level))
-					make_fileopen_call(level, data.cFileName);
+				{
+					if (level->ui->state.is_directory_open)
+						make_fileopen_call(level, data.cFileName);
+				}
 				else if (!find_ext && ft_strlen(data.cFileName) > ft_strlen(extension) &&
 				ft_strcmp(extension, &data.cFileName[ft_strlen(data.cFileName) - ft_strlen(extension)]) &&
 				call(data.cFileName, NULL, level))
-					make_fileopen_call(level, data.cFileName);
+				{
+					if (level->ui->state.is_directory_open)
+						make_fileopen_call(level, data.cFileName);
+				}
 	}
 	FindClose(dir);
 	free(dirname);
@@ -201,7 +207,10 @@ void	ui_render_directory(t_level *level)
 	set_text_color(UI_FACE_SELECTION_TEXT_COLOR);
 	text(level->ui->state.directory);
 	if (call("close", NULL, level))
-		level->ui->state.is_directory_open = 0;
+	{
+		level->ui->state.is_serialize_open = FALSE;
+		level->ui->state.is_directory_open = FALSE;
+	}
 	if (call("up dir ..", NULL, level))
 		path_up_dir(level->ui->state.directory);
 	set_text_color(UI_EDITOR_SETTINGS_TEXT_COLOR);
@@ -210,6 +219,17 @@ void	ui_render_directory(t_level *level)
 	ui_render_directory_loopdir(level, 0, level->ui->state.extension, 1);
 	set_text_color(UI_INFO_TEXT_COLOR);
 	ui_render_directory_loopdir(level, 0, level->ui->state.extension, 0);
+	set_text_color(UI_FACE_SELECTION_TEXT_COLOR);
+	if (level->ui->state.is_serialize_open)
+	{
+		text_input(level->ui->state.save_filename);
+		if (call("save", NULL, level))
+		{
+			//serialize(level);
+			level->ui->state.is_serialize_open = FALSE;
+			level->ui->state.is_directory_open = FALSE;
+		}
+	}
 }
 
 
@@ -219,7 +239,7 @@ void	ui_config(t_level *level)
 	t_editor_ui			*ui;
 
 	ui = level->ui;
-	if (level->ui->state.is_directory_open)
+	if (level->ui->state.is_serialize_open || level->ui->state.is_directory_open)
 	{
 		ui_render_directory(level);
 		return ;
@@ -265,6 +285,7 @@ void	ui_config(t_level *level)
 	float_slider(&ui->sun_dir.y, NULL, -1, 1);
 	float_slider(&ui->sun_dir.z, NULL, -1, 1);
 	vec_normalize(&level->ui->sun_dir);
+	file_save("save level", ".doom-nukem", NULL);
 
 	set_text_color(UI_INFO_TEXT_COLOR);
 	sprintf(buf, "fps:               %d",  get_fps());
