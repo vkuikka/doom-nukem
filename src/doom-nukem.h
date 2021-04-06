@@ -176,6 +176,9 @@ typedef struct			s_ui_state
 	int					m1down;
 	char				*text;
 
+	int					is_serialize_open;
+	char				*save_filename;
+
 	int					is_directory_open;
 	char				*directory;
 	char				*extension;
@@ -307,7 +310,9 @@ void		int_slider(int *var, char *str, int min, int max);
 void		float_slider(float *var, char *str, float min, float max);
 int			call(char *str, void (*f)(t_level*), t_level *level);
 void		file_browser(char *str, char *extension, void (*f)(t_level*, char*));
+void		file_save(char *str, char *extension, void (*f)(t_level*, char*));
 void		path_up_dir(char *path);
+void		text_input(char *str);
 
 void		init_physics(t_level *level);
 void		physics_sync(t_level *level, t_physthread *get_data);

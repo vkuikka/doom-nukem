@@ -346,6 +346,20 @@ void	float_slider(float *var, char *str, float min, float max)
 	state->ui_text_y_pos += 14;
 }
 
+void	file_save(char *str, char *extension, void (*f)(t_level*, char*))
+{
+	t_ui_state	*state;
+
+	state = get_ui_state(NULL);
+	if (call(str, NULL, NULL))
+	{
+		state->is_serialize_open = TRUE;
+		// state->title malloc extension;
+		ft_strcpy(state->extension, extension);
+		state->open_file = *f;;
+	}
+}
+
 void	file_browser(char *str, char *extension, void (*f)(t_level*, char*))
 {
 	t_ui_state	*state;
@@ -353,11 +367,17 @@ void	file_browser(char *str, char *extension, void (*f)(t_level*, char*))
 	state = get_ui_state(NULL);
 	if (call(str, NULL, NULL))
 	{
-		state->is_directory_open = 1;
+		state->is_directory_open = TRUE;
 		// state->title malloc extension;
 		ft_strcpy(state->extension, extension);
 		state->open_file = *f;;
 	}
+}
+
+void	text_input(char *str)
+{
+	if ((!str[0] && call("input:", NULL, NULL)) || (str[0] && call(str, NULL, NULL)))
+		SDL_StartTextInput();
 }
 
 int		call(char *str, void (*f)(t_level*), t_level *level)
@@ -404,9 +424,12 @@ void	init_ui_state(t_level *level)
 		ft_error("memory allocation failed\n");
 	if (!(level->ui->state.extension = (char*)malloc(sizeof(char) * NAME_MAX)))
 		ft_error("memory allocation failed\n");
+	if (!(level->ui->state.save_filename = (char*)malloc(sizeof(char) * NAME_MAX)))
+		ft_error("memory allocation failed\n");
 
 	ft_memset(level->ui->state.directory, 0, PATH_MAX - 1);
 	ft_memset(level->ui->state.extension, 0, NAME_MAX - 1);
+	ft_memset(level->ui->state.save_filename, 0, NAME_MAX - 1);
 	global_seginfo = "inint ui state get path\n";
 
 #ifdef __APPLE__
