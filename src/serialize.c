@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   serialize.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/06 14:13:02 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/04/06 14:13:02 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/04/06 22:01:47 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,7 +82,7 @@ void	serialize_int(int x, t_buffer *buf)
 void	deserialize_settings(t_level *level, t_buffer *buf)
 {
 	deserialize_int(&level->ui->fog, buf);
-	deserialize_int(&level->ui->fog_color, buf);
+	deserialize_int((int*)&level->ui->fog_color, buf);
 	deserialize_int(&level->ui->backface_culling, buf);
 	deserialize_int(&level->ui->distance_culling, buf);
 	deserialize_float(&level->ui->render_distance, buf);
@@ -149,11 +149,50 @@ void	open_file(char *filename, t_buffer *buf)
 	if (hFile == INVALID_HANDLE_VALUE)
 		ft_error("failed to read file");
 	size_t file_size = (size_t)GetFileSize(hFile, NULL);
-	buf->data = malloc(file_size + 1);
+	if (!(buf->data = malloc(file_size + 1)))
+		ft_error("failed to allocate memory for file");
 	if (!ReadFile(hFile, buf->data, file_size, &nRead, NULL))
 		ft_error("failed to read file");
 	buf->size = nRead;
 	CloseHandle(hFile);
+}
+
+#elif __APPLE__
+void	save_file(t_level *level, t_buffer *buf)
+{
+	int		fd;
+	char	*filename1;
+	char	*filename2;
+
+	filename1 = ft_strjoin(level->ui->state.directory, "/");
+	filename2 = ft_strjoin(filename1, level->ui->state.save_filename);
+	free(filename1);
+	filename1 = ft_strjoin(filename2, ".doom-nukem");
+	free(filename2);
+	fd = open(filename1, O_WRONLY | O_CREAT);
+	if (fd < 3)
+		ft_error("failed to write file");
+	if (write(fd, buf->data, buf->size) != buf->size)
+		ft_error("failed to write file");
+	free(filename1);
+	close(fd);
+}
+
+void	open_file(char *filename, t_buffer *buf)
+{
+	struct stat	fstat;
+	int			fd;
+
+	fd = open(filename, O_RDONLY);
+	if (fd < 3)
+		ft_error("failed to read file");
+	stat(filename, &fstat);
+	buf->size = fstat.st_size;
+	if (!(buf->data = malloc(buf->size + 1)))
+		ft_error("failed to allocate memory for file");
+	if (read(fd, buf->data, buf->size) != buf->size)
+		ft_error("failed to read file");
+	close(fd);
 }
 #endif
 
