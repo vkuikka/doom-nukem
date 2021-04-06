@@ -49,7 +49,6 @@ void	ui_config_selected_faces(t_level *level)
 			// selected_amount++;
 		if (counter == 3 + level->all.tris[i].isquad)
 		{
-			text("");
 			//if (selected_amount == 1)
 				text("Selected face:");
 			// else if (selected_amount > 1)
@@ -241,7 +240,6 @@ void	ui_config(t_level *level)
 	}
 	// button(, "face/vert selection");
 
-	text("");
 	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
 	text("level:");
 	//file_browser("select level", ".dnukem_level", &set_level;
@@ -253,10 +251,9 @@ void	ui_config(t_level *level)
 	// call(, "set spawn point");
 	// call(, "spawn enemy");
 	// call(, "remove enemies");
-	text("culling:");
 	// button(&ui->pause_culling_position, "\tpause");
-	button(&ui->backface_culling, "backface");
-	button(&ui->distance_culling, "distance");
+	button(&ui->backface_culling, "backface culling");
+	button(&ui->distance_culling, "distance culling");
 	sprintf(buf, "render distance: %.1fm", ui->render_distance);
 	float_slider(&ui->render_distance, buf, 2, 50);
 	float_slider(&ui->sun_contrast, "sun", 0, 1);
@@ -269,7 +266,6 @@ void	ui_config(t_level *level)
 	float_slider(&ui->sun_dir.z, NULL, -1, 1);
 	vec_normalize(&level->ui->sun_dir);
 
-	text("");
 	set_text_color(UI_INFO_TEXT_COLOR);
 	sprintf(buf, "fps:               %d",  get_fps());
 	text(buf);

@@ -53,6 +53,7 @@ t_level			*init_level(void)
 	// load_obj("level/monkey.obj", &level->all);
 	// load_obj("level/teapot_decimated.obj", &level->all);
 
+	level->texture = bmp_read("out.bmp");
 	global_seginfo = "load skybox obj\n";
 	load_obj("skybox.obj", &level->sky.obj);
 	global_seginfo = "load skybox texture\n";
