@@ -193,7 +193,6 @@ int			main(int argc, char **argv)
 #endif
 
 	level = init_level();
-	level->texture = bmp_read("out.bmp");
 	init_window(&window);
 	init_ui(window, level);
 	init_physics(level);
