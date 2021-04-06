@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   doom-nukem.h                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/03 21:40:11 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/06 16:06:42 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,16 +43,19 @@
 # define UI_FACE_SELECTION_TEXT_COLOR 0xffffffff
 # define UI_BACKGROUND_COL 0x222222bb
 
+# define SERIALIZE_INITIAL_BUFFER_SIZE 666
 
 # include <math.h>
 # include <fcntl.h>
 #ifdef __APPLE__
 # include <dirent.h>
 # include <sys/syslimits.h>//for PATH_MAX && NAME_MAX
+# include <arpa/inet.h>
 #elif _WIN32
 # define WIN32_LEAN_AND_MEAN
 # include <windows.h>
 # include <float.h>
+# include <winsock.h>
 # define NAME_MAX 2000
 #endif
 # include "get_next_line.h"
@@ -257,6 +260,7 @@ typedef struct __attribute__((__packed__))	s_bmp_image {
 	unsigned char							r;
 	unsigned char							a;
 }											t_bmp_image;
+
 typedef struct			s_cast_result
 {
 	float				dist;
@@ -265,6 +269,13 @@ typedef struct			s_cast_result
 	int					transparent_color;
 	struct s_vec3		normal;
 }						t_cast_result;
+
+typedef struct			s_buffer
+{
+	void				*data;
+	int					next;
+	size_t				size;
+}						t_buffer;
 
 void		vec_normalize(t_vec3 *vec);						//makes vector length 1
 float		vec_dot(t_vec3 ve1, t_vec3 ve2);			//dot product of two vectors
@@ -332,5 +343,8 @@ int			reflection(t_ray *r, t_rthread *t, t_vec3 normal, int depth);
 unsigned	wave_shader(t_vec3 mod, t_vec3 *normal, unsigned col1, unsigned col2);
 
 void		select_face(t_level *level, int x, int y);
+
+void		save_level(t_level *level);
+void		open_level(t_level *level, char *filename);
 
 #endif
