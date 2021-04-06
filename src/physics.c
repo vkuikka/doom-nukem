@@ -35,6 +35,8 @@ t_vec3	        player_input(int noclip, t_level *level, int in_air, t_vec3 vel)
 	wishdir.x = 0;
 	wishdir.y = 0;
 	wishdir.z = 0;
+	if (level->ui->state.text_input_enable)
+		return (wishdir);
 	speed = 0;
 	if (keys[SDL_SCANCODE_LSHIFT] && noclip)
 		wishdir.y += 1;
