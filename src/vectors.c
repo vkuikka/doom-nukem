@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/07 18:13:00 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/06 23:37:17 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/06 23:53:14 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,10 +31,9 @@ float		Q_rsqrt(float number)
 
 void		vec_normalize(t_vec3 *vec)
 {
-	float	pIn = vec->x * vec->x + vec->y * vec->y + vec->z * vec->z;
-	float	pOut;
-	_mm_store_ss(&pOut, _mm_rsqrt_ss(_mm_load_ss(&pIn)));
-	vec_mult(vec, pOut);
+	float	tmp = vec->x * vec->x + vec->y * vec->y + vec->z * vec->z;
+	_mm_store_ss(&tmp, _mm_rsqrt_ss(_mm_load_ss(&tmp)));
+	vec_mult(vec, tmp);
 
 	// float w = Q_rsqrt(vec->x * vec->x + vec->y * vec->y + vec->z * vec->z);
 	// vec->x *= pOut;
@@ -49,7 +48,10 @@ void		vec_normalize(t_vec3 *vec)
 
 float		vec_length(t_vec3 vec)
 {
-	return (sqrt(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z));
+	float	tmp = vec.x * vec.x + vec.y * vec.y + vec.z * vec.z;
+	_mm_store_ss(&tmp, _mm_sqrt_ss(_mm_load_ss(&tmp)));
+	return (tmp);
+	// return (sqrt(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z));
 }
 
 float		vec_dot(t_vec3 ve1, t_vec3 ve2)
