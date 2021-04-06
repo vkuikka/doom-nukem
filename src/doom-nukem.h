@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   doom-nukem.h                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/06 16:06:42 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/04/06 21:35:11 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,7 @@
 #ifdef __APPLE__
 # include <dirent.h>
 # include <sys/syslimits.h>//for PATH_MAX && NAME_MAX
+# include <sys/stat.h>
 # include <arpa/inet.h>
 #elif _WIN32
 # define WIN32_LEAN_AND_MEAN
