@@ -175,15 +175,15 @@ int		face_color(float u, float v, t_tri t, t_bmp *img)
 	y =	((t.verts[0].txtr.y * img->height * w +
 			t.verts[1].txtr.y * img->height * v +
 			t.verts[2].txtr.y * img->height * u) / (float)(u + v + w));
-	if (y > (img->height - 1))
-		y = y % (img->height - 1);
+	if (y >= img->height)
+		y = y % img->height;
 	else if (y < 0)
-		y = -y % (img->height - 1);
+		y = -y % img->height;
 	y = img->height - y - 1;
-	if (x > (img->width - 1))
-		x = x % (img->width - 1);
+	if (x >= img->width)
+		x = x % img->width;
 	else if (x < 0)
-		x = -x % (img->width - 1);
+		x = -x % img->width;
 	return (img->image[x + (y * img->width)]);
 }
 
