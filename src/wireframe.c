@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   wireframe.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/05 16:44:10 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/03/31 20:25:43 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/04/07 22:43:28 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,8 +118,8 @@ void	camera_offset(t_vec3 *vertex, t_level *level)
 	rotate_vertex(-level->look_up, vertex, 1);
 
 	//add perspective
-	vertex->x /= vertex->z / RES_X;
-	vertex->y /= vertex->z / RES_Y;
+	vertex->x /= vertex->z / (RES_X / level->ui->fov);
+	vertex->y /= vertex->z / (RES_Y / level->ui->fov);
 
 	//move to center of screen
 	vertex->x += RES_X / 2.0;

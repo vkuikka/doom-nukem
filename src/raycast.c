@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/03 21:29:35 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/07 22:42:10 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -153,8 +153,8 @@ int			raycast(void *data_pointer)
 			if (!rand_amount || rand() % rand_amount)	//skip random pixel
 			if (!(x % pixel_gap) && !(y % pixel_gap))
 			{
-				float ym = (1.0 / RES_Y * y - 0.5);	//multiply these to change fov
-				float xm = (1.0 / RES_X * x - 0.5);
+				float ym = t->level->ui->fov / RES_Y * y - t->level->ui->fov / 2;
+				float xm = t->level->ui->fov / RES_X * x - t->level->ui->fov / 2;
 
 				r.dir.x = cam.x + up.x * ym + side.x * xm;
 				r.dir.y = cam.y + up.y * ym + side.y * xm;

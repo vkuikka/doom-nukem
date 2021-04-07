@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/06 21:35:11 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/07 22:41:35 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -207,6 +207,7 @@ typedef struct			s_editor_ui
 	int					backface_culling;
 	int					distance_culling;
 	float				render_distance;
+	float				fov;
 
 	float				sun_contrast;
 	float				direct_shadow_contrast;;

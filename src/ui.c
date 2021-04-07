@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ui.c                                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/06 08:50:56 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/04/07 21:35:55 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/04/07 22:48:12 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -480,6 +480,7 @@ void	init_ui(t_window *window, t_level *level)
 	ui->fog_color = 0xb19a6aff;//sandstorm
 	// ui->fog_color = 0xddddddff;//smoke
 
+	level->ui->fov = M_PI / 2;
 	level->ui->sun_contrast = 0;	//max 1
 	level->ui->direct_shadow_contrast = 0;	//max 1
 	level->ui->sun_dir.x = 1;
