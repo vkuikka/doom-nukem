@@ -255,12 +255,18 @@ typedef struct __attribute__((__packed__))	s_bmp_infoheader {
 	unsigned int							biClrImportant;
 }											t_bmp_infoheader;
 
-typedef struct __attribute__((__packed__))	s_bmp_image {
+typedef struct __attribute__((__packed__))	s_bmp_pixel_32 {
 	unsigned char							b;
 	unsigned char							g;
 	unsigned char							r;
 	unsigned char							a;
-}											t_bmp_image;
+}											t_bmp_pixel_32;
+
+typedef struct __attribute__((__packed__))	s_bmp_pixel_24 {
+	unsigned char							b;
+	unsigned char							g;
+	unsigned char							r;
+}											t_bmp_pixel_24;
 
 typedef struct			s_cast_result
 {
