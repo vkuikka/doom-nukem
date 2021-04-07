@@ -30,12 +30,11 @@ int		    get_fps(void)
 	return (fps);
 }
 
-void	ui_config_selected_faces(t_level *level)
+int		get_selected_amount(t_level *level)
 {
-	char buf[100];
-	// int	selected_amount;
+	int	selected_amount;
 
-	// selected_amount = 0;
+	selected_amount = 0;
 	for (int i = 0; i < level->all.tri_amount; i++)
 	{
 		int counter = 0;
@@ -46,26 +45,67 @@ void	ui_config_selected_faces(t_level *level)
 				counter++;
 			j++;
 		}
-			// selected_amount++;
+		if (counter == 3 + level->all.tris[i].isquad)
+			selected_amount++;
+	}
+	return(selected_amount);
+}
+
+void	copy_tri_settings(t_tri *a, t_tri *b)
+{
+	a->isenemy = b->isenemy;
+	a->isgrid = b->isgrid;
+	a->isquad = b->isquad;
+	a->opacity = b->opacity;
+	a->reflectivity = b->reflectivity;
+}
+
+void	ui_config_selected_faces(t_level *level)
+{
+	char buf[100];
+	int	selected_amount;
+	int selected_index;
+
+	selected_index = 0;
+	selected_amount = get_selected_amount(level);
+	for (int i = 0; i < level->all.tri_amount; i++)
+	{
+		int counter = 0;
+		int j = 0;
+		while (j < 3 + level->all.tris[i].isquad)
+		{
+			if (level->all.tris[i].verts[j].selected)
+				counter++;
+			j++;
+		}
 		if (counter == 3 + level->all.tris[i].isquad)
 		{
-			//if (selected_amount == 1)
-				text("Selected face:");
-			// else if (selected_amount > 1)
-				// text("%d selected faces (toggle all):");
-			sprintf(buf, "reflectivity: %.0f%%", 100 * level->all.tris[i].reflectivity);
-			float_slider(&level->all.tris[i].reflectivity, buf, 0, 1);
-			sprintf(buf, "opacity: %.0f%%", 100 * level->all.tris[i].opacity);
-			float_slider(&level->all.tris[i].opacity, buf, 0, 1);
-			button(&level->all.tris[i].isgrid, "grid");
-			button(&level->all.tris[i].isenemy, "enemy");
-			button(&level->all.tris[i].shader, "water");
-			// call("flip normal");
-			// call("set animation start");
-			// call("set animation stop");
-			// slider("animation length", 0, 60);
-			// button("\tforce disable culling");
-			// button("\breakable");
+			if (!selected_index)
+			{
+				if (selected_amount == 1)
+					text("Selected face:");
+				else
+				{
+					sprintf(buf, "%d faces selected (toggle all):", selected_amount);
+					text(buf);
+				}
+				sprintf(buf, "reflectivity: %.0f%%", 100 * level->all.tris[i].reflectivity);
+				float_slider(&level->all.tris[i].reflectivity, buf, 0, 1);
+				sprintf(buf, "opacity: %.0f%%", 100 * level->all.tris[i].opacity);
+				float_slider(&level->all.tris[i].opacity, buf, 0, 1);
+				button(&level->all.tris[i].isgrid, "grid");
+				button(&level->all.tris[i].isenemy, "enemy");
+				button(&level->all.tris[i].shader, "water");
+				// call("flip normal");
+				// call("set animation start");
+				// call("set animation stop");
+				// slider("animation length", 0, 60);
+				// button("\tforce disable culling");
+				// button("\breakable");
+				selected_index = i + 1;
+			}
+			else
+				copy_tri_settings(&level->all.tris[i], &level->all.tris[selected_index - 1]);
 		}
 	}
 }
