@@ -55,7 +55,6 @@ void	copy_tri_settings(t_tri *a, t_tri *b)
 {
 	a->isenemy = b->isenemy;
 	a->isgrid = b->isgrid;
-	a->isquad = b->isquad;
 	a->opacity = b->opacity;
 	a->reflectivity = b->reflectivity;
 }
