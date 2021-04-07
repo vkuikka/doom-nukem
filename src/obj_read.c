@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/03/29 21:33:41 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/07 21:06:46 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,28 +19,30 @@ static char	**file2d(char *filename)
 	int		fd;
 	int		i = 0;
 
-	file = (char **)malloc(sizeof(char*) * 10000);
+	fd = open(filename, O_RDONLY);
+	while (get_next_line(fd, &line))
+	{
+		free(line);
+		i++;
+	}
+	free(line);
+	close(fd);
+	file = (char **)malloc(sizeof(char*) * (i + 1));
 	fd = open(filename, O_RDONLY);
 	if (fd < 2)
 	{
 		printf("%s\n", filename);
 		ft_error("^: no such obj\n");
 	}
+	i = 0;
 	while (get_next_line(fd, &line))
 	{
-		//printf("%s\n", line);
 		file[i] = line;
 		i++;
 	}
+	free(line);
 	file[i] = NULL;
 	close(fd);
-	/*i = 0;
-	while (file[i])
-	{
-		//file[i] = ft_strsplit(&line[i], ' ');
-		printf("%s\n", file[i][0]);
-		i++;
-	}*/
 	return (file);
 }
 
