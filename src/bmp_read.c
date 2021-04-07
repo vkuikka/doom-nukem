@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   bmp_read.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/03/24 04:07:24 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/07 13:13:36 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ t_bmp	bmp_read(char *str)
 	//printf("w = %d, h = %d, bits = %d\n", ih.width, ih.height, ih.bitPix);
 
 	t_bmp_image bmp;
-	if (!(res.image = (int*)malloc(sizeof(int) * (ih.width * ih.height) * 2)))
+	if (!(res.image = (int*)malloc(sizeof(int) * ih.width * ih.height)))
 		ft_error("memory allocation failed\n");
 	y = 0;
 	while (y < ih.height)
@@ -42,7 +42,7 @@ t_bmp	bmp_read(char *str)
 		while (x < ih.width)
 		{
 			fread(&bmp, sizeof(unsigned char), sizeof(t_bmp_image), img);
-			res.image[(ih.height - y) * ih.width + x] =
+			res.image[(ih.height - y - 1) * ih.width + x] =
 					(((int)(bmp.r) & 0xff) << 24) +
 					(((int)(bmp.g) & 0xff) << 16) +
 					(((int)(bmp.b) & 0xff) << 8) +

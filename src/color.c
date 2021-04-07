@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   color.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/21 17:32:09 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/02 17:10:22 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/07 12:40:357 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -175,15 +175,15 @@ int		face_color(float u, float v, t_tri t, t_bmp *img)
 	y =	((t.verts[0].txtr.y * img->height * w +
 			t.verts[1].txtr.y * img->height * v +
 			t.verts[2].txtr.y * img->height * u) / (float)(u + v + w));
-	if (y > img->height)
-		y = y % img->height;
+	if (y > (img->height - 1))
+		y = y % (img->height - 1);
 	else if (y < 0)
-		y = -y % img->height;
-	y = img->height - y;
-	if (x > img->width)
-		x = x % img->width;
+		y = -y % (img->height - 1);
+	y = img->height - y - 1;
+	if (x > (img->width - 1))
+		x = x % (img->width - 1);
 	else if (x < 0)
-		x = -x % img->width;
+		x = -x % (img->width - 1);
 	return (img->image[x + (y * img->width)]);
 }
 
