@@ -32,6 +32,8 @@ float	ntoh_float(float value)
 
 void	deserialize_float(float *x, t_buffer *buf)
 {
+	if (buf->next + sizeof(float) > buf->size)
+		ft_error("doom nukem file read fail");
 	memcpy(x, ((char *)buf->data) + buf->next, sizeof(float));
 	*x = ntoh_float(*x);
 	buf->next += sizeof(float);
@@ -55,6 +57,8 @@ void	serialize_float(float x, t_buffer *buf)
 
 void	deserialize_int(int *x, t_buffer *buf)
 {
+	if (buf->next + sizeof(int) > buf->size)
+		ft_error("doom nukem file read fail");
 	memcpy(x, ((char *)buf->data) + buf->next, sizeof(int));
 	*x = ntohl(*x);
 	buf->next += sizeof(int);
@@ -197,22 +201,57 @@ void	serialize_bmp(t_bmp *bmp, t_buffer *buf)
 			serialize_int(bmp->image[bmp->width * y + x], buf);
 }
 
+char	*deserialize_string(int len, t_buffer *buf)
+{
+	char	*str;
+	int		get;
+	int		i;
+
+	str = (char*)malloc(sizeof(char) * len + 1);
+	i = 0;
+	while (i < len)
+	{
+		deserialize_int(&get, buf);
+		str[i] = (char)get;
+		i++;
+	}
+	str[i] = '\0';
+	return (str);
+}
+
+void	serialize_string(char *str, t_buffer *buf)
+{
+	int i;
+
+	i = 0;
+	while (str[i])
+	{
+		serialize_int(str[i], buf);
+		i++;
+	}
+}
+
 void	deserialize_level(t_level *level, t_buffer *buf)
 {
+	char	*str;
+
+	str = deserialize_string(ft_strlen("doom-nukem"), buf);
+	if (ft_strcmp(str, "doom-nukem"))
+		ft_error("not valid doom-nukem map");
+	free(str);
 	deserialize_settings(level, buf);
 	deserialize_bmp(&level->texture, buf);
 	deserialize_bmp(&level->sky.img, buf);
 	deserialize_obj(&level->all, buf);
-	//trim max size
 }
 
 void	serialize_level(t_level *level, t_buffer *buf)
 {
+	serialize_string("doom-nukem", buf);
 	serialize_settings(level, buf);
 	serialize_bmp(&level->texture, buf);
 	serialize_bmp(&level->sky.img, buf);
 	serialize_obj(&level->all, buf);
-	//trim max size
 }
 
 #ifdef _WIN32
@@ -231,7 +270,7 @@ void	save_file(t_level *level, t_buffer *buf)
 	hFile = CreateFile(filename1, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hFile == INVALID_HANDLE_VALUE)
 		ft_error("failed to create file");
-	WriteFile(hFile, buf->data, buf->size, &bytesWritten, NULL);
+	WriteFile(hFile, buf->data, buf->next, &bytesWritten, NULL);
 	free(filename1);
 	CloseHandle(hFile);
 }
@@ -268,7 +307,7 @@ void	save_file(t_level *level, t_buffer *buf)
 	fd = open(filename1, O_WRONLY | O_CREAT);
 	if (fd < 3)
 		ft_error("failed to write file");
-	if (write(fd, buf->data, buf->size) != buf->size)
+	if (write(fd, buf->data, buf->next) != buf->size)
 		ft_error("failed to write file");
 	free(filename1);
 	close(fd);

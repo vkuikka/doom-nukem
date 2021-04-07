@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/04/07 13:39:52 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/04/07 19:48:42 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,8 +75,8 @@ t_bmp	bmp_read(char *filename)
 	}
 	fread(&fh, sizeof(unsigned char), sizeof(t_bmp_fileheader), img);
 	fread(&ih, sizeof(unsigned char), sizeof(t_bmp_infoheader), img);
-	printf("fM1 = %c, fM2 = %c, bfS = %u, un1 = %hu, un2 = %hu, iDO = %u\n", fh.fileMarker1, fh.fileMarker2, fh.bfSize, fh.unused1, fh.unused2, fh.imageDataOffset);
-	printf("w = %d, h = %d, bits = %d\n", ih.width, ih.height, ih.bitPix);
+	// printf("fM1 = %c, fM2 = %c, bfS = %u, un1 = %hu, un2 = %hu, iDO = %u\n", fh.fileMarker1, fh.fileMarker2, fh.bfSize, fh.unused1, fh.unused2, fh.imageDataOffset);
+	// printf("w = %d, h = %d, bits = %d\n", ih.width, ih.height, ih.bitPix);
 
 	if (!(res.image = (int*)malloc(sizeof(int) * ih.width * ih.height)))
 		ft_error("memory allocation failed\n");
