@@ -12,17 +12,6 @@
 
 #include "doom-nukem.h"
 
-t_buffer	*new_buffer(void)
-{
-	t_buffer *buf = malloc(sizeof(t_buffer));
-
-	if (!(buf->data = malloc(SERIALIZE_INITIAL_BUFFER_SIZE)))
-		ft_error("memory allocation failed\n");
-	buf->size = SERIALIZE_INITIAL_BUFFER_SIZE;
-	buf->next = 0;
-	return buf;
-}
-
 void	reserve_space(t_buffer *buf, size_t bytes)
 {
 	if ((buf->next + bytes) > buf->size)
@@ -79,6 +68,32 @@ void	serialize_int(int x, t_buffer *buf)
 	buf->next += sizeof(int);
 }
 
+void	deserialize_vec2(t_vec2 *vec, t_buffer *buf)
+{
+	deserialize_float(&vec->x, buf);
+	deserialize_float(&vec->y, buf);
+}
+
+void	serialize_vec2(t_vec2 vec, t_buffer *buf)
+{
+	serialize_float(vec.x, buf);
+	serialize_float(vec.y, buf);
+}
+
+void	deserialize_vec3(t_vec3 *vec, t_buffer *buf)
+{
+	deserialize_float(&vec->x, buf);
+	deserialize_float(&vec->y, buf);
+	deserialize_float(&vec->z, buf);
+}
+
+void	serialize_vec3(t_vec3 vec, t_buffer *buf)
+{
+	serialize_float(vec.x, buf);
+	serialize_float(vec.y, buf);
+	serialize_float(vec.z, buf);
+}
+
 void	deserialize_settings(t_level *level, t_buffer *buf)
 {
 	deserialize_int(&level->ui->fog, buf);
@@ -88,7 +103,7 @@ void	deserialize_settings(t_level *level, t_buffer *buf)
 	deserialize_float(&level->ui->render_distance, buf);
 	deserialize_float(&level->ui->sun_contrast, buf);
 	deserialize_float(&level->ui->direct_shadow_contrast, buf);
-	// deserialize_vec3(level->ui->sun_dir, output);
+	deserialize_vec3(&level->ui->sun_dir, buf);
 }
 
 void	serialize_settings(t_level *level, t_buffer *buf)
@@ -100,22 +115,103 @@ void	serialize_settings(t_level *level, t_buffer *buf)
 	serialize_float(level->ui->render_distance, buf);
 	serialize_float(level->ui->sun_contrast, buf);
 	serialize_float(level->ui->direct_shadow_contrast, buf);
-	// serialize_vec3(level->ui->sun_dir, output);
+	serialize_vec3(level->ui->sun_dir, buf);
+}
+
+void	deserialize_vert(t_vert *vert, t_buffer *buf)
+{
+	deserialize_vec3(&vert->pos, buf);
+	deserialize_vec2(&vert->txtr, buf);
+}
+
+void	serialize_vert(t_vert *vert, t_buffer *buf)
+{
+	serialize_vec3(vert->pos, buf);
+	serialize_vec2(vert->txtr, buf);
+}
+
+void	deserialize_tri(t_tri *tri, t_buffer *buf)
+{
+	for (int i = 0; i < 4; i++)
+		deserialize_vert(&tri->verts[i], buf);
+	deserialize_vec3(&tri->v0v1, buf);
+	deserialize_vec3(&tri->v0v2, buf);
+	deserialize_vec3(&tri->normal, buf);
+	deserialize_int(&tri->isquad, buf);
+	deserialize_int(&tri->isgrid, buf);
+	deserialize_int(&tri->isenemy, buf);
+	deserialize_float(&tri->opacity, buf);
+	deserialize_float(&tri->reflectivity, buf);
+	deserialize_int(&tri->shader, buf);
+}
+
+void	serialize_tri(t_tri *tri, t_buffer *buf)
+{
+	for (int i = 0; i < 4; i++)
+		serialize_vert(&tri->verts[i], buf);
+	serialize_vec3(tri->v0v1, buf);
+	serialize_vec3(tri->v0v2, buf);
+	serialize_vec3(tri->normal, buf);
+	serialize_int(tri->isquad, buf);
+	serialize_int(tri->isgrid, buf);
+	serialize_int(tri->isenemy, buf);
+	serialize_float(tri->opacity, buf);
+	serialize_float(tri->reflectivity, buf);
+	serialize_int(tri->shader, buf);
+}
+
+void	deserialize_obj(t_obj *obj, t_buffer *buf)
+{
+	deserialize_int(&obj->tri_amount, buf);
+	if (!(obj->tris = (t_tri*)malloc(sizeof(t_tri) * obj->tri_amount)))
+		ft_error("failed to allocate memory for file");
+	ft_bzero(obj->tris, sizeof(t_tri) * obj->tri_amount);
+	for (int i = 0; i < obj->tri_amount; i++)
+		deserialize_tri(&obj->tris[i], buf);
+}
+
+void	serialize_obj(t_obj *obj, t_buffer *buf)
+{
+	serialize_int(obj->tri_amount, buf);
+	for (int i = 0; i < obj->tri_amount; i++)
+		serialize_tri(&obj->tris[i], buf);
+}
+
+void	deserialize_bmp(t_bmp *bmp, t_buffer *buf)
+{
+	deserialize_int(&bmp->width, buf);
+	deserialize_int(&bmp->height, buf);
+	if (!(bmp->image = (int*)malloc(sizeof(int) * bmp->width * bmp->height)))
+		ft_error("failed to allocate memory for file");
+	for (int y = 0; y < bmp->height; y++)
+		for (int x = 0; x < bmp->width; x++)
+			deserialize_int(&bmp->image[bmp->width * y + x], buf);
+}
+
+void	serialize_bmp(t_bmp *bmp, t_buffer *buf)
+{
+	serialize_int(bmp->width, buf);
+	serialize_int(bmp->height, buf);
+	for (int y = 0; y < bmp->height; y++)
+		for (int x = 0; x < bmp->width; x++)
+			serialize_int(bmp->image[bmp->width * y + x], buf);
 }
 
 void	deserialize_level(t_level *level, t_buffer *buf)
 {
 	deserialize_settings(level, buf);
-	// deserialize_obj(level->all);
-	// deserialize_bmp(level->texture);
+	deserialize_bmp(&level->texture, buf);
+	deserialize_bmp(&level->sky.img, buf);
+	deserialize_obj(&level->all, buf);
 	//trim max size
 }
 
 void	serialize_level(t_level *level, t_buffer *buf)
 {
 	serialize_settings(level, buf);
-	// serialize_obj(level->all);
-	// serialize_bmp(level->texture);
+	serialize_bmp(&level->texture, buf);
+	serialize_bmp(&level->sky.img, buf);
+	serialize_obj(&level->all, buf);
 	//trim max size
 }
 
@@ -198,10 +294,14 @@ void	open_file(char *filename, t_buffer *buf)
 
 void	save_level(t_level *level)
 {
-	t_buffer *buf = new_buffer();
-	serialize_level(level, buf);
-	save_file(level, buf);
-	free(buf);
+	t_buffer	buf;
+
+	if (!(buf.data = malloc(SERIALIZE_INITIAL_BUFFER_SIZE)))
+		ft_error("memory allocation failed\n");
+	buf.size = SERIALIZE_INITIAL_BUFFER_SIZE;
+	buf.next = 0;
+	serialize_level(level, &buf);
+	save_file(level, &buf);
 }
 
 void	open_level(t_level *level, char *filename)
@@ -211,6 +311,8 @@ void	open_level(t_level *level, char *filename)
 	buf.data = 0;
 	buf.next = 0;
 	buf.size = 0;
+
+	//sync physics thread with mutex
 	open_file(filename, &buf);
 	//free level things
 	deserialize_level(level, &buf);
