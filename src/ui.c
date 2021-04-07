@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ui.c                                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/06 08:50:56 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/04/02 10:27:28 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/04/07 21:35:55 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -448,6 +448,7 @@ void	init_ui_state(t_level *level)
 	ft_strcpy(level->ui->state.directory, szFileName);
 #endif
 	path_up_dir(level->ui->state.directory);
+	go_in_dir(level->ui->state.directory, "level");
 	global_seginfo = "inint ui state out\n";
 }
 
