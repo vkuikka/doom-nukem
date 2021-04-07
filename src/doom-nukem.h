@@ -331,6 +331,7 @@ int			call(char *str, void (*f)(t_level*), t_level *level);
 void		file_browser(char *str, char *extension, void (*f)(t_level*, char*));
 void		file_save(char *str, char *extension, void (*f)(t_level*, char*));
 void		path_up_dir(char *path);
+void		go_in_dir(char *path, char *folder);
 void		text_input(char *str, t_level *level);
 
 void		init_physics(t_level *level);
