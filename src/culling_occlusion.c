@@ -71,9 +71,9 @@ static int		is_bface_in_aface(t_tri a, t_tri b, t_level *level)
 
 int		occlusion_culling(t_tri tri, t_level *level)
 {
-	for (int i = 0; i < level->all.tri_amount; i++)
-		if (is_bface_in_aface(level->all.tris[i], tri, level))
-			if (normal_plane_culling(tri, &level->all.tris[i].verts[0].pos, &level->all.tris[i].normal))
+	for (int i = 0; i < level->visible.tri_amount; i++)
+		if (is_bface_in_aface(level->visible.tris[i], tri, level))
+			if (normal_plane_culling(tri, &level->visible.tris[i].verts[0].pos, &level->visible.tris[i].normal))
 				return (0);
 	return (1);
 } 

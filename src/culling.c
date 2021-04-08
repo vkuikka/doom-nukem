@@ -214,11 +214,23 @@ void			culling(t_level *level)
 		if (level->all.tris[i].isgrid ||
 			(cull_behind(front, level->pos, level->all.tris[i]) && fov_culling(side_normals, level->pos, level->all.tris[i]) &&
 			(!level->ui->distance_culling || level->all.distance_culling_mask[i] || distance_culling(level->all.tris[i], level->pos, level->ui->render_distance)) &&
-			(!level->ui->backface_culling || level->all.backface_culling_mask[i] || backface_culling(level->pos, level->all.tris[i])) &&
-			occlusion_culling(level->all.tris[i], level)))
+			(!level->ui->backface_culling || level->all.backface_culling_mask[i] || backface_culling(level->pos, level->all.tris[i]))))
 		{
 			level->visible.tris[visible_amount] = level->all.tris[i];
 			visible_amount++;
+		}
+	}
+	level->visible.tri_amount = visible_amount;
+	if (level->ui->backface_culling)
+	{
+		visible_amount = 0;
+		for (int i = 0; i < level->visible.tri_amount; i++)
+		{
+			if (occlusion_culling(level->visible.tris[i], level))
+			{
+				level->visible.tris[visible_amount] = level->visible.tris[i];
+				visible_amount++;
+			}
 		}
 	}
 	level->visible.tri_amount = visible_amount;
