@@ -21,7 +21,7 @@ int				is_value_close(float a, float b, float range)
 
 float			area(t_vec3 *a, t_vec3 *b, t_vec3 *c)
 {
-	return (abs((a->x * (b->y - c->y) + b->x * (c->y - a->y) + c->x * (a->y - b->y)) / 2.0));
+	return (fabs((a->x * (b->y - c->y) + b->x * (c->y - a->y) + c->x * (a->y - b->y)) / 2.0));
 }
  
 int				point_in_tri(t_vec3 *p, t_vec3 *a, t_vec3 *b, t_vec3 *c)
