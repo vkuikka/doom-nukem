@@ -127,6 +127,8 @@ void		render(t_window *window, t_level *level)
 	SDL_UnlockTexture(window->texture);
 	SDL_RenderClear(window->SDLrenderer);
 	SDL_RenderCopy(window->SDLrenderer, window->texture, NULL, NULL);
+	if (level->ui->state.is_uv_editor_open)
+		uv_editor(level, window);
 	ui_render(level);
 	SDL_RenderPresent(window->SDLrenderer);
 	return ;
@@ -185,7 +187,8 @@ static void		read_input(t_window *window, t_level *level)
 		}
 		else if (event.type == SDL_MOUSEBUTTONDOWN && !relmouse && level->ui->wireframe &&
 				(event.button.x > level->ui->state.ui_max_width ||
-				event.button.y > level->ui->state.ui_text_y_pos))
+				event.button.y > level->ui->state.ui_text_y_pos) &&
+				(!level->ui->state.is_uv_editor_open || event.button.x > RES_X / 2))
 			select_face(level, event.button.x, event.button.y);
 		else if (event.type == SDL_MOUSEBUTTONDOWN)
 			level->ui->state.text_input_enable = FALSE;

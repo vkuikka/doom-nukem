@@ -70,11 +70,23 @@ int			vec_cmp(t_vec3 ve1, t_vec3 ve2)
 	return (1);
 }
 
+void		vec2_avg(t_vec2 *res, t_vec2 ve1, t_vec2 ve2)
+{
+	res->x = (ve1.x + ve2.x) / 2;
+	res->y = (ve1.y + ve2.y) / 2;
+}
+
 void		vec_avg(t_vec3 *res, t_vec3 ve1, t_vec3 ve2)
 {
 	res->x = (ve1.x + ve2.x) / 2;
 	res->y = (ve1.y + ve2.y) / 2;
 	res->z = (ve1.z + ve2.z) / 2;
+}
+
+void		vec2_add(t_vec2 *res, t_vec2 ve1, t_vec2 ve2)
+{
+	res->x = ve1.x + ve2.x;
+	res->y = ve1.y + ve2.y;
 }
 
 void		vec_add(t_vec3 *res, t_vec3 ve1, t_vec3 ve2)
@@ -95,6 +107,12 @@ void		vec2_copy(t_vec2 *res, t_vec2 ve)
 {
 	res->x = ve.x;
 	res->y = ve.y;
+}
+
+void		vec2_sub(t_vec2 *res, t_vec2 ve1, t_vec2 ve2)
+{
+	res->x = ve1.x - ve2.x;
+	res->y = ve1.y - ve2.y;
 }
 
 void		vec_sub(t_vec3 *res, t_vec3 ve1, t_vec3 ve2)

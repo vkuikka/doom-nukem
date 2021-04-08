@@ -12,7 +12,7 @@
 
 NAME = dnukem
 SRCDIR = src/
-SRC = main.c color.c culling.c vectors.c init.c raycast.c obj_read.c bmp_read.c find_quads.c wireframe.c ui.c ui_config.c physics.c enemies.c shaders.c select.c serialize.c
+SRC = main.c color.c culling.c vectors.c init.c raycast.c obj_read.c bmp_read.c find_quads.c wireframe.c ui.c ui_config.c physics.c enemies.c shaders.c select.c serialize.c uv_editor.c
 LIB = libft/libft.a -L x86_64-w64-mingw32/lib/
 INCLUDE = libft/includes -I x86_64-w64-mingw32/include/
 #FLAGS = -Wall -Wextra -Werror

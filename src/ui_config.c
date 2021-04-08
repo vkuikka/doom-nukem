@@ -282,6 +282,12 @@ void	ui_config(t_level *level)
 		ui_render_directory(level);
 		return ;
 	}
+	if (level->ui->state.is_uv_editor_open)
+	{
+		set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
+		call("close uv editor", &disable_uv_editor, level);
+		return ;
+	}
 	set_text_color(UI_EDITOR_SETTINGS_TEXT_COLOR);
 	// button(, "face/vert selection");
 	sprintf(buf, "render scale: %d (%.0f%%)", ui->raycast_quality, 100.0 / (float)ui->raycast_quality);
@@ -305,6 +311,7 @@ void	ui_config(t_level *level)
 	file_browser("select level", ".doom-nukem", &open_level);
 	file_browser("select obj", ".obj", &set_obj);
 	file_browser("select texture", ".bmp", &set_texture);
+	call("edit uv", &enable_uv_editor, level);
 	file_browser("select skybox", ".bmp", &set_skybox);
 	button(&ui->fog, "fog");
 	// color(ui->color, "fog color");

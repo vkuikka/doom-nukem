@@ -180,6 +180,8 @@ typedef struct			s_ui_state
 	int					m1down;
 	char				*text;
 
+	int					is_uv_editor_open;
+
 	int					is_serialize_open;
 	char				*save_filename;
 	int					text_input_enable;
@@ -295,10 +297,13 @@ void		vec_rot(t_vec3 *res, t_vec3 ve1, float ang);
 int			vec_cmp(t_vec3 ve1, t_vec3 ve2);
 void		vec_avg(t_vec3 *res, t_vec3 ve1, t_vec3 ve2);
 void		vec_copy(t_vec3 *res, t_vec3 vec);
-void		vec2_copy(t_vec2 *res, t_vec2 vec);
 float		vec_angle(t_vec3 v1, t_vec3 v2);
 void		vec_mult(t_vec3 *res, float mult);
 void		vec_div(t_vec3 *res, float div);
+void		vec2_avg(t_vec2 *res, t_vec2 ve1, t_vec2 ve2);
+void		vec2_sub(t_vec2 *res, t_vec2 ve1, t_vec2 ve2);
+void		vec2_add(t_vec2 *res, t_vec2 ve1, t_vec2 ve2);
+void		vec2_copy(t_vec2 *res, t_vec2 vec);
 
 void		init_window(t_window **window);
 t_level		*init_level(void);
@@ -334,6 +339,10 @@ void		file_save(char *str, char *extension, void (*f)(t_level*, char*));
 void		path_up_dir(char *path);
 void		go_in_dir(char *path, char *folder);
 void		text_input(char *str, t_level *level);
+
+void		uv_editor(t_level *level, t_window *window);
+void		enable_uv_editor(t_level *level);
+void		disable_uv_editor(t_level *level);
 
 void		init_physics(t_level *level);
 void		physics_sync(t_level *level, t_physthread *get_data);
