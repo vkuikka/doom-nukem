@@ -466,8 +466,9 @@ void	init_ui(t_window *window, t_level *level)
 	ui->smooth_pixels = FALSE;
 	ui->backface_culling = TRUE;
 	ui->distance_culling = TRUE;
+	ui->wireframe = FALSE;
 	ui->wireframe_on_top = TRUE;
-	ui->wireframe_culling_visual = FALSE;
+	ui->wireframe_culling_visual = TRUE;
 	ui->render_distance = 20;
 	ui->raycast_quality = NOISE_QUALITY_LIMIT - 1;
 	// ui->fog_color = 0xffffffff;//fog

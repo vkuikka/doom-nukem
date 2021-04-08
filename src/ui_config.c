@@ -312,7 +312,7 @@ void	ui_config(t_level *level)
 	// call(, "spawn enemy");
 	// call(, "remove enemies");
 	// button(&ui->pause_culling_position, "\tpause");
-	button(&ui->backface_culling, "backface culling");
+	button(&ui->backface_culling, "backface & occlusion culling");
 	button(&ui->distance_culling, "distance culling");
 	sprintf(buf, "render distance: %.1fm", ui->render_distance);
 	float_slider(&ui->render_distance, buf, 2, 50);

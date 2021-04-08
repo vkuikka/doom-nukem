@@ -126,6 +126,19 @@ static int		backface_culling(t_vec3 pos, t_tri tri)
 	return (0);
 }
 
+int			normal_plane_culling(t_tri tri, t_vec3 *pos, t_vec3 *dir)
+{
+	t_vec3	test;
+
+	for (int i = 0; i < 3 + tri.isquad; i++)
+	{
+		vec_sub(&test, tri.verts[i].pos, *pos);
+		if (vec_dot(test, *dir) <= 0)
+			return (FALSE);
+	}
+	return (TRUE);
+}
+
 void		reflection_culling(t_level *level)
 {
 	for (int i = 0; i < level->visible.tri_amount; i++)
@@ -205,6 +218,19 @@ void			culling(t_level *level)
 		{
 			level->visible.tris[visible_amount] = level->all.tris[i];
 			visible_amount++;
+		}
+	}
+	level->visible.tri_amount = visible_amount;
+	if (level->ui->backface_culling)
+	{
+		visible_amount = 0;
+		for (int i = 0; i < level->visible.tri_amount; i++)
+		{
+			if (occlusion_culling(level->visible.tris[i], level))
+			{
+				level->visible.tris[visible_amount] = level->visible.tris[i];
+				visible_amount++;
+			}
 		}
 	}
 	level->visible.tri_amount = visible_amount;
