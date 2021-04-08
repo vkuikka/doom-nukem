@@ -318,6 +318,7 @@ t_bmp		bmp_read(char *str);
 
 void		culling(t_level *level);
 int			occlusion_culling(t_tri tri, t_level *level);
+int			normal_plane_culling(t_tri tri, t_vec3 *pos, t_vec3 *dir);
 void		find_quads(t_obj *obj);
 
 void		rotate_vertex(float angle, t_vec3 *vertex, int axis);

@@ -69,40 +69,11 @@ static int		is_bface_in_aface(t_tri a, t_tri b, t_level *level)
 	return (1);
 }
 
-static int		is_aface_closer(t_tri a, t_tri b, t_level *level)
-{
-	float	a_far;
-	int		vert_amount;
-
-	a_far = 0;
-	vert_amount = a.isquad ? 4 : 3;
-	for (int i = 0; i < vert_amount; i++)
-	{
-		//vec sub
-		a.verts[i].pos.x -= level->pos.x;
-		a.verts[i].pos.y -= level->pos.y;
-		a.verts[i].pos.z -= level->pos.z;
-		if (a_far < vec_length(a.verts[i].pos))
-			a_far = vec_length(a.verts[i].pos);
-	}
-	vert_amount = b.isquad ? 4 : 3;
-	for (int i = 0; i < vert_amount; i++)
-	{
-		//vec sub
-		b.verts[i].pos.x -= level->pos.x;
-		b.verts[i].pos.y -= level->pos.y;
-		b.verts[i].pos.z -= level->pos.z;
-		if (a_far > vec_length(b.verts[i].pos))
-			return (0);
-	}
-	return (1);
-}
-
 int		occlusion_culling(t_tri tri, t_level *level)
 {
 	for (int i = 0; i < level->all.tri_amount; i++)
 		if (is_bface_in_aface(level->all.tris[i], tri, level))
-			if (is_aface_closer(level->all.tris[i], tri, level))
+			if (normal_plane_culling(tri, &level->all.tris[i].verts[0].pos, &level->all.tris[i].normal))
 				return (0);
 	return (1);
 } 
