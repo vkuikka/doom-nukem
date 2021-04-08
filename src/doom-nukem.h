@@ -44,6 +44,7 @@
 # define UI_BACKGROUND_COL 0x222222bb
 
 # define SERIALIZE_INITIAL_BUFFER_SIZE 666
+# define OCCLUSION_CULLING_FLOAT_ERROR_MAGIC_NUMBER 10
 
 # include <math.h>
 # include <fcntl.h>
@@ -310,11 +311,13 @@ unsigned	crossfade(unsigned color1, unsigned color2, unsigned fade);
 int			face_color(float u, float v, t_tri t, t_bmp *img);
 
 void		wireframe(t_window *window, t_level *level);
+void		camera_offset(t_vec3 *vertex, t_level *level);
 
 void		load_obj(char *filename, t_obj *obj);
 t_bmp		bmp_read(char *str);
 
 void		culling(t_level *level);
+int			occlusion_culling(t_tri tri, t_level *level);
 void		find_quads(t_obj *obj);
 
 void		rotate_vertex(float angle, t_vec3 *vertex, int axis);
