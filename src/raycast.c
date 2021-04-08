@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/07 22:42:10 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/08 17:47:09 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,7 +141,7 @@ int			raycast(void *data_pointer)
 	rot_cam(&cam, lon, lat);
 	rot_cam(&up, lon, lat + (M_PI / 2));
 	vec_cross(&side, up, cam);
-
+	float fov_x = t->level->ui->fov * ((float)RES_X / RES_Y);
 	for (int x = t->id; x < RES_X; x += THREAD_AMOUNT)
 	{
 		t_vec3 tmp;
@@ -154,7 +154,7 @@ int			raycast(void *data_pointer)
 			if (!(x % pixel_gap) && !(y % pixel_gap))
 			{
 				float ym = t->level->ui->fov / RES_Y * y - t->level->ui->fov / 2;
-				float xm = t->level->ui->fov / RES_X * x - t->level->ui->fov / 2;
+				float xm = fov_x / RES_X * x - fov_x / 2;
 
 				r.dir.x = cam.x + up.x * ym + side.x * xm;
 				r.dir.y = cam.y + up.y * ym + side.y * xm;

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   select.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/31 18:32:46 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/08 00:41:01 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/04/08 17:52:34 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,24 +67,22 @@ static void	raycast_face_selection(t_ray vec, t_level *level)
 
 void	select_face(t_level *level, int x, int y)
 {
-	t_vec3	rot;
 	t_ray	r;
-	float	lon = -level->look_side + M_PI/2;
-	float	lat = -level->look_up;
+	t_vec3	up;
+	t_vec3	side;
+	float	xm;
 	float	ym;
 
-	ym = 1.0 / RES_Y * y - 0.5;
+	xm = -level->look_side + M_PI/2;
+	ym = -level->look_up;
+	rot_cam(&r.dir, xm, ym);
+	vec_copy(&r.pos, level->pos);
+	rot_cam(&up, xm, ym + (M_PI / 2));
+	vec_cross(&side, up, r.dir);
 	ym = level->ui->fov / RES_Y * y - level->ui->fov / 2;
-	r.pos.x = level->pos.x;
-	r.pos.y = level->pos.y;
-	r.pos.z = level->pos.z;
-	rot_cam(&r.dir, lon, lat);
-	rot_cam(&rot, lon, lat + (M_PI / 2));
-	r.dir.x += rot.x * ym;
-	r.dir.y += rot.y * ym;
-	r.dir.z += rot.z * ym;
-	vec_cross(&rot, rot, r.dir);
-	vec_mult(&rot, level->ui->fov / RES_X * x - level->ui->fov / 2);
-	vec_add(&r.dir, r.dir, rot);
+	xm = (level->ui->fov * ((float)RES_X / RES_Y)) / RES_X * x - (level->ui->fov * ((float)RES_X / RES_Y) / 2);
+	r.dir.x += up.x * ym + side.x * xm;
+	r.dir.y += up.y * ym + side.y * xm;
+	r.dir.z += up.z * ym + side.z * xm;
 	raycast_face_selection(r, level);
 }
