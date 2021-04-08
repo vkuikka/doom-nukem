@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/08 14:38:45 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/01 15:16:35 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/08 17:57:19 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,6 @@ t_level			*init_level(void)
 {
 	t_level		*level;
 
-	global_seginfo = "init_level\n";
 	if (!(level = (t_level *)malloc(sizeof(t_level))))
 		ft_error("memory allocation failed\n");
 
@@ -39,7 +38,6 @@ t_level			*init_level(void)
 	level->look_up = 0;
 	level->shadow_color = 0;
 
-	global_seginfo = "load_obj\n";
 	// load_obj("level/two.obj", &level->all);
 	// load_obj("level/test.obj", &level->all);
 	// load_obj("level/cube.obj", &level->all);
@@ -54,9 +52,7 @@ t_level			*init_level(void)
 	// load_obj("level/teapot_decimated.obj", &level->all);
 
 	level->texture = bmp_read("out.bmp");
-	global_seginfo = "load skybox obj\n";
 	load_obj("skybox.obj", &level->sky.obj);
-	global_seginfo = "load skybox texture\n";
 	level->sky.img = bmp_read("skybox.bmp");
 
 	if (!(level->visible.tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount)))
@@ -72,7 +68,6 @@ t_level			*init_level(void)
 
 void			init_window(t_window **window)
 {
-	global_seginfo = "init_window\n";
 	if (SDL_Init(SDL_INIT_EVERYTHING))// || !IMG_Init(IMG_INIT_PNG))
 		ft_error("could not initialize SDL\n");
 	if (!(*window = (t_window *)malloc(sizeof(t_window))))

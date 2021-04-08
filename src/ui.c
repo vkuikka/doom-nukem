@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/06 08:50:56 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/04/07 22:48:12 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/08 17:58:05 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -425,7 +425,6 @@ void	ui_render(t_level *level)
 
 void	init_ui_state(t_level *level)
 {
-	global_seginfo = "inint ui state in\n";
 	if (!(level->ui->state.directory = (char*)malloc(sizeof(char) * PATH_MAX)))
 		ft_error("memory allocation failed\n");
 	if (!(level->ui->state.extension = (char*)malloc(sizeof(char) * NAME_MAX)))
@@ -436,7 +435,6 @@ void	init_ui_state(t_level *level)
 	ft_memset(level->ui->state.directory, 0, PATH_MAX - 1);
 	ft_memset(level->ui->state.extension, 0, NAME_MAX - 1);
 	ft_memset(level->ui->state.save_filename, 0, NAME_MAX - 1);
-	global_seginfo = "inint ui state get path\n";
 
 #ifdef __APPLE__
 	int path_max_size = PATH_MAX - 2;
@@ -449,12 +447,10 @@ void	init_ui_state(t_level *level)
 #endif
 	path_up_dir(level->ui->state.directory);
 	go_in_dir(level->ui->state.directory, "level");
-	global_seginfo = "inint ui state out\n";
 }
 
 void	init_ui(t_window *window, t_level *level)
 {
-	global_seginfo = "inint ui in\n";
 	//maybe this on windows
 	SDL_Texture *text_texture = SDL_CreateTexture(window->SDLrenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, RES_X, RES_Y);
 	// SDL_Texture *text_texture = SDL_CreateTexture(window->SDLrenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, RES_X, RES_Y);
@@ -501,5 +497,4 @@ void	init_ui(t_window *window, t_level *level)
 	render_slider_streaming(pixels, 0, 0);
 	render_call_streaming(pixels, 0, NULL, 0);
 	ui_render_background(pixels);
-	global_seginfo = "inint ui out\n";
  }

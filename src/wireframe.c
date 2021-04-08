@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/05 16:44:10 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/04/08 17:47:32 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/08 17:58:12 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -176,7 +176,6 @@ void	render_wireframe(t_window *window, t_level *level, t_obj *obj, int is_visib
 				next = (j + 1) % 3;
 			start = obj->tris[i].verts[j].pos;
 			stop = obj->tris[i].verts[next].pos;
-			global_seginfo = "wireframe 1\n";
 			camera_offset(&start, level);
 			camera_offset(&stop, level);
 			if (obj->tris[i].verts[next].selected &&
@@ -205,7 +204,6 @@ void	render_wireframe(t_window *window, t_level *level, t_obj *obj, int is_visib
 
 void	wireframe(t_window *window, t_level *level)
 {
-	global_seginfo = "wireframe start\n";
 	if (!level->ui->wireframe_on_top)
 		ft_memset(window->frame_buffer, WF_BACKGROUND_COL, RES_X * RES_Y * sizeof(int));
 	if (level->ui->wireframe_culling_visual)
@@ -215,5 +213,4 @@ void	wireframe(t_window *window, t_level *level)
 	// 	for (int qwe = 0; qwe < 3 + level->all.tris[asd].isquad; qwe++)
 	// 		if (level->all.tris[asd].verts[qwe].selected)
 	// 			printf("%d\n", asd);
-	global_seginfo = "wireframe end\n";
 }

@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/08 17:53:48 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/08 17:56:23 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,8 +67,6 @@
 # include <stdlib.h>
 # include <stdio.h>
 # include <signal.h>
-
-char		*global_seginfo;
 
 typedef struct			s_bmp
 {

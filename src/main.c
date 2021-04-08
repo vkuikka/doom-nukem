@@ -12,13 +12,6 @@
 
 #include "doom-nukem.h"
 
-void        segv_handler(int sig)
-{
-	printf ("\n\033[1m\033[31m\tSEGFAULT: %s\n\033[0m", global_seginfo);
-	abort();
-	(void)sig;
-}
-
 int			is_tri_side(t_tri tri, t_ray c)
 {
 	t_vec3   end;
@@ -40,7 +33,6 @@ void		split_obj(t_level *level)
 	t_ray	right;
 	t_ray	left;
 
-	global_seginfo = "split_obj\n";
 	left.pos.x = level->pos.x;
 	left.pos.y = level->pos.y;
 	left.pos.z = level->pos.z;
@@ -94,7 +86,6 @@ void		render(t_window *window, t_level *level)
 		i = 0;
 		if (!(thread_data = (t_rthread**)malloc(sizeof(t_rthread*) * THREAD_AMOUNT)))
 			ft_error("memory allocation failed\n");
-		global_seginfo = "raycast\n";
 		while (i < THREAD_AMOUNT)
 		{
 			if (!(thread_data[i] = (t_rthread*)malloc(sizeof(t_rthread))))
@@ -114,15 +105,11 @@ void		render(t_window *window, t_level *level)
 			i++;
 		}
 		free(thread_data);
-		global_seginfo = "fill_pixels\n";
 		fill_pixels(window->frame_buffer, level->ui->raycast_quality,
 					level->ui->blur, level->ui->smooth_pixels);
 	}
 	if (level->ui->wireframe)
-	{
-		global_seginfo = "wireframe\n";
 		wireframe(window, level);
-	}
 
 	SDL_UnlockTexture(window->texture);
 	SDL_RenderClear(window->SDLrenderer);
@@ -224,14 +211,6 @@ int			main(int argc, char **argv)
 	t_editor_ui	ui;
 	t_level		*level;
 	unsigned	frametime;
-
-#if __APPLE__
-	struct sigaction act;
-	act.sa_handler = segv_handler;
-	sigemptyset(&act.sa_mask);
-	act.sa_flags = 0;
-	sigaction(SIGSEGV, &act, NULL);
-#endif
 
 	level = init_level();
 	init_window(&window);

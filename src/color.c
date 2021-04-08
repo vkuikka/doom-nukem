@@ -168,7 +168,6 @@ int		face_color(float u, float v, t_tri t, t_bmp *img)
 	// 	return((((int)(u * 255) & 0xff) << 24) +
 	// 			(((int)(v * 255) & 0xff) << 16) +
 	//  		(((int)(w * 255) & 0xff) << 8) + 0xff);
-	global_seginfo = "face_color\n";
 	x =	((t.verts[0].txtr.x * img->width * w +
 			t.verts[1].txtr.x * img->width * v +
 			t.verts[2].txtr.x * img->width * u) / (float)(u + v + w));

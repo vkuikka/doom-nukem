@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/20 17:50:56 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/08 17:52:39 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/08 17:57:06 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,6 @@ static int		fov_culling(t_vec3 side_normal[4], t_vec3 pos, t_tri tri)
 	int		out[4][4];
 	int		i;
 
-	global_seginfo = "culling fov\n";
 	out[3][0] = 1;
 	out[3][1] = 1;
 	out[3][2] = 1;
@@ -68,7 +67,6 @@ static int		distance_culling(t_tri tri, t_vec3 player, float render_distance)
 	float	max = 0;
 	float	len;
 
-	global_seginfo = "culling distance\n";
 	for (int i = 0; i < 3 + tri.isquad; i++)
 	{
 		vec_sub(&v, tri.verts[i].pos, player);
@@ -115,7 +113,6 @@ static int		backface_culling(t_vec3 pos, t_tri tri)
 	t_vec3	normal;
 	t_vec3	diff;
 
-	global_seginfo = "culling backface\n";
 	vec_cross(&normal, tri.v0v1, tri.v0v2);
 	vec_sub(&diff, tri.verts[0].pos, pos);
 	if (vec_dot(diff, normal) > 0)
@@ -195,7 +192,6 @@ void			culling(t_level *level)
 	t_vec3		corner[4];
 	t_vec3		side_normals[4];
 
-	global_seginfo = "culling start\n";
 	vec_rot(&front, (t_vec3){0, 0, 1}, level->look_side);
 	calculate_corner_vectors(corner, level, front);
 	calculate_side_normals(side_normals, corner);
@@ -213,5 +209,4 @@ void			culling(t_level *level)
 	}
 	level->visible.tri_amount = visible_amount;
 	reflection_culling(level);
-	global_seginfo = "culling end\n";
 }

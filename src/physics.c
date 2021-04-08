@@ -113,7 +113,6 @@ void	        player_movement(t_vec3 *pos, t_level *level)
 	float			dist;
 	int				in_air;
 
-	global_seginfo = "player_movement\n";
 	r.pos.x = pos->x;
 	r.pos.y = pos->y;
 	r.pos.z = pos->z;
@@ -260,7 +259,6 @@ int     	    physics(void *data_pointer)
 	while (1)
 	{
 		start = getTimeInNanoseconds();
-		global_seginfo = "player_movement\n";
 		player_movement(&data->pos, data->level);
 		enemies_update_physics(data->level);
 		SDL_Delay(5);
