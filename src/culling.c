@@ -6,96 +6,58 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/20 17:50:56 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/03/26 03:21:01 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/08 17:57:06 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom-nukem.h"
 
-static int		fov_culling(t_ray c[3], t_tri tri)
+static int		cull_behind(t_vec3 dir, t_vec3 pos, t_tri tri)
 {
-	t_vec3	end;
-	int		side;
+	t_vec3	vert;
+	int		i;
 
-	global_seginfo = "culling fov\n";
-
-	vec_sub(&end, tri.verts[0].pos, c[0].pos);
-	if (vec_dot(end, c[2].dir) <= 0)
+	i = 0;
+	while (i < 3 + tri.isquad)
 	{
-		vec_sub(&end, tri.verts[1].pos, c[0].pos);
-		if (vec_dot(end, c[2].dir) <= 0)
-		{
-			vec_sub(&end, tri.verts[2].pos, c[0].pos);
-			if (vec_dot(end, c[2].dir) <= 0)
-			{
-				if (tri.isquad)
-				{
-					vec_sub(&end, tri.verts[3].pos, c[0].pos);
-					if (vec_dot(end, c[2].dir) <= 0)
-						return (0);
-				}
-				else
-					return (0);
-			}
-		}
-	}
-	vec_sub(&end, tri.verts[0].pos, c[0].pos);
-	if (vec_dot(end, c[0].dir) <= 0)
-		side = 0;
-	else if (vec_dot(end, c[1].dir) <= 0)
-		side = 1;
-	else
-		return (1);
-
-	vec_sub(&end, tri.verts[1].pos, c[0].pos);
-	if (vec_dot(end, c[0].dir) <= 0)
-	{
-		if (side == 1)
+		vec_sub(&vert, tri.verts[i].pos, pos);
+		if (vec_dot(dir, vert) > 0)
 			return (1);
-		side = 0;
-	}
-	else if (vec_dot(end, c[1].dir) <= 0)
-	{
-		if (side == 0)
-			return (1);
-		side = 1;
-	}
-	else
-		return (1);
-	vec_sub(&end, tri.verts[2].pos, c[0].pos);
-	if (vec_dot(end, c[0].dir) <= 0)
-	{
-		if (side == 1)
-			return (1);
-		side = 0;
-	}
-	else if (vec_dot(end, c[1].dir) <= 0)
-	{
-		if (side == 0)
-			return (1);
-		side = 1;
-	}
-	else
-		return (1);
-	if (tri.isquad)
-	{
-		vec_sub(&end, tri.verts[3].pos, c[0].pos);
-		if (vec_dot(end, c[0].dir) <= 0)
-		{
-			if (side == 1)
-				return (1);
-			side = 0;
-		}
-		else if (vec_dot(end, c[1].dir) <= 0)
-		{
-			if (side == 0)
-				return (1);
-			side = 1;
-		}
-		else
-			return (1);
+		i++;
 	}
 	return (0);
+}
+
+static int		fov_culling(t_vec3 side_normal[4], t_vec3 pos, t_tri tri)
+{
+	t_vec3	end;
+	int		out[4][4];
+	int		i;
+
+	out[3][0] = 1;
+	out[3][1] = 1;
+	out[3][2] = 1;
+	out[3][3] = 1;
+	i = 0;
+	while (i < 3 + tri.isquad)
+	{
+		vec_sub(&end, tri.verts[i].pos, pos);
+		out[i][0] = vec_dot(side_normal[0], end) < 0;
+		out[i][1] = vec_dot(side_normal[1], end) < 0;
+		out[i][2] = vec_dot(side_normal[2], end) < 0;
+		out[i][3] = vec_dot(side_normal[3], end) < 0;
+		if (!out[i][0] && !out[i][1] && !out[i][2] && !out[i][3])
+			return (1);
+		i++;
+	}
+	i = 0;
+	while (i < 4)
+	{
+		if (out[0][i] && out[1][i] && out[2][i] && out[3][i])
+			return (0);
+		i++;
+	}
+	return (1);
 }
 
 static int		distance_culling(t_tri tri, t_vec3 player, float render_distance)
@@ -105,7 +67,6 @@ static int		distance_culling(t_tri tri, t_vec3 player, float render_distance)
 	float	max = 0;
 	float	len;
 
-	global_seginfo = "culling distance\n";
 	for (int i = 0; i < 3 + tri.isquad; i++)
 	{
 		vec_sub(&v, tri.verts[i].pos, player);
@@ -147,20 +108,19 @@ static int		distance_culling(t_tri tri, t_vec3 player, float render_distance)
 	return (max < len);
 }
 
-static int		backface_culling(t_ray r, t_tri tri)
+static int		backface_culling(t_vec3 pos, t_tri tri)
 {
 	t_vec3	normal;
 	t_vec3	diff;
 
-	global_seginfo = "culling backface\n";
 	vec_cross(&normal, tri.v0v1, tri.v0v2);
-	vec_sub(&diff, tri.verts[0].pos, r.pos);
+	vec_sub(&diff, tri.verts[0].pos, pos);
 	if (vec_dot(diff, normal) > 0)
 		return (1);
-	vec_sub(&diff, tri.verts[1].pos, r.pos);
+	vec_sub(&diff, tri.verts[1].pos, pos);
 	if (vec_dot(diff, normal) > 0)
 		return (1);
-	vec_sub(&diff, tri.verts[2].pos, r.pos);
+	vec_sub(&diff, tri.verts[2].pos, pos);
 	if (vec_dot(diff, normal) > 0)
 		return (1);
 	return (0);
@@ -195,31 +155,66 @@ void		reflection_culling(t_level *level)
 	}
 }
 
+void			calculate_side_normals(t_vec3 normal[4], t_vec3 corner[4])
+{
+	vec_cross(&normal[0], corner[2], corner[0]);	//left
+	vec_cross(&normal[1], corner[1], corner[3]);	//right
+	vec_cross(&normal[2], corner[0], corner[1]);	//top
+	vec_cross(&normal[3], corner[3], corner[2]);	//bot
+}
+
+void			calculate_corner_vectors(t_vec3 corner[4], t_level *level, t_vec3 front)
+{
+	t_vec3	up;
+	t_vec3	side;
+	float	lon = -level->look_side + M_PI / 2;
+	float	lat = -level->look_up;
+	float	fov_x = level->ui->fov * ((float)RES_X / RES_Y);
+	rot_cam(&front, lon, lat);
+	rot_cam(&up, lon, lat + (M_PI / 2));
+	vec_cross(&side, up, front);	
+
+	float ym = -level->ui->fov / 2;
+	float xm = -fov_x / 2;
+	corner[0].x = front.x + up.x * ym + side.x * xm;
+	corner[0].y = front.y + up.y * ym + side.y * xm;
+	corner[0].z = front.z + up.z * ym + side.z * xm;
+
+	ym = -level->ui->fov / 2;
+	xm = fov_x - fov_x / 2;
+	corner[1].x = front.x + up.x * ym + side.x * xm;
+	corner[1].y = front.y + up.y * ym + side.y * xm;
+	corner[1].z = front.z + up.z * ym + side.z * xm;
+
+	ym = level->ui->fov - level->ui->fov / 2;
+	xm = -fov_x / 2;
+	corner[2].x = front.x + up.x * ym + side.x * xm;
+	corner[2].y = front.y + up.y * ym + side.y * xm;
+	corner[2].z = front.z + up.z * ym + side.z * xm;
+
+	ym = level->ui->fov - level->ui->fov / 2;
+	xm = fov_x - fov_x / 2;
+	corner[3].x = front.x + up.x * ym + side.x * xm;
+	corner[3].y = front.y + up.y * ym + side.y * xm;
+	corner[3].z = front.z + up.z * ym + side.z * xm;
+}
+
 void			culling(t_level *level)
 {
-	float		angle = level->look_side;
-	t_ray		c[3];
+	t_vec3		front;
+	t_vec3		corner[4];
+	t_vec3		side_normals[4];
 
-	global_seginfo = "culling start\n";
-	c[0].pos.x = level->pos.x;
-	c[0].pos.y = level->pos.y;
-	c[0].pos.z = level->pos.z;
-	vec_rot(&c[0].dir, (t_vec3){0, 0, 1}, angle + ((M_PI / 2) - 0.5));
-	c[1].pos.x = level->pos.x;
-	c[1].pos.y = level->pos.y;
-	c[1].pos.z = level->pos.z;
-	vec_rot(&c[1].dir, (t_vec3){0, 0, 1}, angle - ((M_PI / 2) - 0.5));
-	c[2].pos.x = level->pos.x;
-	c[2].pos.y = level->pos.y;
-	c[2].pos.z = level->pos.z;
-	vec_rot(&c[2].dir, (t_vec3){0, 0, 1}, angle);
-
+	vec_rot(&front, (t_vec3){0, 0, 1}, level->look_side);
+	calculate_corner_vectors(corner, level, front);
+	calculate_side_normals(side_normals, corner);
 	int visible_amount = 0;
 	for (int i = 0; i < level->all.tri_amount; i++)
 	{
-		if (level->all.tris[i].isgrid || (fov_culling(c, level->all.tris[i]) &&
+		if (level->all.tris[i].isgrid ||
+			(cull_behind(front, level->pos, level->all.tris[i]) && fov_culling(side_normals, level->pos, level->all.tris[i]) &&
 			(!level->ui->distance_culling || level->all.distance_culling_mask[i] || distance_culling(level->all.tris[i], level->pos, level->ui->render_distance)) &&
-			(!level->ui->backface_culling || level->all.backface_culling_mask[i] || backface_culling(c[2], level->all.tris[i])) &&
+			(!level->ui->backface_culling || level->all.backface_culling_mask[i] || backface_culling(level->pos, level->all.tris[i])) &&
 			occlusion_culling(level->all.tris[i], level)))
 		{
 			level->visible.tris[visible_amount] = level->all.tris[i];
@@ -228,5 +223,4 @@ void			culling(t_level *level)
 	}
 	level->visible.tri_amount = visible_amount;
 	reflection_culling(level);
-	global_seginfo = "culling end\n";
 }
