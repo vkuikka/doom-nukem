@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/20 17:50:56 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/09 16:45:28 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/09 18:25:23 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -155,7 +155,7 @@ void		reflection_culling(t_level *level)
 	}
 }
 
-void			calculate_side_normals(t_vec3 normal[4], t_vec3 corner[4])
+static void		calculate_side_normals(t_vec3 normal[4], t_vec3 corner[4])
 {
 	vec_cross(&normal[0], corner[2], corner[0]);	//left
 	vec_cross(&normal[1], corner[1], corner[3]);	//right
@@ -163,7 +163,7 @@ void			calculate_side_normals(t_vec3 normal[4], t_vec3 corner[4])
 	vec_cross(&normal[3], corner[3], corner[2]);	//bot
 }
 
-void			calculate_corner_vectors(t_vec3 corner[4], t_level *level, t_vec3 *front)
+static void		calculate_corner_vectors(t_vec3 corner[4], t_level *level, t_vec3 *front)
 {
 	t_vec3	up;
 	t_vec3	side;

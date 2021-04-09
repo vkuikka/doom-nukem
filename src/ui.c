@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/06 08:50:56 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/04/08 17:58:05 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/09 22:57:36 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,11 +108,16 @@ static void	ui_render_background(unsigned *get_texture, SDL_Texture *text_textur
 			for (int x = 0; x < RES_X; x++)
 				if (!texture[x + (y * RES_X)])
 					button_pixel_put(x, y, color[get_ssp_index(x, y) % 2], texture);
-		for (int i = 0; i < SSP_MAX_X; i++)
-		{
-			sprintf(buf, "%d", level->ssp[i].tri_amount);
-			put_text(buf, window, text_texture, (t_ivec2){(RES_X / SSP_MAX_X) * i + (RES_X / SSP_MAX_X / 2), RES_Y / 2});
-		}
+		for (int y = 0; y < SSP_MAX_Y; y++)
+        {
+            for (int x = 0; x < SSP_MAX_X; x++)
+            {
+                sprintf(buf, "%d", level->ssp[y * SSP_MAX_X + x].tri_amount);
+                put_text(buf, window, text_texture,
+                        (t_ivec2){(RES_X / SSP_MAX_X) * x + (RES_X / SSP_MAX_X / 2),
+                        (RES_Y / SSP_MAX_Y) * y + (RES_Y / SSP_MAX_Y / 2)});
+            }
+        }
 	}
 	else
 	{

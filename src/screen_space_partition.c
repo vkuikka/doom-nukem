@@ -3,94 +3,271 @@
 /*                                                        :::      ::::::::   */
 /*   screen_space_partition.c                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/09 12:03:36 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/04/09 12:03:36 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/04/10 00:04:27 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom-nukem.h"
 
-static int			is_tri_left(t_tri *tri, float angle, t_vec3 *pos)
+static void		calculate_corner_vectors(t_vec3 result[2], t_camera_info c, float px, int horizontal)
 {
-	t_vec3	dir;
+	float	ym;
+	float	xm;
 
-	vec_rot(&dir, (t_vec3){0, 0, 1}, angle - (M_PI / 2));
-	return (normal_plane_culling(*tri, pos, &dir));
+	if (horizontal)
+	{
+		ym = c.fov_y / RES_Y * RES_Y - c.fov_y / 2;
+		xm = c.fov_x / RES_X * px - c.fov_x / 2;
+	}
+	else
+	{
+		ym = c.fov_y / RES_Y * px - c.fov_y / 2;
+		xm = c.fov_x / RES_X * RES_X - c.fov_x / 2;
+	}
+	result[0].x = c.front.x + c.up.x * ym + c.side.x * xm;
+	result[0].y = c.front.y + c.up.y * ym + c.side.y * xm;
+	result[0].z = c.front.z + c.up.z * ym + c.side.z * xm;
+	if (horizontal)
+	{
+		ym = c.fov_y / RES_Y * 0 - c.fov_y / 2;
+		xm = c.fov_x / RES_X * px - c.fov_x / 2;
+	}
+	else
+	{
+		ym = c.fov_y / RES_Y * px - c.fov_y / 2;
+		xm = c.fov_x / RES_X * 0 - c.fov_x / 2;
+	}
+	result[1].x = c.front.x + c.up.x * ym + c.side.x * xm;
+	result[1].y = c.front.y + c.up.y * ym + c.side.y * xm;
+	result[1].z = c.front.z + c.up.z * ym + c.side.z * xm;
 }
 
-static int			is_tri_right(t_tri *tri, float angle, t_vec3 *pos)
+static int				left(t_tri *tri, t_level *l, int x, t_camera_info cam)
 {
-	t_vec3	dir;
+	t_vec3	corners[2];
+	t_vec3	normal;
+	t_vec3	vert;
 
-	vec_rot(&dir, (t_vec3){0, 0, 1}, angle + (M_PI / 2));
-	return (normal_plane_culling(*tri, pos, &dir));
+	calculate_corner_vectors(corners, cam, (float)x, 1);
+	vec_cross(&normal, corners[0], corners[1]);
+	for (int i = 0; i < 3 + tri->isquad; i++)
+	{
+		vec_sub(&vert, tri->verts[i].pos, cam.pos);
+		if (vec_dot(vert, normal) > 0)
+			return (0);
+	}
+	return (1);
 }
 
-static void		find_ssp_index(t_tri *tri, t_level *level, t_ivec2 x_range, int depth, float angle)
+static int				right(t_tri *tri, t_level *l, int x, t_camera_info cam)
 {
-    if (is_tri_left(tri, angle, &level->pos))
-    {
-        if (SSP_MAX_X / depth == 2)
-            level->ssp[x_range.x].tris[level->ssp[x_range.x].tri_amount++] = *tri;
-        else
-        {
-            x_range.y = (x_range.y + 1) / 2 - 1;
-            find_ssp_index(tri, level, x_range, depth + 1 , angle - (M_PI / 8));
-        }
-    }
-    else if (is_tri_right(tri, angle, &level->pos))
-    {
+	t_vec3	corners[2];
+	t_vec3	normal;
+	t_vec3	vert;
 
-        if (SSP_MAX_X / depth == 2)
-            level->ssp[x_range.y].tris[level->ssp[x_range.y].tri_amount++] = *tri;
-        else
-        {
-            x_range.x += (x_range.y - x_range.x + 1) / 2;
-            find_ssp_index(tri, level, x_range, depth + 1 , angle + (M_PI / 8));
-        }
-    }
-    else
-    {
-        // if (depth == 1 || SSP_MAX_X / depth == 2)
-            for (int i = x_range.x; i <= x_range.y; i++)
-                level->ssp[i].tris[level->ssp[i].tri_amount++] = *tri;
-        // else
-            //lis'' check jos se on molemmissa keskell
-    }
+	calculate_corner_vectors(corners, cam, (float)x, 1);
+	vec_cross(&normal, corners[1], corners[0]);
+	for (int i = 0; i < 3 + tri->isquad; i++)
+	{
+		vec_sub(&vert, tri->verts[i].pos, cam.pos);
+		if (vec_dot(vert, normal) > 0)
+			return (0);
+	}
+	return (1);
+}
+
+static int				over(t_tri *tri, t_level *l, int x, t_camera_info cam)
+{
+	t_vec3	corners[2];
+	t_vec3	normal;
+	t_vec3	vert;
+
+	calculate_corner_vectors(corners, cam, (float)x, 0);
+	vec_cross(&normal, corners[0], corners[1]);
+	for (int i = 0; i < 3 + tri->isquad; i++)
+	{
+		vec_sub(&vert, tri->verts[i].pos, cam.pos);
+		if (vec_dot(vert, normal) > 0)
+			return (0);
+	}
+	return (1);
+}
+
+static int				under(t_tri *tri, t_level *l, int x, t_camera_info cam)
+{
+	t_vec3	corners[2];
+	t_vec3	normal;
+	t_vec3	vert;
+
+	calculate_corner_vectors(corners, cam, (float)x, 0);
+	vec_cross(&normal, corners[1], corners[0]);
+	for (int i = 0; i < 3 + tri->isquad; i++)
+	{
+		vec_sub(&vert, tri->verts[i].pos, cam.pos);
+		if (vec_dot(vert, normal) > 0)
+			return (0);
+	}
+	return (1);
+}
+
+int			get_ssp_coordinate(int coord, int horizontal)
+{
+	if (horizontal)
+		for (int x = 0; x < SSP_MAX_X; x++)
+			if (RES_X / SSP_MAX_X * x <= coord && RES_X / SSP_MAX_X * (x + 1) > coord)
+				return (x);
+	if (!horizontal)
+		for (int x = 0; x < SSP_MAX_Y; x++)
+			if (RES_Y / SSP_MAX_Y * x <= coord && RES_Y / SSP_MAX_Y * (x + 1) > coord)
+				return (x);
+	ft_error("ssp pixel out of screen");
+	return (0);
+}
+
+static void            find_ssp_index(t_tri *tri, t_level *level)
+{
+	t_camera_info	cam;
+	cam.lon = -level->look_side + M_PI / 2;
+	cam.lat = -level->look_up;
+	rot_cam(&cam.front, cam.lon, cam.lat);
+	rot_cam(&cam.up, cam.lon, cam.lat + (M_PI / 2));
+	vec_cross(&cam.side, cam.up, cam.front);
+	cam.pos = level->pos;
+	cam.fov_y = level->ui->fov;
+	cam.fov_x = level->ui->fov * ((float)RES_X / RES_Y);
+
+	float		xmin;
+	float		xmax;
+	float		ymin;
+	float		ymax;
+	float		div;
+	int			i;
+
+	i = 0;
+	xmax = RES_X;
+	ymax = RES_Y;
+	xmin = 0;
+	ymin = 0;
+	while (i < SSP_MAX_X - 1)
+	{
+		if (left(tri, level, (xmax + xmin) / 2, cam))
+			xmax = (xmax + xmin) / 2;
+		else if (right(tri, level, (xmax + xmin) / 2, cam))
+			xmin = (xmax + xmin) / 2;
+		else
+		{
+			int j = i;
+			float	tmp;
+			tmp = (xmax + xmin) / 2;
+			while (j < SSP_MAX_X)
+			{
+				if (left(tri, level, (xmin + tmp) / 2, cam))
+					tmp = (xmin + tmp) / 2;
+				else if (right(tri, level, (xmin + tmp) / 2, cam))
+					xmin = (xmin + tmp) / 2;
+				else
+					tmp = (xmin + tmp) / 2;
+				j++;
+			}
+			j = i;
+			tmp = (xmax + xmin) / 2;
+			while (j < SSP_MAX_X)
+			{
+				if (right(tri, level, (xmax + tmp) / 2, cam))
+					tmp = (xmax + tmp) / 2;
+				else if (left(tri, level, (xmax + tmp) / 2, cam))
+					xmax = (xmax + tmp) / 2;
+				else
+					tmp = (xmax + tmp) / 2;
+				j++;
+			}
+			break;
+		}
+		i++;
+	}
+	i = 0;
+	while (i < SSP_MAX_Y - 1)
+	{
+		if (under(tri, level, (ymax + ymin) / 2, cam))
+			ymax = (ymax + ymin) / 2;
+		else if (over(tri, level, (ymax + ymin) / 2, cam))
+			ymin = (ymax + ymin) / 2;
+		else
+		{
+			int j = i;
+			float	tmp;
+			tmp = (ymax + ymin) / 2;
+			while (j < SSP_MAX_Y)
+			{
+				if (under(tri, level, (ymin + tmp) / 2, cam))
+					tmp = (ymin + tmp) / 2;
+				else if (over(tri, level, (ymin + tmp) / 2, cam))
+					ymin = (ymin + tmp) / 2;
+				else
+					tmp = (ymin + tmp) / 2;
+				j++;
+			}
+			j = i;
+			tmp = (ymax + ymin) / 2;
+			while (j < SSP_MAX_Y)
+			{
+				if (over(tri, level, (ymax + tmp) / 2, cam))
+					tmp = (ymax + tmp) / 2;
+				else if (under(tri, level, (ymax + tmp) / 2, cam))
+					ymax = (ymax + tmp) / 2;
+				else
+					tmp = (ymax + tmp) / 2;
+				j++;
+			}
+			break;
+		}
+		i++;
+	}
+	if (xmax >= RES_X)
+		xmax -= 0.5;
+	if (ymax >= RES_Y)
+		ymax -= 0.5;
+	for (int x = get_ssp_coordinate(xmin, 1); x <= get_ssp_coordinate(xmax, 1); x++)
+		for (int y = get_ssp_coordinate(ymin, 0); y <= get_ssp_coordinate(ymax, 0); y++)
+			level->ssp[x + y * SSP_MAX_X].tris[level->ssp[x + y * SSP_MAX_X].tri_amount++] = *tri;
 }
 
 void		screen_space_partition(t_level *level)
 {
-	for (int i = 0; i < SSP_MAX_X; i++)
+	for (int i = 0; i < SSP_MAX_X * SSP_MAX_Y; i++)
 		level->ssp[i].tri_amount =  0;
 	for (int i = 0; i < level->visible.tri_amount; i++)
 	{
 		if (level->visible.tris[i].isgrid)
 		{
-			for (int o = 0; o < SSP_MAX_X; o++)
+			for (int o = 0; o < SSP_MAX_X * SSP_MAX_Y; o++)
 				level->ssp[o].tris[level->ssp[o].tri_amount++] = level->visible.tris[i];
 		}
 		else
-			find_ssp_index(&level->visible.tris[i], level, (t_ivec2){0, SSP_MAX_X - 1}, 1, level->look_side);
+			find_ssp_index(&level->visible.tris[i], level);
 	}
 }
 
-int			get_ssp_index(int x, int y)
+int			get_ssp_index(int xd, int yd)
 {
-	for (int i = 0; i < SSP_MAX_X; i++)
-		if (RES_X / SSP_MAX_X * i <= x && RES_X / SSP_MAX_X * (i + 1) > x)
-			return (i);
+	// return ((float)xd / (RES_X - 1) * SSP_MAX_X + (float)yd / (RES_Y - 1) * SSP_MAX_Y * SSP_MAX_X);
+	for (int y = 0; y < SSP_MAX_Y; y++)
+		for (int x = 0; x < SSP_MAX_X; x++)
+			if (RES_X / SSP_MAX_X * (x + 1) > xd &&
+				RES_Y / SSP_MAX_Y * (y + 1) > yd)
+				return (x + y * SSP_MAX_X);
 	ft_error("ssp pixel out of screen");
 	return (0);
 }
 
 void		init_screen_space_partition(t_level *level)
 {
-	if (!(level->ssp = (t_obj*)malloc(sizeof(t_obj) * SSP_MAX_X)))
+	if (!(level->ssp = (t_obj*)malloc(sizeof(t_obj) * SSP_MAX_X * SSP_MAX_Y)))
 		ft_error("memory allocation failed");
-	for (int i = 0; i < SSP_MAX_X; i++)
+	for (int i = 0; i < SSP_MAX_X * SSP_MAX_Y; i++)
 		if (!(level->ssp[i].tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount)))
 			ft_error("memory allocation failed");
 }

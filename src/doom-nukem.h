@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/08 17:56:23 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/10 00:04:49 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,8 @@
 # define TICKRATE 128
 # define THREAD_AMOUNT 8
 # define NOISE_QUALITY_LIMIT 8
-//# define SSP_MAX_X (1 << 2) + 2// has to be an exponent of 2 ... 2 4 8
-# define SSP_MAX_X 4
+# define SSP_MAX_X 10
+# define SSP_MAX_Y 10
 
 # define NOCLIP_SPEED 20.0 / TICKRATE
 # define MOVE_SPEED 7.0 / TICKRATE
@@ -279,6 +279,17 @@ typedef struct			s_cast_result
 	int					transparent_color;
 	struct s_vec3		normal;
 }						t_cast_result;
+typedef struct			s_camera_info
+{
+	t_vec3				up;
+	t_vec3				side;
+	t_vec3				front;
+	t_vec3				pos;
+	float				lon;
+	float				lat;
+	float				fov_y;
+	float				fov_x;
+}						t_camera_info;
 
 typedef struct			s_buffer
 {
