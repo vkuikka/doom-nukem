@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/08 17:47:09 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/10 02:43:10 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,7 +120,7 @@ int			raycast(void *data_pointer)
 {
 	t_rthread	*t = data_pointer;
 	t_ray		r;
-	float		angle = t->level->look_side;
+	t_camera	*cam = t->level->cam;
 	int			pixel_gap = t->level->ui->raycast_quality;
 	int			rand_amount = 0;
 
@@ -129,18 +129,9 @@ int			raycast(void *data_pointer)
 		srand(SDL_GetTicks());
 		rand_amount = 2;
 	}
-	r.pos.x = t->level->pos.x;
-	r.pos.y = t->level->pos.y;
-	r.pos.z = t->level->pos.z;
-
-	t_vec3	cam;
-	t_vec3	up;
-	t_vec3	side;
-	float lon = -t->level->look_side + M_PI/2;
-	float lat = -t->level->look_up;
-	rot_cam(&cam, lon, lat);
-	rot_cam(&up, lon, lat + (M_PI / 2));
-	vec_cross(&side, up, cam);
+	r.pos.x = cam->pos.x;
+	r.pos.y = cam->pos.y;
+	r.pos.z = cam->pos.z;
 	float fov_x = t->level->ui->fov * ((float)RES_X / RES_Y);
 	for (int x = t->id; x < RES_X; x += THREAD_AMOUNT)
 	{
@@ -156,9 +147,9 @@ int			raycast(void *data_pointer)
 				float ym = t->level->ui->fov / RES_Y * y - t->level->ui->fov / 2;
 				float xm = fov_x / RES_X * x - fov_x / 2;
 
-				r.dir.x = cam.x + up.x * ym + side.x * xm;
-				r.dir.y = cam.y + up.y * ym + side.y * xm;
-				r.dir.z = cam.z + up.z * ym + side.z * xm;
+				r.dir.x = cam->front.x + cam->up.x * ym + cam->side.x * xm;
+				r.dir.y = cam->front.y + cam->up.y * ym + cam->side.y * xm;
+				r.dir.z = cam->front.z + cam->up.z * ym + cam->side.z * xm;
 
 				t_cast_result	res;
 				res = cast_all_color(r, t, get_ssp_index(x, y));
