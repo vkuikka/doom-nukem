@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/10 00:04:49 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/10 02:39:22 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,8 @@
 # define TICKRATE 128
 # define THREAD_AMOUNT 8
 # define NOISE_QUALITY_LIMIT 8
-# define SSP_MAX_X 10
-# define SSP_MAX_Y 10
+# define SSP_MAX_X 6
+# define SSP_MAX_Y 6
 
 # define NOCLIP_SPEED 20.0 / TICKRATE
 # define MOVE_SPEED 7.0 / TICKRATE
@@ -157,6 +157,20 @@ typedef struct			s_skybox
 	struct s_obj		obj;
 }						t_skybox;
 
+typedef struct			s_camera
+{
+	t_vec3				up;
+	t_vec3				side;
+	t_vec3				front;
+	t_vec3				pos;
+	float				look_side;	//side look angle
+	float				look_up;	//up and down look angle
+	float				lon;
+	float				lat;
+	float				fov_y;
+	float				fov_x;
+}						t_camera;
+
 typedef struct			s_level
 {
 	// struct s_obj		*all_objs;	//(if want to add multiple objects) array of objects in the level
@@ -164,10 +178,8 @@ typedef struct			s_level
 	struct s_obj		visible;	//visible faces
 	struct s_obj		*ssp;		//screen space partition
 	struct s_bmp		texture;
-	struct s_vec3		pos;		//player position
 	struct s_skybox		sky;
-	float				look_side;	//side look angle
-	float				look_up;	//up and down look angle
+	struct s_camera		*cam;
 	struct s_editor_ui	*ui;
 	int					shadow_color;
 }						t_level;
@@ -279,17 +291,6 @@ typedef struct			s_cast_result
 	int					transparent_color;
 	struct s_vec3		normal;
 }						t_cast_result;
-typedef struct			s_camera_info
-{
-	t_vec3				up;
-	t_vec3				side;
-	t_vec3				front;
-	t_vec3				pos;
-	float				lon;
-	float				lat;
-	float				fov_y;
-	float				fov_x;
-}						t_camera_info;
 
 typedef struct			s_buffer
 {
@@ -327,7 +328,7 @@ unsigned	crossfade(unsigned color1, unsigned color2, unsigned fade);
 int			face_color(float u, float v, t_tri t, t_bmp *img);
 
 void		wireframe(t_window *window, t_level *level);
-void		camera_offset(t_vec3 *vertex, t_level *level);
+void		camera_offset(t_vec3 *vertex, t_camera *cam);
 
 void		load_obj(char *filename, t_obj *obj);
 t_bmp		bmp_read(char *str);
@@ -371,7 +372,7 @@ float		shadow(t_ray r, t_rthread *t, t_vec3 normal);
 int			reflection(t_ray *r, t_rthread *t, t_vec3 normal, int depth);
 unsigned	wave_shader(t_vec3 mod, t_vec3 *normal, unsigned col1, unsigned col2);
 
-void		select_face(t_level *level, int x, int y);
+void		select_face(t_camera *cam, t_level *level, int x, int y);
 
 void		save_level(t_level *level);
 void		open_level(t_level *level, char *filename);
