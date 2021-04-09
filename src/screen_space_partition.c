@@ -6,11 +6,23 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/09 12:03:36 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/04/10 00:38:08 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/10 01:05:46 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom-nukem.h"
+
+int			get_ssp_index(int xd, int yd)
+{
+	return ((int)((float)xd / RES_X * SSP_MAX_X) + (int)((float)yd / RES_Y * SSP_MAX_Y) * SSP_MAX_X);
+}
+
+int			get_ssp_coordinate(int coord, int horizontal)
+{
+	if (horizontal)
+		return ((int)((float)coord / RES_X * SSP_MAX_X));
+	return ((int)((float)coord / RES_Y * SSP_MAX_Y));
+}
 
 static void		calculate_corner_vectors(t_vec3 result[2], t_camera_info c, float px, int horizontal)
 {
@@ -113,20 +125,6 @@ static int				under(t_tri *tri, t_level *l, int x, t_camera_info cam)
 	return (1);
 }
 
-int			get_ssp_coordinate(int coord, int horizontal)
-{
-	if (horizontal)
-		for (int x = 0; x < SSP_MAX_X; x++)
-			if (RES_X / SSP_MAX_X * x <= coord && RES_X / SSP_MAX_X * (x + 1) > coord)
-				return (x);
-	if (!horizontal)
-		for (int x = 0; x < SSP_MAX_Y; x++)
-			if (RES_Y / SSP_MAX_Y * x <= coord && RES_Y / SSP_MAX_Y * (x + 1) > coord)
-				return (x);
-	ft_error("ssp pixel out of screen");
-	return (0);
-}
-
 static void            find_ssp_index(t_tri *tri, t_level *level)
 {
 	t_camera_info	cam;
@@ -143,12 +141,11 @@ static void            find_ssp_index(t_tri *tri, t_level *level)
 	float		xmax;
 	float		ymin;
 	float		ymax;
-	float		div;
 	int			i;
 
 	i = 0;
-	xmax = RES_X;
-	ymax = RES_Y;
+	xmax = RES_X - 1;
+	ymax = RES_Y - 1;
 	xmin = 0;
 	ymin = 0;
 	while (i < SSP_MAX_X - 1)
@@ -226,10 +223,6 @@ static void            find_ssp_index(t_tri *tri, t_level *level)
 		}
 		i++;
 	}
-	if (xmax >= RES_X)
-		xmax -= 0.5;
-	if (ymax >= RES_Y)
-		ymax -= 0.5;
 	for (int x = get_ssp_coordinate(xmin, 1); x <= get_ssp_coordinate(xmax, 1); x++)
 		for (int y = get_ssp_coordinate(ymin, 0); y <= get_ssp_coordinate(ymax, 0); y++)
 			level->ssp[x + y * SSP_MAX_X].tris[level->ssp[x + y * SSP_MAX_X].tri_amount++] = *tri;
@@ -249,11 +242,6 @@ void		screen_space_partition(t_level *level)
 		else
 			find_ssp_index(&level->visible.tris[i], level);
 	}
-}
-
-int			get_ssp_index(int xd, int yd)
-{
-	return ((int)((float)xd / RES_X * SSP_MAX_X) + (int)((float)yd / RES_Y * SSP_MAX_Y) * SSP_MAX_X);
 }
 
 void		init_screen_space_partition(t_level *level)
