@@ -57,12 +57,6 @@ t_level			*init_level(void)
 
 	if (!(level->visible.tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount)))
 		ft_error("memory allocation failed\n");
-	if (!(level->ssp = (t_obj*)malloc(sizeof(t_obj) * 2)))
-		ft_error("memory allocation failed\n");
-	if (!(level->ssp[0].tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount)))
-		ft_error("memory allocation failed\n");
-	if (!(level->ssp[1].tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount)))
-		ft_error("memory allocation failed\n");
 	return (level);
 }
 

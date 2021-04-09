@@ -17,6 +17,8 @@
 # define TICKRATE 128
 # define THREAD_AMOUNT 8
 # define NOISE_QUALITY_LIMIT 8
+//# define SSP_MAX_X (1 << 2) + 2// has to be an exponent of 2 ... 2 4 8
+# define SSP_MAX_X 4
 
 # define NOCLIP_SPEED 20.0 / TICKRATE
 # define MOVE_SPEED 7.0 / TICKRATE
@@ -301,6 +303,10 @@ void		vec_div(t_vec3 *res, float div);
 
 void		init_window(t_window **window);
 t_level		*init_level(void);
+
+void		screen_space_partition(t_level *level);
+void		init_screen_space_partition(t_level *level);
+int			get_ssp_index(int x, int y);
 
 int			raycast(void *t);
 float		cast_face(t_tri t, t_ray ray, int *col, t_bmp *img);

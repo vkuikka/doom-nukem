@@ -12,66 +12,6 @@
 
 #include "doom-nukem.h"
 
-int			is_tri_side(t_tri tri, t_ray c)
-{
-	t_vec3   end;
-
-	int amount = tri.isquad ? 4 : 3;
-	for (int i = 0; i < amount; i++)
-	{
-		vec_sub(&end, tri.verts[i].pos, c.pos);
-		if (vec_dot(end, c.dir) <= 0)
-			return (FALSE);
-	}
-	return (TRUE);
-}
-
-void		split_obj(t_level *level)
-{
-	int		right_amount = 0;
-	int		left_amount = 0;
-	t_ray	right;
-	t_ray	left;
-
-	left.pos.x = level->pos.x;
-	left.pos.y = level->pos.y;
-	left.pos.z = level->pos.z;
-	vec_rot(&left.dir, (t_vec3){0,0,1}, level->look_side - (M_PI / 2));
-	right.pos.x = level->pos.x;
-	right.pos.y = level->pos.y;
-	right.pos.z = level->pos.z;
-	vec_rot(&right.dir, (t_vec3){0,0,1}, level->look_side + (M_PI / 2));
-	for (int i = 0; i < level->visible.tri_amount; i++)
-	{
-		if (level->visible.tris[i].isgrid)
-		{
-			level->ssp[0].tris[left_amount] = level->visible.tris[i];
-			level->ssp[1].tris[right_amount] = level->visible.tris[i];
-			left_amount++;
-			right_amount++;
-		}
-		else if (is_tri_side(level->visible.tris[i], left))
-		{
-			level->ssp[0].tris[left_amount] = level->visible.tris[i];
-			left_amount++;
-		}
-		else if (is_tri_side(level->visible.tris[i], right))
-		{
-			level->ssp[1].tris[right_amount] = level->visible.tris[i];
-			right_amount++;
-		}
-		else
-		{
-			level->ssp[0].tris[left_amount] = level->visible.tris[i];
-			level->ssp[1].tris[right_amount] = level->visible.tris[i];
-			left_amount++;
-			right_amount++;
-		}
-	}
-	level->ssp[0].tri_amount = left_amount;
-	level->ssp[1].tri_amount = right_amount;
-}
-
 void		render(t_window *window, t_level *level)
 {
 	SDL_Thread		*threads[THREAD_AMOUNT];
@@ -215,6 +155,7 @@ int			main(int argc, char **argv)
 	level = init_level();
 	init_window(&window);
 	init_ui(window, level);
+	init_screen_space_partition(level);
 	init_physics(level);
 	while (1)
 	{
@@ -223,7 +164,7 @@ int			main(int argc, char **argv)
 		physics_sync(level, NULL);
 		enemies_update_sprites(level);
 		culling(level);
-		split_obj(level);
+		screen_space_partition(level);
 		render(window, level);
 		level->ui->frametime = SDL_GetTicks() - frametime;
 	}

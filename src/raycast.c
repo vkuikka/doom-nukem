@@ -161,7 +161,7 @@ int			raycast(void *data_pointer)
 				r.dir.z = cam.z + up.z * ym + side.z * xm;
 
 				t_cast_result	res;
-				res = cast_all_color(r, t, x >= RES_X / 2);
+				res = cast_all_color(r, t, get_ssp_index(x, y));
 				if (t->level->ui->fog)
 					res.color = fog(res.color, res.dist, t->level->ui->fog_color, t->level);
 				t->window->frame_buffer[x + (y * RES_X)] = res.color;
