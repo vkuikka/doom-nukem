@@ -184,6 +184,7 @@ typedef struct			s_ui_state
 	int					is_serialize_open;
 	char				*save_filename;
 	int					text_input_enable;
+	int					ssp_visual;
 
 	int					is_directory_open;
 	char				*directory;

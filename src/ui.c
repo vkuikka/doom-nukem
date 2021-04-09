@@ -87,24 +87,43 @@ static t_ivec2	put_text(char *text, t_window *window, SDL_Texture *texture, t_iv
 }
 
 
-static void	ui_render_background(unsigned *get_texture)
+static void	ui_render_background(unsigned *get_texture, SDL_Texture *text_texture, t_window *window, t_level *level)
 {
-	static unsigned *texture;
-	t_ui_state	*state;
+	static unsigned	*texture;
+	t_ui_state		*state;
+	char			buf[100];
 
-	state = get_ui_state(NULL);
 	if (get_texture)
 	{
 		texture = get_texture;
 		return ;
 	}
-	for (int y = 0; y < state->ui_text_y_pos + 6; y++)
-		for (int x = 0; x < state->ui_max_width + 4; x++)
-			if (!texture[x + (y * RES_X)])
-				button_pixel_put(x, y, UI_BACKGROUND_COL, texture);
+	state = get_ui_state(NULL);
+	if (state->ssp_visual)
+	{
+		int color[2];
+		color[0] = 0;
+		color[1] = 0x66666655;
+		for (int y = 0; y < RES_Y; y++)
+			for (int x = 0; x < RES_X; x++)
+				if (!texture[x + (y * RES_X)])
+					button_pixel_put(x, y, color[get_ssp_index(x, y) % 2], texture);
+		for (int i = 0; i < SSP_MAX_X; i++)
+		{
+			sprintf(buf, "%d", level->ssp[i].tri_amount);
+			put_text(buf, window, text_texture, (t_ivec2){(RES_X / SSP_MAX_X) * i + (RES_X / SSP_MAX_X / 2), RES_Y / 2});
+		}
+	}
+	else
+	{
+		for (int y = 0; y < state->ui_text_y_pos + 6; y++)
+			for (int x = 0; x < state->ui_max_width + 4; x++)
+				if (!texture[x + (y * RES_X)])
+					button_pixel_put(x, y, UI_BACKGROUND_COL, texture);
+	}
 }
 
-static t_ivec2	ui_render_internal(SDL_Texture *get_text, SDL_Texture *get_streaming, t_window *get_window, t_ui_state *state)
+static t_ivec2	ui_render_internal(SDL_Texture *get_text, SDL_Texture *get_streaming, t_window *get_window, t_level *level, t_ui_state *state)
 {
 	static SDL_Texture *text_texture;
 	static SDL_Texture *streaming_texture;
@@ -133,7 +152,7 @@ static t_ivec2	ui_render_internal(SDL_Texture *get_text, SDL_Texture *get_stream
 	}
 	else//render
 	{
-		ui_render_background(NULL);
+		ui_render_background(NULL, text_texture, window, level);
 		SDL_UnlockTexture(streaming_texture);
 		SDL_RenderCopy(window->SDLrenderer, streaming_texture, NULL, NULL);
 		if (SDL_LockTexture(streaming_texture, NULL, (void**)&pixels, &width) != 0)
@@ -280,7 +299,7 @@ void	text(char *text)
 	state = get_ui_state(NULL);
 	state->text = text;
 	state->ui_text_x_offset = 4;
-	ui_render_internal(NULL, NULL, NULL, state);
+	ui_render_internal(NULL, NULL, NULL, NULL, state);
 }
 
 void	button(int *var, char *text)
@@ -292,7 +311,7 @@ void	button(int *var, char *text)
 	state->ui_text_x_offset = 14;
 	render_button_streaming(NULL, var, state->ui_text_y_pos);
 	edit_button_var(var, state);
-	ui_render_internal(NULL, NULL, NULL, state);
+	ui_render_internal(NULL, NULL, NULL, NULL, state);
 }
 
 float	clamp(float var, float min, float max)
@@ -398,7 +417,7 @@ int		call(char *str, void (*f)(t_level*), t_level *level)
 	color_tmp = state->ui_text_color;
 	state->ui_text_color = UI_BACKGROUND_COL;
 	t_ivec2 size;
-	size = ui_render_internal(NULL, NULL, NULL, state);
+	size = ui_render_internal(NULL, NULL, NULL, NULL, state);
 	state->ui_text_y_pos -= 14;
 	state->ui_text_color = color_tmp;
 	render_call_streaming(NULL, state->ui_text_y_pos, &size, state->ui_text_color);
@@ -420,7 +439,7 @@ void	ui_render(t_level *level)
 	level->ui->state.ui_text_y_pos = 0;
 	get_ui_state(&level->ui->state);
 	ui_config(level);
-	ui_render_internal(NULL, NULL, NULL, NULL);
+	ui_render_internal(NULL, NULL, NULL, level, NULL);
 }
 
 void	init_ui_state(t_level *level)
@@ -493,9 +512,9 @@ void	init_ui(t_window *window, t_level *level)
 	// 	ft_error("failed to lock texture\n");
 	if (SDL_LockTexture(ui_texture, NULL, (void**)&pixels, &width) != 0)
 		ft_error("failed to lock texture\n");
-	ui_render_internal(text_texture, ui_texture, window, NULL);
+	ui_render_internal(text_texture, ui_texture, window, NULL, NULL);
 	render_button_streaming(pixels, 0, 0);
 	render_slider_streaming(pixels, 0, 0);
 	render_call_streaming(pixels, 0, NULL, 0);
-	ui_render_background(pixels);
+	ui_render_background(pixels, NULL, NULL, NULL);
  }

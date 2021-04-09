@@ -298,6 +298,7 @@ void	ui_config(t_level *level)
 		button(&ui->show_quads, "quad visualize");
 		button(&ui->wireframe_culling_visual, "culling visualize");
 	}
+	button(&ui->state.ssp_visual, "ssp visualize");
 	// button(, "face/vert selection");
 
 	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
@@ -335,10 +336,6 @@ void	ui_config(t_level *level)
 	sprintf(buf, "frametime: %ums",  ui->frametime);
 	text(buf);
 	sprintf(buf, "faces:           %d / %d", level->all.tri_amount, level->visible.tri_amount);
-	text(buf);
-	sprintf(buf, "faces left:    %d", level->ssp[0].tri_amount);
-	text(buf);
-	sprintf(buf, "faces right:  %d",  level->ssp[1].tri_amount);
 	text(buf);
 
 	set_text_color(UI_FACE_SELECTION_TEXT_COLOR);
