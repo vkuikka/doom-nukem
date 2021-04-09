@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/31 18:32:46 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/08 17:52:34 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/10 02:38:52 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,7 @@ static void	raycast_face_selection(t_ray vec, t_level *level)
 		deselect_all_faces(level);
 }
 
-void	select_face(t_level *level, int x, int y)
+void	select_face(t_camera *cam, t_level *level, int x, int y)
 {
 	t_ray	r;
 	t_vec3	up;
@@ -73,16 +73,14 @@ void	select_face(t_level *level, int x, int y)
 	float	xm;
 	float	ym;
 
-	xm = -level->look_side + M_PI/2;
-	ym = -level->look_up;
+	xm = -cam->look_side + M_PI / 2;
+	xm = -cam->look_up;
 	rot_cam(&r.dir, xm, ym);
-	vec_copy(&r.pos, level->pos);
-	rot_cam(&up, xm, ym + (M_PI / 2));
-	vec_cross(&side, up, r.dir);
-	ym = level->ui->fov / RES_Y * y - level->ui->fov / 2;
-	xm = (level->ui->fov * ((float)RES_X / RES_Y)) / RES_X * x - (level->ui->fov * ((float)RES_X / RES_Y) / 2);
-	r.dir.x += up.x * ym + side.x * xm;
-	r.dir.y += up.y * ym + side.y * xm;
-	r.dir.z += up.z * ym + side.z * xm;
+	vec_copy(&r.pos, cam->pos);
+	ym = cam->fov_y / RES_Y * y - cam->fov_y / 2;
+	xm = cam->fov_x / RES_X * x - cam->fov_x / 2;
+	r.dir.x += cam->up.x * ym + cam->side.x * xm;
+	r.dir.y += cam->up.y * ym + cam->side.y * xm;
+	r.dir.z += cam->up.z * ym + cam->side.z * xm;
 	raycast_face_selection(r, level);
 }

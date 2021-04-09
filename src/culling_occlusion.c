@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   culling_occlusion.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/26 04:05:50 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/03/31 17:41:37 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/04/10 02:42:50 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,14 +52,14 @@ static int		is_bface_in_aface(t_tri a, t_tri b, t_level *level)
 	vert_amount = a.isquad ? 4 : 3;
 	for (int i = 0; i < vert_amount; i++)
 	{
-		camera_offset(&a.verts[i].pos, level);
+		camera_offset(&a.verts[i].pos, level->cam);
 		if (a.verts[i].pos.z < 0)
 			return (0);
 	}
 	vert_amount = b.isquad ? 4 : 3;
 	for (int i = 0; i < vert_amount; i++)
 	{
-		camera_offset(&b.verts[i].pos, level);
+		camera_offset(&b.verts[i].pos, level->cam);
 		if (b.verts[i].pos.z < 0)
 			return (0);
 	}

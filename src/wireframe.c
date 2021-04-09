@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/05 16:44:10 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/04/08 17:58:12 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/10 02:43:32 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,20 +106,20 @@ void	put_vertex(t_vec3 vertex, int color, t_window *window)
 	}
 }
 
-void	camera_offset(t_vec3 *vertex, t_level *level)
+void	camera_offset(t_vec3 *vertex, t_camera *cam)
 {
 	//move vertices to camera position
-	vertex->x -= level->pos.x;
-	vertex->y -= level->pos.y;
-	vertex->z -= level->pos.z;
+	vertex->x -= cam->pos.x;
+	vertex->y -= cam->pos.y;
+	vertex->z -= cam->pos.z;
 
 	//rotate vertices around camera
-	rotate_vertex(-level->look_side, vertex, 0);
-	rotate_vertex(-level->look_up, vertex, 1);
+	rotate_vertex(-cam->look_side, vertex, 0);
+	rotate_vertex(-cam->look_up, vertex, 1);
 
 	//add perspective
-	vertex->x /= vertex->z / (RES_X / level->ui->fov / ((float)RES_X / RES_Y));
-	vertex->y /= vertex->z / (RES_Y / level->ui->fov);
+	vertex->x /= vertex->z / (RES_X / cam->fov_x);
+	vertex->y /= vertex->z / (RES_Y / cam->fov_y);
 
 	//move to center of screen
 	vertex->x += RES_X / 2.0;
@@ -153,8 +153,8 @@ void	put_normal(t_window *window, t_level *level, t_tri tri, int color)
 	normal.x = avg.x - normal_dir.x * normal_len;
 	normal.y = avg.y - normal_dir.y * normal_len;
 	normal.z = avg.z - normal_dir.z * normal_len;
-	camera_offset(&avg, level);
-	camera_offset(&normal, level);
+	camera_offset(&avg, level->cam);
+	camera_offset(&normal, level->cam);
 	put_vertex(avg, 0, window);
 	print_line(avg, normal, color, window);
 }
@@ -176,8 +176,8 @@ void	render_wireframe(t_window *window, t_level *level, t_obj *obj, int is_visib
 				next = (j + 1) % 3;
 			start = obj->tris[i].verts[j].pos;
 			stop = obj->tris[i].verts[next].pos;
-			camera_offset(&start, level);
-			camera_offset(&stop, level);
+			camera_offset(&start, level->cam);
+			camera_offset(&stop, level->cam);
 			if (obj->tris[i].verts[next].selected &&
 				obj->tris[i].verts[j].selected)
 				print_line(start, stop, WF_SELECTED_COL, window);

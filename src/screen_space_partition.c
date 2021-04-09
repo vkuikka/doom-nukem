@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/09 12:03:36 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/04/10 01:05:46 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/10 02:52:47 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ int			get_ssp_coordinate(int coord, int horizontal)
 	return ((int)((float)coord / RES_Y * SSP_MAX_Y));
 }
 
-static void		calculate_corner_vectors(t_vec3 result[2], t_camera_info c, float px, int horizontal)
+static void		calculate_corner_vectors(t_vec3 result[2], t_camera c, float px, int horizontal)
 {
 	float	ym;
 	float	xm;
@@ -57,7 +57,7 @@ static void		calculate_corner_vectors(t_vec3 result[2], t_camera_info c, float p
 	result[1].z = c.front.z + c.up.z * ym + c.side.z * xm;
 }
 
-static int				left(t_tri *tri, t_level *l, int x, t_camera_info cam)
+static int				left(t_tri *tri, int x, t_camera cam)
 {
 	t_vec3	corners[2];
 	t_vec3	normal;
@@ -74,7 +74,7 @@ static int				left(t_tri *tri, t_level *l, int x, t_camera_info cam)
 	return (1);
 }
 
-static int				right(t_tri *tri, t_level *l, int x, t_camera_info cam)
+static int				right(t_tri *tri, int x, t_camera cam)
 {
 	t_vec3	corners[2];
 	t_vec3	normal;
@@ -91,7 +91,7 @@ static int				right(t_tri *tri, t_level *l, int x, t_camera_info cam)
 	return (1);
 }
 
-static int				over(t_tri *tri, t_level *l, int x, t_camera_info cam)
+static int				over(t_tri *tri, int x, t_camera cam)
 {
 	t_vec3	corners[2];
 	t_vec3	normal;
@@ -108,7 +108,7 @@ static int				over(t_tri *tri, t_level *l, int x, t_camera_info cam)
 	return (1);
 }
 
-static int				under(t_tri *tri, t_level *l, int x, t_camera_info cam)
+static int				under(t_tri *tri, int x, t_camera cam)
 {
 	t_vec3	corners[2];
 	t_vec3	normal;
@@ -123,108 +123,73 @@ static int				under(t_tri *tri, t_level *l, int x, t_camera_info cam)
 			return (0);
 	}
 	return (1);
+}
+
+static void				find_partition(int (*dir1)(t_tri*, int, t_camera),
+										int (*dir2)(t_tri*, int, t_camera), t_tri *tri, t_camera cam, float bounds[3])
+{
+	float	min = bounds[0];
+	float	max = bounds[1];
+	int		i;
+
+	i = 0;
+	while (i < bounds[2])
+	{
+		if (dir1(tri, (max + min) / 2, cam))
+			max = (max + min) / 2;
+		else if (dir2(tri, (max + min) / 2, cam))
+			min = (max + min) / 2;
+		else
+		{
+			int j = i;
+			float	tmp;
+			tmp = (max + min) / 2;
+			while (j < bounds[2])
+			{
+				if (dir1(tri, (min + tmp) / 2, cam))
+					tmp = (max + tmp) / 2;
+				else if (dir2(tri, (min + tmp) / 2, cam))
+					min = (min + tmp) / 2;
+				else
+					tmp = (min + tmp) / 2;
+				j++;
+			}
+			j = i;
+			tmp = (max + min) / 2;
+			while (j < bounds[2])
+			{
+				if (dir2(tri, (max + tmp) / 2, cam))
+					tmp = (max + tmp) / 2;
+				else if (dir1(tri, (max + tmp) / 2, cam))
+					max = (max + tmp) / 2;
+				else
+					tmp = (max + tmp) / 2;
+				j++;
+			}
+			break;
+		}
+		i++;
+	}
+	bounds[0] = min;
+	bounds[1] = max;
 }
 
 static void            find_ssp_index(t_tri *tri, t_level *level)
 {
-	t_camera_info	cam;
-	cam.lon = -level->look_side + M_PI / 2;
-	cam.lat = -level->look_up;
-	rot_cam(&cam.front, cam.lon, cam.lat);
-	rot_cam(&cam.up, cam.lon, cam.lat + (M_PI / 2));
-	vec_cross(&cam.side, cam.up, cam.front);
-	cam.pos = level->pos;
-	cam.fov_y = level->ui->fov;
-	cam.fov_x = level->ui->fov * ((float)RES_X / RES_Y);
+	t_camera	cam = *level->cam;
+	float		y_bounds[3];
+	float		x_bounds[3];
 
-	float		xmin;
-	float		xmax;
-	float		ymin;
-	float		ymax;
-	int			i;
-
-	i = 0;
-	xmax = RES_X - 1;
-	ymax = RES_Y - 1;
-	xmin = 0;
-	ymin = 0;
-	while (i < SSP_MAX_X - 1)
-	{
-		if (left(tri, level, (xmax + xmin) / 2, cam))
-			xmax = (xmax + xmin) / 2;
-		else if (right(tri, level, (xmax + xmin) / 2, cam))
-			xmin = (xmax + xmin) / 2;
-		else
-		{
-			int j = i;
-			float	tmp;
-			tmp = (xmax + xmin) / 2;
-			while (j < SSP_MAX_X)
-			{
-				if (left(tri, level, (xmin + tmp) / 2, cam))
-					tmp = (xmin + tmp) / 2;
-				else if (right(tri, level, (xmin + tmp) / 2, cam))
-					xmin = (xmin + tmp) / 2;
-				else
-					tmp = (xmin + tmp) / 2;
-				j++;
-			}
-			j = i;
-			tmp = (xmax + xmin) / 2;
-			while (j < SSP_MAX_X)
-			{
-				if (right(tri, level, (xmax + tmp) / 2, cam))
-					tmp = (xmax + tmp) / 2;
-				else if (left(tri, level, (xmax + tmp) / 2, cam))
-					xmax = (xmax + tmp) / 2;
-				else
-					tmp = (xmax + tmp) / 2;
-				j++;
-			}
-			break;
-		}
-		i++;
-	}
-	i = 0;
-	while (i < SSP_MAX_Y - 1)
-	{
-		if (under(tri, level, (ymax + ymin) / 2, cam))
-			ymax = (ymax + ymin) / 2;
-		else if (over(tri, level, (ymax + ymin) / 2, cam))
-			ymin = (ymax + ymin) / 2;
-		else
-		{
-			int j = i;
-			float	tmp;
-			tmp = (ymax + ymin) / 2;
-			while (j < SSP_MAX_Y)
-			{
-				if (under(tri, level, (ymin + tmp) / 2, cam))
-					tmp = (ymin + tmp) / 2;
-				else if (over(tri, level, (ymin + tmp) / 2, cam))
-					ymin = (ymin + tmp) / 2;
-				else
-					tmp = (ymin + tmp) / 2;
-				j++;
-			}
-			j = i;
-			tmp = (ymax + ymin) / 2;
-			while (j < SSP_MAX_Y)
-			{
-				if (over(tri, level, (ymax + tmp) / 2, cam))
-					tmp = (ymax + tmp) / 2;
-				else if (under(tri, level, (ymax + tmp) / 2, cam))
-					ymax = (ymax + tmp) / 2;
-				else
-					tmp = (ymax + tmp) / 2;
-				j++;
-			}
-			break;
-		}
-		i++;
-	}
-	for (int x = get_ssp_coordinate(xmin, 1); x <= get_ssp_coordinate(xmax, 1); x++)
-		for (int y = get_ssp_coordinate(ymin, 0); y <= get_ssp_coordinate(ymax, 0); y++)
+	x_bounds[0] = 0;
+	x_bounds[1] = RES_X - 1;
+	x_bounds[2] = SSP_MAX_X - 1;
+	y_bounds[0] = 0;
+	y_bounds[1] = RES_Y - 1;
+	y_bounds[2] = SSP_MAX_Y - 1;
+	find_partition(left, right, tri, cam, x_bounds);
+	find_partition(under, over, tri, cam, y_bounds);
+	for (int x = get_ssp_coordinate(x_bounds[0], 1); x <= get_ssp_coordinate(x_bounds[1], 1); x++)
+		for (int y = get_ssp_coordinate(y_bounds[0], 0); y <= get_ssp_coordinate(y_bounds[1], 0); y++)
 			level->ssp[x + y * SSP_MAX_X].tris[level->ssp[x + y * SSP_MAX_X].tri_amount++] = *tri;
 }
 

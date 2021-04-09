@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/08 14:38:45 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/08 17:57:19 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/10 02:39:52 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,12 +30,13 @@ t_level			*init_level(void)
 
 	if (!(level = (t_level *)malloc(sizeof(t_level))))
 		ft_error("memory allocation failed\n");
-
-	level->pos.x = 0;
-	level->pos.y = -5;
-	level->pos.z = 0;
-	level->look_side = 0;
-	level->look_up = 0;
+	if (!(level->cam = (t_camera *)malloc(sizeof(t_camera))))
+		ft_error("memory allocation failed\n");
+	level->cam->pos.x = 0;
+	level->cam->pos.y = -5;
+	level->cam->pos.z = 0;
+	level->cam->look_side = 0;
+	level->cam->look_up = 0;
 	level->shadow_color = 0;
 
 	// load_obj("level/two.obj", &level->all);

@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   physics.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/04/10 01:23:16 by vkuikka           #+#    #+#             */
+/*   Updated: 2021/04/10 02:44:34 by vkuikka          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "doom-nukem.h"
 
 float	        cast_all(t_ray vec, t_level *level, float *dist_u, float *dist_d, int *index)
@@ -52,13 +64,13 @@ t_vec3	        player_input(int noclip, t_level *level, int in_air, t_vec3 vel)
 		wishdir.x += 1;
 
 	if (keys[SDL_SCANCODE_LEFT])	//for testing bhop
-		level->look_side -= 0.004;
+		level->cam->look_side -= 0.004;
 	if (keys[SDL_SCANCODE_RIGHT])
-		level->look_side += 0.004;
+		level->cam->look_side += 0.004;
 
 	if (wishdir.x || wishdir.z)
 	{
-		rotate_vertex(level->look_side, &wishdir, 0);
+		rotate_vertex(level->cam->look_side, &wishdir, 0);
 		float length = sqrt(wishdir.x * wishdir.x + wishdir.z * wishdir.z);
 		wishdir.x /= length;
 		wishdir.z /= length;
@@ -278,7 +290,7 @@ void		physics_sync(t_level *level, t_physthread *get_data)
 		data = get_data;
 		return ;
 	}
-	level->pos = data->pos;
+	level->cam->pos = data->pos;
 	level->ui->physhz = data->hz;
 }
 
@@ -289,7 +301,7 @@ void		init_physics(t_level *level)
 	if (!(data = (t_physthread*)malloc(sizeof(t_physthread))))
 		ft_error("memory allocation failed\n");
 	data->level = level;
-	data->pos = level->pos;
+	data->pos = level->cam->pos;
 	SDL_CreateThread(physics, "physics", (void*)data);
 	physics_sync(NULL, data);
 }

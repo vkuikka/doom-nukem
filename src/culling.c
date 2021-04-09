@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/20 17:50:56 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/09 18:25:23 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/10 02:41:53 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -163,58 +163,49 @@ static void		calculate_side_normals(t_vec3 normal[4], t_vec3 corner[4])
 	vec_cross(&normal[3], corner[3], corner[2]);	//bot
 }
 
-static void		calculate_corner_vectors(t_vec3 corner[4], t_level *level, t_vec3 *front)
+static void		calculate_corner_vectors(t_vec3 corner[4], t_camera *cam)
 {
-	t_vec3	up;
-	t_vec3	side;
-	float	lon = -level->look_side + M_PI / 2;
-	float	lat = -level->look_up;
-	float	fov_x = level->ui->fov * ((float)RES_X / RES_Y);
-	rot_cam(front, lon, lat);
-	rot_cam(&up, lon, lat + (M_PI / 2));
-	vec_cross(&side, up, *front);	
+	float ym;
+	float xm;
 
-	float ym = -level->ui->fov / 2;
-	float xm = -fov_x / 2;
-	corner[0].x = front->x + up.x * ym + side.x * xm;
-	corner[0].y = front->y + up.y * ym + side.y * xm;
-	corner[0].z = front->z + up.z * ym + side.z * xm;
-
-	ym = -level->ui->fov / 2;
-	xm = fov_x - fov_x / 2;
-	corner[1].x = front->x + up.x * ym + side.x * xm;
-	corner[1].y = front->y + up.y * ym + side.y * xm;
-	corner[1].z = front->z + up.z * ym + side.z * xm;
-
-	ym = level->ui->fov - level->ui->fov / 2;
-	xm = -fov_x / 2;
-	corner[2].x = front->x + up.x * ym + side.x * xm;
-	corner[2].y = front->y + up.y * ym + side.y * xm;
-	corner[2].z = front->z + up.z * ym + side.z * xm;
-
-	ym = level->ui->fov - level->ui->fov / 2;
-	xm = fov_x - fov_x / 2;
-	corner[3].x = front->x + up.x * ym + side.x * xm;
-	corner[3].y = front->y + up.y * ym + side.y * xm;
-	corner[3].z = front->z + up.z * ym + side.z * xm;
+	ym = -cam->fov_y / 2;
+	xm = -cam->fov_x / 2;
+	corner[0].x = cam->front.x + cam->up.x * ym + cam->side.x * xm;
+	corner[0].y = cam->front.y + cam->up.y * ym + cam->side.y * xm;
+	corner[0].z = cam->front.z + cam->up.z * ym + cam->side.z * xm;
+	ym = -cam->fov_y / 2;
+	xm = cam->fov_x - cam->fov_x / 2;
+	corner[1].x = cam->front.x + cam->up.x * ym + cam->side.x * xm;
+	corner[1].y = cam->front.y + cam->up.y * ym + cam->side.y * xm;
+	corner[1].z = cam->front.z + cam->up.z * ym + cam->side.z * xm;
+	ym = cam->fov_y - cam->fov_y / 2;
+	xm = -cam->fov_x / 2;
+	corner[2].x = cam->front.x + cam->up.x * ym + cam->side.x * xm;
+	corner[2].y = cam->front.y + cam->up.y * ym + cam->side.y * xm;
+	corner[2].z = cam->front.z + cam->up.z * ym + cam->side.z * xm;
+	ym = cam->fov_y - cam->fov_y / 2;
+	xm = cam->fov_x - cam->fov_x / 2;
+	corner[3].x = cam->front.x + cam->up.x * ym + cam->side.x * xm;
+	corner[3].y = cam->front.y + cam->up.y * ym + cam->side.y * xm;
+	corner[3].z = cam->front.z + cam->up.z * ym + cam->side.z * xm;
 }
 
 void			culling(t_level *level)
 {
-	t_vec3		front;
 	t_vec3		corner[4];
 	t_vec3		side_normals[4];
+	t_camera	*cam;
 
-	vec_rot(&front, (t_vec3){0, 0, 1}, level->look_side);
-	calculate_corner_vectors(corner, level, &front);
+	cam = level->cam;
+	calculate_corner_vectors(corner, cam);
 	calculate_side_normals(side_normals, corner);
 	int visible_amount = 0;
 	for (int i = 0; i < level->all.tri_amount; i++)
 	{
 		if (level->all.tris[i].isgrid ||
-			(cull_behind(front, level->pos, level->all.tris[i]) && fov_culling(side_normals, level->pos, level->all.tris[i]) &&
-			(!level->ui->distance_culling || level->all.distance_culling_mask[i] || distance_culling(level->all.tris[i], level->pos, level->ui->render_distance)) &&
-			(!level->ui->backface_culling || level->all.backface_culling_mask[i] || backface_culling(level->pos, level->all.tris[i]))))
+			(cull_behind(cam->front, cam->pos, level->all.tris[i]) && fov_culling(side_normals, cam->pos, level->all.tris[i]) &&
+			(!level->ui->distance_culling || level->all.distance_culling_mask[i] || distance_culling(level->all.tris[i], cam->pos, level->ui->render_distance)) &&
+			(!level->ui->backface_culling || level->all.backface_culling_mask[i] || backface_culling(cam->pos, level->all.tris[i]))))
 		{
 			level->visible.tris[visible_amount] = level->all.tris[i];
 			visible_amount++;
