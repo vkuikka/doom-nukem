@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/09 12:03:36 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/04/10 00:04:27 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/10 00:38:08 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -253,14 +253,7 @@ void		screen_space_partition(t_level *level)
 
 int			get_ssp_index(int xd, int yd)
 {
-	// return ((float)xd / (RES_X - 1) * SSP_MAX_X + (float)yd / (RES_Y - 1) * SSP_MAX_Y * SSP_MAX_X);
-	for (int y = 0; y < SSP_MAX_Y; y++)
-		for (int x = 0; x < SSP_MAX_X; x++)
-			if (RES_X / SSP_MAX_X * (x + 1) > xd &&
-				RES_Y / SSP_MAX_Y * (y + 1) > yd)
-				return (x + y * SSP_MAX_X);
-	ft_error("ssp pixel out of screen");
-	return (0);
+	return ((int)((float)xd / RES_X * SSP_MAX_X) + (int)((float)yd / RES_Y * SSP_MAX_Y) * SSP_MAX_X);
 }
 
 void		init_screen_space_partition(t_level *level)
