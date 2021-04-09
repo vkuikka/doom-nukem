@@ -226,7 +226,7 @@ void			culling(t_level *level)
 		visible_amount = 0;
 		for (int i = 0; i < level->visible.tri_amount; i++)
 		{
-			if (occlusion_culling(level->visible.tris[i], level))
+			if (level->all.tris[i].isgrid || (level->visible.tris[i], level))
 			{
 				level->visible.tris[visible_amount] = level->visible.tris[i];
 				visible_amount++;
