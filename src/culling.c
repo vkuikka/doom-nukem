@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/20 17:50:56 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/08 17:57:06 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/09 16:45:28 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -163,40 +163,40 @@ void			calculate_side_normals(t_vec3 normal[4], t_vec3 corner[4])
 	vec_cross(&normal[3], corner[3], corner[2]);	//bot
 }
 
-void			calculate_corner_vectors(t_vec3 corner[4], t_level *level, t_vec3 front)
+void			calculate_corner_vectors(t_vec3 corner[4], t_level *level, t_vec3 *front)
 {
 	t_vec3	up;
 	t_vec3	side;
 	float	lon = -level->look_side + M_PI / 2;
 	float	lat = -level->look_up;
 	float	fov_x = level->ui->fov * ((float)RES_X / RES_Y);
-	rot_cam(&front, lon, lat);
+	rot_cam(front, lon, lat);
 	rot_cam(&up, lon, lat + (M_PI / 2));
-	vec_cross(&side, up, front);	
+	vec_cross(&side, up, *front);	
 
 	float ym = -level->ui->fov / 2;
 	float xm = -fov_x / 2;
-	corner[0].x = front.x + up.x * ym + side.x * xm;
-	corner[0].y = front.y + up.y * ym + side.y * xm;
-	corner[0].z = front.z + up.z * ym + side.z * xm;
+	corner[0].x = front->x + up.x * ym + side.x * xm;
+	corner[0].y = front->y + up.y * ym + side.y * xm;
+	corner[0].z = front->z + up.z * ym + side.z * xm;
 
 	ym = -level->ui->fov / 2;
 	xm = fov_x - fov_x / 2;
-	corner[1].x = front.x + up.x * ym + side.x * xm;
-	corner[1].y = front.y + up.y * ym + side.y * xm;
-	corner[1].z = front.z + up.z * ym + side.z * xm;
+	corner[1].x = front->x + up.x * ym + side.x * xm;
+	corner[1].y = front->y + up.y * ym + side.y * xm;
+	corner[1].z = front->z + up.z * ym + side.z * xm;
 
 	ym = level->ui->fov - level->ui->fov / 2;
 	xm = -fov_x / 2;
-	corner[2].x = front.x + up.x * ym + side.x * xm;
-	corner[2].y = front.y + up.y * ym + side.y * xm;
-	corner[2].z = front.z + up.z * ym + side.z * xm;
+	corner[2].x = front->x + up.x * ym + side.x * xm;
+	corner[2].y = front->y + up.y * ym + side.y * xm;
+	corner[2].z = front->z + up.z * ym + side.z * xm;
 
 	ym = level->ui->fov - level->ui->fov / 2;
 	xm = fov_x - fov_x / 2;
-	corner[3].x = front.x + up.x * ym + side.x * xm;
-	corner[3].y = front.y + up.y * ym + side.y * xm;
-	corner[3].z = front.z + up.z * ym + side.z * xm;
+	corner[3].x = front->x + up.x * ym + side.x * xm;
+	corner[3].y = front->y + up.y * ym + side.y * xm;
+	corner[3].z = front->z + up.z * ym + side.z * xm;
 }
 
 void			culling(t_level *level)
@@ -206,7 +206,7 @@ void			culling(t_level *level)
 	t_vec3		side_normals[4];
 
 	vec_rot(&front, (t_vec3){0, 0, 1}, level->look_side);
-	calculate_corner_vectors(corner, level, front);
+	calculate_corner_vectors(corner, level, &front);
 	calculate_side_normals(side_normals, corner);
 	int visible_amount = 0;
 	for (int i = 0; i < level->all.tri_amount; i++)
