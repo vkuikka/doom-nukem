@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/07 18:13:00 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/06 23:53:14 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/10 20:57:54 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,19 +82,6 @@ void		vec_add(t_vec3 *res, t_vec3 ve1, t_vec3 ve2)
 	res->x = ve1.x + ve2.x;
 	res->y = ve1.y + ve2.y;
 	res->z = ve1.z + ve2.z;
-}
-
-void		vec_copy(t_vec3 *res, t_vec3 ve)
-{
-	res->x = ve.x;
-	res->y = ve.y;
-	res->z = ve.z;
-}
-
-void		vec2_copy(t_vec2 *res, t_vec2 ve)
-{
-	res->x = ve.x;
-	res->y = ve.y;
 }
 
 void		vec_sub(t_vec3 *res, t_vec3 ve1, t_vec3 ve2)

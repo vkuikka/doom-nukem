@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/31 18:32:46 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/10 02:38:52 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/10 20:51:20 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,15 +68,11 @@ static void	raycast_face_selection(t_ray vec, t_level *level)
 void	select_face(t_camera *cam, t_level *level, int x, int y)
 {
 	t_ray	r;
-	t_vec3	up;
-	t_vec3	side;
 	float	xm;
 	float	ym;
 
-	xm = -cam->look_side + M_PI / 2;
-	xm = -cam->look_up;
-	rot_cam(&r.dir, xm, ym);
-	vec_copy(&r.pos, cam->pos);
+	r.dir = cam->front;
+	r.pos = cam->pos;
 	ym = cam->fov_y / RES_Y * y - cam->fov_y / 2;
 	xm = cam->fov_x / RES_X * x - cam->fov_x / 2;
 	r.dir.x += cam->up.x * ym + cam->side.x * xm;
