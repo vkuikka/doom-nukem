@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/08 17:56:23 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/10 20:13:38 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,6 +132,7 @@ typedef struct			s_tri
 	struct s_vec3		normal;
 	int					isquad;
 	int					isgrid;
+	struct s_vec3		enemy_dir;	//maybe move enemy variables to a struct
 	int					isenemy;
 	float				opacity;
 	float				reflectivity;
@@ -304,6 +305,7 @@ t_level		*init_level(void);
 
 int			raycast(void *t);
 float		cast_face(t_tri t, t_ray ray, int *col, t_bmp *img);
+float		cast_all(t_ray vec, t_level *level, float *dist_u, float *dist_d, int *index);
 void		fill_pixels(unsigned *grid, int pixel_gap, int blur, int smooth);
 unsigned	crossfade(unsigned color1, unsigned color2, unsigned fade);
 int			face_color(float u, float v, t_tri t, t_bmp *img);
