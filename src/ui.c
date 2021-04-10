@@ -101,23 +101,32 @@ static void	ui_render_background(unsigned *get_texture, SDL_Texture *text_textur
 	state = get_ui_state(NULL);
 	if (state->ssp_visual)
 	{
-		int color[2];
+		int color[3];
 		color[0] = 0;
-		color[1] = 0x66666655;
+		color[1] = 0x66666644;
+		color[2] = 0x66666688;
 		for (int y = 0; y < RES_Y; y++)
 			for (int x = 0; x < RES_X; x++)
-				if (!texture[x + (y * RES_X)])
-					button_pixel_put(x, y, color[get_ssp_index(x, y) % 2], texture);
+			if (!texture[x + (y * RES_X)])
+				button_pixel_put(x, y, color[get_ssp_index(x, y) % 3], texture);
+		int max_tris = 0;
 		for (int y = 0; y < SSP_MAX_Y; y++)
-        {
-            for (int x = 0; x < SSP_MAX_X; x++)
-            {
-                sprintf(buf, "%d", level->ssp[y * SSP_MAX_X + x].tri_amount);
-                put_text(buf, window, text_texture,
-                        (t_ivec2){(RES_X / SSP_MAX_X) * x + (RES_X / SSP_MAX_X / 2),
-                        (RES_Y / SSP_MAX_Y) * y + (RES_Y / SSP_MAX_Y / 2)});
-            }
-        }
+			for (int x = 0; x < SSP_MAX_X; x++)
+				if (max_tris < level->ssp[y * SSP_MAX_X + x].tri_amount)
+					max_tris = level->ssp[y * SSP_MAX_X + x].tri_amount;
+		for (int y = 0; y < SSP_MAX_Y; y++)
+		{
+			for (int x = 0; x < SSP_MAX_X; x++)
+			{
+				sprintf(buf, "%d", level->ssp[y * SSP_MAX_X + x].tri_amount);
+				int red = (float)level->ssp[y * SSP_MAX_X + x].tri_amount / max_tris * 0xff;
+				red = crossfade(0x00ff00, 0xff0000, red);
+				set_text_color(red);
+				put_text(buf, window, text_texture,
+				(t_ivec2){(RES_X / SSP_MAX_X) * x + (RES_X / SSP_MAX_X / 2) - 5,
+				(RES_Y / SSP_MAX_Y) * y + (RES_Y / SSP_MAX_Y / 2) - 7});
+			}
+		}
 	}
 	else
 	{
