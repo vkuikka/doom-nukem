@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/10 02:39:22 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/10 15:11:58 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -320,6 +320,7 @@ void		init_level(t_level **level);
 void		screen_space_partition(t_level *level);
 void		init_screen_space_partition(t_level *level);
 int			get_ssp_index(int x, int y);
+int			get_ssp_coordinate(int coord, int horizontal);
 
 int			raycast(void *t);
 float		cast_face(t_tri t, t_ray ray, int *col, t_bmp *img);

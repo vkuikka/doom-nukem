@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/06 08:50:56 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/04/09 22:57:36 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/10 15:13:29 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,7 +108,12 @@ static void	ui_render_background(unsigned *get_texture, SDL_Texture *text_textur
 		for (int y = 0; y < RES_Y; y++)
 			for (int x = 0; x < RES_X; x++)
 			if (!texture[x + (y * RES_X)])
-				button_pixel_put(x, y, color[get_ssp_index(x, y) % 3], texture);
+			{
+				if (get_ssp_coordinate(x, 1) % 2 ^ get_ssp_coordinate(y, 0) % 2)
+					button_pixel_put(x, y, color[1], texture);
+				else
+					button_pixel_put(x, y, color[2], texture);
+			}
 		int max_tris = 0;
 		for (int y = 0; y < SSP_MAX_Y; y++)
 			for (int x = 0; x < SSP_MAX_X; x++)
