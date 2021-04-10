@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/10 15:11:58 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/10 20:57:47 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -308,8 +308,6 @@ void		vec_cross(t_vec3 *res, t_vec3 u, t_vec3 v);
 void		vec_rot(t_vec3 *res, t_vec3 ve1, float ang);
 int			vec_cmp(t_vec3 ve1, t_vec3 ve2);
 void		vec_avg(t_vec3 *res, t_vec3 ve1, t_vec3 ve2);
-void		vec_copy(t_vec3 *res, t_vec3 vec);
-void		vec2_copy(t_vec2 *res, t_vec2 vec);
 float		vec_angle(t_vec3 v1, t_vec3 v2);
 void		vec_mult(t_vec3 *res, float mult);
 void		vec_div(t_vec3 *res, float div);
