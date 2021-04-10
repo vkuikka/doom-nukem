@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/14 17:08:49 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/10 02:44:55 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/12 16:22:59 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,10 +64,42 @@ static void		turn_sprite(t_tri *tri, t_vec3 dir)
 	vec_normalize(&tri->normal);
 }
 
+void			move_enemy(t_tri *face, t_level *level)
+{
+	t_ray	e;
+	float	dist;
+	t_vec3	player;
+
+	player = level->pos;
+	vec_copy(&e.pos, face->verts[0].pos);
+	vec_add(&e.pos, e.pos, face->v0v1);
+	vec_add(&e.pos, e.pos, face->v0v2);
+	vec_avg(&e.pos, e.pos, face->verts[0].pos);
+	vec_sub(&e.dir, player, e.pos);
+	dist = cast_all(e, level, NULL, NULL, NULL);
+	if (dist > vec_length(e.dir))
+		face->enemy_dir = e.dir;
+	e.dir = face->enemy_dir;
+	vec_normalize(&e.dir);
+	vec_div(&e.dir, 100);
+	vec_sub(&face->enemy_dir, face->enemy_dir, e.dir);
+	for (int i = 0; i < 3 + face->isquad; i++)
+		vec_add(&face->verts[i].pos, face->verts[i].pos, e.dir);
+}
+
 //called from physics
 void			enemies_update_physics(t_level *level)
 {
-	// add shooting and movement functions here
+	int		face;
+
+	face = 0;
+	while (face < level->all.tri_amount)
+	{
+		if (level->all.tris[face].isenemy)
+			move_enemy(&level->all.tris[face], level);
+		face++;
+	}
+
 }
 
 //called from render
