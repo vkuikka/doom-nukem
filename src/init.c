@@ -24,7 +24,7 @@ SDL_Texture		*empty_texture(SDL_Renderer *renderer)
 	return (texture);
 }
 
-t_level			*init_level(void)
+void			init_level(t_level **res)
 {
 	t_level		*level;
 
@@ -58,7 +58,7 @@ t_level			*init_level(void)
 
 	if (!(level->visible.tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount)))
 		ft_error("memory allocation failed\n");
-	return (level);
+	*res = level;
 }
 
 void			init_window(t_window **window)
