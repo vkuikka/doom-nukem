@@ -107,7 +107,7 @@ static void		read_text_input(t_level *level, SDL_Event event)
 		}
 }
 
-static void		read_input(t_window *window, t_camera *cam, t_editor_ui *ui, t_level *level)
+static void		read_input(t_window *window, t_level *level)
 {
 	SDL_Event	event;
 	static int	relmouse = 0;
@@ -118,29 +118,29 @@ static void		read_input(t_window *window, t_camera *cam, t_editor_ui *ui, t_leve
 			exit(0);
 		else if (event.type == SDL_MOUSEMOTION && relmouse)
 		{
-			cam->look_side += (float)event.motion.xrel / 600;
-			cam->look_up -= (float)event.motion.yrel / 600;
+			level->cam->look_side += (float)event.motion.xrel / 600;
+			level->cam->look_up -= (float)event.motion.yrel / 600;
 		}
-		else if (event.type == SDL_MOUSEBUTTONDOWN && !relmouse && ui->wireframe &&
-				(event.button.x > ui->state.ui_max_width ||
-				event.button.y > ui->state.ui_text_y_pos))
+		else if (event.type == SDL_MOUSEBUTTONDOWN && !relmouse && level->ui->wireframe &&
+				(event.button.x > level->ui->state.ui_max_width ||
+				event.button.y > level->ui->state.ui_text_y_pos))
 			select_face(level->cam, level, event.button.x, event.button.y);
 		else if (event.type == SDL_MOUSEBUTTONDOWN)
-			ui->state.text_input_enable = FALSE;
-		else if (ui->state.text_input_enable)
+			level->ui->state.text_input_enable = FALSE;
+		else if (level->ui->state.text_input_enable)
 			read_text_input(level, event);
 		else if (event.key.repeat == 0 && event.type == SDL_KEYDOWN)
 		{
 			if (event.key.keysym.scancode == SDL_SCANCODE_PERIOD)
-				ui->raycast_quality += 1;
+				level->ui->raycast_quality += 1;
 			else if (event.key.keysym.scancode == SDL_SCANCODE_COMMA && level->ui->raycast_quality > 1)
-				ui->raycast_quality -= 1;
+				level->ui->raycast_quality -= 1;
 			else if (event.key.keysym.scancode == SDL_SCANCODE_CAPSLOCK)
-				ui->noclip = ui->noclip ? FALSE : TRUE;
+				level->ui->noclip = level->ui->noclip ? FALSE : TRUE;
 			else if (event.key.keysym.scancode == SDL_SCANCODE_Z)
-				ui->wireframe = ui->wireframe ? FALSE : TRUE;
+				level->ui->wireframe = level->ui->wireframe ? FALSE : TRUE;
 			else if (event.key.keysym.scancode == SDL_SCANCODE_X)
-				ui->show_quads = ui->show_quads ? FALSE : TRUE;
+				level->ui->show_quads = level->ui->show_quads ? FALSE : TRUE;
 			else if (event.key.keysym.scancode == SDL_SCANCODE_TAB)
 			{
 				relmouse = relmouse ? 0 : 1;
@@ -171,7 +171,7 @@ int			main(int argc, char **argv)
 	while (1)
 	{
 		frametime = SDL_GetTicks();
-		read_input(window, level->cam, level->ui, level);
+		read_input(window, level);
 		physics_sync(level, NULL);
 		update_camera(level);
 		enemies_update_sprites(level);
