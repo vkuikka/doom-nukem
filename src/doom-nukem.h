@@ -315,7 +315,7 @@ void		vec_mult(t_vec3 *res, float mult);
 void		vec_div(t_vec3 *res, float div);
 
 void		init_window(t_window **window);
-t_level		*init_level(void);
+void		init_level(t_level **level);
 
 void		screen_space_partition(t_level *level);
 void		init_screen_space_partition(t_level *level);

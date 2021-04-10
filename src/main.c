@@ -159,11 +159,10 @@ static void		read_input(t_window *window, t_level *level)
 int			main(int argc, char **argv)
 {
 	t_window	*window;
-	t_editor_ui	ui;
 	t_level		*level;
 	unsigned	frametime;
 
-	level = init_level();
+	init_level(&level);
 	init_window(&window);
 	init_ui(window, level);
 	init_screen_space_partition(level);
