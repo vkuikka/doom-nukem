@@ -50,9 +50,9 @@ int			fog(int color, float dist, unsigned fog_color, t_level *level)
 {
 	float	fade;
 
-	if (dist < level->ui->render_distance)
+	if (dist < level->ui.render_distance)
 	{
-		fade = (dist + 1) / (level->ui->render_distance - 1);
+		fade = (dist + 1) / (level->ui.render_distance - 1);
 		fade = fade > 1 ? 1 : fade;
 		return (crossfade(color >> 8, fog_color >> 8, 0xff * fade));
 	}

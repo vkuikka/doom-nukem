@@ -47,7 +47,7 @@ t_vec3	        player_input(int noclip, t_level *level, int in_air, t_vec3 vel)
 	wishdir.x = 0;
 	wishdir.y = 0;
 	wishdir.z = 0;
-	if (level->ui->state.text_input_enable)
+	if (level->ui.state.text_input_enable)
 		return (wishdir);
 	speed = 0;
 	if (keys[SDL_SCANCODE_LSHIFT] && noclip)
@@ -134,7 +134,7 @@ void	        player_movement(t_level *level)
 	r.dir.y = 1;
 	r.dir.z = 0;
 	dist = cast_all(r, level, NULL, NULL, NULL);
-	if (dist > 0 && dist <= PLAYER_HEIGHT && !level->ui->noclip)
+	if (dist > 0 && dist <= PLAYER_HEIGHT && !level->ui.noclip)
 	{
 		in_air = FALSE;
 		if (dist < PLAYER_HEIGHT)
@@ -142,10 +142,10 @@ void	        player_movement(t_level *level)
 	}
 	else
 		in_air = TRUE;
-	t_vec3 wishdir = player_input(level->ui->noclip, level, in_air, vel);
+	t_vec3 wishdir = player_input(level->ui.noclip, level, in_air, vel);
 	vel.y = fmax(fmin(vel.y, 0.5), -0.5);
 
-	if (level->ui->noclip)
+	if (level->ui.noclip)
 	{
 		pos->x += wishdir.x;
 		pos->y += wishdir.y;

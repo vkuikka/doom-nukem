@@ -47,9 +47,9 @@ float		shadow(t_ray r, t_rthread *t, t_vec3 normal)
 	int				i;
 
 	vec_add(&r.pos, r.dir, r.pos);
-	r.dir.x = t->level->ui->sun_dir.x;
-	r.dir.y = t->level->ui->sun_dir.y;
-	r.dir.z = t->level->ui->sun_dir.z;
+	r.dir.x = t->level->ui.sun_dir.x;
+	r.dir.y = t->level->ui.sun_dir.y;
+	r.dir.z = t->level->ui.sun_dir.z;
 	direct_shadow = 0;
 	i = 0;
 	while (i < t->level->all.tri_amount && !direct_shadow)
@@ -59,8 +59,8 @@ float		shadow(t_ray r, t_rthread *t, t_vec3 normal)
 		i++;
 	}
 	if (!direct_shadow)
-		return ((1 - vec_dot(normal, t->level->ui->sun_dir)) * t->level->ui->sun_contrast);
-	return (t->level->ui->direct_shadow_contrast);
+		return ((1 - vec_dot(normal, t->level->ui.sun_dir)) * t->level->ui.sun_contrast);
+	return (t->level->ui.direct_shadow_contrast);
 }
 
 int			reflection(t_ray *r, t_rthread *t, t_vec3 normal_dir, int depth)

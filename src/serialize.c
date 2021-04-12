@@ -100,26 +100,26 @@ void	serialize_vec3(t_vec3 vec, t_buffer *buf)
 
 void	deserialize_settings(t_level *level, t_buffer *buf)
 {
-	deserialize_int(&level->ui->fog, buf);
-	deserialize_int((int*)&level->ui->fog_color, buf);
-	deserialize_int(&level->ui->backface_culling, buf);
-	deserialize_int(&level->ui->distance_culling, buf);
-	deserialize_float(&level->ui->render_distance, buf);
-	deserialize_float(&level->ui->sun_contrast, buf);
-	deserialize_float(&level->ui->direct_shadow_contrast, buf);
-	deserialize_vec3(&level->ui->sun_dir, buf);
+	deserialize_int(&level->ui.fog, buf);
+	deserialize_int((int*)&level->ui.fog_color, buf);
+	deserialize_int(&level->ui.backface_culling, buf);
+	deserialize_int(&level->ui.distance_culling, buf);
+	deserialize_float(&level->ui.render_distance, buf);
+	deserialize_float(&level->ui.sun_contrast, buf);
+	deserialize_float(&level->ui.direct_shadow_contrast, buf);
+	deserialize_vec3(&level->ui.sun_dir, buf);
 }
 
 void	serialize_settings(t_level *level, t_buffer *buf)
 {
-	serialize_int(level->ui->fog, buf);
-	serialize_int(level->ui->fog_color, buf);
-	serialize_int(level->ui->backface_culling, buf);
-	serialize_int(level->ui->distance_culling, buf);
-	serialize_float(level->ui->render_distance, buf);
-	serialize_float(level->ui->sun_contrast, buf);
-	serialize_float(level->ui->direct_shadow_contrast, buf);
-	serialize_vec3(level->ui->sun_dir, buf);
+	serialize_int(level->ui.fog, buf);
+	serialize_int(level->ui.fog_color, buf);
+	serialize_int(level->ui.backface_culling, buf);
+	serialize_int(level->ui.distance_culling, buf);
+	serialize_float(level->ui.render_distance, buf);
+	serialize_float(level->ui.sun_contrast, buf);
+	serialize_float(level->ui.direct_shadow_contrast, buf);
+	serialize_vec3(level->ui.sun_dir, buf);
 }
 
 void	deserialize_vert(t_vert *vert, t_buffer *buf)
@@ -262,8 +262,8 @@ void	save_file(t_level *level, t_buffer *buf)
 	char	*filename2;
 	DWORD	bytesWritten;
 
-	filename1 = ft_strjoin(level->ui->state.directory, "\\");
-	filename2 = ft_strjoin(filename1, level->ui->state.save_filename);
+	filename1 = ft_strjoin(level->ui.state.directory, "\\");
+	filename2 = ft_strjoin(filename1, level->ui.state.save_filename);
 	free(filename1);
 	filename1 = ft_strjoin(filename2, ".doom-nukem");
 	free(filename2);
@@ -299,8 +299,8 @@ void	save_file(t_level *level, t_buffer *buf)
 	char	*filename1;
 	char	*filename2;
 
-	filename1 = ft_strjoin(level->ui->state.directory, "/");
-	filename2 = ft_strjoin(filename1, level->ui->state.save_filename);
+	filename1 = ft_strjoin(level->ui.state.directory, "/");
+	filename2 = ft_strjoin(filename1, level->ui.state.save_filename);
 	free(filename1);
 	filename1 = ft_strjoin(filename2, ".doom-nukem");
 	free(filename2);
