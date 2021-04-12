@@ -116,7 +116,7 @@ void	        player_collision(t_vec3 *vel, t_vec3 *pos, t_level *level)
 	}
 }
 
-void	        player_movement(t_vec3 *pos, t_level *level)
+void	        player_movement(t_level *level)
 {
 	static t_vec3	vel = {0, 0, 0};
 	static int		noclip = TRUE;
@@ -124,7 +124,9 @@ void	        player_movement(t_vec3 *pos, t_level *level)
 	t_ray			r;
 	float			dist;
 	int				in_air;
+	t_vec3			*pos;
 
+	pos = &level->cam->pos;
 	r.pos.x = pos->x;
 	r.pos.y = pos->y;
 	r.pos.z = pos->z;
@@ -174,134 +176,4 @@ void	        player_movement(t_vec3 *pos, t_level *level)
 		vel.y += 0.002;		//gravity
 	else if (vel.y > 0)
 		vel.y = 0;
-}
-
-
-float	        get_hz(void)
-{
-	static float oldTime = 0;
-	float newTime = SDL_GetTicks();
-	float dt = newTime - oldTime;
-	float fps = 1000.0f / dt;
-	oldTime = newTime;
-	return (fps);
-}
-
-float		avghz(float hz)
-{
-	struct timeval	time;
-	static long		s;
-	static int		frames;
-	static float	avghz = 0;
-	static float	tmp = 0;
-
-	frames++;
-	gettimeofday(&time, NULL);
-	tmp += hz;
-	if (s != time.tv_sec)
-	{
-		s = time.tv_sec;
-		avghz = tmp /= frames;
-		frames = 0;
-		tmp = 0;
-	}
-	return (avghz);
-}
-
-#include <time.h>
-#include <assert.h>
-
-#if defined(_WIN32)
-
-#include <windows.h>
-
-#elif defined(__unix__) || defined(__linux) || defined(__linux__) || defined(__ANDROID__) || defined(__EPOC32__) || defined(__QNX__)
-
-#include <time.h>
-
-#elif defined(__APPLE__)
-
-#include <sys/time.h>
-
-#endif
-
-unsigned long   getTimeInNanoseconds(void) {
-#if defined(_WIN32)
-	LARGE_INTEGER freq;
-	LARGE_INTEGER count;
-	QueryPerformanceCounter(&count);
-	QueryPerformanceFrequency(&freq);
-	assert(freq.LowPart != 0 || freq.HighPart != 0);
-
-	if (count.QuadPart < MAXLONGLONG / 1000000) {
-		assert(freq.QuadPart != 0);
-		return count.QuadPart * 1000000 / freq.QuadPart;
-	} else {
-		assert(freq.QuadPart >= 1000000);
-		return count.QuadPart / (freq.QuadPart / 1000000);
-	}
-
-#elif defined(__unix__) || defined(__linux) || defined(__linux__) || defined(__ANDROID__) || defined(__QNX__)
-	struct timespec currTime;
-	clock_gettime(CLOCK_MONOTONIC, &currTime);
-	return (uint64_t)currTime.tv_sec * 1000000 + ((uint64_t)currTime.tv_nsec / 1000);
-
-#elif defined(__EPOC32__)
-	struct timespec currTime;
-	/* Symbian supports only realtime clock for clock_gettime. */
-	clock_gettime(CLOCK_REALTIME, &currTime);
-	return (uint64_t)currTime.tv_sec * 1000000 + ((uint64_t)currTime.tv_nsec / 1000);
-
-#elif defined(__APPLE__)
-	struct timeval currTime;
-	gettimeofday(&currTime, NULL);
-	return (uint64_t)currTime.tv_sec * 1000000 + (uint64_t)currTime.tv_usec;
-
-#else
-#error "Not implemented for target OS"
-#endif
-}
-
-int     	    physics(void *data_pointer)
-{
-	t_physthread	*data = data_pointer;
-	unsigned long	start;
-	unsigned long	target = 1000000 / TICKRATE;
-
-	while (1)
-	{
-		start = getTimeInNanoseconds();
-		player_movement(&data->pos, data->level);
-		enemies_update_physics(data->level);
-		SDL_Delay(5);
-		data->hz = avghz(get_hz());
-		while (getTimeInNanoseconds() - start < target)
-			;
-	}
-	return (0);
-}
-
-void		physics_sync(t_level *level, t_physthread *get_data)
-{
-	static t_physthread *data = NULL;
-
-	if (get_data)
-	{
-		data = get_data;
-		return ;
-	}
-	level->cam->pos = data->pos;
-	level->ui->physhz = data->hz;
-}
-
-void		init_physics(t_level *level)
-{
-	t_physthread	*data;
-
-	if (!(data = (t_physthread*)malloc(sizeof(t_physthread))))
-		ft_error("memory allocation failed\n");
-	data->level = level;
-	data->pos = level->cam->pos;
-	SDL_CreateThread(physics, "physics", (void*)data);
-	physics_sync(NULL, data);
 }
