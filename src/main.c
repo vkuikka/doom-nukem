@@ -166,12 +166,11 @@ int			main(int argc, char **argv)
 	init_window(&window);
 	init_ui(window, level);
 	init_screen_space_partition(level);
-	init_physics(level);
 	while (1)
 	{
 		frametime = SDL_GetTicks();
 		read_input(window, level);
-		physics_sync(level, NULL);
+		player_movement(level);
 		update_camera(level);
 		enemies_update_sprites(level);
 		culling(level);

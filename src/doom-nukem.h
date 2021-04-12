@@ -14,15 +14,14 @@
 # define DOOM_NUKEM_H
 # define RES_X 800
 # define RES_Y 600
-# define TICKRATE 128
-# define THREAD_AMOUNT 8
+# define THREAD_AMOUNT 4
 # define NOISE_QUALITY_LIMIT 8
-# define SSP_MAX_X 6
-# define SSP_MAX_Y 6
+# define SSP_MAX_X 20
+# define SSP_MAX_Y 20
 
-# define NOCLIP_SPEED 20.0 / TICKRATE
-# define MOVE_SPEED 7.0 / TICKRATE
-# define JUMP_SPEED 5.0 / TICKRATE
+# define NOCLIP_SPEED 2.0
+# define MOVE_SPEED 7.0
+# define JUMP_SPEED 5.0
 # define PLAYER_HEIGHT 1.75
 # define WALL_CLIP_DIST 0.3
 # define REFLECTION_DEPTH 3
@@ -228,17 +227,9 @@ typedef struct			s_editor_ui
 	struct s_vec3		sun_dir;
 
 	//info
-	float				physhz;
 	unsigned			frametime;
 	struct s_ui_state	state;
 }						t_editor_ui;
-
-typedef struct			s_physthread
-{
-	float				hz;
-	struct s_level		*level;
-	struct s_vec3		pos;
-}						t_physthread;
 
 typedef struct			s_rthread
 {
@@ -355,10 +346,7 @@ void		path_up_dir(char *path);
 void		go_in_dir(char *path, char *folder);
 void		text_input(char *str, t_level *level);
 
-void		init_physics(t_level *level);
-void		physics_sync(t_level *level, t_physthread *get_data);
-void		player_movement(t_vec3 *pos, t_level *level);
-int			physics(void *data_pointer);
+void		player_movement(t_level *level);
 
 void		enemies_update_physics(t_level *level);
 void		enemies_update_sprites(t_level *level);

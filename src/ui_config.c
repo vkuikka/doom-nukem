@@ -331,8 +331,6 @@ void	ui_config(t_level *level)
 	set_text_color(UI_INFO_TEXT_COLOR);
 	sprintf(buf, "fps:               %d",  get_fps());
 	text(buf);
-	sprintf(buf, "tickrate:      %.1fhz",  ui->physhz);
-	text(buf);
 	sprintf(buf, "frametime: %ums",  ui->frametime);
 	text(buf);
 	sprintf(buf, "faces:           %d / %d", level->all.tri_amount, level->visible.tri_amount);
