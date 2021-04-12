@@ -196,7 +196,7 @@ void			culling(t_level *level)
 	t_vec3		side_normals[4];
 	t_camera	*cam;
 
-	cam = level->cam;
+	cam = &level->cam;
 	calculate_corner_vectors(corner, cam);
 	calculate_side_normals(side_normals, corner);
 	int visible_amount = 0;

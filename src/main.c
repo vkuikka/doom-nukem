@@ -14,13 +14,13 @@
 
 void		update_camera(t_level *l)
 {
-	l->cam->lon = -l->cam->look_side + M_PI / 2;
-	l->cam->lat = -l->cam->look_up;
-	rot_cam(&l->cam->front, l->cam->lon, l->cam->lat);
-	rot_cam(&l->cam->up, l->cam->lon, l->cam->lat + (M_PI / 2));
-	vec_cross(&l->cam->side, l->cam->up, l->cam->front);
-	l->cam->fov_y = l->ui->fov;
-	l->cam->fov_x = l->ui->fov * ((float)RES_X / RES_Y);
+	l->cam.lon = -l->cam.look_side + M_PI / 2;
+	l->cam.lat = -l->cam.look_up;
+	rot_cam(&l->cam.front, l->cam.lon, l->cam.lat);
+	rot_cam(&l->cam.up, l->cam.lon, l->cam.lat + (M_PI / 2));
+	vec_cross(&l->cam.side, l->cam.up, l->cam.front);
+	l->cam.fov_y = l->ui->fov;
+	l->cam.fov_x = l->ui->fov * ((float)RES_X / RES_Y);
 }
 
 void		render(t_window *window, t_level *level)
@@ -118,13 +118,13 @@ static void		read_input(t_window *window, t_level *level)
 			exit(0);
 		else if (event.type == SDL_MOUSEMOTION && relmouse)
 		{
-			level->cam->look_side += (float)event.motion.xrel / 600;
-			level->cam->look_up -= (float)event.motion.yrel / 600;
+			level->cam.look_side += (float)event.motion.xrel / 600;
+			level->cam.look_up -= (float)event.motion.yrel / 600;
 		}
 		else if (event.type == SDL_MOUSEBUTTONDOWN && !relmouse && level->ui->wireframe &&
 				(event.button.x > level->ui->state.ui_max_width ||
 				event.button.y > level->ui->state.ui_text_y_pos))
-			select_face(level->cam, level, event.button.x, event.button.y);
+			select_face(&level->cam, level, event.button.x, event.button.y);
 		else if (event.type == SDL_MOUSEBUTTONDOWN)
 			level->ui->state.text_input_enable = FALSE;
 		else if (level->ui->state.text_input_enable)

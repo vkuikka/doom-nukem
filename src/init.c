@@ -30,13 +30,11 @@ void			init_level(t_level **res)
 
 	if (!(level = (t_level *)malloc(sizeof(t_level))))
 		ft_error("memory allocation failed\n");
-	if (!(level->cam = (t_camera *)malloc(sizeof(t_camera))))
-		ft_error("memory allocation failed\n");
-	level->cam->pos.x = 0;
-	level->cam->pos.y = -5;
-	level->cam->pos.z = 0;
-	level->cam->look_side = 0;
-	level->cam->look_up = 0;
+	level->cam.pos.x = 0;
+	level->cam.pos.y = -5;
+	level->cam.pos.z = 0;
+	level->cam.look_side = 0;
+	level->cam.look_up = 0;
 	level->shadow_color = 0;
 
 	// load_obj("level/two.obj", &level->all);
