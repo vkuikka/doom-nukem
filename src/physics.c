@@ -64,13 +64,13 @@ t_vec3	        player_input(int noclip, t_level *level, int in_air, t_vec3 vel)
 		wishdir.x += 1;
 
 	if (keys[SDL_SCANCODE_LEFT])	//for testing bhop
-		level->cam->look_side -= 0.004;
+		level->cam.look_side -= 0.004;
 	if (keys[SDL_SCANCODE_RIGHT])
-		level->cam->look_side += 0.004;
+		level->cam.look_side += 0.004;
 
 	if (wishdir.x || wishdir.z)
 	{
-		rotate_vertex(level->cam->look_side, &wishdir, 0);
+		rotate_vertex(level->cam.look_side, &wishdir, 0);
 		float length = sqrt(wishdir.x * wishdir.x + wishdir.z * wishdir.z);
 		wishdir.x /= length;
 		wishdir.z /= length;
@@ -126,7 +126,7 @@ void	        player_movement(t_level *level)
 	int				in_air;
 	t_vec3			*pos;
 
-	pos = &level->cam->pos;
+	pos = &level->cam.pos;
 	r.pos.x = pos->x;
 	r.pos.y = pos->y;
 	r.pos.z = pos->z;

@@ -52,14 +52,14 @@ static int		is_bface_in_aface(t_tri a, t_tri b, t_level *level)
 	vert_amount = a.isquad ? 4 : 3;
 	for (int i = 0; i < vert_amount; i++)
 	{
-		camera_offset(&a.verts[i].pos, level->cam);
+		camera_offset(&a.verts[i].pos, &level->cam);
 		if (a.verts[i].pos.z < 0)
 			return (0);
 	}
 	vert_amount = b.isquad ? 4 : 3;
 	for (int i = 0; i < vert_amount; i++)
 	{
-		camera_offset(&b.verts[i].pos, level->cam);
+		camera_offset(&b.verts[i].pos, &level->cam);
 		if (b.verts[i].pos.z < 0)
 			return (0);
 	}

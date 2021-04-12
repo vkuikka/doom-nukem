@@ -170,19 +170,8 @@ typedef struct			s_camera
 	float				fov_x;
 }						t_camera;
 
-typedef struct			s_level
-{
-	// struct s_obj		*all_objs;	//(if want to add multiple objects) array of objects in the level
-	struct s_obj		all;		//all faces
-	struct s_obj		visible;	//visible faces
-	struct s_obj		*ssp;		//screen space partition
-	struct s_bmp		texture;
-	struct s_skybox		sky;
-	struct s_camera		*cam;
-	struct s_editor_ui	*ui;
-	int					shadow_color;
-}						t_level;
 
+struct			s_level;
 typedef struct			s_ui_state
 {
 	int					ui_max_width;
@@ -200,7 +189,7 @@ typedef struct			s_ui_state
 	int					is_directory_open;
 	char				*directory;
 	char				*extension;
-	void				(*open_file)(t_level*, char*);
+	void				(*open_file)(struct s_level*, char*);
 }						t_ui_state;
 
 typedef struct			s_editor_ui
@@ -230,6 +219,19 @@ typedef struct			s_editor_ui
 	unsigned			frametime;
 	struct s_ui_state	state;
 }						t_editor_ui;
+
+typedef struct			s_level
+{
+	// struct s_obj		*all_objs;	//(if want to add multiple objects) array of objects in the level
+	struct s_obj		all;		//all faces
+	struct s_obj		visible;	//visible faces
+	struct s_obj		*ssp;		//screen space partition
+	struct s_bmp		texture;
+	struct s_skybox		sky;
+	struct s_camera		cam;
+	struct s_editor_ui	*ui;
+	int					shadow_color;
+}						t_level;
 
 typedef struct			s_rthread
 {

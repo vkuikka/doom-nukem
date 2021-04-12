@@ -120,7 +120,7 @@ int			raycast(void *data_pointer)
 {
 	t_rthread	*t = data_pointer;
 	t_ray		r;
-	t_camera	*cam = t->level->cam;
+	t_camera	*cam = &t->level->cam;
 	int			pixel_gap = t->level->ui->raycast_quality;
 	int			rand_amount = 0;
 

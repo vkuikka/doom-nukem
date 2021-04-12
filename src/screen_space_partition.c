@@ -176,7 +176,7 @@ static void				find_partition(int (*dir1)(t_tri*, int, t_camera),
 
 static void            find_ssp_index(t_tri *tri, t_level *level)
 {
-	t_camera	cam = *level->cam;
+	t_camera	cam = level->cam;
 	float		y_bounds[3];
 	float		x_bounds[3];
 

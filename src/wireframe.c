@@ -153,8 +153,8 @@ void	put_normal(t_window *window, t_level *level, t_tri tri, int color)
 	normal.x = avg.x - normal_dir.x * normal_len;
 	normal.y = avg.y - normal_dir.y * normal_len;
 	normal.z = avg.z - normal_dir.z * normal_len;
-	camera_offset(&avg, level->cam);
-	camera_offset(&normal, level->cam);
+	camera_offset(&avg, &level->cam);
+	camera_offset(&normal, &level->cam);
 	put_vertex(avg, 0, window);
 	print_line(avg, normal, color, window);
 }
@@ -176,8 +176,8 @@ void	render_wireframe(t_window *window, t_level *level, t_obj *obj, int is_visib
 				next = (j + 1) % 3;
 			start = obj->tris[i].verts[j].pos;
 			stop = obj->tris[i].verts[next].pos;
-			camera_offset(&start, level->cam);
-			camera_offset(&stop, level->cam);
+			camera_offset(&start, &level->cam);
+			camera_offset(&stop, &level->cam);
 			if (obj->tris[i].verts[next].selected &&
 				obj->tris[i].verts[j].selected)
 				print_line(start, stop, WF_SELECTED_COL, window);

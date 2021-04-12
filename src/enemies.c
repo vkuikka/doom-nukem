@@ -80,7 +80,7 @@ void			enemies_update_sprites(t_level *level)
 	{
 		if (level->all.tris[face].isenemy)
 		{
-			turn_sprite(&level->all.tris[face], level->cam->pos);
+			turn_sprite(&level->all.tris[face], level->cam.pos);
 			//get sprite texture from enemy rotation
 		}
 		face++;
