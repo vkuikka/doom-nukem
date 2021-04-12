@@ -22,6 +22,7 @@
 # define NOCLIP_SPEED 2.0
 # define MOVE_SPEED 7.0
 # define JUMP_SPEED 5.0
+# define GRAVITY .002
 # define PLAYER_HEIGHT 1.75
 # define WALL_CLIP_DIST 0.3
 # define REFLECTION_DEPTH 3

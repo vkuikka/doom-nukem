@@ -63,7 +63,7 @@ t_vec3	        player_input(int noclip, t_level *level, int in_air, t_vec3 vel)
 	if (keys[SDL_SCANCODE_D])
 		wishdir.x += 1;
 
-	if (keys[SDL_SCANCODE_LEFT])	//for testing bhop
+	if (keys[SDL_SCANCODE_LEFT])
 		level->cam.look_side -= 0.004;
 	if (keys[SDL_SCANCODE_RIGHT])
 		level->cam.look_side += 0.004;
@@ -86,6 +86,7 @@ t_vec3	        player_input(int noclip, t_level *level, int in_air, t_vec3 vel)
 
 	if (keys[SDL_SCANCODE_LSHIFT] && !noclip)
 		vec_mult(&wishdir, 0.5);
+
 	return (wishdir);
 }
 
@@ -116,33 +117,38 @@ void	        player_collision(t_vec3 *vel, t_vec3 *pos, t_level *level)
 	}
 }
 
-void	        player_movement(t_level *level)
+int				is_player_in_air(t_level *level)
 {
-	static t_vec3	vel = {0, 0, 0};
-	static int		noclip = TRUE;
-	static float	asd = 0;
-	t_ray			r;
-	float			dist;
-	int				in_air;
-	t_vec3			*pos;
+	float	dist;
+	t_ray	r;
 
-	pos = &level->cam.pos;
-	r.pos.x = pos->x;
-	r.pos.y = pos->y;
-	r.pos.z = pos->z;
+	r.pos.x = level->cam.pos.x;
+	r.pos.y = level->cam.pos.y;
+	r.pos.z = level->cam.pos.z;
 	r.dir.x = 0;
 	r.dir.y = 1;
 	r.dir.z = 0;
 	dist = cast_all(r, level, NULL, NULL, NULL);
-	if (dist > 0 && dist <= PLAYER_HEIGHT && !level->ui.noclip)
+	if (dist > 0 && dist < PLAYER_HEIGHT + GRAVITY && !level->ui.noclip)
 	{
-		in_air = FALSE;
 		if (dist < PLAYER_HEIGHT)
-			pos->y -= PLAYER_HEIGHT - dist;
+			level->cam.pos.y -= PLAYER_HEIGHT - dist;
+		return (FALSE);
 	}
 	else
-		in_air = TRUE;
-	t_vec3 wishdir = player_input(level->ui.noclip, level, in_air, vel);
+		return (TRUE);
+}
+
+void	        player_movement(t_level *level)
+{
+	static t_vec3	vel = {0, 0, 0};
+	int				in_air;
+	t_vec3			*pos;
+	t_vec3			wishdir;
+
+	pos = &level->cam.pos;
+	in_air = is_player_in_air(level);
+	wishdir = player_input(level->ui.noclip, level, in_air, vel);
 	vel.y = fmax(fmin(vel.y, 0.5), -0.5);
 
 	if (level->ui.noclip)
@@ -160,7 +166,6 @@ void	        player_movement(t_level *level)
 	pos->x += vel.x;
 	pos->y += vel.y;
 	pos->z += vel.z;
-
 	if ((wishdir.x || wishdir.y || wishdir.z)) //&& sqrtf(vel.x * vel.x + vel.z * vel.z) < MAX_SPEED)
 	{
 		vel.x += wishdir.x;
@@ -173,7 +178,7 @@ void	        player_movement(t_level *level)
 		vel.z *= 0.9;
 	}
 	if (in_air)
-		vel.y += 0.002;		//gravity
+		vel.y += GRAVITY;
 	else if (vel.y > 0)
 		vel.y = 0;
 }
