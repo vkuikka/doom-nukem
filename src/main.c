@@ -19,8 +19,8 @@ void		update_camera(t_level *l)
 	rot_cam(&l->cam.front, l->cam.lon, l->cam.lat);
 	rot_cam(&l->cam.up, l->cam.lon, l->cam.lat + (M_PI / 2));
 	vec_cross(&l->cam.side, l->cam.up, l->cam.front);
-	l->cam.fov_y = l->ui->fov;
-	l->cam.fov_x = l->ui->fov * ((float)RES_X / RES_Y);
+	l->cam.fov_y = l->ui.fov;
+	l->cam.fov_x = l->ui.fov * ((float)RES_X / RES_Y);
 }
 
 void		render(t_window *window, t_level *level)
@@ -32,7 +32,7 @@ void		render(t_window *window, t_level *level)
 
 	if (SDL_LockTexture(window->texture, NULL, (void**)&window->frame_buffer, &window_horizontal_size) != 0)
 		ft_error("failed to lock texture\n");
-	if (!level->ui->wireframe || (level->ui->wireframe && level->ui->wireframe_on_top))
+	if (!level->ui.wireframe || (level->ui.wireframe && level->ui.wireframe_on_top))
 	{
 		i = 0;
 		if (!(thread_data = (t_rthread**)malloc(sizeof(t_rthread*) * THREAD_AMOUNT)))
@@ -56,10 +56,10 @@ void		render(t_window *window, t_level *level)
 			i++;
 		}
 		free(thread_data);
-		fill_pixels(window->frame_buffer, level->ui->raycast_quality,
-					level->ui->blur, level->ui->smooth_pixels);
+		fill_pixels(window->frame_buffer, level->ui.raycast_quality,
+					level->ui.blur, level->ui.smooth_pixels);
 	}
-	if (level->ui->wireframe)
+	if (level->ui.wireframe)
 		wireframe(window, level);
 
 	SDL_UnlockTexture(window->texture);
@@ -84,25 +84,25 @@ static void		read_text_input(t_level *level, SDL_Event event)
 			if(c < ' ' || c > '~')
 				break;
 			k = 0;
-			while (level->ui->state.save_filename[k])
+			while (level->ui.state.save_filename[k])
 				k++;
-			level->ui->state.save_filename[k] = c;
+			level->ui.state.save_filename[k] = c;
 			k++;
-			level->ui->state.save_filename[k] = '\0';
+			level->ui.state.save_filename[k] = '\0';
 			i++;
 		}
 	}
 	else if (event.type == SDL_KEYDOWN)
 		if (event.key.keysym.scancode == SDL_SCANCODE_BACKSPACE)
 		{
-			while (level->ui->state.save_filename[i])
+			while (level->ui.state.save_filename[i])
 				i++;
 			if (!i)
-				level->ui->state.text_input_enable = FALSE;
+				level->ui.state.text_input_enable = FALSE;
 			else
 			{
 				i--;
-				level->ui->state.save_filename[i] = '\0';
+				level->ui.state.save_filename[i] = '\0';
 			}
 		}
 }
@@ -121,26 +121,26 @@ static void		read_input(t_window *window, t_level *level)
 			level->cam.look_side += (float)event.motion.xrel / 600;
 			level->cam.look_up -= (float)event.motion.yrel / 600;
 		}
-		else if (event.type == SDL_MOUSEBUTTONDOWN && !relmouse && level->ui->wireframe &&
-				(event.button.x > level->ui->state.ui_max_width ||
-				event.button.y > level->ui->state.ui_text_y_pos))
+		else if (event.type == SDL_MOUSEBUTTONDOWN && !relmouse && level->ui.wireframe &&
+				(event.button.x > level->ui.state.ui_max_width ||
+				event.button.y > level->ui.state.ui_text_y_pos))
 			select_face(&level->cam, level, event.button.x, event.button.y);
 		else if (event.type == SDL_MOUSEBUTTONDOWN)
-			level->ui->state.text_input_enable = FALSE;
-		else if (level->ui->state.text_input_enable)
+			level->ui.state.text_input_enable = FALSE;
+		else if (level->ui.state.text_input_enable)
 			read_text_input(level, event);
 		else if (event.key.repeat == 0 && event.type == SDL_KEYDOWN)
 		{
 			if (event.key.keysym.scancode == SDL_SCANCODE_PERIOD)
-				level->ui->raycast_quality += 1;
-			else if (event.key.keysym.scancode == SDL_SCANCODE_COMMA && level->ui->raycast_quality > 1)
-				level->ui->raycast_quality -= 1;
+				level->ui.raycast_quality += 1;
+			else if (event.key.keysym.scancode == SDL_SCANCODE_COMMA && level->ui.raycast_quality > 1)
+				level->ui.raycast_quality -= 1;
 			else if (event.key.keysym.scancode == SDL_SCANCODE_CAPSLOCK)
-				level->ui->noclip = level->ui->noclip ? FALSE : TRUE;
+				level->ui.noclip = level->ui.noclip ? FALSE : TRUE;
 			else if (event.key.keysym.scancode == SDL_SCANCODE_Z)
-				level->ui->wireframe = level->ui->wireframe ? FALSE : TRUE;
+				level->ui.wireframe = level->ui.wireframe ? FALSE : TRUE;
 			else if (event.key.keysym.scancode == SDL_SCANCODE_X)
-				level->ui->show_quads = level->ui->show_quads ? FALSE : TRUE;
+				level->ui.show_quads = level->ui.show_quads ? FALSE : TRUE;
 			else if (event.key.keysym.scancode == SDL_SCANCODE_TAB)
 			{
 				relmouse = relmouse ? 0 : 1;
@@ -176,6 +176,6 @@ int			main(int argc, char **argv)
 		culling(level);
 		screen_space_partition(level);
 		render(window, level);
-		level->ui->frametime = SDL_GetTicks() - frametime;
+		level->ui.frametime = SDL_GetTicks() - frametime;
 	}
 }

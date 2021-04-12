@@ -183,7 +183,7 @@ void	render_wireframe(t_window *window, t_level *level, t_obj *obj, int is_visib
 				print_line(start, stop, WF_SELECTED_COL, window);
 			else if (is_visible)
 				print_line(start, stop, WF_VISIBLE_COL, window);
-			else if (level->ui->show_quads && !obj->tris[i].isquad)
+			else if (level->ui.show_quads && !obj->tris[i].isquad)
 				print_line(start, stop, WF_NOT_QUAD_WARNING_COL, window);
 			else
 				print_line(start, stop, WF_UNSELECTED_COL, window);
@@ -195,7 +195,7 @@ void	render_wireframe(t_window *window, t_level *level, t_obj *obj, int is_visib
 					put_vertex(start, 0, window);
 			}
 		}
-		if (is_visible || !level->ui->wireframe_culling_visual)
+		if (is_visible || !level->ui.wireframe_culling_visual)
 			put_normal(window, level, obj->tris[i], WF_VISIBLE_NORMAL_COL);
 		else
 			put_normal(window, level, obj->tris[i], WF_NORMAL_COL);
@@ -204,9 +204,9 @@ void	render_wireframe(t_window *window, t_level *level, t_obj *obj, int is_visib
 
 void	wireframe(t_window *window, t_level *level)
 {
-	if (!level->ui->wireframe_on_top)
+	if (!level->ui.wireframe_on_top)
 		ft_memset(window->frame_buffer, WF_BACKGROUND_COL, RES_X * RES_Y * sizeof(int));
-	if (level->ui->wireframe_culling_visual)
+	if (level->ui.wireframe_culling_visual)
 		render_wireframe(window, level, &level->visible, TRUE);
 	render_wireframe(window, level, &level->all, FALSE);
 	// for (int asd = 0; asd < level->all.tri_amount; asd++)

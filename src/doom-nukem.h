@@ -229,7 +229,7 @@ typedef struct			s_level
 	struct s_bmp		texture;
 	struct s_skybox		sky;
 	struct s_camera		cam;
-	struct s_editor_ui	*ui;
+	struct s_editor_ui	ui;
 	int					shadow_color;
 }						t_level;
 

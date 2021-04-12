@@ -104,7 +104,7 @@ t_cast_result	cast_all_color(t_ray r, t_rthread *t, int side)
 		vec_add(&tmp, r.dir, r.pos);
 		res.color = wave_shader(tmp, &res.normal, 0x070C5A, 0x020540);
 	}
-	if (t->level->ui->sun_contrast || t->level->ui->direct_shadow_contrast)
+	if (t->level->ui.sun_contrast || t->level->ui.direct_shadow_contrast)
 		res.color = crossfade((unsigned)res.color >> 8, t->level->shadow_color,
 			shadow(r, t, res.normal) * 0xff);
 	if (t->level->ssp[side].tris[hit].reflectivity)
@@ -121,10 +121,10 @@ int			raycast(void *data_pointer)
 	t_rthread	*t = data_pointer;
 	t_ray		r;
 	t_camera	*cam = &t->level->cam;
-	int			pixel_gap = t->level->ui->raycast_quality;
+	int			pixel_gap = t->level->ui.raycast_quality;
 	int			rand_amount = 0;
 
-	if (t->level->ui->raycast_quality >= NOISE_QUALITY_LIMIT)
+	if (t->level->ui.raycast_quality >= NOISE_QUALITY_LIMIT)
 	{
 		srand(SDL_GetTicks());
 		rand_amount = 2;
@@ -132,7 +132,7 @@ int			raycast(void *data_pointer)
 	r.pos.x = cam->pos.x;
 	r.pos.y = cam->pos.y;
 	r.pos.z = cam->pos.z;
-	float fov_x = t->level->ui->fov * ((float)RES_X / RES_Y);
+	float fov_x = t->level->ui.fov * ((float)RES_X / RES_Y);
 	for (int x = t->id; x < RES_X; x += THREAD_AMOUNT)
 	{
 		t_vec3 tmp;
@@ -144,7 +144,7 @@ int			raycast(void *data_pointer)
 			if (!rand_amount || rand() % rand_amount)	//skip random pixel
 			if (!(x % pixel_gap) && !(y % pixel_gap))
 			{
-				float ym = t->level->ui->fov / RES_Y * y - t->level->ui->fov / 2;
+				float ym = t->level->ui.fov / RES_Y * y - t->level->ui.fov / 2;
 				float xm = fov_x / RES_X * x - fov_x / 2;
 
 				r.dir.x = cam->front.x + cam->up.x * ym + cam->side.x * xm;
@@ -153,8 +153,8 @@ int			raycast(void *data_pointer)
 
 				t_cast_result	res;
 				res = cast_all_color(r, t, get_ssp_index(x, y));
-				if (t->level->ui->fog)
-					res.color = fog(res.color, res.dist, t->level->ui->fog_color, t->level);
+				if (t->level->ui.fog)
+					res.color = fog(res.color, res.dist, t->level->ui.fog_color, t->level);
 				t->window->frame_buffer[x + (y * RES_X)] = res.color;
 				t->window->depth_buffer[x + (y * RES_X)] = res.dist;
 			}

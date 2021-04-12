@@ -419,7 +419,7 @@ void	text_input(char *str, t_level *level)
 	if (str[0])
 		filename = ft_strjoin(str, ".doom-nukem");
 	if ((!str[0] && call("input:", NULL, NULL)) || (str[0] && call(filename, NULL, NULL)))
-		level->ui->state.text_input_enable = TRUE;
+		level->ui.state.text_input_enable = TRUE;
 	if (str[0])
 		free(filename);
 }
@@ -452,39 +452,39 @@ int		call(char *str, void (*f)(t_level*), t_level *level)
 
 void	ui_render(t_level *level)
 {
-	level->ui->state.ui_max_width = 0;
-	level->ui->state.ui_text_color = 0;
-	level->ui->state.ui_text_x_offset = 0;
-	level->ui->state.ui_text_y_pos = 0;
-	get_ui_state(&level->ui->state);
+	level->ui.state.ui_max_width = 0;
+	level->ui.state.ui_text_color = 0;
+	level->ui.state.ui_text_x_offset = 0;
+	level->ui.state.ui_text_y_pos = 0;
+	get_ui_state(&level->ui.state);
 	ui_config(level);
 	ui_render_internal(NULL, NULL, NULL, level, NULL);
 }
 
 void	init_ui_state(t_level *level)
 {
-	if (!(level->ui->state.directory = (char*)malloc(sizeof(char) * PATH_MAX)))
+	if (!(level->ui.state.directory = (char*)malloc(sizeof(char) * PATH_MAX)))
 		ft_error("memory allocation failed\n");
-	if (!(level->ui->state.extension = (char*)malloc(sizeof(char) * NAME_MAX)))
+	if (!(level->ui.state.extension = (char*)malloc(sizeof(char) * NAME_MAX)))
 		ft_error("memory allocation failed\n");
-	if (!(level->ui->state.save_filename = (char*)malloc(sizeof(char) * NAME_MAX)))
+	if (!(level->ui.state.save_filename = (char*)malloc(sizeof(char) * NAME_MAX)))
 		ft_error("memory allocation failed\n");
 
-	ft_memset(level->ui->state.directory, 0, PATH_MAX - 1);
-	ft_memset(level->ui->state.extension, 0, NAME_MAX - 1);
-	ft_memset(level->ui->state.save_filename, 0, NAME_MAX - 1);
+	ft_memset(level->ui.state.directory, 0, PATH_MAX - 1);
+	ft_memset(level->ui.state.extension, 0, NAME_MAX - 1);
+	ft_memset(level->ui.state.save_filename, 0, NAME_MAX - 1);
 
 #ifdef __APPLE__
 	int path_max_size = PATH_MAX - 2;
-	_NSGetExecutablePath(level->ui->state.directory, &path_max_size);
-	path_up_dir(level->ui->state.directory);
+	_NSGetExecutablePath(level->ui.state.directory, &path_max_size);
+	path_up_dir(level->ui.state.directory);
 #elif _WIN32
 	TCHAR szFileName[PATH_MAX];
 	GetModuleFileName(NULL, szFileName, PATH_MAX);
-	ft_strcpy(level->ui->state.directory, szFileName);
+	ft_strcpy(level->ui.state.directory, szFileName);
 #endif
-	path_up_dir(level->ui->state.directory);
-	go_in_dir(level->ui->state.directory, "level");
+	path_up_dir(level->ui.state.directory);
+	go_in_dir(level->ui.state.directory, "level");
 }
 
 void	init_ui(t_window *window, t_level *level)
@@ -497,9 +497,7 @@ void	init_ui(t_window *window, t_level *level)
 	signed		width;
 	t_editor_ui *ui;
 
-	ui = (t_editor_ui*)malloc(sizeof(t_editor_ui));
-	level->ui = ui;
-	ft_bzero(ui, sizeof(t_editor_ui));
+	ui = &level->ui;
 	ui->blur = FALSE;
 	ui->smooth_pixels = FALSE;
 	ui->backface_culling = TRUE;
@@ -515,13 +513,13 @@ void	init_ui(t_window *window, t_level *level)
 	ui->fog_color = 0xb19a6aff;//sandstorm
 	// ui->fog_color = 0xddddddff;//smoke
 
-	level->ui->fov = M_PI / 2;
-	level->ui->sun_contrast = 0;	//max 1
-	level->ui->direct_shadow_contrast = 0;	//max 1
-	level->ui->sun_dir.x = 1;
-	level->ui->sun_dir.y = 1;
-	level->ui->sun_dir.z = 1;
-	vec_normalize(&level->ui->sun_dir);
+	ui->fov = M_PI / 2;
+	ui->sun_contrast = 0;	//max 1
+	ui->direct_shadow_contrast = 0;	//max 1
+	ui->sun_dir.x = 1;
+	ui->sun_dir.y = 1;
+	ui->sun_dir.z = 1;
+	vec_normalize(&ui->sun_dir);
 
 	init_ui_state(level);
 	TTF_Init();
