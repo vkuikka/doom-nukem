@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/08 14:38:45 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/10 02:39:52 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/12 16:25:25 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,8 +44,7 @@ void			init_level(t_level **res)
 	// load_obj("level/cube.obj", &level->all);
 	// load_obj("level/island.obj", &level->all);
 	// load_obj("level/cache.obj", &level->all);
-	// load_obj("level/ship.obj", &level->all);
-	load_obj("level/ship_2.obj", &level->all);
+	load_obj("level/ship.obj", &level->all);
 	// load_obj("level/one_tri.obj", &level->all);
 	// load_obj("level/tri_test.obj", &level->all);
 	// load_obj("level/torus.obj", &level->all);
