@@ -38,33 +38,32 @@ static float	        cast_all(t_ray vec, t_level *level, float *dist_u, float *d
 	return (res);
 }
 
-static t_vec3	        player_input(t_level *level)
+static void			player_input(t_level *level, t_vec3 *wishdir, float *shift)
 {
 	const Uint8		*keys = SDL_GetKeyboardState(NULL);
-	t_vec3			wishdir;
 
-	ft_bzero(&wishdir, sizeof(t_vec3));
+	ft_bzero(wishdir, sizeof(t_vec3));
 	if (level->ui.state.text_input_enable)
-		return (wishdir);
+		return ;
 	if (keys[SDL_SCANCODE_W])
-		wishdir.z += 1;
+		wishdir->z += 1;
 	if (keys[SDL_SCANCODE_S])
-		wishdir.z -= 1;
+		wishdir->z -= 1;
 	if (keys[SDL_SCANCODE_A])
-		wishdir.x -= 1;
+		wishdir->x -= 1;
 	if (keys[SDL_SCANCODE_D])
-		wishdir.x += 1;
+		wishdir->x += 1;
 	if (keys[SDL_SCANCODE_LEFT])
 		level->cam.look_side -= 0.004;
 	if (keys[SDL_SCANCODE_RIGHT])
 		level->cam.look_side += 0.004;
 	if (keys[SDL_SCANCODE_SPACE])
-		wishdir.y -= 1;
+		wishdir->y -= 1;
 	if (keys[SDL_SCANCODE_LSHIFT] && level->ui.noclip)
-		wishdir.y += 1;
+		wishdir->y += 1;
+	*shift = 1;
 	if (keys[SDL_SCANCODE_LSHIFT] && !level->ui.noclip)
-		vec_mult(&wishdir, 0.5);
-	return (wishdir);
+		*shift = .5;
 }
 
 static void	        player_collision(t_vec3 *vel, t_vec3 *pos, t_level *level)
@@ -128,8 +127,9 @@ static void	        rotate_wishdir(t_level *level, t_vec3 *wishdir, t_vec3 *vel)
 {
 	if (wishdir->x && wishdir->z)
 	{
-		wishdir->x /= 2;
-		wishdir->z /= 2;
+		float w = sqrt(wishdir->x * wishdir->x + wishdir->z * wishdir->z);
+		wishdir->x /= w;
+		wishdir->z /= w;
 	}
 	rotate_vertex(level->cam.look_side, wishdir, 0);
 }
@@ -149,59 +149,60 @@ void		vertical_movement(t_vec3 *wishdir, t_vec3 *vel, float delta_time, int in_a
 	}
 }
 
-void		horizontal_movement(t_vec3 *wishdir, t_vec3 *vel, float delta_time, int in_air)
+void		air_movement(t_vec3 *wishdir, t_vec3 *vel, float delta_time)
 {
-	if (in_air)
+	if (wishdir->x || wishdir->z)
 	{
-		if (wishdir->x || wishdir->z)
+		float length = sqrt(wishdir->x * wishdir->x + wishdir->z * wishdir->z);
+		wishdir->x /= length;
+		wishdir->z /= length;
+		float speed = fmax(AIR_ACCEL - (vel->x * wishdir->x + vel->z * wishdir->z), 0);
+		wishdir->x *= speed;
+		wishdir->z *= speed;
+		vel->x += wishdir->x;
+		vel->z += wishdir->z;
+	}
+}
+
+void		horizontal_movement(t_vec3 *wishdir, t_vec3 *vel, float delta_time, float shift)
+{
+	if (wishdir->x || wishdir->z)
+	{
+		vel->x += wishdir->x * delta_time;
+		vel->z += wishdir->z * delta_time;
+		float len = sqrt(vel->x * vel->x + vel->z * vel->z);
+		if (len * 100 > MOVE_SPEED * shift)
 		{
-			float length = sqrt(wishdir->x * wishdir->x + wishdir->z * wishdir->z);
-			wishdir->x /= length;
-			wishdir->z /= length;
-			float speed = fmax(AIR_ACCEL - (vel->x * wishdir->x + vel->z * wishdir->z), 0);
-			wishdir->x *= speed;
-			wishdir->z *= speed;
-			vel->x += wishdir->x;
-			vel->z += wishdir->z;
+			vel->x *= GROUND_FRICTION;
+			vel->z *= GROUND_FRICTION;
 		}
 	}
 	else
 	{
-		if (wishdir->x || wishdir->z)
-		{
-			vel->x += wishdir->x * GROUND_FRICTION * delta_time;
-			vel->z += wishdir->z * GROUND_FRICTION * delta_time;
-			float len = sqrt(vel->x * vel->x + vel->z * vel->z);
-			if (len > MOVE_SPEED)
-			{
-				vel->x *= .8;
-				vel->z *= .8;
-			}
-		}
-		else
-		{
-			vel->x -= vel->x * GROUND_FRICTION * delta_time;
-			vel->z -=  vel->z * GROUND_FRICTION * delta_time;
-		}
+		vel->x *= GROUND_FRICTION;
+		vel->z *= GROUND_FRICTION;
 	}
 }
-
 
 void	        player_movement(t_level *level)
 {
 	static t_vec3	vel = {0, 0, 0};
 	int				in_air;
 	t_vec3			wishdir;
+	float			shift;
 	float			delta_time;
 
 	delta_time = level->ui.frametime / 1000.;
-	wishdir = player_input(level);
+	player_input(level, &wishdir, &shift);
 	rotate_wishdir(level, &wishdir, &vel);
 	if (level->ui.noclip)
 		return (noclip(level, &wishdir, &vel, delta_time));
 	in_air = is_player_in_air(level);
 	vertical_movement(&wishdir, &vel, delta_time, in_air);
-	horizontal_movement(&wishdir, &vel, delta_time, in_air);
+	if (in_air)
+		air_movement(&wishdir, &vel, delta_time);
+	else
+		horizontal_movement(&wishdir, &vel, delta_time, shift);
 	player_collision(&vel, &level->cam.pos, level);
 	level->cam.pos.x += vel.x;
 	level->cam.pos.y += vel.y;
