@@ -498,6 +498,7 @@ void	init_ui(t_window *window, t_level *level)
 	t_editor_ui *ui;
 
 	ui = &level->ui;
+	ft_bzero(ui, sizeof(t_editor_ui));
 	ui->blur = FALSE;
 	ui->smooth_pixels = FALSE;
 	ui->backface_culling = TRUE;
