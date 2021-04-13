@@ -217,6 +217,7 @@ typedef struct			s_editor_ui
 	float				sun_contrast;
 	float				direct_shadow_contrast;;
 	struct s_vec3		sun_dir;
+	float				horizontal_velocity;
 
 	//info
 	unsigned			frametime;
