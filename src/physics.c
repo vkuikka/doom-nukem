@@ -206,4 +206,5 @@ void	        player_movement(t_level *level)
 	level->cam.pos.x += vel.x;
 	level->cam.pos.y += vel.y;
 	level->cam.pos.z += vel.z;
+	level->ui.horizontal_velocity = sqrt(vel.x * vel.x + vel.z * vel.z) * 100;
 }

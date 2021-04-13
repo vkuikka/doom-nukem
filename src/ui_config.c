@@ -335,6 +335,8 @@ void	ui_config(t_level *level)
 	text(buf);
 	sprintf(buf, "faces:           %d / %d", level->all.tri_amount, level->visible.tri_amount);
 	text(buf);
+	sprintf(buf, "xz velocity:  %.2fms", level->ui.horizontal_velocity);
+	text(buf);
 
 	set_text_color(UI_FACE_SELECTION_TEXT_COLOR);
 	ui_config_selected_faces(level);
