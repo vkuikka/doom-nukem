@@ -19,10 +19,12 @@
 # define SSP_MAX_X 20
 # define SSP_MAX_Y 20
 
-# define NOCLIP_SPEED 2.0
-# define MOVE_SPEED 7.0
-# define JUMP_SPEED 5.0
-# define GRAVITY .002
+# define NOCLIP_SPEED 20.0
+# define GRAVITY .6
+# define JUMP_SPEED 0.2
+# define MOVE_SPEED .01
+# define AIR_ACCEL .02
+# define GROUND_FRICTION 10
 # define PLAYER_HEIGHT 1.75
 # define WALL_CLIP_DIST 0.3
 # define REFLECTION_DEPTH 3
