@@ -25,7 +25,7 @@
 # define AIR_ACCEL .3	//	m/s^2
 # define MOVE_ACCEL 70	//	m/s^2
 # define MOVE_SPEED 10	//	m/s
-# define GROUND_FRICTION .85
+# define GROUND_FRICTION 5.
 # define PLAYER_HEIGHT 1.75
 # define WALL_CLIP_DIST 0.3
 # define REFLECTION_DEPTH 3

@@ -113,10 +113,14 @@ static int				is_player_in_air(t_level *level)
 
 static void	noclip(t_level *level, t_vec3 *wishdir, t_vec3 *vel, float delta_time)
 {
-	level->cam.pos.x += wishdir->x * NOCLIP_SPEED * delta_time;
-	level->cam.pos.y += wishdir->y * NOCLIP_SPEED * delta_time;
-	level->cam.pos.z += wishdir->z * NOCLIP_SPEED * delta_time;
+	if (wishdir->x && wishdir->y && wishdir->z)
+		vec_normalize(wishdir);
+	vec_mult(wishdir, NOCLIP_SPEED);
+	level->cam.pos.x += wishdir->x * delta_time;
+	level->cam.pos.y += wishdir->y * delta_time;
+	level->cam.pos.z += wishdir->z * delta_time;
 	ft_bzero(vel, sizeof(t_vec3));
+	level->ui.horizontal_velocity = vec_length(*wishdir);
 }
 
 static void	        rotate_wishdir(t_level *level, t_vec3 *wishdir, t_vec3 *vel)
@@ -175,8 +179,8 @@ void		horizontal_movement(t_vec3 *wishdir, t_vec3 *vel, float delta_time, float 
 	}
 	else
 	{
-		vel->x *= GROUND_FRICTION;	//fix
-		vel->z *= GROUND_FRICTION;
+		vel->x -= vel->x * GROUND_FRICTION * delta_time;
+		vel->z -= vel->z * GROUND_FRICTION * delta_time;
 	}
 }
 
@@ -207,6 +211,6 @@ void	        player_movement(t_level *level)
 		level->cam.pos.y += vel.y;
 		level->cam.pos.z += vel.z;
 		vec_div(&vel, delta_time);
-		level->ui.horizontal_velocity = sqrt(vel.x * vel.x + vel.z * vel.z);
 	}
+	level->ui.horizontal_velocity = sqrt(vel.x * vel.x + vel.z * vel.z);
 }
