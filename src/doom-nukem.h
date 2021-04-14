@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/14 05:05:48 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/14 15:31:57 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,10 +22,10 @@
 # define NOCLIP_SPEED 50.0
 # define GRAVITY 12		//	m/s^2
 # define JUMP_SPEED 5	//	m/s
-# define AIR_ACCEL .1	//	m/s^2
-# define MOVE_ACCEL 20	//	m/s^2
+# define AIR_ACCEL .3	//	m/s^2
+# define MOVE_ACCEL 70	//	m/s^2
 # define MOVE_SPEED 10	//	m/s
-# define GROUND_FRICTION .9
+# define GROUND_FRICTION .85
 # define PLAYER_HEIGHT 1.75
 # define WALL_CLIP_DIST 0.3
 # define REFLECTION_DEPTH 3
