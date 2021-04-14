@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/10 01:23:16 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/14 05:08:17 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/14 14:56:34 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -206,5 +206,5 @@ void	        player_movement(t_level *level)
 	level->cam.pos.x += delta_pos.x;
 	level->cam.pos.y += delta_pos.y;
 	level->cam.pos.z += delta_pos.z;
-	level->ui.horizontal_velocity = vec_length(vel);
+	level->ui.horizontal_velocity = sqrt(vel.x * vel.x + vel.z * vel.z);
 }
