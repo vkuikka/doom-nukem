@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/07 22:42:10 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/10 02:43:10 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,7 +104,7 @@ t_cast_result	cast_all_color(t_ray r, t_rthread *t, int side)
 		vec_add(&tmp, r.dir, r.pos);
 		res.color = wave_shader(tmp, &res.normal, 0x070C5A, 0x020540);
 	}
-	if (t->level->ui->sun_contrast || t->level->ui->direct_shadow_contrast)
+	if (t->level->ui.sun_contrast || t->level->ui.direct_shadow_contrast)
 		res.color = crossfade((unsigned)res.color >> 8, t->level->shadow_color,
 			shadow(r, t, res.normal) * 0xff);
 	if (t->level->ssp[side].tris[hit].reflectivity)
@@ -120,28 +120,19 @@ int			raycast(void *data_pointer)
 {
 	t_rthread	*t = data_pointer;
 	t_ray		r;
-	float		angle = t->level->look_side;
-	int			pixel_gap = t->level->ui->raycast_quality;
+	t_camera	*cam = &t->level->cam;
+	int			pixel_gap = t->level->ui.raycast_quality;
 	int			rand_amount = 0;
 
-	if (t->level->ui->raycast_quality >= NOISE_QUALITY_LIMIT)
+	if (t->level->ui.raycast_quality >= NOISE_QUALITY_LIMIT)
 	{
 		srand(SDL_GetTicks());
 		rand_amount = 2;
 	}
-	r.pos.x = t->level->pos.x;
-	r.pos.y = t->level->pos.y;
-	r.pos.z = t->level->pos.z;
-
-	t_vec3	cam;
-	t_vec3	up;
-	t_vec3	side;
-	float lon = -t->level->look_side + M_PI/2;
-	float lat = -t->level->look_up;
-	rot_cam(&cam, lon, lat);
-	rot_cam(&up, lon, lat + (M_PI / 2));
-	vec_cross(&side, up, cam);
-
+	r.pos.x = cam->pos.x;
+	r.pos.y = cam->pos.y;
+	r.pos.z = cam->pos.z;
+	float fov_x = t->level->ui.fov * ((float)RES_X / RES_Y);
 	for (int x = t->id; x < RES_X; x += THREAD_AMOUNT)
 	{
 		t_vec3 tmp;
@@ -153,17 +144,17 @@ int			raycast(void *data_pointer)
 			if (!rand_amount || rand() % rand_amount)	//skip random pixel
 			if (!(x % pixel_gap) && !(y % pixel_gap))
 			{
-				float ym = t->level->ui->fov / RES_Y * y - t->level->ui->fov / 2;
-				float xm = t->level->ui->fov / RES_X * x - t->level->ui->fov / 2;
+				float ym = t->level->ui.fov / RES_Y * y - t->level->ui.fov / 2;
+				float xm = fov_x / RES_X * x - fov_x / 2;
 
-				r.dir.x = cam.x + up.x * ym + side.x * xm;
-				r.dir.y = cam.y + up.y * ym + side.y * xm;
-				r.dir.z = cam.z + up.z * ym + side.z * xm;
+				r.dir.x = cam->front.x + cam->up.x * ym + cam->side.x * xm;
+				r.dir.y = cam->front.y + cam->up.y * ym + cam->side.y * xm;
+				r.dir.z = cam->front.z + cam->up.z * ym + cam->side.z * xm;
 
 				t_cast_result	res;
-				res = cast_all_color(r, t, x >= RES_X / 2);
-				if (t->level->ui->fog)
-					res.color = fog(res.color, res.dist, t->level->ui->fog_color, t->level);
+				res = cast_all_color(r, t, get_ssp_index(x, y));
+				if (t->level->ui.fog)
+					res.color = fog(res.color, res.dist, t->level->ui.fog_color, t->level);
 				t->window->frame_buffer[x + (y * RES_X)] = res.color;
 				t->window->depth_buffer[x + (y * RES_X)] = res.dist;
 			}

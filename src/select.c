@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   select.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/31 18:32:46 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/08 00:41:01 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/04/10 20:51:20 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,26 +65,18 @@ static void	raycast_face_selection(t_ray vec, t_level *level)
 		deselect_all_faces(level);
 }
 
-void	select_face(t_level *level, int x, int y)
+void	select_face(t_camera *cam, t_level *level, int x, int y)
 {
-	t_vec3	rot;
 	t_ray	r;
-	float	lon = -level->look_side + M_PI/2;
-	float	lat = -level->look_up;
+	float	xm;
 	float	ym;
 
-	ym = 1.0 / RES_Y * y - 0.5;
-	ym = level->ui->fov / RES_Y * y - level->ui->fov / 2;
-	r.pos.x = level->pos.x;
-	r.pos.y = level->pos.y;
-	r.pos.z = level->pos.z;
-	rot_cam(&r.dir, lon, lat);
-	rot_cam(&rot, lon, lat + (M_PI / 2));
-	r.dir.x += rot.x * ym;
-	r.dir.y += rot.y * ym;
-	r.dir.z += rot.z * ym;
-	vec_cross(&rot, rot, r.dir);
-	vec_mult(&rot, level->ui->fov / RES_X * x - level->ui->fov / 2);
-	vec_add(&r.dir, r.dir, rot);
+	r.dir = cam->front;
+	r.pos = cam->pos;
+	ym = cam->fov_y / RES_Y * y - cam->fov_y / 2;
+	xm = cam->fov_x / RES_X * x - cam->fov_x / 2;
+	r.dir.x += cam->up.x * ym + cam->side.x * xm;
+	r.dir.y += cam->up.y * ym + cam->side.y * xm;
+	r.dir.z += cam->up.z * ym + cam->side.z * xm;
 	raycast_face_selection(r, level);
 }

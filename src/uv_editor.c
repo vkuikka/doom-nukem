@@ -135,13 +135,13 @@ void			uv_editor(t_level *level, t_window *window)
 
 void	disable_uv_editor(t_level *level)
 {
-	level->ui->state.is_uv_editor_open = FALSE;
-	level->ui->wireframe = FALSE;
+	level->ui.state.is_uv_editor_open = FALSE;
+	level->ui.wireframe = FALSE;
 }
 
 void	enable_uv_editor(t_level *level)
 {
-	level->ui->state.is_uv_editor_open = TRUE;
-	level->ui->wireframe = TRUE;
-	level->ui->wireframe_on_top = TRUE;
+	level->ui.state.is_uv_editor_open = TRUE;
+	level->ui.wireframe = TRUE;
+	level->ui.wireframe_on_top = TRUE;
 }

@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/04/07 21:06:46 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/08 17:57:48 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -227,7 +227,6 @@ void	load_obj(char *filename, t_obj *obj)
 	int i = 0;
 	int tri_amount = 0;
 
-	global_seginfo = "load_obj 0\n";
 	file = file2d(filename);
 	while (file[i])
 	{
@@ -245,13 +244,10 @@ void	load_obj(char *filename, t_obj *obj)
 		ft_error("memory allocation failed\n");
 	ft_memset(obj->backface_culling_mask, 0, tri_amount * sizeof(int));
 	obj->tri_amount = tri_amount;
-	global_seginfo = "load_obj vert\n";
 	t_vec3 *verts = load_verts(file);
-	global_seginfo = "load_obj uv\n";
 	t_vec2 *uvs = load_uvs(file);
 	i = 0;
 	int j = 0;
-	global_seginfo = "load_obj 1\n";
 	while (file[i])
 	{
 		if (!ft_strncmp(file[i], "f ", 2))
@@ -272,7 +268,6 @@ void	load_obj(char *filename, t_obj *obj)
 	free(file);
 	free(verts);
 	free(uvs);
-	global_seginfo = "load_obj quads\n";
 	find_quads(obj);
 	printf("faces = %d\n", obj->tri_amount);
 }

@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/07 22:41:35 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/14 15:31:57 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,13 +14,18 @@
 # define DOOM_NUKEM_H
 # define RES_X 800
 # define RES_Y 600
-# define TICKRATE 128
-# define THREAD_AMOUNT 8
+# define THREAD_AMOUNT 4
 # define NOISE_QUALITY_LIMIT 8
+# define SSP_MAX_X 20
+# define SSP_MAX_Y 20
 
-# define NOCLIP_SPEED 20.0 / TICKRATE
-# define MOVE_SPEED 7.0 / TICKRATE
-# define JUMP_SPEED 5.0 / TICKRATE
+# define NOCLIP_SPEED 50.0
+# define GRAVITY 12		//	m/s^2
+# define JUMP_SPEED 5	//	m/s
+# define AIR_ACCEL .3	//	m/s^2
+# define MOVE_ACCEL 70	//	m/s^2
+# define MOVE_SPEED 10	//	m/s
+# define GROUND_FRICTION 5.
 # define PLAYER_HEIGHT 1.75
 # define WALL_CLIP_DIST 0.3
 # define REFLECTION_DEPTH 3
@@ -44,6 +49,7 @@
 # define UI_BACKGROUND_COL 0x222222bb
 
 # define SERIALIZE_INITIAL_BUFFER_SIZE 666
+# define OCCLUSION_CULLING_FLOAT_ERROR_MAGIC_NUMBER 10
 
 # include <math.h>
 # include <fcntl.h>
@@ -67,8 +73,6 @@
 # include <stdlib.h>
 # include <stdio.h>
 # include <signal.h>
-
-char		*global_seginfo;
 
 typedef struct			s_bmp
 {
@@ -156,21 +160,22 @@ typedef struct			s_skybox
 	struct s_obj		obj;
 }						t_skybox;
 
-typedef struct			s_level
+typedef struct			s_camera
 {
-	// struct s_obj		*all_objs;	//(if want to add multiple objects) array of objects in the level
-	struct s_obj		all;		//all faces
-	struct s_obj		visible;	//visible faces
-	struct s_obj		*ssp;		//screen space partition
-	struct s_bmp		texture;
-	struct s_vec3		pos;		//player position
-	struct s_skybox		sky;
+	t_vec3				up;
+	t_vec3				side;
+	t_vec3				front;
+	t_vec3				pos;
 	float				look_side;	//side look angle
 	float				look_up;	//up and down look angle
-	struct s_editor_ui	*ui;
-	int					shadow_color;
-}						t_level;
+	float				lon;
+	float				lat;
+	float				fov_y;
+	float				fov_x;
+}						t_camera;
 
+
+struct			s_level;
 typedef struct			s_ui_state
 {
 	int					ui_max_width;
@@ -185,11 +190,12 @@ typedef struct			s_ui_state
 	int					is_serialize_open;
 	char				*save_filename;
 	int					text_input_enable;
+	int					ssp_visual;
 
 	int					is_directory_open;
 	char				*directory;
 	char				*extension;
-	void				(*open_file)(t_level*, char*);
+	void				(*open_file)(struct s_level*, char*);
 }						t_ui_state;
 
 typedef struct			s_editor_ui
@@ -214,19 +220,25 @@ typedef struct			s_editor_ui
 	float				sun_contrast;
 	float				direct_shadow_contrast;;
 	struct s_vec3		sun_dir;
+	float				horizontal_velocity;
 
 	//info
-	float				physhz;
 	unsigned			frametime;
 	struct s_ui_state	state;
 }						t_editor_ui;
 
-typedef struct			s_physthread
+typedef struct			s_level
 {
-	float				hz;
-	struct s_level		*level;
-	struct s_vec3		pos;
-}						t_physthread;
+	// struct s_obj		*all_objs;	//(if want to add multiple objects) array of objects in the level
+	struct s_obj		all;		//all faces
+	struct s_obj		visible;	//visible faces
+	struct s_obj		*ssp;		//screen space partition
+	struct s_bmp		texture;
+	struct s_skybox		sky;
+	struct s_camera		cam;
+	struct s_editor_ui	ui;
+	int					shadow_color;
+}						t_level;
 
 typedef struct			s_rthread
 {
@@ -296,7 +308,6 @@ void		vec_cross(t_vec3 *res, t_vec3 u, t_vec3 v);
 void		vec_rot(t_vec3 *res, t_vec3 ve1, float ang);
 int			vec_cmp(t_vec3 ve1, t_vec3 ve2);
 void		vec_avg(t_vec3 *res, t_vec3 ve1, t_vec3 ve2);
-void		vec_copy(t_vec3 *res, t_vec3 vec);
 float		vec_angle(t_vec3 v1, t_vec3 v2);
 void		vec_mult(t_vec3 *res, float mult);
 void		vec_div(t_vec3 *res, float div);
@@ -306,7 +317,12 @@ void		vec2_add(t_vec2 *res, t_vec2 ve1, t_vec2 ve2);
 void		vec2_copy(t_vec2 *res, t_vec2 vec);
 
 void		init_window(t_window **window);
-t_level		*init_level(void);
+void		init_level(t_level **level);
+
+void		screen_space_partition(t_level *level);
+void		init_screen_space_partition(t_level *level);
+int			get_ssp_index(int x, int y);
+int			get_ssp_coordinate(int coord, int horizontal);
 
 int			raycast(void *t);
 float		cast_face(t_tri t, t_ray ray, int *col, t_bmp *img);
@@ -315,11 +331,14 @@ unsigned	crossfade(unsigned color1, unsigned color2, unsigned fade);
 int			face_color(float u, float v, t_tri t, t_bmp *img);
 
 void		wireframe(t_window *window, t_level *level);
+void		camera_offset(t_vec3 *vertex, t_camera *cam);
 
 void		load_obj(char *filename, t_obj *obj);
 t_bmp		bmp_read(char *str);
 
 void		culling(t_level *level);
+int			occlusion_culling(t_tri tri, t_level *level);
+int			normal_plane_culling(t_tri tri, t_vec3 *pos, t_vec3 *dir);
 void		find_quads(t_obj *obj);
 
 void		rotate_vertex(float angle, t_vec3 *vertex, int axis);
@@ -344,10 +363,7 @@ void		uv_editor(t_level *level, t_window *window);
 void		enable_uv_editor(t_level *level);
 void		disable_uv_editor(t_level *level);
 
-void		init_physics(t_level *level);
-void		physics_sync(t_level *level, t_physthread *get_data);
-void		player_movement(t_vec3 *pos, t_level *level);
-int			physics(void *data_pointer);
+void		player_movement(t_level *level);
 
 void		enemies_update_physics(t_level *level);
 void		enemies_update_sprites(t_level *level);
@@ -360,7 +376,7 @@ float		shadow(t_ray r, t_rthread *t, t_vec3 normal);
 int			reflection(t_ray *r, t_rthread *t, t_vec3 normal, int depth);
 unsigned	wave_shader(t_vec3 mod, t_vec3 *normal, unsigned col1, unsigned col2);
 
-void		select_face(t_level *level, int x, int y);
+void		select_face(t_camera *cam, t_level *level, int x, int y);
 
 void		save_level(t_level *level);
 void		open_level(t_level *level, char *filename);

@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/06 08:50:56 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/04/07 22:48:12 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/10 15:13:29 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,24 +87,62 @@ static t_ivec2	put_text(char *text, t_window *window, SDL_Texture *texture, t_iv
 }
 
 
-static void	ui_render_background(unsigned *get_texture)
+static void	ui_render_background(unsigned *get_texture, SDL_Texture *text_texture, t_window *window, t_level *level)
 {
-	static unsigned *texture;
-	t_ui_state	*state;
+	static unsigned	*texture;
+	t_ui_state		*state;
+	char			buf[100];
 
-	state = get_ui_state(NULL);
 	if (get_texture)
 	{
 		texture = get_texture;
 		return ;
 	}
-	for (int y = 0; y < state->ui_text_y_pos + 6; y++)
-		for (int x = 0; x < state->ui_max_width + 4; x++)
+	state = get_ui_state(NULL);
+	if (state->ssp_visual)
+	{
+		int color[3];
+		color[0] = 0;
+		color[1] = 0x66666644;
+		color[2] = 0x66666688;
+		for (int y = 0; y < RES_Y; y++)
+			for (int x = 0; x < RES_X; x++)
 			if (!texture[x + (y * RES_X)])
-				button_pixel_put(x, y, UI_BACKGROUND_COL, texture);
+			{
+				if (get_ssp_coordinate(x, 1) % 2 ^ get_ssp_coordinate(y, 0) % 2)
+					button_pixel_put(x, y, color[1], texture);
+				else
+					button_pixel_put(x, y, color[2], texture);
+			}
+		int max_tris = 0;
+		for (int y = 0; y < SSP_MAX_Y; y++)
+			for (int x = 0; x < SSP_MAX_X; x++)
+				if (max_tris < level->ssp[y * SSP_MAX_X + x].tri_amount)
+					max_tris = level->ssp[y * SSP_MAX_X + x].tri_amount;
+		for (int y = 0; y < SSP_MAX_Y; y++)
+		{
+			for (int x = 0; x < SSP_MAX_X; x++)
+			{
+				sprintf(buf, "%d", level->ssp[y * SSP_MAX_X + x].tri_amount);
+				int red = (float)level->ssp[y * SSP_MAX_X + x].tri_amount / max_tris * 0xff;
+				red = crossfade(0x00ff00, 0xff0000, red);
+				set_text_color(red);
+				put_text(buf, window, text_texture,
+				(t_ivec2){(RES_X / SSP_MAX_X) * x + (RES_X / SSP_MAX_X / 2) - 5,
+				(RES_Y / SSP_MAX_Y) * y + (RES_Y / SSP_MAX_Y / 2) - 7});
+			}
+		}
+	}
+	else
+	{
+		for (int y = 0; y < state->ui_text_y_pos + 6; y++)
+			for (int x = 0; x < state->ui_max_width + 4; x++)
+				if (!texture[x + (y * RES_X)])
+					button_pixel_put(x, y, UI_BACKGROUND_COL, texture);
+	}
 }
 
-static t_ivec2	ui_render_internal(SDL_Texture *get_text, SDL_Texture *get_streaming, t_window *get_window, t_ui_state *state)
+static t_ivec2	ui_render_internal(SDL_Texture *get_text, SDL_Texture *get_streaming, t_window *get_window, t_level *level, t_ui_state *state)
 {
 	static SDL_Texture *text_texture;
 	static SDL_Texture *streaming_texture;
@@ -133,7 +171,7 @@ static t_ivec2	ui_render_internal(SDL_Texture *get_text, SDL_Texture *get_stream
 	}
 	else//render
 	{
-		ui_render_background(NULL);
+		ui_render_background(NULL, text_texture, window, level);
 		SDL_UnlockTexture(streaming_texture);
 		SDL_RenderCopy(window->SDLrenderer, streaming_texture, NULL, NULL);
 		if (SDL_LockTexture(streaming_texture, NULL, (void**)&pixels, &width) != 0)
@@ -280,7 +318,7 @@ void	text(char *text)
 	state = get_ui_state(NULL);
 	state->text = text;
 	state->ui_text_x_offset = 4;
-	ui_render_internal(NULL, NULL, NULL, state);
+	ui_render_internal(NULL, NULL, NULL, NULL, state);
 }
 
 void	button(int *var, char *text)
@@ -292,7 +330,7 @@ void	button(int *var, char *text)
 	state->ui_text_x_offset = 14;
 	render_button_streaming(NULL, var, state->ui_text_y_pos);
 	edit_button_var(var, state);
-	ui_render_internal(NULL, NULL, NULL, state);
+	ui_render_internal(NULL, NULL, NULL, NULL, state);
 }
 
 float	clamp(float var, float min, float max)
@@ -381,7 +419,7 @@ void	text_input(char *str, t_level *level)
 	if (str[0])
 		filename = ft_strjoin(str, ".doom-nukem");
 	if ((!str[0] && call("input:", NULL, NULL)) || (str[0] && call(filename, NULL, NULL)))
-		level->ui->state.text_input_enable = TRUE;
+		level->ui.state.text_input_enable = TRUE;
 	if (str[0])
 		free(filename);
 }
@@ -398,7 +436,7 @@ int		call(char *str, void (*f)(t_level*), t_level *level)
 	color_tmp = state->ui_text_color;
 	state->ui_text_color = UI_BACKGROUND_COL;
 	t_ivec2 size;
-	size = ui_render_internal(NULL, NULL, NULL, state);
+	size = ui_render_internal(NULL, NULL, NULL, NULL, state);
 	state->ui_text_y_pos -= 14;
 	state->ui_text_color = color_tmp;
 	render_call_streaming(NULL, state->ui_text_y_pos, &size, state->ui_text_color);
@@ -414,47 +452,43 @@ int		call(char *str, void (*f)(t_level*), t_level *level)
 
 void	ui_render(t_level *level)
 {
-	level->ui->state.ui_max_width = 0;
-	level->ui->state.ui_text_color = 0;
-	level->ui->state.ui_text_x_offset = 0;
-	level->ui->state.ui_text_y_pos = 0;
-	get_ui_state(&level->ui->state);
+	level->ui.state.ui_max_width = 0;
+	level->ui.state.ui_text_color = 0;
+	level->ui.state.ui_text_x_offset = 0;
+	level->ui.state.ui_text_y_pos = 0;
+	get_ui_state(&level->ui.state);
 	ui_config(level);
-	ui_render_internal(NULL, NULL, NULL, NULL);
+	ui_render_internal(NULL, NULL, NULL, level, NULL);
 }
 
 void	init_ui_state(t_level *level)
 {
-	global_seginfo = "inint ui state in\n";
-	if (!(level->ui->state.directory = (char*)malloc(sizeof(char) * PATH_MAX)))
+	if (!(level->ui.state.directory = (char*)malloc(sizeof(char) * PATH_MAX)))
 		ft_error("memory allocation failed\n");
-	if (!(level->ui->state.extension = (char*)malloc(sizeof(char) * NAME_MAX)))
+	if (!(level->ui.state.extension = (char*)malloc(sizeof(char) * NAME_MAX)))
 		ft_error("memory allocation failed\n");
-	if (!(level->ui->state.save_filename = (char*)malloc(sizeof(char) * NAME_MAX)))
+	if (!(level->ui.state.save_filename = (char*)malloc(sizeof(char) * NAME_MAX)))
 		ft_error("memory allocation failed\n");
 
-	ft_memset(level->ui->state.directory, 0, PATH_MAX - 1);
-	ft_memset(level->ui->state.extension, 0, NAME_MAX - 1);
-	ft_memset(level->ui->state.save_filename, 0, NAME_MAX - 1);
-	global_seginfo = "inint ui state get path\n";
+	ft_memset(level->ui.state.directory, 0, PATH_MAX - 1);
+	ft_memset(level->ui.state.extension, 0, NAME_MAX - 1);
+	ft_memset(level->ui.state.save_filename, 0, NAME_MAX - 1);
 
 #ifdef __APPLE__
 	int path_max_size = PATH_MAX - 2;
-	_NSGetExecutablePath(level->ui->state.directory, &path_max_size);
-	path_up_dir(level->ui->state.directory);
+	_NSGetExecutablePath(level->ui.state.directory, &path_max_size);
+	path_up_dir(level->ui.state.directory);
 #elif _WIN32
 	TCHAR szFileName[PATH_MAX];
 	GetModuleFileName(NULL, szFileName, PATH_MAX);
-	ft_strcpy(level->ui->state.directory, szFileName);
+	ft_strcpy(level->ui.state.directory, szFileName);
 #endif
-	path_up_dir(level->ui->state.directory);
-	go_in_dir(level->ui->state.directory, "level");
-	global_seginfo = "inint ui state out\n";
+	path_up_dir(level->ui.state.directory);
+	go_in_dir(level->ui.state.directory, "level");
 }
 
 void	init_ui(t_window *window, t_level *level)
 {
-	global_seginfo = "inint ui in\n";
 	//maybe this on windows
 	SDL_Texture *text_texture = SDL_CreateTexture(window->SDLrenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, RES_X, RES_Y);
 	// SDL_Texture *text_texture = SDL_CreateTexture(window->SDLrenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, RES_X, RES_Y);
@@ -463,15 +497,15 @@ void	init_ui(t_window *window, t_level *level)
 	signed		width;
 	t_editor_ui *ui;
 
-	ui = (t_editor_ui*)malloc(sizeof(t_editor_ui));
-	level->ui = ui;
+	ui = &level->ui;
 	ft_bzero(ui, sizeof(t_editor_ui));
 	ui->blur = FALSE;
 	ui->smooth_pixels = FALSE;
 	ui->backface_culling = TRUE;
 	ui->distance_culling = TRUE;
+	ui->wireframe = FALSE;
 	ui->wireframe_on_top = TRUE;
-	ui->wireframe_culling_visual = FALSE;
+	ui->wireframe_culling_visual = TRUE;
 	ui->render_distance = 20;
 	ui->raycast_quality = NOISE_QUALITY_LIMIT - 1;
 	// ui->fog_color = 0xffffffff;//fog
@@ -480,13 +514,13 @@ void	init_ui(t_window *window, t_level *level)
 	ui->fog_color = 0xb19a6aff;//sandstorm
 	// ui->fog_color = 0xddddddff;//smoke
 
-	level->ui->fov = M_PI / 2;
-	level->ui->sun_contrast = 0;	//max 1
-	level->ui->direct_shadow_contrast = 0;	//max 1
-	level->ui->sun_dir.x = 1;
-	level->ui->sun_dir.y = 1;
-	level->ui->sun_dir.z = 1;
-	vec_normalize(&level->ui->sun_dir);
+	ui->fov = M_PI / 2;
+	ui->sun_contrast = 0;	//max 1
+	ui->direct_shadow_contrast = 0;	//max 1
+	ui->sun_dir.x = 1;
+	ui->sun_dir.y = 1;
+	ui->sun_dir.z = 1;
+	vec_normalize(&ui->sun_dir);
 
 	init_ui_state(level);
 	TTF_Init();
@@ -496,10 +530,9 @@ void	init_ui(t_window *window, t_level *level)
 	// 	ft_error("failed to lock texture\n");
 	if (SDL_LockTexture(ui_texture, NULL, (void**)&pixels, &width) != 0)
 		ft_error("failed to lock texture\n");
-	ui_render_internal(text_texture, ui_texture, window, NULL);
+	ui_render_internal(text_texture, ui_texture, window, NULL, NULL);
 	render_button_streaming(pixels, 0, 0);
 	render_slider_streaming(pixels, 0, 0);
 	render_call_streaming(pixels, 0, NULL, 0);
-	ui_render_background(pixels);
-	global_seginfo = "inint ui out\n";
+	ui_render_background(pixels, NULL, NULL, NULL);
  }

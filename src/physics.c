@@ -1,6 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   physics.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/04/10 01:23:16 by vkuikka           #+#    #+#             */
+/*   Updated: 2021/04/14 15:16:26 by vkuikka          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "doom-nukem.h"
 
-float	        cast_all(t_ray vec, t_level *level, float *dist_u, float *dist_d, int *index)
+static float	        cast_all(t_ray vec, t_level *level, float *dist_u, float *dist_d, int *index)
 {
 	float	res = FLT_MAX;
 
@@ -26,58 +38,35 @@ float	        cast_all(t_ray vec, t_level *level, float *dist_u, float *dist_d, 
 	return (res);
 }
 
-t_vec3	        player_input(int noclip, t_level *level, int in_air, t_vec3 vel)
+static void			player_input(t_level *level, t_vec3 *wishdir, float *shift)
 {
 	const Uint8		*keys = SDL_GetKeyboardState(NULL);
-	t_vec3			wishdir;
-	float			speed;
 
-	wishdir.x = 0;
-	wishdir.y = 0;
-	wishdir.z = 0;
-	if (level->ui->state.text_input_enable)
-		return (wishdir);
-	speed = 0;
-	if (keys[SDL_SCANCODE_LSHIFT] && noclip)
-		wishdir.y += 1;
-	if (keys[SDL_SCANCODE_SPACE] && (!in_air || noclip))
-		wishdir.y -= 1;
+	ft_bzero(wishdir, sizeof(t_vec3));
+	if (level->ui.state.text_input_enable)
+		return ;
 	if (keys[SDL_SCANCODE_W])
-		wishdir.z += 1;
+		wishdir->z += 1;
 	if (keys[SDL_SCANCODE_S])
-		wishdir.z -= 1;
+		wishdir->z -= 1;
 	if (keys[SDL_SCANCODE_A])
-		wishdir.x -= 1;
+		wishdir->x -= 1;
 	if (keys[SDL_SCANCODE_D])
-		wishdir.x += 1;
-
-	if (keys[SDL_SCANCODE_LEFT])	//for testing bhop
-		level->look_side -= 0.004;
+		wishdir->x += 1;
+	if (keys[SDL_SCANCODE_LEFT])
+		level->cam.look_side -= 0.004;
 	if (keys[SDL_SCANCODE_RIGHT])
-		level->look_side += 0.004;
-
-	if (wishdir.x || wishdir.z)
-	{
-		rotate_vertex(level->look_side, &wishdir, 0);
-		float length = sqrt(wishdir.x * wishdir.x + wishdir.z * wishdir.z);
-		wishdir.x /= length;
-		wishdir.z /= length;
-	}
-	if (noclip)
-		speed = NOCLIP_SPEED;
-	else
-		speed = fmax(MOVE_SPEED - (vel.x * wishdir.x + vel.z * wishdir.z), 0);
-
-	wishdir.x *= speed;
-	wishdir.z *= speed;
-	wishdir.y *= JUMP_SPEED;	//horizontal velocity does not affect vertical velocity
-
-	if (keys[SDL_SCANCODE_LSHIFT] && !noclip)
-		vec_mult(&wishdir, 0.5);
-	return (wishdir);
+		level->cam.look_side += 0.004;
+	if (keys[SDL_SCANCODE_SPACE])
+		wishdir->y -= 1;
+	if (keys[SDL_SCANCODE_LSHIFT] && level->ui.noclip)
+		wishdir->y += 1;
+	*shift = 1;
+	if (keys[SDL_SCANCODE_LSHIFT] && !level->ui.noclip)
+		*shift = .5;
 }
 
-void	        player_collision(t_vec3 *vel, t_vec3 *pos, t_level *level)
+static void	        player_collision(t_vec3 *vel, t_vec3 *pos, t_level *level)
 {
 	t_ray			r;
 	float			dist = 0;
@@ -96,202 +85,141 @@ void	        player_collision(t_vec3 *vel, t_vec3 *pos, t_level *level)
 		vec_cross(&normal, level->all.tris[index].v0v1, level->all.tris[index].v0v2);
 		vec_normalize(&normal);
 		vec_mult(&normal, vec_dot(*vel, normal));
-		t_vec3	clip;
-		vec_sub(&clip, *vel, normal);
-		vel->x = clip.x;
-		vel->y = clip.y;
-		vel->z = clip.z;
+		vec_sub(vel, *vel, normal);
 	}
 }
 
-void	        player_movement(t_vec3 *pos, t_level *level)
+static int				is_player_in_air(t_level *level)
 {
-	static t_vec3	vel = {0, 0, 0};
-	static int		noclip = TRUE;
-	static float	asd = 0;
-	t_ray			r;
-	float			dist;
-	int				in_air;
+	float	dist;
+	t_ray	r;
 
-	global_seginfo = "player_movement\n";
-	r.pos.x = pos->x;
-	r.pos.y = pos->y;
-	r.pos.z = pos->z;
+	r.pos.x = level->cam.pos.x;
+	r.pos.y = level->cam.pos.y;
+	r.pos.z = level->cam.pos.z;
 	r.dir.x = 0;
 	r.dir.y = 1;
 	r.dir.z = 0;
 	dist = cast_all(r, level, NULL, NULL, NULL);
-	if (dist > 0 && dist <= PLAYER_HEIGHT && !level->ui->noclip)
+	if (dist > 0 && dist < PLAYER_HEIGHT + .02 && !level->ui.noclip)
 	{
-		in_air = FALSE;
 		if (dist < PLAYER_HEIGHT)
-			pos->y -= PLAYER_HEIGHT - dist;
+			level->cam.pos.y -= PLAYER_HEIGHT - dist;
+		return (FALSE);
 	}
 	else
-		in_air = TRUE;
-	t_vec3 wishdir = player_input(level->ui->noclip, level, in_air, vel);
-	vel.y = fmax(fmin(vel.y, 0.5), -0.5);
+		return (TRUE);
+}
 
-	if (level->ui->noclip)
-	{
-		pos->x += wishdir.x;
-		pos->y += wishdir.y;
-		pos->z += wishdir.z;
-		vel.x = 0;
-		vel.y = 0;
-		vel.z = 0;
-		return ;
-	}
-	if (vel.x || vel.y || vel.z)
-		player_collision(&vel, pos, level);
-	pos->x += vel.x;
-	pos->y += vel.y;
-	pos->z += vel.z;
+static void	noclip(t_level *level, t_vec3 *wishdir, t_vec3 *vel, float delta_time)
+{
+	if (wishdir->x && wishdir->y && wishdir->z)
+		vec_normalize(wishdir);
+	vec_mult(wishdir, NOCLIP_SPEED);
+	level->cam.pos.x += wishdir->x * delta_time;
+	level->cam.pos.y += wishdir->y * delta_time;
+	level->cam.pos.z += wishdir->z * delta_time;
+	ft_bzero(vel, sizeof(t_vec3));
+	level->ui.horizontal_velocity = vec_length(*wishdir);
+}
 
-	if ((wishdir.x || wishdir.y || wishdir.z)) //&& sqrtf(vel.x * vel.x + vel.z * vel.z) < MAX_SPEED)
+static void	        rotate_wishdir(t_level *level, t_vec3 *wishdir, t_vec3 *vel)
+{
+	if (wishdir->x && wishdir->z)
 	{
-		vel.x += wishdir.x;
-		vel.y += wishdir.y;
-		vel.z += wishdir.z;
+		float w = sqrt(wishdir->x * wishdir->x + wishdir->z * wishdir->z);
+		wishdir->x /= w;
+		wishdir->z /= w;
 	}
-	else if (!in_air && wishdir.x == 0 && wishdir.z == 0)
-	{
-		vel.x *= 0.9;
-		vel.z *= 0.9;
-	}
+	rotate_vertex(level->cam.look_side, wishdir, 0);
+}
+
+void		vertical_movement(t_vec3 *wishdir, t_vec3 *vel, float delta_time, int in_air)
+{
 	if (in_air)
-		vel.y += 0.002;		//gravity
-	else if (vel.y > 0)
-		vel.y = 0;
-}
-
-
-float	        get_hz(void)
-{
-	static float oldTime = 0;
-	float newTime = SDL_GetTicks();
-	float dt = newTime - oldTime;
-	float fps = 1000.0f / dt;
-	oldTime = newTime;
-	return (fps);
-}
-
-float		avghz(float hz)
-{
-	struct timeval	time;
-	static long		s;
-	static int		frames;
-	static float	avghz = 0;
-	static float	tmp = 0;
-
-	frames++;
-	gettimeofday(&time, NULL);
-	tmp += hz;
-	if (s != time.tv_sec)
 	{
-		s = time.tv_sec;
-		avghz = tmp /= frames;
-		frames = 0;
-		tmp = 0;
+		wishdir->y = GRAVITY;
+		vel->y += wishdir->y * delta_time;
 	}
-	return (avghz);
-}
-
-#include <time.h>
-#include <assert.h>
-
-#if defined(_WIN32)
-
-#include <windows.h>
-
-#elif defined(__unix__) || defined(__linux) || defined(__linux__) || defined(__ANDROID__) || defined(__EPOC32__) || defined(__QNX__)
-
-#include <time.h>
-
-#elif defined(__APPLE__)
-
-#include <sys/time.h>
-
-#endif
-
-unsigned long   getTimeInNanoseconds(void) {
-#if defined(_WIN32)
-	LARGE_INTEGER freq;
-	LARGE_INTEGER count;
-	QueryPerformanceCounter(&count);
-	QueryPerformanceFrequency(&freq);
-	assert(freq.LowPart != 0 || freq.HighPart != 0);
-
-	if (count.QuadPart < MAXLONGLONG / 1000000) {
-		assert(freq.QuadPart != 0);
-		return count.QuadPart * 1000000 / freq.QuadPart;
-	} else {
-		assert(freq.QuadPart >= 1000000);
-		return count.QuadPart / (freq.QuadPart / 1000000);
-	}
-
-#elif defined(__unix__) || defined(__linux) || defined(__linux__) || defined(__ANDROID__) || defined(__QNX__)
-	struct timespec currTime;
-	clock_gettime(CLOCK_MONOTONIC, &currTime);
-	return (uint64_t)currTime.tv_sec * 1000000 + ((uint64_t)currTime.tv_nsec / 1000);
-
-#elif defined(__EPOC32__)
-	struct timespec currTime;
-	/* Symbian supports only realtime clock for clock_gettime. */
-	clock_gettime(CLOCK_REALTIME, &currTime);
-	return (uint64_t)currTime.tv_sec * 1000000 + ((uint64_t)currTime.tv_nsec / 1000);
-
-#elif defined(__APPLE__)
-	struct timeval currTime;
-	gettimeofday(&currTime, NULL);
-	return (uint64_t)currTime.tv_sec * 1000000 + (uint64_t)currTime.tv_usec;
-
-#else
-#error "Not implemented for target OS"
-#endif
-}
-
-int     	    physics(void *data_pointer)
-{
-	t_physthread	*data = data_pointer;
-	unsigned long	start;
-	unsigned long	target = 1000000 / TICKRATE;
-
-	while (1)
+	else
 	{
-		start = getTimeInNanoseconds();
-		global_seginfo = "player_movement\n";
-		player_movement(&data->pos, data->level);
-		enemies_update_physics(data->level);
-		SDL_Delay(5);
-		data->hz = avghz(get_hz());
-		while (getTimeInNanoseconds() - start < target)
-			;
+		if (vel->y > 0)
+			vel->y = 0;
+		vel->y = wishdir->y * JUMP_SPEED;
 	}
-	return (0);
 }
 
-void		physics_sync(t_level *level, t_physthread *get_data)
+void		air_movement(t_vec3 *wishdir, t_vec3 *vel, float delta_time)
 {
-	static t_physthread *data = NULL;
-
-	if (get_data)
+	if (wishdir->x || wishdir->z)
 	{
-		data = get_data;
-		return ;
+		float length = sqrt(wishdir->x * wishdir->x + wishdir->z * wishdir->z);
+		wishdir->x /= length;
+		wishdir->z /= length;
+		float speed = fmax(AIR_ACCEL - (vel->x * wishdir->x + vel->z * wishdir->z), 0);
+		wishdir->x *= speed;
+		wishdir->z *= speed;
+		vel->x += wishdir->x;
+		vel->z += wishdir->z;
 	}
-	level->pos = data->pos;
-	level->ui->physhz = data->hz;
 }
 
-void		init_physics(t_level *level)
+void		horizontal_movement(t_vec3 *wishdir, t_vec3 *vel, float delta_time, float shift)
 {
-	t_physthread	*data;
+	if (wishdir->x || wishdir->z)
+	{
+		vel->x += wishdir->x * MOVE_ACCEL * delta_time;
+		vel->z += wishdir->z * MOVE_ACCEL * delta_time;
+		float speed;
+		if ((speed = sqrtf(vel->x * vel->x + vel->z * vel->z)) > MOVE_SPEED * shift)
+		{
+			vel->x *= MOVE_SPEED * shift / speed;
+			vel->z *= MOVE_SPEED * shift / speed;
+		}
+	}
+	else
+	{
+		if (fabs(vel->x * GROUND_FRICTION * delta_time) > fabs(vel->x) ||
+			fabs(vel->z * GROUND_FRICTION * delta_time) > fabs(vel->z))
+		{
+			vel->x = 0;
+			vel->z = 0;
+		}
+		else
+		{
+			vel->x -= vel->x * GROUND_FRICTION * delta_time;
+			vel->z -= vel->z * GROUND_FRICTION * delta_time;
+		}
+	}
+}
 
-	if (!(data = (t_physthread*)malloc(sizeof(t_physthread))))
-		ft_error("memory allocation failed\n");
-	data->level = level;
-	data->pos = level->pos;
-	SDL_CreateThread(physics, "physics", (void*)data);
-	physics_sync(NULL, data);
+void	        player_movement(t_level *level)
+{
+	static t_vec3	vel = {0, 0, 0};
+	int				in_air;
+	t_vec3			wishdir;
+	float			shift;
+	float			delta_time;
+
+	delta_time = level->ui.frametime / 1000.;
+	player_input(level, &wishdir, &shift);
+	rotate_wishdir(level, &wishdir, &vel);
+	if (level->ui.noclip)
+		return (noclip(level, &wishdir, &vel, delta_time));
+	in_air = is_player_in_air(level);
+	vertical_movement(&wishdir, &vel, delta_time, in_air);
+	if (in_air || wishdir.y)
+		air_movement(&wishdir, &vel, delta_time);
+	else
+		horizontal_movement(&wishdir, &vel, delta_time, shift);
+	if (vel.x || vel.y || vel.z)
+	{
+		vec_mult(&vel, delta_time);
+		player_collision(&vel, &level->cam.pos, level);
+		level->cam.pos.x += vel.x;
+		level->cam.pos.y += vel.y;
+		level->cam.pos.z += vel.z;
+		vec_div(&vel, delta_time);
+		level->ui.horizontal_velocity = sqrt(vel.x * vel.x + vel.z * vel.z);
+	}
 }

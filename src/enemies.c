@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/14 17:08:49 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/02 20:21:26 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/10 02:44:55 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,12 +76,11 @@ void			enemies_update_sprites(t_level *level)
 	int		face;
 
 	face = 0;
-	global_seginfo = "enemies\n";
 	while (face < level->all.tri_amount)
 	{
 		if (level->all.tris[face].isenemy)
 		{
-			turn_sprite(&level->all.tris[face], level->pos);
+			turn_sprite(&level->all.tris[face], level->cam.pos);
 			//get sprite texture from enemy rotation
 		}
 		face++;

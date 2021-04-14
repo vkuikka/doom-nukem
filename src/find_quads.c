@@ -61,29 +61,25 @@ void	set_mirror_dir(t_tri *a, int not_shared_vertex_index)
 
 	if (not_shared_vertex_index == 1)
 	{
-		vec_copy(&tmp, a->verts[0].pos);
-		vec_copy(&a->verts[0].pos, a->verts[1].pos);
-		vec_copy(&a->verts[1].pos, a->verts[2].pos);
-		vec_copy(&a->verts[2].pos, tmp);
-		v2tmp.x = tmp.x;
-		v2tmp.y = tmp.y;
-		vec2_copy(&v2tmp, a->verts[0].txtr);
-		vec2_copy(&a->verts[0].txtr, a->verts[1].txtr);
-		vec2_copy(&a->verts[1].txtr, a->verts[2].txtr);
-		vec2_copy(&a->verts[2].txtr, v2tmp);
+		tmp = a->verts[0].pos;
+		a->verts[0].pos = a->verts[1].pos;
+		a->verts[1].pos = a->verts[2].pos;
+		a->verts[2].pos = tmp;
+		v2tmp = a->verts[0].txtr;
+		a->verts[0].txtr = a->verts[1].txtr;
+		a->verts[1].txtr = a->verts[2].txtr;
+		a->verts[2].txtr = v2tmp;
 	}
 	else if (not_shared_vertex_index == 2)
 	{
-		vec_copy(&tmp, a->verts[0].pos);
-		vec_copy(&a->verts[0].pos, a->verts[2].pos);
-		vec_copy(&a->verts[2].pos, a->verts[1].pos);
-		vec_copy(&a->verts[1].pos, tmp);
-		v2tmp.x = tmp.x;
-		v2tmp.y = tmp.y;
-		vec2_copy(&v2tmp, a->verts[0].txtr);
-		vec2_copy(&a->verts[0].txtr, a->verts[2].txtr);
-		vec2_copy(&a->verts[2].txtr, a->verts[1].txtr);
-		vec2_copy(&a->verts[1].txtr, v2tmp);
+		tmp = a->verts[0].pos;
+		a->verts[0].pos = a->verts[2].pos;
+		a->verts[2].pos = a->verts[1].pos;
+		a->verts[1].pos = tmp;
+		v2tmp = a->verts[0].txtr;
+		a->verts[0].txtr = a->verts[2].txtr;
+		a->verts[2].txtr = a->verts[1].txtr;
+		a->verts[1].txtr = v2tmp;
 	}
 	vec_sub(&a->v0v2, a->verts[1].pos, a->verts[0].pos);
 	vec_sub(&a->v0v1, a->verts[2].pos, a->verts[0].pos);

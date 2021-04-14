@@ -155,9 +155,9 @@ void	make_fileopen_call(t_level *level, char *file)
 {
 	char absolute_filename[PATH_MAX + NAME_MAX];
 
-	ft_strcpy(absolute_filename, level->ui->state.directory);
+	ft_strcpy(absolute_filename, level->ui.state.directory);
 	go_in_dir(absolute_filename, file);
-	level->ui->state.open_file(level, absolute_filename);
+	level->ui.state.open_file(level, absolute_filename);
 }
 
 void	path_up_dir(char *path)
@@ -180,7 +180,7 @@ void	path_up_dir(char *path)
 #ifdef __APPLE__
 void	ui_render_directory_loopdir(t_level *level, int find_dir, char *extension, int find)
 {
-	DIR *dir = opendir(level->ui->state.directory);
+	DIR *dir = opendir(level->ui.state.directory);
 
 	if (!dir)
 		ft_error("Cannot open directory\n");
@@ -198,7 +198,7 @@ void	ui_render_directory_loopdir(t_level *level, int find_dir, char *extension, 
 				if (type == DT_REG && call(ent->d_name, NULL, level))
 					make_fileopen_call(level, ent->d_name);
 				else if (type == DT_DIR && call(ent->d_name, NULL, level))
-					go_in_dir(level->ui->state.directory, ent->d_name);
+					go_in_dir(level->ui.state.directory, ent->d_name);
 			}
 	}
 	closedir(dir);
@@ -211,7 +211,7 @@ void	ui_render_directory_loopdir(t_level *level, int find_dir, char *extension, 
 	HANDLE			dir;
 	char			*dirname;
 
-	dirname = ft_strjoin(level->ui->state.directory, "\\*");
+	dirname = ft_strjoin(level->ui.state.directory, "\\*");
 	dir = FindFirstFile(dirname, &data);
 	if (dir == INVALID_HANDLE_VALUE)
 		ft_error("Cannot open directory\n");
@@ -219,20 +219,20 @@ void	ui_render_directory_loopdir(t_level *level, int find_dir, char *extension, 
 	{
 		if (data.cFileName[0] != '.')
 			if (find_dir && data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY && call(data.cFileName, NULL, level))
-				go_in_dir(level->ui->state.directory, data.cFileName);
+				go_in_dir(level->ui.state.directory, data.cFileName);
 			else if (!find_dir)
 				if (find_ext && ft_strlen(data.cFileName) > ft_strlen(extension) &&
 				!ft_strcmp(extension, &data.cFileName[ft_strlen(data.cFileName) - ft_strlen(extension)]) &&
 				call(data.cFileName, NULL, level))
 				{
-					if (level->ui->state.is_directory_open)
+					if (level->ui.state.is_directory_open)
 						make_fileopen_call(level, data.cFileName);
 				}
 				else if (!find_ext && ft_strlen(data.cFileName) > ft_strlen(extension) &&
 				ft_strcmp(extension, &data.cFileName[ft_strlen(data.cFileName) - ft_strlen(extension)]) &&
 				call(data.cFileName, NULL, level))
 				{
-					if (level->ui->state.is_directory_open)
+					if (level->ui.state.is_directory_open)
 						make_fileopen_call(level, data.cFileName);
 				}
 	}
@@ -244,29 +244,29 @@ void	ui_render_directory_loopdir(t_level *level, int find_dir, char *extension, 
 void	ui_render_directory(t_level *level)
 {
 	set_text_color(UI_FACE_SELECTION_TEXT_COLOR);
-	text(level->ui->state.directory);
+	text(level->ui.state.directory);
 	if (call("close", NULL, level))
 	{
-		level->ui->state.is_serialize_open = FALSE;
-		level->ui->state.is_directory_open = FALSE;
+		level->ui.state.is_serialize_open = FALSE;
+		level->ui.state.is_directory_open = FALSE;
 	}
 	if (call("up dir ..", NULL, level))
-		path_up_dir(level->ui->state.directory);
+		path_up_dir(level->ui.state.directory);
 	set_text_color(UI_EDITOR_SETTINGS_TEXT_COLOR);
 	ui_render_directory_loopdir(level, 1, NULL, 0);
 	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
-	ui_render_directory_loopdir(level, 0, level->ui->state.extension, 1);
+	ui_render_directory_loopdir(level, 0, level->ui.state.extension, 1);
 	set_text_color(UI_INFO_TEXT_COLOR);
-	ui_render_directory_loopdir(level, 0, level->ui->state.extension, 0);
+	ui_render_directory_loopdir(level, 0, level->ui.state.extension, 0);
 	set_text_color(UI_FACE_SELECTION_TEXT_COLOR);
-	if (level->ui->state.is_serialize_open)
+	if (level->ui.state.is_serialize_open)
 	{
-		text_input(level->ui->state.save_filename, level);
+		text_input(level->ui.state.save_filename, level);
 		if (call("save", NULL, level))
 		{
 			save_level(level);
-			level->ui->state.is_serialize_open = FALSE;
-			level->ui->state.is_directory_open = FALSE;
+			level->ui.state.is_serialize_open = FALSE;
+			level->ui.state.is_directory_open = FALSE;
 		}
 	}
 }
@@ -276,13 +276,13 @@ void	ui_config(t_level *level)
 	char				 buf[100];
 	t_editor_ui			*ui;
 
-	ui = level->ui;
-	if (level->ui->state.is_serialize_open || level->ui->state.is_directory_open)
+	ui = &level->ui;
+	if (level->ui.state.is_serialize_open || level->ui.state.is_directory_open)
 	{
 		ui_render_directory(level);
 		return ;
 	}
-	if (level->ui->state.is_uv_editor_open)
+	if (level->ui.state.is_uv_editor_open)
 	{
 		set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
 		call("close uv editor", &disable_uv_editor, level);
@@ -304,6 +304,7 @@ void	ui_config(t_level *level)
 		button(&ui->show_quads, "quad visualize");
 		button(&ui->wireframe_culling_visual, "culling visualize");
 	}
+	button(&ui->state.ssp_visual, "ssp visualize");
 	// button(, "face/vert selection");
 
 	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
@@ -319,7 +320,7 @@ void	ui_config(t_level *level)
 	// call(, "spawn enemy");
 	// call(, "remove enemies");
 	// button(&ui->pause_culling_position, "\tpause");
-	button(&ui->backface_culling, "backface culling");
+	button(&ui->backface_culling, "backface & occlusion culling");
 	button(&ui->distance_culling, "distance culling");
 	sprintf(buf, "render distance: %.1fm", ui->render_distance);
 	float_slider(&ui->render_distance, buf, 2, 50);
@@ -331,21 +332,17 @@ void	ui_config(t_level *level)
 	float_slider(&ui->sun_dir.x, NULL, -1, 1);
 	float_slider(&ui->sun_dir.y, NULL, -1, 1);
 	float_slider(&ui->sun_dir.z, NULL, -1, 1);
-	vec_normalize(&level->ui->sun_dir);
+	vec_normalize(&ui->sun_dir);
 	file_save("save level", ".doom-nukem", NULL);
 
 	set_text_color(UI_INFO_TEXT_COLOR);
 	sprintf(buf, "fps:               %d",  get_fps());
 	text(buf);
-	sprintf(buf, "tickrate:      %.1fhz",  ui->physhz);
-	text(buf);
 	sprintf(buf, "frametime: %ums",  ui->frametime);
 	text(buf);
 	sprintf(buf, "faces:           %d / %d", level->all.tri_amount, level->visible.tri_amount);
 	text(buf);
-	sprintf(buf, "faces left:    %d", level->ssp[0].tri_amount);
-	text(buf);
-	sprintf(buf, "faces right:  %d",  level->ssp[1].tri_amount);
+	sprintf(buf, "xz velocity:  %.2fms", level->ui.horizontal_velocity);
 	text(buf);
 
 	set_text_color(UI_FACE_SELECTION_TEXT_COLOR);
