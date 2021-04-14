@@ -179,8 +179,17 @@ void		horizontal_movement(t_vec3 *wishdir, t_vec3 *vel, float delta_time, float 
 	}
 	else
 	{
-		vel->x -= vel->x * GROUND_FRICTION * delta_time;
-		vel->z -= vel->z * GROUND_FRICTION * delta_time;
+		if (fabs(vel->x * GROUND_FRICTION * delta_time) > fabs(vel->x) ||
+			fabs(vel->z * GROUND_FRICTION * delta_time) > fabs(vel->z))
+		{
+			vel->x = 0;
+			vel->z = 0;
+		}
+		else
+		{
+			vel->x -= vel->x * GROUND_FRICTION * delta_time;
+			vel->z -= vel->z * GROUND_FRICTION * delta_time;
+		}
 	}
 }
 
@@ -211,6 +220,6 @@ void	        player_movement(t_level *level)
 		level->cam.pos.y += vel.y;
 		level->cam.pos.z += vel.z;
 		vec_div(&vel, delta_time);
+		level->ui.horizontal_velocity = sqrt(vel.x * vel.x + vel.z * vel.z);
 	}
-	level->ui.horizontal_velocity = sqrt(vel.x * vel.x + vel.z * vel.z);
 }
