@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/10 01:23:16 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/10 02:44:34 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/14 05:08:17 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,11 +85,7 @@ static void	        player_collision(t_vec3 *vel, t_vec3 *pos, t_level *level)
 		vec_cross(&normal, level->all.tris[index].v0v1, level->all.tris[index].v0v2);
 		vec_normalize(&normal);
 		vec_mult(&normal, vec_dot(*vel, normal));
-		t_vec3	clip;
-		vec_sub(&clip, *vel, normal);
-		vel->x = clip.x;
-		vel->y = clip.y;
-		vel->z = clip.z;
+		vec_sub(vel, *vel, normal);
 	}
 }
 
@@ -168,18 +164,18 @@ void		horizontal_movement(t_vec3 *wishdir, t_vec3 *vel, float delta_time, float 
 {
 	if (wishdir->x || wishdir->z)
 	{
-		vel->x += wishdir->x * delta_time;
-		vel->z += wishdir->z * delta_time;
-		float len = sqrt(vel->x * vel->x + vel->z * vel->z);
-		if (len * 100 > MOVE_SPEED * shift)
+		vel->x += wishdir->x * MOVE_ACCEL * delta_time;
+		vel->z += wishdir->z * MOVE_ACCEL * delta_time;
+		float speed;
+		if ((speed = sqrtf(vel->x * vel->x + vel->z * vel->z)) > MOVE_SPEED)
 		{
-			vel->x *= GROUND_FRICTION;
-			vel->z *= GROUND_FRICTION;
+			vel->x *= MOVE_SPEED / speed;
+			vel->z *= MOVE_SPEED / speed;
 		}
 	}
 	else
 	{
-		vel->x *= GROUND_FRICTION;
+		vel->x *= GROUND_FRICTION;	//fix
 		vel->z *= GROUND_FRICTION;
 	}
 }
@@ -191,6 +187,7 @@ void	        player_movement(t_level *level)
 	t_vec3			wishdir;
 	float			shift;
 	float			delta_time;
+	t_vec3			delta_pos;
 
 	delta_time = level->ui.frametime / 1000.;
 	player_input(level, &wishdir, &shift);
@@ -203,9 +200,11 @@ void	        player_movement(t_level *level)
 		air_movement(&wishdir, &vel, delta_time);
 	else
 		horizontal_movement(&wishdir, &vel, delta_time, shift);
-	player_collision(&vel, &level->cam.pos, level);
-	level->cam.pos.x += vel.x;
-	level->cam.pos.y += vel.y;
-	level->cam.pos.z += vel.z;
-	level->ui.horizontal_velocity = sqrt(vel.x * vel.x + vel.z * vel.z) * 100;
+	delta_pos = vel;
+	vec_mult(&delta_pos, delta_time);
+	player_collision(&delta_pos, &level->cam.pos, level);
+	level->cam.pos.x += delta_pos.x;
+	level->cam.pos.y += delta_pos.y;
+	level->cam.pos.z += delta_pos.z;
+	level->ui.horizontal_velocity = vec_length(vel);
 }
