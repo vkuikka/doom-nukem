@@ -119,19 +119,24 @@ void	ui_config_selected_faces(t_level *level)
 
 void	set_obj(t_level *level, char *filename)
 {
-	//free obj
+	free(level->all.tris);
+	free(level->visible.tris);
 	load_obj(filename, &level->all);
+	if (!(level->visible.tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount)))
+		ft_error("memory allocation failed\n");
+	init_screen_space_partition(level);
+	init_reflection_culling(level);
 }
 
 void	set_texture(t_level *level, char *filename)
 {
-	//free texture
+	free(level->texture.image);
 	level->texture = bmp_read(filename);
 }
 
 void	set_skybox(t_level *level, char *filename)
 {
-	//free skybox
+	free(level->sky.img.image);
 	level->sky.img = bmp_read(filename);
 }
 

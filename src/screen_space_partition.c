@@ -211,6 +211,12 @@ void		screen_space_partition(t_level *level)
 
 void		init_screen_space_partition(t_level *level)
 {
+	if (level->ssp)
+	{
+		for (int i = 0; i < SSP_MAX_X * SSP_MAX_Y; i++)
+			free(level->ssp[i].tris);
+		free(level->ssp);
+	}
 	if (!(level->ssp = (t_obj*)malloc(sizeof(t_obj) * SSP_MAX_X * SSP_MAX_Y)))
 		ft_error("memory allocation failed");
 	for (int i = 0; i < SSP_MAX_X * SSP_MAX_Y; i++)
