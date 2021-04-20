@@ -190,6 +190,22 @@ static void		calculate_corner_vectors(t_vec3 corner[4], t_camera *cam)
 	corner[3].z = cam->front.z + cam->up.z * ym + cam->side.z * xm;
 }
 
+static void		skybox_culling(t_level *level, t_camera *cam, t_vec3 side_normals[4])
+{
+	int visible_amount;
+
+	visible_amount = 0;
+	for (int i = 0; i < level->sky.all.tri_amount; i++)
+	{
+		if (cull_behind(cam->front, (t_vec3){0, 0, 0}, level->sky.all.tris[i]) && fov_culling(side_normals, (t_vec3){0, 0, 0}, level->sky.all.tris[i]))
+		{
+			level->sky.visible.tris[visible_amount] = level->sky.all.tris[i];
+			visible_amount++;
+		}
+	}
+	level->sky.visible.tri_amount = visible_amount;
+}
+
 void			culling(t_level *level)
 {
 	t_vec3		corner[4];
@@ -199,6 +215,7 @@ void			culling(t_level *level)
 	cam = &level->cam;
 	calculate_corner_vectors(corner, cam);
 	calculate_side_normals(side_normals, corner);
+	skybox_culling(level, cam, side_normals);
 	int visible_amount = 0;
 	for (int i = 0; i < level->all.tri_amount; i++)
 	{

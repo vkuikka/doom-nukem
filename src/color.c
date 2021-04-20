@@ -28,7 +28,7 @@ unsigned	crossfade(unsigned color1, unsigned color2, unsigned fade)
 	return ((newr << 8 * 3) + (newg << 8 * 2) + (newb << 8 * 1) + 0xff);
 }
 
-int			skybox(t_skybox *skybox, t_ray r)
+int			skybox(t_bmp *img, t_obj *obj, t_ray r)
 {
 	t_cast_result	res;
 
@@ -36,10 +36,10 @@ int			skybox(t_skybox *skybox, t_ray r)
 	r.pos.x = 0;
 	r.pos.y = 0;
 	r.pos.z = 0;
-	res.texture = &skybox->img;
-	for (int i = 0; i < skybox->obj.tri_amount; i++)
+	res.texture = img;
+	for (int i = 0; i < obj->tri_amount; i++)
 	{
-		cast_face(skybox->obj.tris[i], r, &res);
+		cast_face(obj->tris[i], r, &res);
 		if (res.dist > 0 && res.color)
 			return (res.color);
 	}

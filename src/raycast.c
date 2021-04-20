@@ -96,7 +96,6 @@ void			cast_all_color(t_ray r, t_level *l, t_obj *obj, t_cast_result *res)
 	int				new_hit;
 	int				color;
 	int				i;
-	int				last_hit;
 
 	dist = FLT_MAX;
 	res->dist = FLT_MAX;
@@ -115,7 +114,7 @@ void			cast_all_color(t_ray r, t_level *l, t_obj *obj, t_cast_result *res)
 	}
 	res->dist = dist;
 	if (new_hit == -1)
-		res->color = skybox(&l->sky, r);
+		res->color = skybox(&l->sky.img, res->reflection_depth ? &l->sky.all : &l->sky.visible, r);
 	else
 	{
 		res->face_index = new_hit;
