@@ -6,13 +6,13 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/20 17:50:56 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/10 02:41:53 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/20 16:04:26 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom-nukem.h"
 
-static int		cull_behind(t_vec3 dir, t_vec3 pos, t_tri tri)
+int				cull_behind(t_vec3 dir, t_vec3 pos, t_tri tri)
 {
 	t_vec3	vert;
 	int		i;

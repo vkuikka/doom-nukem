@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/31 18:32:46 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/10 20:51:20 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/18 17:14:22 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ static void	raycast_face_selection(t_ray vec, t_level *level)
 	dist = FLT_MAX;
 	while (i < level->all.tri_amount)
 	{
-		tmp = cast_face(level->all.tris[i], vec, NULL, NULL);
+		tmp = cast_face(level->all.tris[i], vec, NULL);
 		if (tmp > 0 && tmp < dist)
 		{
 			dist = tmp;

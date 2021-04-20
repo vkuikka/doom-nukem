@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/10 01:23:16 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/14 15:16:26 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/18 13:12:46 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ static float	        cast_all(t_ray vec, t_level *level, float *dist_u, float *d
 	for (int i = 0; i < level->all.tri_amount; i++)
 	{
 		float tmp;
-		tmp = cast_face(level->all.tris[i], vec, NULL, NULL);
+		tmp = cast_face(level->all.tris[i], vec, NULL);
 		if (dist_u != NULL)
 		{
 			if (tmp > 0 && tmp < *dist_d)
