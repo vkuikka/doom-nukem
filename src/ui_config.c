@@ -119,6 +119,7 @@ void	ui_config_selected_faces(t_level *level)
 
 void	set_obj(t_level *level, char *filename)
 {
+	free_reflection_culling(level);
 	free(level->all.tris);
 	free(level->visible.tris);
 	load_obj(filename, &level->all);

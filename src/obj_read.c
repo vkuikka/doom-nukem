@@ -246,6 +246,7 @@ void	load_obj(char *filename, t_obj *obj)
 	{
 		if (!ft_strncmp(file[i], "f ", 2))
 		{
+			ft_bzero(&obj->tris[j], sizeof(t_tri));
 			set_tri(file[i], verts, uvs, obj, j);
 			obj->tris[j].isquad = 0;
 			obj->tris[j].isenemy = 0;
