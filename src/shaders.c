@@ -63,7 +63,7 @@ void		reflection(t_cast_result *res, t_level *l, t_obj *obj)
 	normal.dir = res->normal;
 	vec_mult(&normal.dir, vec_dot(reflection.ray.dir, normal.dir) * -2);
 	vec_add(&reflection.ray.dir, reflection.ray.dir, normal.dir);
-	cast_all_color(reflection.ray, l, &l->all, &reflection);
+	cast_all_color(reflection.ray, l, obj, &reflection);
 	res->color = crossfade((unsigned)res->color >> 8, reflection.color >> 8, l->all.tris[res->face_index].reflectivity * 0xff);
 }
 

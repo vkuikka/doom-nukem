@@ -73,7 +73,7 @@ int		occlusion_culling(t_tri tri, t_level *level)
 {
 	for (int i = 0; i < level->visible.tri_amount; i++)
 		if (is_bface_in_aface(level->visible.tris[i], tri, level))
-			if (normal_plane_culling(tri, &level->visible.tris[i].verts[0].pos, &level->visible.tris[i].normal))
+			if (cull_ahead(level->visible.tris[i].normal, level->visible.tris[i].verts[0].pos, tri))
 				return (0);
 	return (1);
 } 
