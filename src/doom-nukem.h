@@ -158,7 +158,8 @@ typedef struct			s_obj
 typedef struct			s_skybox
 {
 	struct s_bmp		img;
-	struct s_obj		obj;
+	struct s_obj		all;
+	struct s_obj		visible;
 }						t_skybox;
 
 typedef struct			s_camera
@@ -363,7 +364,7 @@ void		enemies_update_physics(t_level *level);
 void		enemies_update_sprites(t_level *level);
 
 int			fog(int color, float dist, unsigned fog_color, t_level *level);
-int			skybox(t_skybox *skybox, t_ray r);
+int			skybox(t_bmp *img, t_obj *obj, t_ray r);
 
 void		opacity(t_cast_result *res, t_level *l, t_obj *obj);
 void		shadow(t_level *l, t_vec3 normal, t_cast_result *res);

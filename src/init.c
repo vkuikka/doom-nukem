@@ -50,7 +50,8 @@ void			init_level(t_level **res)
 	// load_obj("level/teapot_decimated.obj", &level->all);
 
 	level->texture = bmp_read("out.bmp");
-	load_obj("skybox.obj", &level->sky.obj);
+	load_obj("skybox.obj", &level->sky.all);
+	load_obj("skybox.obj", &level->sky.visible);
 	level->sky.img = bmp_read("skybox.bmp");
 
 	if (!(level->visible.tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount)))
