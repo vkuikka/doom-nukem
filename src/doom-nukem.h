@@ -139,6 +139,8 @@ typedef struct			s_tri
 	int					isquad;
 	int					isgrid;
 	int					isenemy;
+	int					disable_distance_culling;
+	int					disable_backface_culling;
 	float				opacity;
 	float				reflectivity;
 	int					shader;
@@ -151,8 +153,6 @@ typedef struct			s_obj
 {
 	struct s_tri		*tris;		//array of triangles that make the object
 	int					tri_amount;	//amount of triangles
-	int					*backface_culling_mask;
-	int					*distance_culling_mask;
 }						t_obj;
 
 typedef struct			s_skybox

@@ -57,6 +57,8 @@ void	copy_tri_settings(t_tri *a, t_tri *b)
 	a->isgrid = b->isgrid;
 	a->opacity = b->opacity;
 	a->reflectivity = b->reflectivity;
+	a->disable_distance_culling = b->disable_distance_culling;
+	a->disable_backface_culling = b->disable_backface_culling;
 }
 
 void	ui_config_selected_faces(t_level *level)
@@ -95,6 +97,8 @@ void	ui_config_selected_faces(t_level *level)
 				button(&level->all.tris[i].isgrid, "grid");
 				button(&level->all.tris[i].isenemy, "enemy");
 				button(&level->all.tris[i].shader, "water");
+				button(&level->all.tris[i].disable_distance_culling, "distance culling");
+				button(&level->all.tris[i].disable_backface_culling, "backface culling");
 				// call("flip normal");
 				// call("set animation start");
 				// call("set animation stop");

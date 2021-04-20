@@ -237,12 +237,6 @@ void	load_obj(char *filename, t_obj *obj)
 	printf("faces = %d\n", tri_amount);
 	if (!(obj->tris = (t_tri *)malloc(sizeof(t_tri) * tri_amount)))
 		ft_error("memory allocation failed\n");
-	if (!(obj->distance_culling_mask = (int*)malloc(sizeof(int) * tri_amount)))
-		ft_error("memory allocation failed\n");
-	ft_memset(obj->distance_culling_mask, 0, tri_amount * sizeof(int));
-	if (!(obj->backface_culling_mask = (int*)malloc(sizeof(int) * tri_amount)))
-		ft_error("memory allocation failed\n");
-	ft_memset(obj->backface_culling_mask, 0, tri_amount * sizeof(int));
 	obj->tri_amount = tri_amount;
 	t_vec3 *verts = load_verts(file);
 	t_vec2 *uvs = load_uvs(file);
