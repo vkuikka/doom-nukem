@@ -144,6 +144,7 @@ typedef struct			s_tri
 	float				opacity;
 	float				reflectivity;
 	int					shader;
+	struct s_obj		*reflection_obj;
 	// int					breakable;
 	// int					broken;
 	// int					*reflection_culling_mask;
@@ -337,7 +338,9 @@ t_bmp		bmp_read(char *str);
 
 void		culling(t_level *level);
 int			occlusion_culling(t_tri tri, t_level *level);
-int			normal_plane_culling(t_tri tri, t_vec3 *pos, t_vec3 *dir);
+void		init_reflection_culling(t_level *level);
+void		reflection_culling(t_level *level, int i);
+void		free_reflection_culling(t_level *level);
 void		find_quads(t_obj *obj);
 
 void		rotate_vertex(float angle, t_vec3 *vertex, int axis);
@@ -380,5 +383,6 @@ void		open_level(t_level *level, char *filename);
 
 void		cast_all_color(t_ray r, t_level *l, t_obj *obj, t_cast_result *res);
 int			cull_behind(t_vec3 dir, t_vec3 pos, t_tri tri);
+int			cull_ahead(t_vec3 dir, t_vec3 pos, t_tri tri);
 
 #endif
