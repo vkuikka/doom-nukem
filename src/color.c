@@ -176,10 +176,6 @@ void		face_color(float u, float v, t_tri t, t_cast_result *res)
 	float	w;
 
 	w = 1 - u - v;
-	// if (level->ui->show_quads)
-	// 	return((((int)(u * 255) & 0xff) << 24) +
-	// 			(((int)(v * 255) & 0xff) << 16) +
-	//  		(((int)(w * 255) & 0xff) << 8) + 0xff);
 	x =	((t.verts[0].txtr.x * res->texture->width * w +
 			t.verts[1].txtr.x * res->texture->width * v +
 			t.verts[2].txtr.x * res->texture->width * u) / (float)(u + v + w));
@@ -196,41 +192,5 @@ void		face_color(float u, float v, t_tri t, t_cast_result *res)
 	else if (x < 0)
 		x = -x % res->texture->width;
 	res->color = res->texture->image[x + (y * res->texture->width)];
-	// res->normal = get_normal(res->texture->image[x + (y * res->texture->width)]);
+	// res->normal = get_normal(res->normal_map->image[x + (y * res->texture->width)]);
 }
-
-	//	following is code for showing uv map usage on screen
-
-	// 	line[0] = t.verts[0].txtr[0] * RES_Y;
-	// 	line[1] = t.verts[0].txtr[1] * RES_Y;
-	// 	line[2] = t.verts[1].txtr[0] * RES_Y;
-	// 	line[3] = t.verts[1].txtr[1] * RES_Y;
-	// 	ft_draw_line(line, frame, 0xffffffff);
-	// 	line[0] = t.verts[0].txtr[0] * RES_Y;
-	// 	line[1] = t.verts[0].txtr[1] * RES_Y;
-	// 	line[2] = t.verts[2].txtr[0] * RES_Y;
-	// 	line[3] = t.verts[2].txtr[1] * RES_Y;
-	// 	ft_draw_line(line, frame, 0xffffffff);
-	// 	line[0] = t.verts[1].txtr[0] * RES_Y;
-	// 	line[1] = t.verts[1].txtr[1] * RES_Y;
-	// 	line[2] = t.verts[2].txtr[0] * RES_Y;
-	// 	line[3] = t.verts[2].txtr[1] * RES_Y;
-	// 	ft_draw_line(line, frame, 0xffffffff);
-
-	// 	line[0] = t.verts[0].txtr[0] * RES_Y;
-	// 	line[1] = t.verts[0].txtr[1] * RES_Y;
-	// 	line[2] = (int)(res[0] / img->width * RES_Y);
-	// 	line[3] = (int)(res[1] / img->height * RES_Y);
-	// 	ft_draw_line(line, frame, 0xffffffff);
-
-
-	// 	line[0] = (int)(line1start[0] / img->width * RES_Y);
-	// 	line[1] = (int)(line1start[1] / img->height * RES_Y);
-	// 	line[2] = (int)(line1end[0] / img->height * RES_Y);
-	// 	line[3] = (int)(line1end[1] / img->height * RES_Y);
-	// 	ft_draw_line(line, frame, 0xffffffff);
-	// 	line[0] = (int)(line2start[0] / img->width * RES_Y);
-	// 	line[1] = (int)(line2start[1] / img->height * RES_Y);
-	// 	line[2] = (int)(line2end[0] / img->width * RES_Y);
-	// 	line[3] = (int)(line2end[1] / img->height * RES_Y);
-	// 	ft_draw_line(line, frame, 0xffffffff);

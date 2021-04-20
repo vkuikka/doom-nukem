@@ -15,12 +15,9 @@
 void		opacity(t_cast_result *res, t_level *l, t_obj *obj)
 {
 	t_cast_result	transparent;
-	int				i;
 
-	i = 0;
 	transparent = *res;
 	transparent.face_index = res->face_index;
-	vec_normalize(&transparent.ray.dir);	//prob useless
 	cast_all_color(transparent.ray, l, obj, &transparent);
 	res->color = crossfade((unsigned)res->color >> 8, transparent.color >> 8, l->all.tris[res->face_index].opacity * 0xff);
 }
@@ -59,23 +56,14 @@ void		shadow(t_level *l, t_vec3 normal, t_cast_result *res)
 void		reflection(t_cast_result *res, t_level *l, t_obj *obj)
 {
 	t_cast_result	reflection;
-	t_obj			*ref_obj;
 	t_ray			normal;
 
-	// ref_obj = obj;
-	ref_obj = obj;
 	reflection = *res;
-	vec_normalize(&reflection.ray.dir);	//prob useless
-
 	normal.pos = res->ray.pos;
 	normal.dir = res->normal;
 	vec_mult(&normal.dir, vec_dot(reflection.ray.dir, normal.dir) * -2);
 	vec_add(&reflection.ray.dir, reflection.ray.dir, normal.dir);
-	vec_normalize(&reflection.ray.dir);	//prob useless
-	// vec now reflected
-
-	reflection.face_index = res->face_index;
-	cast_all_color(reflection.ray, l, ref_obj, &reflection);
+	cast_all_color(reflection.ray, l, &l->all, &reflection);
 	res->color = crossfade((unsigned)res->color >> 8, reflection.color >> 8, l->all.tris[res->face_index].reflectivity * 0xff);
 }
 
