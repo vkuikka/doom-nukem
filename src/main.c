@@ -166,6 +166,8 @@ int			main(int argc, char **argv)
 	init_window(&window);
 	init_ui(window, level);
 	init_screen_space_partition(level);
+	for (int i = 0; i < level->all.tri_amount; i++)
+		level->all.tris[i].index = i;
 	while (1)
 	{
 		frametime = SDL_GetTicks();

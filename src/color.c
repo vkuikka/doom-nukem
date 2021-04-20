@@ -28,22 +28,22 @@ unsigned	crossfade(unsigned color1, unsigned color2, unsigned fade)
 	return ((newr << 8 * 3) + (newg << 8 * 2) + (newb << 8 * 1) + 0xff);
 }
 
-int			skybox(t_level l, t_ray r)
+int			skybox(t_skybox *skybox, t_ray r)
 {
-	int		color;
-	float	dist;
+	t_cast_result	res;
 
-	color = 0;
+	res.color = 0;
 	r.pos.x = 0;
 	r.pos.y = 0;
 	r.pos.z = 0;
-	for (int i = 0; i < l.sky.obj.tri_amount; i++)
+	res.texture = &skybox->img;
+	for (int i = 0; i < skybox->obj.tri_amount; i++)
 	{
-		dist = cast_face(l.sky.obj.tris[i] , r, &color, &l.sky.img);
-		if (dist > 0 && color)
-			return (color);
+		cast_face(skybox->obj.tris[i], r, &res);
+		if (res.dist > 0 && res.color)
+			return (res.color);
 	}
-	return (color);
+	return (res.color);
 }
 
 int			fog(int color, float dist, unsigned fog_color, t_level *level)
@@ -157,7 +157,19 @@ void		fill_pixels(unsigned *grid, int gap, int blur, int smooth)
 	}
 }
 
-int		face_color(float u, float v, t_tri t, t_bmp *img)
+// t_vec3		get_normal(int vec)
+// {
+// 	unsigned char	*v;
+// 	t_vec3	dir;
+
+// 	v = (unsigned char*)&vec;
+// 	dir.x = v[2];
+// 	dir.y = v[1];
+// 	dir.z = v[0];
+// 	return (dir);
+// }
+
+void		face_color(float u, float v, t_tri t, t_cast_result *res)
 {
 	int		x;
 	int 	y;
@@ -168,22 +180,23 @@ int		face_color(float u, float v, t_tri t, t_bmp *img)
 	// 	return((((int)(u * 255) & 0xff) << 24) +
 	// 			(((int)(v * 255) & 0xff) << 16) +
 	//  		(((int)(w * 255) & 0xff) << 8) + 0xff);
-	x =	((t.verts[0].txtr.x * img->width * w +
-			t.verts[1].txtr.x * img->width * v +
-			t.verts[2].txtr.x * img->width * u) / (float)(u + v + w));
-	y =	((t.verts[0].txtr.y * img->height * w +
-			t.verts[1].txtr.y * img->height * v +
-			t.verts[2].txtr.y * img->height * u) / (float)(u + v + w));
-	if (y >= img->height)
-		y = y % img->height;
+	x =	((t.verts[0].txtr.x * res->texture->width * w +
+			t.verts[1].txtr.x * res->texture->width * v +
+			t.verts[2].txtr.x * res->texture->width * u) / (float)(u + v + w));
+	y =	((t.verts[0].txtr.y * res->texture->height * w +
+			t.verts[1].txtr.y * res->texture->height * v +
+			t.verts[2].txtr.y * res->texture->height * u) / (float)(u + v + w));
+	if (y >= res->texture->height)
+		y = y % res->texture->height;
 	else if (y < 0)
-		y = -y % img->height;
-	y = img->height - y - 1;
-	if (x >= img->width)
-		x = x % img->width;
+		y = -y % res->texture->height;
+	y = res->texture->height - y - 1;
+	if (x >= res->texture->width)
+		x = x % res->texture->width;
 	else if (x < 0)
-		x = -x % img->width;
-	return (img->image[x + (y * img->width)]);
+		x = -x % res->texture->width;
+	res->color = res->texture->image[x + (y * res->texture->width)];
+	// res->normal = get_normal(res->texture->image[x + (y * res->texture->width)]);
 }
 
 	//	following is code for showing uv map usage on screen
