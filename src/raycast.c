@@ -121,8 +121,7 @@ void			cast_all_color(t_ray r, t_level *l, t_obj *obj, t_cast_result *res)
 		res->face_index = new_hit;
 		res->color = color;
 		vec_mult(&r.dir, dist);
-		vec_add(&r.pos, r.pos, r.dir);//cast vector position now at hit point
-		vec_div(&r.dir, dist);	//prob useless normalization
+		vec_add(&r.pos, r.pos, r.dir);
 		raytrace(res, obj, r, l);
 	}
 }
