@@ -182,6 +182,8 @@ void		init_reflection_culling(t_level *level)
 		level->all.tris[i].reflection_obj->tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount);
 		level->all.tris[i].reflection_obj->tri_amount = level->all.tri_amount;
 	}
+	for (int i = 0; i < level->all.tri_amount; i++)
+		reflection_culling(level, i);
 }
 
 static void		calculate_side_normals(t_vec3 normal[4], t_vec3 corner[4])
