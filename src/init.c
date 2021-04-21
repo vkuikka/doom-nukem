@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/08 14:38:45 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/12 16:25:25 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/21 18:19:51 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,7 @@ void			init_level(t_level **res)
 	// load_obj("level/teapot_decimated.obj", &level->all);
 
 	level->texture = bmp_read("out.bmp");
+	level->normal_map = bmp_read("normal.bmp");
 	load_obj("skybox.obj", &level->sky.obj);
 	level->sky.img = bmp_read("skybox.bmp");
 

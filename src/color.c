@@ -37,6 +37,7 @@ int			skybox(t_skybox *skybox, t_ray r)
 	r.pos.y = 0;
 	r.pos.z = 0;
 	res.texture = &skybox->img;
+	res.normal_map = &skybox->img;
 	for (int i = 0; i < skybox->obj.tri_amount; i++)
 	{
 		cast_face(skybox->obj.tris[i], r, &res);
@@ -157,17 +158,17 @@ void		fill_pixels(unsigned *grid, int gap, int blur, int smooth)
 	}
 }
 
-// t_vec3		get_normal(int vec)
-// {
-// 	unsigned char	*v;
-// 	t_vec3	dir;
+t_vec3		get_normal(int vec)
+{
+	unsigned char	*v;
+	t_vec3			dir;
 
-// 	v = (unsigned char*)&vec;
-// 	dir.x = v[2];
-// 	dir.y = v[1];
-// 	dir.z = v[0];
-// 	return (dir);
-// }
+	v = (unsigned char*)&vec;
+	dir.x = v[3] - 128;
+	dir.y = v[1] - 128;
+	dir.z = v[2] - 128;
+	return (dir);
+}
 
 void		face_color(float u, float v, t_tri t, t_cast_result *res)
 {
@@ -192,5 +193,22 @@ void		face_color(float u, float v, t_tri t, t_cast_result *res)
 	else if (x < 0)
 		x = -x % res->texture->width;
 	res->color = res->texture->image[x + (y * res->texture->width)];
-	// res->normal = get_normal(res->normal_map->image[x + (y * res->texture->width)]);
+
+	x =	((t.verts[0].txtr.x * res->normal_map->width * w +
+			t.verts[1].txtr.x * res->normal_map->width * v +
+			t.verts[2].txtr.x * res->normal_map->width * u) / (float)(u + v + w));
+	y =	((t.verts[0].txtr.y * res->normal_map->height * w +
+			t.verts[1].txtr.y * res->normal_map->height * v +
+			t.verts[2].txtr.y * res->normal_map->height * u) / (float)(u + v + w));
+	if (y >= res->normal_map->height)
+		y = y % res->normal_map->height;
+	else if (y < 0)
+		y = -y % res->normal_map->height;
+	y = res->normal_map->height - y - 1;
+	if (x >= res->normal_map->width)
+		x = x % res->normal_map->width;
+	else if (x < 0)
+		x = -x % res->normal_map->width;
+
+	res->normal = get_normal(res->normal_map->image[x + (y * res->normal_map->width)]);
 }

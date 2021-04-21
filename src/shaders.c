@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/31 16:52:44 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/18 14:10:11by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/21 18:22:37 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,13 +30,13 @@ void		shadow(t_level *l, t_vec3 normal, t_cast_result *res)
 
 	if (vec_dot(normal, l->ui.sun_dir) < 0)
 	{
-		darkness = (l->ui.direct_shadow_contrast);
+		darkness = l->ui.direct_shadow_contrast;
 		res->color = crossfade((unsigned)res->color >> 8, l->shadow_color, darkness * 0xff);
 		return;
 	}
-	r.dir.x = -l->ui.sun_dir.x;
+	r.dir.x = l->ui.sun_dir.x;
 	r.dir.y = -l->ui.sun_dir.y;
-	r.dir.z = -l->ui.sun_dir.z;
+	r.dir.z = l->ui.sun_dir.z;
 	r.pos = res->ray.pos;
 	i = 0;
 	while (i < l->all.tri_amount)

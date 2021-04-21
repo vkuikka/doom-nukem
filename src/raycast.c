@@ -69,7 +69,7 @@ void			rot_cam(t_vec3 *cam, const float lon, const float lat)
 
 static void		raytrace(t_cast_result *res, t_obj *obj, t_ray r, t_level *l)
 {
-	res->normal = l->all.tris[res->face_index].normal;
+	vec_normalize(&res->normal);
 	res->ray = r;
 
 	if (l->all.tris[res->face_index].shader == 1)
@@ -96,7 +96,6 @@ void			cast_all_color(t_ray r, t_level *l, t_obj *obj, t_cast_result *res)
 	int				new_hit;
 	int				color;
 	int				i;
-	int				last_hit;
 
 	dist = FLT_MAX;
 	res->dist = FLT_MAX;
