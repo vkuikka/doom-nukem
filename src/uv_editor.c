@@ -16,7 +16,7 @@ static void		uv_pixel_put(int x, int y, int color, unsigned *texture)
 {
 	int oppacity;
 
-	if (x < 0 || y < 18 || x > RES_X / 2 || y >= RES_Y)
+	if (x < 0 || y < 0 || x > RES_X / 2 || y >= RES_Y)
 		return;
 	oppacity = (color << (8 * 3)) >> (8 * 3);
 	if (!oppacity)
@@ -25,12 +25,16 @@ static void		uv_pixel_put(int x, int y, int color, unsigned *texture)
 		texture[x + (y * RES_X)] = color;
 }
 
-static t_ivec2	get_texture_scale(t_bmp *img)
+static float	get_texture_scale(t_bmp *img)
 {
-	t_ivec2	res;
+	t_vec2	res;
 
-	res.x = RES_X / img->width;
-	res.y = RES_Y / img->height;
+	res.x = (float)RES_X / 2 / img->width;
+	res.y = (float)RES_Y / img->height;
+	if (res.y < res.x)
+		return (res.y);
+	else
+		return (res.x);
 }
 
 
@@ -58,7 +62,7 @@ void	uv_print_line(t_vec2 start, t_vec2 stop, int color, unsigned *pixels)
 	}
 }
 
-static void		uv_wireframe(t_level *level, unsigned *pixels, int y_offset, t_ivec2 image_scale)
+static void		uv_wireframe(t_level *level, unsigned *pixels, int y_offset, float image_scale)
 {
 	int 	selected_verts;
 	int		amount;
@@ -85,10 +89,10 @@ static void		uv_wireframe(t_level *level, unsigned *pixels, int y_offset, t_ivec
 				else
 					next = (k + 1) % 3;
 				//scale and invert y
-				start.x = (level->texture.width / image_scale.x) * level->all.tris[i].verts[k].txtr.x;
-				start.y = (level->texture.height / image_scale.y) * -level->all.tris[i].verts[k].txtr.y + RES_Y;
-				stop.x = (level->texture.width / image_scale.x) * level->all.tris[i].verts[next].txtr.x;
-				stop.y = (level->texture.height / image_scale.y) * -level->all.tris[i].verts[next].txtr.y + RES_Y;
+				start.x = (level->texture.width * image_scale) * level->all.tris[i].verts[k].txtr.x;
+				start.y = (level->texture.height * image_scale) * -level->all.tris[i].verts[k].txtr.y + RES_Y - (RES_Y / 2 * image_scale) - 22;
+				stop.x = (level->texture.width * image_scale) * level->all.tris[i].verts[next].txtr.x;
+				stop.y = (level->texture.height * image_scale) * -level->all.tris[i].verts[next].txtr.y + RES_Y - (RES_Y / 2 * image_scale) - 22;
 				uv_print_line(start, stop, WF_SELECTED_COL, pixels);
 			}
 		}
@@ -100,7 +104,7 @@ void			uv_editor(t_level *level, t_window *window)
 	static SDL_Texture	*texture = NULL;
 	static unsigned		*pixels;
 	signed				width;
-	t_ivec2				image_scale;
+	float				image_scale;
 	int					y_offset;
 
 	if (!texture)
@@ -110,19 +114,17 @@ void			uv_editor(t_level *level, t_window *window)
 		if (SDL_LockTexture(texture, NULL, (void**)&pixels, &width))
 			ft_error("failed to lock texture\n");
 	}
-	image_scale.x = 5;
-	image_scale.y = 5;
-	//calculate texture scale to fit to left side of screen and not warp aspect ratio
 	image_scale = get_texture_scale(&level->texture);
-	y_offset = 18;// + (RES_Y - image_scale.y / level->texture.height) / 2;
-	//render
+	y_offset = 18 + RES_Y / 2 - ((level->texture.height * image_scale) / 2);
+
 	for (int y = 0; y < RES_Y; y++)
 		for (int x = 0; x < RES_X / 2; x++)
 			uv_pixel_put(x, y, UI_BACKGROUND_COL, pixels);
-	for (int y = 0; y < level->texture.height; y++)
-		for (int x = 0; x < level->texture.width; x++)
-			if (x * image_scale.x < level->texture.width && y * image_scale.y < level->texture.height)
-				uv_pixel_put(x, y + y_offset, level->texture.image[(y * image_scale.y) * level->texture.width + (x * image_scale.x)], pixels);
+	for (int y = 0; y < RES_Y; y++)
+		for (int x = 0; x < RES_X / 2; x++)
+			if (x / image_scale < level->texture.width && y / image_scale < level->texture.height)
+				uv_pixel_put(x, y + y_offset, level->texture.image[(int)(y / image_scale) * level->texture.width + (int)(x / image_scale)], pixels);
+
 	uv_wireframe(level, pixels, y_offset, image_scale);
 	SDL_UnlockTexture(texture);
 	SDL_RenderCopy(window->SDLrenderer, texture, NULL, NULL);
