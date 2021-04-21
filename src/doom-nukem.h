@@ -144,7 +144,8 @@ typedef struct			s_tri
 	float				opacity;
 	float				reflectivity;
 	int					shader;
-	struct s_obj		*reflection_obj;
+	struct s_obj		*reflection_obj_all;
+	struct s_obj		*reflection_obj_first_bounce;
 	// int					breakable;
 	// int					broken;
 	// int					*reflection_culling_mask;

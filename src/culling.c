@@ -28,6 +28,22 @@ int				cull_ahead(t_vec3 dir, t_vec3 pos, t_tri tri)
 	return (TRUE);
 }
 
+int				cull_ahead_asd(t_vec3 dir, t_vec3 pos, t_tri tri)
+{
+	t_vec3	vert;
+	int		i;
+
+	i = 0;
+	while (i < 3 + tri.isquad)
+	{
+		vec_sub(&vert, tri.verts[i].pos, pos);
+		if (vec_dot(dir, vert) < 0)
+			return (FALSE);
+		i++;
+	}
+	return (TRUE);
+}
+
 int				cull_behind(t_vec3 dir, t_vec3 pos, t_tri tri)
 {
 	t_vec3	vert;
@@ -146,8 +162,43 @@ void		free_reflection_culling(t_level *level)
 {
 	for (int i = 0; i < level->all.tri_amount; i++)
 	{
-		free(level->all.tris[i].reflection_obj->tris);
-		free(level->all.tris[i].reflection_obj);
+		free(level->all.tris[i].reflection_obj_all->tris);
+		free(level->all.tris[i].reflection_obj_all);
+		free(level->all.tris[i].reflection_obj_first_bounce->tris);
+		free(level->all.tris[i].reflection_obj_first_bounce);
+	}
+}
+
+void		reflection_culling_first_bounce(t_level *level, int i)
+{
+	if (level->all.tris[i].reflectivity)
+	{
+		level->all.tris[i].reflection_obj_first_bounce->tri_amount = 0;
+		t_vec3 avg = {0, 0, 0};
+		for (int o = 0; o < 3 + level->all.tris[i].isquad; o++)
+			vec_add(&avg, avg, level->all.tris[i].verts[o].pos);
+		vec_div(&avg, 3 + level->all.tris[i].isquad);
+
+
+		t_vec3			reflection;
+		t_vec3			normal;
+
+		reflection = level->cam.front;
+		normal = level->all.tris[i].normal;
+		vec_mult(&normal, vec_dot(reflection, normal) * -2);
+		vec_add(&reflection, reflection, normal);
+
+
+		int amount = 0;
+		for (int k = 0; k < level->all.tris[i].reflection_obj_all->tri_amount; k++)
+		{
+			if (level->all.tris[i].reflection_obj_all->tris[k].isgrid || cull_behind(reflection, avg, level->all.tris[i].reflection_obj_all->tris[k]))
+			{
+				level->all.tris[i].reflection_obj_first_bounce->tris[amount] = level->all.tris[i].reflection_obj_all->tris[k];
+				amount++;
+			}
+		}
+		level->all.tris[i].reflection_obj_first_bounce->tri_amount = amount;
 	}
 }
 
@@ -155,7 +206,7 @@ void		reflection_culling(t_level *level, int i)
 {
 	if (level->all.tris[i].reflectivity)
 	{
-		level->all.tris[i].reflection_obj->tri_amount = 0;
+		level->all.tris[i].reflection_obj_all->tri_amount = 0;
 		t_vec3 avg = {0, 0, 0};
 		for (int o = 0; o < 3 + level->all.tris[i].isquad; o++)
 			vec_add(&avg, avg, level->all.tris[i].verts[o].pos);
@@ -165,11 +216,11 @@ void		reflection_culling(t_level *level, int i)
 		{
 			if (level->all.tris[k].isgrid || !cull_ahead(level->all.tris[i].normal, avg, level->all.tris[k]))
 			{
-				level->all.tris[i].reflection_obj->tris[amount] = level->all.tris[k];
+				level->all.tris[i].reflection_obj_all->tris[amount] = level->all.tris[k];
 				amount++;
 			}
 		}
-		level->all.tris[i].reflection_obj->tri_amount = amount;
+		level->all.tris[i].reflection_obj_all->tri_amount = amount;
 	}
 }
 
@@ -178,9 +229,12 @@ void		init_reflection_culling(t_level *level)
 	for (int i = 0; i < level->all.tri_amount; i++)
 	{
 		level->all.tris[i].index = i;
-		level->all.tris[i].reflection_obj = (t_obj*)malloc(sizeof(t_obj));
-		level->all.tris[i].reflection_obj->tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount);
-		level->all.tris[i].reflection_obj->tri_amount = level->all.tri_amount;
+		level->all.tris[i].reflection_obj_all = (t_obj*)malloc(sizeof(t_obj));
+		level->all.tris[i].reflection_obj_all->tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount);
+		level->all.tris[i].reflection_obj_all->tri_amount = level->all.tri_amount;
+		level->all.tris[i].reflection_obj_first_bounce = (t_obj*)malloc(sizeof(t_obj));
+		level->all.tris[i].reflection_obj_first_bounce->tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount);
+		level->all.tris[i].reflection_obj_first_bounce->tri_amount = level->all.tri_amount;
 	}
 	for (int i = 0; i < level->all.tri_amount; i++)
 		reflection_culling(level, i);
@@ -267,7 +321,7 @@ void			culling(t_level *level)
 		{
 			if (level->visible.tris[i].isgrid || occlusion_culling(level->visible.tris[i], level))
 			{
-				// reflection_culling_first_bounce(level, level->visible.tris[i].index);
+				reflection_culling_first_bounce(level, level->visible.tris[i].index);
 				level->visible.tris[visible_amount] = level->visible.tris[i];
 				visible_amount++;
 			}
