@@ -69,6 +69,9 @@ void	ui_config_selected_faces(t_level *level)
 
 	selected_index = 0;
 	selected_amount = get_selected_amount(level);
+	if (selected_amount)
+		for (int i = 0; i < level->all.tri_amount; i++)
+			reflection_culling(level, i);
 	for (int i = 0; i < level->all.tri_amount; i++)
 	{
 		int counter = 0;
@@ -81,7 +84,6 @@ void	ui_config_selected_faces(t_level *level)
 		}
 		if (counter == 3 + level->all.tris[i].isquad)
 		{
-			reflection_culling(level, i);
 			if (!selected_index)
 			{
 				if (selected_amount == 1)
@@ -94,7 +96,8 @@ void	ui_config_selected_faces(t_level *level)
 				if (!level->all.tris[i].reflectivity || selected_amount != 1)
 					sprintf(buf, "reflectivity: %.0f%%", 100 * level->all.tris[i].reflectivity);
 				else
-					sprintf(buf, "reflectivity: %.0f%% (%d faces)", 100 * level->all.tris[i].reflectivity, level->all.tris[i].reflection_obj->tri_amount);
+					sprintf(buf, "reflectivity: %.0f%% (%d mirror %d first bounce)", 100 * level->all.tris[i].reflectivity,
+						level->all.tris[i].reflection_obj_all->tri_amount, level->all.tris[i].reflection_obj_first_bounce->tri_amount);
 				float_slider(&level->all.tris[i].reflectivity, buf, 0, 1);
 				sprintf(buf, "opacity: %.0f%%", 100 * level->all.tris[i].opacity);
 				float_slider(&level->all.tris[i].opacity, buf, 0, 1);
