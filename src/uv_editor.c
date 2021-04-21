@@ -62,14 +62,16 @@ void	uv_print_line(t_vec2 start, t_vec2 stop, int color, unsigned *pixels)
 	}
 }
 
-static void		uv_wireframe(t_level *level, unsigned *pixels, int y_offset, float image_scale)
+static void		uv_wireframe(t_level *level, unsigned *pixels, float image_scale)
 {
 	int 	selected_verts;
+	int		y_offset;
 	int		amount;
 	int		next;
 	t_vec2	start;
 	t_vec2	stop;
 
+	y_offset = 18 - RES_Y / 2 + (level->texture.height * image_scale) / 2;
 	for (int i = 0; i < level->all.tri_amount; i++)
 	{
 		selected_verts = 0;
@@ -90,9 +92,11 @@ static void		uv_wireframe(t_level *level, unsigned *pixels, int y_offset, float 
 					next = (k + 1) % 3;
 				//scale and invert y
 				start.x = (level->texture.width * image_scale) * level->all.tris[i].verts[k].txtr.x;
-				start.y = (level->texture.height * image_scale) * -level->all.tris[i].verts[k].txtr.y + RES_Y - (RES_Y / 2 * image_scale) - 22;
+				start.y = (level->texture.height * image_scale) * -level->all.tris[i].verts[k].txtr.y + RES_Y;
 				stop.x = (level->texture.width * image_scale) * level->all.tris[i].verts[next].txtr.x;
-				stop.y = (level->texture.height * image_scale) * -level->all.tris[i].verts[next].txtr.y + RES_Y - (RES_Y / 2 * image_scale) - 22;
+				stop.y = (level->texture.height * image_scale) * -level->all.tris[i].verts[next].txtr.y + RES_Y;
+				start.y += y_offset;
+				stop.y += y_offset;
 				uv_print_line(start, stop, WF_SELECTED_COL, pixels);
 			}
 		}
@@ -125,7 +129,7 @@ void			uv_editor(t_level *level, t_window *window)
 			if (x / image_scale < level->texture.width && y / image_scale < level->texture.height)
 				uv_pixel_put(x, y + y_offset, level->texture.image[(int)(y / image_scale) * level->texture.width + (int)(x / image_scale)], pixels);
 
-	uv_wireframe(level, pixels, y_offset, image_scale);
+	uv_wireframe(level, pixels, image_scale);
 	SDL_UnlockTexture(texture);
 	SDL_RenderCopy(window->SDLrenderer, texture, NULL, NULL);
 	if (SDL_LockTexture(texture, NULL, (void**)&pixels, &width))
