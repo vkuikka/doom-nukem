@@ -6,13 +6,13 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/10 02:43:10 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/18 18:25:74vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom-nukem.h"
 
-float		cast_face(t_tri t, t_ray ray, int *col, t_bmp *img)
+float			cast_face(t_tri t, t_ray ray, t_cast_result *res)
 {
 	t_vec3	pvec;
 	vec_cross(&pvec, ray.dir, t.v0v2);
@@ -47,13 +47,16 @@ float		cast_face(t_tri t, t_ray ray, int *col, t_bmp *img)
 	}
 	else if (v < 0 || u + v > 1)
 		return 0;
-    float dist = vec_dot(qvec, t.v0v2) * invdet;
-	if (img && col)
-		*col = face_color(u, v, t, img);
-	return dist;
+	float dist = vec_dot(qvec, t.v0v2) * invdet;
+	if (res)
+	{
+		face_color(u, v, t, res);
+		res->dist = dist;
+	}
+	return (dist);
 }
 
-void		rot_cam(t_vec3 *cam, const float lon, const float lat)
+void			rot_cam(t_vec3 *cam, const float lon, const float lat)
 {
 	const float	phi = (M_PI / 2 - lat);
 	const float	theta = lon;
@@ -64,59 +67,65 @@ void		rot_cam(t_vec3 *cam, const float lon, const float lat)
 	cam->z = radius * sin(phi) * sin(theta);
 }
 
-t_cast_result	cast_all_color(t_ray r, t_rthread *t, int side)
+static void		raytrace(t_cast_result *res, t_obj *obj, t_ray r, t_level *l)
 {
-	t_cast_result	res;
-	int				i;
-	int				tmp_color;
-	float			tmp_dist;
-	int				hit;
+	res->normal = l->all.tris[res->face_index].normal;
+	res->ray = r;
 
-	i = 0;
-	res.dist = FLT_MAX;
-	hit = -1;
-	while (i < t->level->ssp[side].tri_amount)
-	{
-		if (0 < (tmp_dist = cast_face(t->level->ssp[side].tris[i], r, &tmp_color, &t->level->texture)) &&
-			tmp_dist < res.dist)
-		{
-			if (!t->level->ssp[side].tris[i].opacity)
-			{
-				res.dist = tmp_dist;
-				res.color = tmp_color;
-			}
-			hit = i;
-		}
-		i++;
-	}
-	if (hit == -1)
-	{
-		res.color = skybox(*t->level, r);
-		return (res);
-	}
-	res.normal = t->level->ssp[side].tris[hit].normal;
-	if (t->level->ssp[side].tris[hit].opacity)
-		transparency(r, &t->level->ssp[side], &t->level->texture, &res);
-	vec_mult(&r.dir, res.dist - 0.00001);
-	if (t->level->ssp[side].tris[hit].shader == 1)
+	if (l->all.tris[res->face_index].shader == 1)
 	{
 		t_vec3 tmp;
 		vec_add(&tmp, r.dir, r.pos);
-		res.color = wave_shader(tmp, &res.normal, 0x070C5A, 0x020540);
+		res->color = wave_shader(tmp, &res->normal, 0x070C5A, 0x020540);
 	}
-	if (t->level->ui.sun_contrast || t->level->ui.direct_shadow_contrast)
-		res.color = crossfade((unsigned)res.color >> 8, t->level->shadow_color,
-			shadow(r, t, res.normal) * 0xff);
-	if (t->level->ssp[side].tris[hit].reflectivity)
+	if (l->ui.sun_contrast || l->ui.direct_shadow_contrast)
+		shadow(l, res->normal, res);
+	if (l->all.tris[res->face_index].reflectivity &&
+		res->reflection_depth < REFLECTION_DEPTH)
 	{
-		tmp_color = reflection(&r, t, res.normal, 0);
-		res.color = crossfade((unsigned)res.color >> 8,
-			tmp_color >> 8, t->level->ssp[side].tris[hit].reflectivity * 0xff);
+		res->reflection_depth++;
+		reflection(res, l, l->all.tris[res->face_index].reflection_obj);
 	}
-	return (res);
+	if (l->all.tris[res->face_index].opacity)
+		opacity(res, l, obj);
 }
 
-int			raycast(void *data_pointer)
+void			cast_all_color(t_ray r, t_level *l, t_obj *obj, t_cast_result *res)
+{
+	float			dist;
+	int				new_hit;
+	int				color;
+	int				i;
+
+	dist = FLT_MAX;
+	res->dist = FLT_MAX;
+	i = 0;
+	color = 0;
+	new_hit = -1;
+	while (i < obj->tri_amount)
+	{
+		if (0 < cast_face(obj->tris[i], r, res) && res->dist < dist && obj->tris[i].index != res->face_index)
+		{
+			dist = res->dist;
+			color = res->color;
+			new_hit = obj->tris[i].index;
+		}
+		i++;
+	}
+	res->dist = dist;
+	if (new_hit == -1)
+		res->color = skybox(&l->sky.img, res->reflection_depth ? &l->sky.all : &l->sky.visible, r);
+	else
+	{
+		res->face_index = new_hit;
+		res->color = color;
+		vec_mult(&r.dir, dist);
+		vec_add(&r.pos, r.pos, r.dir);
+		raytrace(res, obj, r, l);
+	}
+}
+
+int				raycast(void *data_pointer)
 {
 	t_rthread	*t = data_pointer;
 	t_ray		r;
@@ -152,7 +161,11 @@ int			raycast(void *data_pointer)
 				r.dir.z = cam->front.z + cam->up.z * ym + cam->side.z * xm;
 
 				t_cast_result	res;
-				res = cast_all_color(r, t, get_ssp_index(x, y));
+				res.normal_map = &t->level->normal_map;
+				res.texture = &t->level->texture;
+				res.reflection_depth = 0;
+				res.face_index = -1;
+				cast_all_color(r, t->level, &t->level->ssp[get_ssp_index(x, y)], &res);
 				if (t->level->ui.fog)
 					res.color = fog(res.color, res.dist, t->level->ui.fog_color, t->level);
 				t->window->frame_buffer[x + (y * RES_X)] = res.color;

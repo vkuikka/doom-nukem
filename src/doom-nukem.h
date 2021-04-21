@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/14 15:31:57 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/20 16:04:43 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,18 +53,18 @@
 
 # include <math.h>
 # include <fcntl.h>
-#ifdef __APPLE__
-# include <dirent.h>
-# include <sys/syslimits.h>//for PATH_MAX && NAME_MAX
-# include <sys/stat.h>
-# include <arpa/inet.h>
-#elif _WIN32
-# define WIN32_LEAN_AND_MEAN
-# include <windows.h>
-# include <float.h>
-# include <winsock.h>
-# define NAME_MAX 2000
-#endif
+# ifdef __APPLE__
+#  include <dirent.h>
+#  include <sys/syslimits.h>//for PATH_MAX && NAME_MAX
+#  include <sys/stat.h>
+#  include <arpa/inet.h>
+# elif _WIN32
+#  define WIN32_LEAN_AND_MEAN
+#  include <windows.h>
+#  include <float.h>
+#  include <winsock.h>
+#  define NAME_MAX 2000
+# endif
 # include "get_next_line.h"
 # include "SDL2/SDL.h"
 # include "SDL2/SDL_ttf.h"
@@ -131,6 +131,7 @@ typedef struct			s_vert
 
 typedef struct			s_tri
 {
+	int					index;
 	struct s_vert		verts[4];	//vertex coordinates of 3d triangle
 	struct s_vec3		v0v1;		//vector between vertices 1 and 0
 	struct s_vec3		v0v2;		//vector between vertices 2 and 0
@@ -138,9 +139,12 @@ typedef struct			s_tri
 	int					isquad;
 	int					isgrid;
 	int					isenemy;
+	int					disable_distance_culling;
+	int					disable_backface_culling;
 	float				opacity;
 	float				reflectivity;
 	int					shader;
+	struct s_obj		*reflection_obj;
 	// int					breakable;
 	// int					broken;
 	// int					*reflection_culling_mask;
@@ -150,14 +154,13 @@ typedef struct			s_obj
 {
 	struct s_tri		*tris;		//array of triangles that make the object
 	int					tri_amount;	//amount of triangles
-	int					*backface_culling_mask;
-	int					*distance_culling_mask;
 }						t_obj;
 
 typedef struct			s_skybox
 {
 	struct s_bmp		img;
-	struct s_obj		obj;
+	struct s_obj		all;
+	struct s_obj		visible;
 }						t_skybox;
 
 typedef struct			s_camera
@@ -174,8 +177,7 @@ typedef struct			s_camera
 	float				fov_x;
 }						t_camera;
 
-
-struct			s_level;
+struct					s_level;
 typedef struct			s_ui_state
 {
 	int					ui_max_width;
@@ -234,6 +236,7 @@ typedef struct			s_level
 	struct s_obj		visible;	//visible faces
 	struct s_obj		*ssp;		//screen space partition
 	struct s_bmp		texture;
+	struct s_bmp		normal_map;
 	struct s_skybox		sky;
 	struct s_camera		cam;
 	struct s_editor_ui	ui;
@@ -287,9 +290,12 @@ typedef struct			s_cast_result
 {
 	float				dist;
 	int					color;
-	float				transparent_dist;
-	int					transparent_color;
+	int					face_index;
+	int					reflection_depth;
 	struct s_vec3		normal;
+	struct s_ray		ray;
+	struct s_bmp		*normal_map;
+	struct s_bmp		*texture;
 }						t_cast_result;
 
 typedef struct			s_buffer
@@ -325,10 +331,10 @@ int			get_ssp_index(int x, int y);
 int			get_ssp_coordinate(int coord, int horizontal);
 
 int			raycast(void *t);
-float		cast_face(t_tri t, t_ray ray, int *col, t_bmp *img);
+float		cast_face(t_tri t, t_ray ray, t_cast_result *res);
 void		fill_pixels(unsigned *grid, int pixel_gap, int blur, int smooth);
 unsigned	crossfade(unsigned color1, unsigned color2, unsigned fade);
-int			face_color(float u, float v, t_tri t, t_bmp *img);
+void		face_color(float u, float v, t_tri t, t_cast_result *res);
 
 void		wireframe(t_window *window, t_level *level);
 void		camera_offset(t_vec3 *vertex, t_camera *cam);
@@ -338,7 +344,9 @@ t_bmp		bmp_read(char *str);
 
 void		culling(t_level *level);
 int			occlusion_culling(t_tri tri, t_level *level);
-int			normal_plane_culling(t_tri tri, t_vec3 *pos, t_vec3 *dir);
+void		init_reflection_culling(t_level *level);
+void		reflection_culling(t_level *level, int i);
+void		free_reflection_culling(t_level *level);
 void		find_quads(t_obj *obj);
 
 void		rotate_vertex(float angle, t_vec3 *vertex, int axis);
@@ -369,16 +377,22 @@ void		enemies_update_physics(t_level *level);
 void		enemies_update_sprites(t_level *level);
 
 int			fog(int color, float dist, unsigned fog_color, t_level *level);
-int			skybox(t_level l, t_ray r);
+int			skybox(t_bmp *img, t_obj *obj, t_ray r);
 
-void		transparency(t_ray r, t_obj *obj, t_bmp *texture, t_cast_result *res);
-float		shadow(t_ray r, t_rthread *t, t_vec3 normal);
-int			reflection(t_ray *r, t_rthread *t, t_vec3 normal, int depth);
+void		opacity(t_cast_result *res, t_level *l, t_obj *obj);
+void		shadow(t_level *l, t_vec3 normal, t_cast_result *res);
+
+void		reflection(t_cast_result *res, t_level *l, t_obj *obj);
+
 unsigned	wave_shader(t_vec3 mod, t_vec3 *normal, unsigned col1, unsigned col2);
 
 void		select_face(t_camera *cam, t_level *level, int x, int y);
 
 void		save_level(t_level *level);
 void		open_level(t_level *level, char *filename);
+
+void		cast_all_color(t_ray r, t_level *l, t_obj *obj, t_cast_result *res);
+int			cull_behind(t_vec3 dir, t_vec3 pos, t_tri tri);
+int			cull_ahead(t_vec3 dir, t_vec3 pos, t_tri tri);
 
 #endif

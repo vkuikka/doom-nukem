@@ -57,6 +57,8 @@ void	copy_tri_settings(t_tri *a, t_tri *b)
 	a->isgrid = b->isgrid;
 	a->opacity = b->opacity;
 	a->reflectivity = b->reflectivity;
+	a->disable_distance_culling = b->disable_distance_culling;
+	a->disable_backface_culling = b->disable_backface_culling;
 }
 
 void	ui_config_selected_faces(t_level *level)
@@ -79,6 +81,7 @@ void	ui_config_selected_faces(t_level *level)
 		}
 		if (counter == 3 + level->all.tris[i].isquad)
 		{
+			reflection_culling(level, i);
 			if (!selected_index)
 			{
 				if (selected_amount == 1)
@@ -88,13 +91,18 @@ void	ui_config_selected_faces(t_level *level)
 					sprintf(buf, "%d faces selected (toggle all):", selected_amount);
 					text(buf);
 				}
-				sprintf(buf, "reflectivity: %.0f%%", 100 * level->all.tris[i].reflectivity);
+				if (!level->all.tris[i].reflectivity || selected_amount != 1)
+					sprintf(buf, "reflectivity: %.0f%%", 100 * level->all.tris[i].reflectivity);
+				else
+					sprintf(buf, "reflectivity: %.0f%% (%d faces)", 100 * level->all.tris[i].reflectivity, level->all.tris[i].reflection_obj->tri_amount);
 				float_slider(&level->all.tris[i].reflectivity, buf, 0, 1);
 				sprintf(buf, "opacity: %.0f%%", 100 * level->all.tris[i].opacity);
 				float_slider(&level->all.tris[i].opacity, buf, 0, 1);
 				button(&level->all.tris[i].isgrid, "grid");
 				button(&level->all.tris[i].isenemy, "enemy");
 				button(&level->all.tris[i].shader, "water");
+				button(&level->all.tris[i].disable_distance_culling, "distance culling");
+				button(&level->all.tris[i].disable_backface_culling, "backface culling");
 				// call("flip normal");
 				// call("set animation start");
 				// call("set animation stop");
@@ -111,19 +119,25 @@ void	ui_config_selected_faces(t_level *level)
 
 void	set_obj(t_level *level, char *filename)
 {
-	//free obj
+	free_reflection_culling(level);
+	free(level->all.tris);
+	free(level->visible.tris);
 	load_obj(filename, &level->all);
+	if (!(level->visible.tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount)))
+		ft_error("memory allocation failed\n");
+	init_screen_space_partition(level);
+	init_reflection_culling(level);
 }
 
 void	set_texture(t_level *level, char *filename)
 {
-	//free texture
+	free(level->texture.image);
 	level->texture = bmp_read(filename);
 }
 
 void	set_skybox(t_level *level, char *filename)
 {
-	//free skybox
+	free(level->sky.img.image);
 	level->sky.img = bmp_read(filename);
 }
 
