@@ -126,6 +126,7 @@ typedef struct			s_vert
 {
 	struct s_vec3		pos;		//world position in 3d
 	struct s_vec2		txtr;		//texture position in 2d
+	int					uv_selected;
 	int					selected;
 }						t_vert;
 
@@ -145,6 +146,7 @@ typedef struct			s_tri
 	float				reflectivity;
 	int					shader;
 	struct s_obj		*reflection_obj;
+	int					selected;
 	// int					breakable;
 	// int					broken;
 	// int					*reflection_culling_mask;

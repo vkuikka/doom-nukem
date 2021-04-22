@@ -248,13 +248,8 @@ void	load_obj(char *filename, t_obj *obj)
 		{
 			ft_bzero(&obj->tris[j], sizeof(t_tri));
 			set_tri(file[i], verts, uvs, obj, j);
-			obj->tris[j].isquad = 0;
-			obj->tris[j].isenemy = 0;
-			obj->tris[j].isgrid = 0;
 			obj->tris[j].opacity = 0;
 			obj->tris[j].reflectivity = 0;
-			for (int k = 0; k < 3 + obj->tris[j].isquad; k++)
-				obj->tris[j].verts[k].selected = 0;
 			j++;
 		}
 		free(file[i]);

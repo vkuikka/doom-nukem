@@ -15,17 +15,11 @@
 static void	deselect_all_faces(t_level *level)
 {
 	int	i;
-	int	j;
 
 	i = 0;
 	while (i < level->all.tri_amount)
 	{
-		j = 0;
-		while (j < 3 + level->all.tris[i].isquad)
-		{
-			level->all.tris[i].verts[j].selected = 0;
-			j++;
-		}
+		level->all.tris[i].selected = FALSE;
 		i++;
 	}
 }
@@ -50,17 +44,7 @@ static void	raycast_face_selection(t_ray vec, t_level *level)
 		i++;
 	}
 	if (dist != FLT_MAX)
-	{
-		i = 0;
-		while (i < 3 + level->all.tris[hit].isquad)
-		{
-			if (level->all.tris[hit].verts[i].selected)
-				level->all.tris[hit].verts[i].selected = 0;
-			else
-				level->all.tris[hit].verts[i].selected = 1;
-			i++;
-		}
-	}
+		level->all.tris[hit].selected = level->all.tris[hit].selected ? 0 : 1;
 	else
 		deselect_all_faces(level);
 }

@@ -64,9 +64,7 @@ void	uv_print_line(t_vec2 start, t_vec2 stop, int color, unsigned *pixels)
 
 static void		uv_wireframe(t_level *level, unsigned *pixels, float image_scale)
 {
-	int 	selected_verts;
 	int		y_offset;
-	int		amount;
 	int		next;
 	t_vec2	start;
 	t_vec2	stop;
@@ -74,19 +72,11 @@ static void		uv_wireframe(t_level *level, unsigned *pixels, float image_scale)
 	y_offset = 18 - RES_Y / 2 + (level->texture.height * image_scale) / 2;
 	for (int i = 0; i < level->all.tri_amount; i++)
 	{
-		selected_verts = 0;
-		amount =  3 + level->all.tris[i].isquad;
-		while (selected_verts < amount)
+		if (level->all.tris[i].selected)
 		{
-			if (!level->all.tris[i].verts[selected_verts].selected)
-				break;
-			selected_verts++;
-		}
-		if (selected_verts == amount)
-		{
-			for (int k = 0; k < amount; k++)
+			for (int k = 0; k < 3 + level->all.tris[i].isquad; k++)
 			{
-				if (amount == 4)
+				if (level->all.tris[i].isquad)
 					next = (int[4]){1, 3, 0, 2}[k];
 				else
 					next = (k + 1) % 3;
@@ -150,4 +140,5 @@ void	enable_uv_editor(t_level *level)
 	level->ui.state.is_uv_editor_open = TRUE;
 	level->ui.wireframe = TRUE;
 	level->ui.wireframe_on_top = TRUE;
+	level->ui.wireframe_culling_visual = TRUE;
 }

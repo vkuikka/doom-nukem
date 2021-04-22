@@ -33,22 +33,17 @@ int		    get_fps(void)
 int		get_selected_amount(t_level *level)
 {
 	int	selected_amount;
+	int	i;
 
+	i = 0;
 	selected_amount = 0;
-	for (int i = 0; i < level->all.tri_amount; i++)
+	while (i < level->all.tri_amount)
 	{
-		int counter = 0;
-		int j = 0;
-		while (j < 3 + level->all.tris[i].isquad)
-		{
-			if (level->all.tris[i].verts[j].selected)
-				counter++;
-			j++;
-		}
-		if (counter == 3 + level->all.tris[i].isquad)
+		if (level->all.tris[i].selected)
 			selected_amount++;
+		i++;
 	}
-	return(selected_amount);
+	return (selected_amount);
 }
 
 void	copy_tri_settings(t_tri *a, t_tri *b)
@@ -71,15 +66,7 @@ void	ui_config_selected_faces(t_level *level)
 	selected_amount = get_selected_amount(level);
 	for (int i = 0; i < level->all.tri_amount; i++)
 	{
-		int counter = 0;
-		int j = 0;
-		while (j < 3 + level->all.tris[i].isquad)
-		{
-			if (level->all.tris[i].verts[j].selected)
-				counter++;
-			j++;
-		}
-		if (counter == 3 + level->all.tris[i].isquad)
+		if (level->all.tris[i].selected)
 		{
 			reflection_culling(level, i);
 			if (!selected_index)

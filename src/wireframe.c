@@ -178,8 +178,7 @@ void	render_wireframe(t_window *window, t_level *level, t_obj *obj, int is_visib
 			stop = obj->tris[i].verts[next].pos;
 			camera_offset(&start, &level->cam);
 			camera_offset(&stop, &level->cam);
-			if (obj->tris[i].verts[next].selected &&
-				obj->tris[i].verts[j].selected)
+			if (obj->tris[i].selected)
 				print_line(start, stop, WF_SELECTED_COL, window);
 			else if (is_visible)
 				print_line(start, stop, WF_VISIBLE_COL, window);
@@ -187,13 +186,10 @@ void	render_wireframe(t_window *window, t_level *level, t_obj *obj, int is_visib
 				print_line(start, stop, WF_NOT_QUAD_WARNING_COL, window);
 			else
 				print_line(start, stop, WF_UNSELECTED_COL, window);
-			// if (mode == 0)
-			{
-				if (obj->tris[i].verts[j].selected)
-					put_vertex(start, WF_SELECTED_COL, window);
-				else
-					put_vertex(start, 0, window);
-			}
+			if (obj->tris[i].verts[j].selected)
+				put_vertex(start, WF_SELECTED_COL, window);
+			else
+				put_vertex(start, 0, window);
 		}
 		if (is_visible || !level->ui.wireframe_culling_visual)
 			put_normal(window, level, obj->tris[i], WF_VISIBLE_NORMAL_COL);
