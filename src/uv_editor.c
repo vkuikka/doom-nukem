@@ -38,7 +38,7 @@ static float	get_texture_scale(t_bmp *img)
 }
 
 
-void	uv_print_line(t_vec2 start, t_vec2 stop, int color, unsigned *pixels)
+void	uv_print_line(t_vec2 start, t_vec2 stop, t_ivec2 color, unsigned *pixels)
 {
 	t_vec3	step;
 	t_vec3	pos;
@@ -54,7 +54,7 @@ void	uv_print_line(t_vec2 start, t_vec2 stop, int color, unsigned *pixels)
 	step.y = (stop.y - start.y) / (float)step.z;
 	while (pos.z <= step.z && i < 10000)
 	{
-		uv_pixel_put(pos.x, pos.y, color, pixels);
+		uv_pixel_put(pos.x, pos.y, crossfade(color.x, color.y, 0xff * (pos.z / step.z)), pixels);
 		pos.x += step.x;
 		pos.y += step.y;
 		pos.z++;
@@ -122,10 +122,28 @@ static void		update_uv_closest_vertex(t_level *level, float image_scale)
 	}
 }
 
+void	set_fourth_vertex_uv(t_tri *a)
+{
+	t_vec2 shared1;
+	t_vec2 shared2;
+	t_vec2 avg;
+	t_vec2 new;
+	t_vec2 res;
+
+	vec2_sub(&shared1, a->verts[1].txtr, a->verts[0].txtr);
+	vec2_sub(&shared2, a->verts[2].txtr, a->verts[0].txtr);
+	vec2_avg(&avg, shared1, shared2);
+	vec2_add(&new, avg, avg);
+	vec2_add(&res, new, a->verts[0].txtr);
+	a->verts[3].txtr.x = res.x;
+	a->verts[3].txtr.y = res.y;
+}
+
 static void		uv_wireframe(t_level *level, unsigned *pixels, float image_scale)
 {
 	int		y_offset;
 	int		next;
+	t_ivec2	color;
 	t_vec2	start;
 	t_vec2	stop;
 
@@ -147,9 +165,21 @@ static void		uv_wireframe(t_level *level, unsigned *pixels, float image_scale)
 				stop.y = (level->texture.height * image_scale) * -level->all.tris[i].verts[next].txtr.y + RES_Y;
 				start.y += y_offset;
 				stop.y += y_offset;
-				uv_print_line(start, stop, WF_SELECTED_COL, pixels);
-				put_uv_vertex(start, WF_SELECTED_COL, pixels);
-				find_closest_to_mouse(&start, &i, &k);
+				color.x = WF_SELECTED_COL >> 8;
+				color.y = WF_SELECTED_COL >> 8;
+				if (k == 3)
+					color.x = WF_UNSELECTED_COL >> 8;
+				if (next == 3)
+					color.y = WF_UNSELECTED_COL >> 8;
+				uv_print_line(start, stop, color, pixels);
+				if (k == 3)
+					put_uv_vertex(start, WF_UNSELECTED_COL, pixels);
+				else
+				{
+					set_fourth_vertex_uv(&level->all.tris[i]);
+					put_uv_vertex(start, WF_SELECTED_COL, pixels);
+					find_closest_to_mouse(&start, &i, &k);
+				}
 			}
 		}
 	}

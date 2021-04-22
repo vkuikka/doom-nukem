@@ -19,23 +19,6 @@
  * Faces found here get an isquad property (t_tri.isquad)
 */
 
-void	set_fourth_vertex_uv(t_tri *a)
-{
-	t_vec2 shared1;
-	t_vec2 shared2;
-	t_vec2 avg;
-	t_vec2 new;
-	t_vec2 res;
-
-	vec2_sub(&shared1, a->verts[1].txtr, a->verts[0].txtr);
-	vec2_sub(&shared2, a->verts[2].txtr, a->verts[0].txtr);
-	vec2_avg(&avg, shared1, shared2);
-	vec2_add(&new, avg, avg);
-	vec2_add(&res, new, a->verts[0].txtr);
-	a->verts[3].txtr.x = res.x;
-	a->verts[3].txtr.y = res.y;
-}
-
 void	set_fourth_vertex(t_tri *a)
 {
 	t_vec3 shared1;
@@ -165,7 +148,6 @@ void	find_quads(t_obj *obj)
 				{
 					set_mirror_dir(&obj->tris[i], not_shared_vertex_index);
 					set_fourth_vertex(&obj->tris[i]);
-					set_fourth_vertex_uv(&obj->tris[i]);
 					obj->tris[i].isquad = 1;
 					obj->tri_amount--;
 					for (int x = j; x < obj->tri_amount; x++) //move address of everythign left
