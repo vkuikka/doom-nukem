@@ -37,7 +37,6 @@ static float	get_texture_scale(t_bmp *img)
 		return (res.x);
 }
 
-
 void	uv_print_line(t_vec2 start, t_vec2 stop, t_ivec2 color, unsigned *pixels)
 {
 	t_vec3	step;
@@ -64,12 +63,19 @@ void	uv_print_line(t_vec2 start, t_vec2 stop, t_ivec2 color, unsigned *pixels)
 
 static void		put_uv_vertex(t_vec2 vertex, int color, unsigned *pixels)
 {
-	for (int a = -1; a < 2; a++)
+	int	a;
+	int	b;
+
+	a = -1;
+	while (a < 2)
 	{
-		for (int b = -1; b < 2; b++)
+		b = -1;
+		while (b < 2)
 		{
 			uv_pixel_put(vertex.x + a, vertex.y + b, color, pixels);
+			b++;
 		}
+		a++;
 	}
 }
 
@@ -122,7 +128,7 @@ static void		update_uv_closest_vertex(t_level *level, float image_scale)
 	}
 }
 
-void	set_fourth_vertex_uv(t_tri *a)
+static void	set_fourth_vertex_uv(t_tri *a)
 {
 	t_vec2 shared1;
 	t_vec2 shared2;
@@ -158,7 +164,6 @@ static void		uv_wireframe(t_level *level, unsigned *pixels, float image_scale)
 					next = (int[4]){1, 3, 0, 2}[k];
 				else
 					next = (k + 1) % 3;
-				//scale and invert y
 				start.x = (level->texture.width * image_scale) * level->all.tris[i].verts[k].txtr.x;
 				start.y = (level->texture.height * image_scale) * -level->all.tris[i].verts[k].txtr.y + RES_Y;
 				stop.x = (level->texture.width * image_scale) * level->all.tris[i].verts[next].txtr.x;
@@ -173,7 +178,7 @@ static void		uv_wireframe(t_level *level, unsigned *pixels, float image_scale)
 					color.y = WF_UNSELECTED_COL >> 8;
 				uv_print_line(start, stop, color, pixels);
 				if (k == 3)
-					put_uv_vertex(start, WF_UNSELECTED_COL, pixels);
+					put_uv_vertex(start, 0xff, pixels);
 				else
 				{
 					set_fourth_vertex_uv(&level->all.tris[i]);
@@ -203,7 +208,6 @@ void			uv_editor(t_level *level, t_window *window)
 	}
 	image_scale = get_texture_scale(&level->texture);
 	y_offset = 18 + RES_Y / 2 - ((level->texture.height * image_scale) / 2);
-
 	for (int y = 0; y < RES_Y; y++)
 		for (int x = 0; x < RES_X / 2; x++)
 			uv_pixel_put(x, y, UI_BACKGROUND_COL, pixels);
@@ -211,21 +215,17 @@ void			uv_editor(t_level *level, t_window *window)
 		for (int x = 0; x < RES_X / 2; x++)
 			if (x / image_scale < level->texture.width && y / image_scale < level->texture.height)
 				uv_pixel_put(x, y + y_offset, level->texture.image[(int)(y / image_scale) * level->texture.width + (int)(x / image_scale)], pixels);
-
 	uv_wireframe(level, pixels, image_scale);
 	SDL_UnlockTexture(texture);
 	SDL_RenderCopy(window->SDLrenderer, texture, NULL, NULL);
 	if (SDL_LockTexture(texture, NULL, (void**)&pixels, &width))
 		ft_error("failed to lock texture\n");
 	ft_memset(pixels, 0, RES_X * RES_Y * 4);
-	//for selected faces
-		//wireframe tri->uv
 }
 
 void	disable_uv_editor(t_level *level)
 {
 	level->ui.state.is_uv_editor_open = FALSE;
-	level->ui.wireframe = FALSE;
 }
 
 void	enable_uv_editor(t_level *level)
@@ -233,5 +233,4 @@ void	enable_uv_editor(t_level *level)
 	level->ui.state.is_uv_editor_open = TRUE;
 	level->ui.wireframe = TRUE;
 	level->ui.wireframe_on_top = TRUE;
-	level->ui.wireframe_culling_visual = TRUE;
 }

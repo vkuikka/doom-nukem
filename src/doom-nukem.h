@@ -126,7 +126,6 @@ typedef struct			s_vert
 {
 	struct s_vec3		pos;		//world position in 3d
 	struct s_vec2		txtr;		//texture position in 2d
-	int					uv_selected;
 	int					selected;
 }						t_vert;
 
@@ -323,7 +322,6 @@ float		vec2_length(t_vec2 vec);
 void		vec2_avg(t_vec2 *res, t_vec2 ve1, t_vec2 ve2);
 void		vec2_sub(t_vec2 *res, t_vec2 ve1, t_vec2 ve2);
 void		vec2_add(t_vec2 *res, t_vec2 ve1, t_vec2 ve2);
-void		vec2_copy(t_vec2 *res, t_vec2 vec);
 
 void		init_window(t_window **window);
 void		init_level(t_level **level);
