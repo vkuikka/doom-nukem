@@ -54,6 +54,11 @@ float		vec_length(t_vec3 vec)
 	// return (sqrt(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z));
 }
 
+float		vec2_length(t_vec2 vec)
+{
+	return (sqrt(vec.x * vec.x + vec.y * vec.y));
+}
+
 float		vec_dot(t_vec3 ve1, t_vec3 ve2)
 {
 	return (ve1.x * ve2.x + ve1.y * ve2.y + ve1.z * ve2.z);

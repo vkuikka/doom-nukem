@@ -319,6 +319,7 @@ void		vec_avg(t_vec3 *res, t_vec3 ve1, t_vec3 ve2);
 float		vec_angle(t_vec3 v1, t_vec3 v2);
 void		vec_mult(t_vec3 *res, float mult);
 void		vec_div(t_vec3 *res, float div);
+float		vec2_length(t_vec2 vec);
 void		vec2_avg(t_vec2 *res, t_vec2 ve1, t_vec2 ve2);
 void		vec2_sub(t_vec2 *res, t_vec2 ve1, t_vec2 ve2);
 void		vec2_add(t_vec2 *res, t_vec2 ve1, t_vec2 ve2);

@@ -62,6 +62,66 @@ void	uv_print_line(t_vec2 start, t_vec2 stop, int color, unsigned *pixels)
 	}
 }
 
+static void		put_uv_vertex(t_vec2 vertex, int color, unsigned *pixels)
+{
+	for (int a = -1; a < 2; a++)
+	{
+		for (int b = -1; b < 2; b++)
+		{
+			uv_pixel_put(vertex.x + a, vertex.y + b, color, pixels);
+		}
+	}
+}
+
+static void		find_closest_to_mouse(t_vec2 *vert, int *i, int *k)
+{
+	static float	nearest_len = -1;
+	static int		nearest_tri_index = -1;
+	static int		nearest_vert_index = -1;
+	float			len;
+	t_vec2			test;
+	int				x;
+	int				y;
+
+	if (!vert)
+	{
+		*k = nearest_vert_index;
+		*i = nearest_tri_index;
+		nearest_vert_index = -1;
+		nearest_tri_index = -1;
+		nearest_len = -1;
+		return ;
+	}
+	SDL_GetMouseState(&x, &y);
+	test = *vert;
+	test.x -= x;
+	test.y -= y;
+	len = vec2_length(test);
+	if (len < nearest_len || nearest_len == -1)
+	{
+		nearest_len = len;
+		nearest_tri_index = *i;
+		nearest_vert_index = *k;
+	}
+}
+
+static void		update_uv_closest_vertex(t_level *level, float image_scale)
+{
+	int	i;
+	int	k;
+	int	x;
+	int	y;
+
+	find_closest_to_mouse(NULL, &i, &k);
+	if (i != -1 && SDL_GetMouseState(&x, &y) & SDL_BUTTON(SDL_BUTTON_LEFT) && x < RES_X / 2)
+	{
+		y -= 18 - RES_Y / 2 + (level->texture.height * image_scale) / 2;
+		y -= level->texture.height * image_scale / 2;
+		level->all.tris[i].verts[k].txtr.x = x / (level->texture.width * image_scale);
+		level->all.tris[i].verts[k].txtr.y = 1 - y / (level->texture.height * image_scale);
+	}
+}
+
 static void		uv_wireframe(t_level *level, unsigned *pixels, float image_scale)
 {
 	int		y_offset;
@@ -88,9 +148,12 @@ static void		uv_wireframe(t_level *level, unsigned *pixels, float image_scale)
 				start.y += y_offset;
 				stop.y += y_offset;
 				uv_print_line(start, stop, WF_SELECTED_COL, pixels);
+				put_uv_vertex(start, WF_SELECTED_COL, pixels);
+				find_closest_to_mouse(&start, &i, &k);
 			}
 		}
 	}
+	update_uv_closest_vertex(level, image_scale);
 }
 
 void			uv_editor(t_level *level, t_window *window)

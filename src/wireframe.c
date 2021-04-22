@@ -93,7 +93,7 @@ void	rotate_vertex(float angle, t_vec3 *vertex, int axis)
 	}
 }
 
-void	put_vertex(t_vec3 vertex, int color, t_window *window)
+static void	put_vertex(t_vec3 vertex, int color, t_window *window)
 {
 	if (vertex.z < 0)
 		return ;
