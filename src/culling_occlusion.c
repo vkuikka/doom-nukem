@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/26 04:05:50 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/04/10 02:42:50 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/23 00:14:13 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,7 +73,7 @@ int		occlusion_culling(t_tri tri, t_level *level)
 {
 	for (int i = 0; i < level->visible.tri_amount; i++)
 		if (is_bface_in_aface(level->visible.tris[i], tri, level))
-			if (cull_ahead(level->visible.tris[i].normal, level->visible.tris[i].verts[0].pos, tri))
+			if (!cull_ahead(level->visible.tris[i].normal, level->visible.tris[i].verts[0].pos, tri))
 				return (0);
 	return (1);
 } 

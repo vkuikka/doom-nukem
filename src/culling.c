@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/20 17:50:56 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/20 16:04:26 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/23 00:30:24 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,26 +22,10 @@ int				cull_ahead(t_vec3 dir, t_vec3 pos, t_tri tri)
 	{
 		vec_sub(&vert, tri.verts[i].pos, pos);
 		if (vec_dot(dir, vert) <= 0)
-			return (FALSE);
+			return (TRUE);
 		i++;
 	}
-	return (TRUE);
-}
-
-int				cull_ahead_asd(t_vec3 dir, t_vec3 pos, t_tri tri)
-{
-	t_vec3	vert;
-	int		i;
-
-	i = 0;
-	while (i < 3 + tri.isquad)
-	{
-		vec_sub(&vert, tri.verts[i].pos, pos);
-		if (vec_dot(dir, vert) < 0)
-			return (FALSE);
-		i++;
-	}
-	return (TRUE);
+	return (FALSE);
 }
 
 int				cull_behind(t_vec3 dir, t_vec3 pos, t_tri tri)
@@ -155,6 +139,26 @@ static int		backface_culling(t_vec3 pos, t_tri tri)
 	vec_sub(&diff, tri.verts[2].pos, pos);
 	if (vec_dot(diff, normal) > 0)
 		return (1);
+	if (tri.isquad)
+	{
+		vec_sub(&diff, tri.verts[3].pos, pos);
+		if (vec_dot(diff, normal) > 0)
+			return (1);
+	}
+	return (0);
+}
+
+static int	reflection_backface(t_tri t1, t_tri t2)
+{
+	int i;
+
+	i = 0;
+	while (i < 3 + t2.isquad)
+	{
+		if (backface_culling(t2.verts[i].pos, t1))
+			return (1);
+		i++;
+	}
 	return (0);
 }
 
@@ -174,25 +178,32 @@ void		reflection_culling_first_bounce(t_level *level, int i)
 	if (level->all.tris[i].reflectivity)
 	{
 		level->all.tris[i].reflection_obj_first_bounce->tri_amount = 0;
-		t_vec3 avg = {0, 0, 0};
+
+		t_vec3		avg_dir = {0, 0, 0};
 		for (int o = 0; o < 3 + level->all.tris[i].isquad; o++)
-			vec_add(&avg, avg, level->all.tris[i].verts[o].pos);
-		vec_div(&avg, 3 + level->all.tris[i].isquad);
+			vec_add(&avg_dir, avg_dir, level->all.tris[i].verts[o].pos);
+		vec_div(&avg_dir, 3 + level->all.tris[i].isquad);
+		vec_sub(&avg_dir, avg_dir, level->cam.pos);
 
-
-		t_vec3			reflection;
-		t_vec3			normal;
-
-		reflection = level->cam.front;
+		t_vec3		pos;
+		t_vec3		normal;
 		normal = level->all.tris[i].normal;
-		vec_mult(&normal, vec_dot(reflection, normal) * -2);
-		vec_add(&reflection, reflection, normal);
+		vec_normalize(&normal);
+		vec_mult(&normal, vec_dot(avg_dir, normal));
 
+		pos = level->cam.pos;
+		vec_add(&pos, pos, normal);
+		vec_add(&pos, pos, normal);
+
+		t_vec3		reflection;
+		reflection = level->cam.front;
+		vec_mult(&level->all.tris[i].normal, vec_dot(reflection, level->all.tris[i].normal) * -2);
+		vec_add(&reflection, reflection, normal);
 
 		int amount = 0;
 		for (int k = 0; k < level->all.tris[i].reflection_obj_all->tri_amount; k++)
 		{
-			if (level->all.tris[i].reflection_obj_all->tris[k].isgrid || cull_behind(reflection, avg, level->all.tris[i].reflection_obj_all->tris[k]))
+			if (level->all.tris[i].reflection_obj_all->tris[k].isgrid || cull_behind(reflection, pos, level->all.tris[i].reflection_obj_all->tris[k]))
 			{
 				level->all.tris[i].reflection_obj_first_bounce->tris[amount] = level->all.tris[i].reflection_obj_all->tris[k];
 				amount++;
@@ -214,7 +225,7 @@ void		reflection_culling(t_level *level, int i)
 		int amount = 0;
 		for (int k = 0; k < level->all.tri_amount; k++)
 		{
-			if (level->all.tris[k].isgrid || !cull_ahead(level->all.tris[i].normal, avg, level->all.tris[k]))
+			if ((level->all.tris[k].isgrid || cull_ahead(level->all.tris[i].normal, avg, level->all.tris[k])) && reflection_backface(level->all.tris[k], level->all.tris[i]))
 			{
 				level->all.tris[i].reflection_obj_all->tris[amount] = level->all.tris[k];
 				amount++;
