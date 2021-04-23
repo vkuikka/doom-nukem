@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/20 17:50:56 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/23 14:56:40 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/23 20:00:45 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -250,7 +250,7 @@ void		reflection_culling(t_level *level, int i)
 		int amount = 0;
 		for (int k = 0; k < level->all.tri_amount; k++)
 		{
-			if ((level->all.tris[k].isgrid || cull_ahead(level->all.tris[i].normal, avg, level->all.tris[k])) && reflection_backface(level->all.tris[k], level->all.tris[i]))
+			if ((level->all.tris[k].isenemy || level->all.tris[k].isgrid || cull_ahead(level->all.tris[i].normal, avg, level->all.tris[k])) && reflection_backface(level->all.tris[k], level->all.tris[i]))
 			{
 				level->all.tris[i].reflection_obj_all->tris[amount] = level->all.tris[k];
 				amount++;
