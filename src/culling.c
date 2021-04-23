@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/20 17:50:56 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/23 20:00:45 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/23 20:54:19 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -223,6 +223,8 @@ void		reflection_culling_first_bounce(t_level *level, int i)
 		vec_normalize(&corner[2]);
 		vec_normalize(&corner[3]);
 		calculate_side_normals(side_normals, corner);
+		if (!level->all.tris[i].isquad)
+			side_normals[3] = side_normals[0];
 
 		int amount = 0;
 		for (int k = 0; k < level->all.tris[i].reflection_obj_all->tri_amount; k++)
