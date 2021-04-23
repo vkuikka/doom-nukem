@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/20 17:50:56 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/23 00:30:24 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/23 14:44:07 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -188,7 +188,6 @@ void		reflection_culling_first_bounce(t_level *level, int i)
 		t_vec3		pos;
 		t_vec3		normal;
 		normal = level->all.tris[i].normal;
-		vec_normalize(&normal);
 		vec_mult(&normal, vec_dot(avg_dir, normal));
 
 		pos = level->cam.pos;
@@ -197,7 +196,8 @@ void		reflection_culling_first_bounce(t_level *level, int i)
 
 		t_vec3		reflection;
 		reflection = level->cam.front;
-		vec_mult(&level->all.tris[i].normal, vec_dot(reflection, level->all.tris[i].normal) * -2);
+		normal = level->all.tris[i].normal;
+		vec_mult(&normal, vec_dot(reflection, normal) * -2);
 		vec_add(&reflection, reflection, normal);
 
 		int amount = 0;
