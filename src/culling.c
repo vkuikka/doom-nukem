@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/20 17:50:56 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/23 14:44:07 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/23 14:56:40 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -173,6 +173,14 @@ void		free_reflection_culling(t_level *level)
 	}
 }
 
+static void		calculate_side_normals(t_vec3 normal[4], t_vec3 corner[4])
+{
+	vec_cross(&normal[0], corner[2], corner[0]);	//left
+	vec_cross(&normal[1], corner[1], corner[3]);	//right
+	vec_cross(&normal[2], corner[0], corner[1]);	//top
+	vec_cross(&normal[3], corner[3], corner[2]);	//bot
+}
+
 void		reflection_culling_first_bounce(t_level *level, int i)
 {
 	if (level->all.tris[i].reflectivity)
@@ -200,10 +208,27 @@ void		reflection_culling_first_bounce(t_level *level, int i)
 		vec_mult(&normal, vec_dot(reflection, normal) * -2);
 		vec_add(&reflection, reflection, normal);
 
+		t_vec3 corner[4];
+		t_vec3 side_normals[4];
+		corner[0] = level->all.tris[i].verts[0].pos;
+		corner[1] = level->all.tris[i].verts[1].pos;
+		corner[2] = level->all.tris[i].verts[2].pos;
+		corner[3] = level->all.tris[i].verts[3].pos;
+		vec_sub(&corner[0], pos, corner[0]);
+		vec_sub(&corner[1], pos, corner[1]);
+		vec_sub(&corner[2], pos, corner[2]);
+		vec_sub(&corner[3], pos, corner[3]);
+		vec_normalize(&corner[0]);
+		vec_normalize(&corner[1]);
+		vec_normalize(&corner[2]);
+		vec_normalize(&corner[3]);
+		calculate_side_normals(side_normals, corner);
+
 		int amount = 0;
 		for (int k = 0; k < level->all.tris[i].reflection_obj_all->tri_amount; k++)
 		{
-			if (level->all.tris[i].reflection_obj_all->tris[k].isgrid || cull_behind(reflection, pos, level->all.tris[i].reflection_obj_all->tris[k]))
+			if ((level->all.tris[i].reflection_obj_all->tris[k].isgrid || cull_behind(reflection, pos, level->all.tris[i].reflection_obj_all->tris[k])) &&
+				fov_culling(side_normals, pos, level->all.tris[i].reflection_obj_all->tris[k]))
 			{
 				level->all.tris[i].reflection_obj_first_bounce->tris[amount] = level->all.tris[i].reflection_obj_all->tris[k];
 				amount++;
@@ -249,14 +274,6 @@ void		init_reflection_culling(t_level *level)
 	}
 	for (int i = 0; i < level->all.tri_amount; i++)
 		reflection_culling(level, i);
-}
-
-static void		calculate_side_normals(t_vec3 normal[4], t_vec3 corner[4])
-{
-	vec_cross(&normal[0], corner[2], corner[0]);	//left
-	vec_cross(&normal[1], corner[1], corner[3]);	//right
-	vec_cross(&normal[2], corner[0], corner[1]);	//top
-	vec_cross(&normal[3], corner[3], corner[2]);	//bot
 }
 
 static void		calculate_corner_vectors(t_vec3 corner[4], t_camera *cam)
