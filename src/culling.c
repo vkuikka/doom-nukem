@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/20 17:50:56 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/23 20:54:19 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/23 21:18:23 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -181,35 +181,33 @@ static void		calculate_side_normals(t_vec3 normal[4], t_vec3 corner[4])
 	vec_cross(&normal[3], corner[3], corner[2]);	//bot
 }
 
-void		reflection_culling_first_bounce(t_level *level, int i)
+void			reflection_culling_first_bounce(t_level *level, int i)
 {
+	t_vec3		avg_dir = {0, 0, 0};
+	t_vec3		pos;
+	t_vec3		normal;
+	t_vec3		corner[4];
+	t_vec3		side_normals[4];
+
 	if (level->all.tris[i].reflectivity)
 	{
 		level->all.tris[i].reflection_obj_first_bounce->tri_amount = 0;
 
-		t_vec3		avg_dir = {0, 0, 0};
 		for (int o = 0; o < 3 + level->all.tris[i].isquad; o++)
 			vec_add(&avg_dir, avg_dir, level->all.tris[i].verts[o].pos);
 		vec_div(&avg_dir, 3 + level->all.tris[i].isquad);
 		vec_sub(&avg_dir, avg_dir, level->cam.pos);
 
-		t_vec3		pos;
-		t_vec3		normal;
 		normal = level->all.tris[i].normal;
 		vec_mult(&normal, vec_dot(avg_dir, normal));
-
 		pos = level->cam.pos;
 		vec_add(&pos, pos, normal);
 		vec_add(&pos, pos, normal);
-
-		t_vec3		reflection;
-		reflection = level->cam.front;
+		avg_dir = level->cam.front;
 		normal = level->all.tris[i].normal;
-		vec_mult(&normal, vec_dot(reflection, normal) * -2);
-		vec_add(&reflection, reflection, normal);
+		vec_mult(&normal, vec_dot(avg_dir, normal) * -2);
+		vec_add(&avg_dir, avg_dir, normal);
 
-		t_vec3 corner[4];
-		t_vec3 side_normals[4];
 		corner[0] = level->all.tris[i].verts[0].pos;
 		corner[1] = level->all.tris[i].verts[1].pos;
 		corner[2] = level->all.tris[i].verts[2].pos;
@@ -229,7 +227,7 @@ void		reflection_culling_first_bounce(t_level *level, int i)
 		int amount = 0;
 		for (int k = 0; k < level->all.tris[i].reflection_obj_all->tri_amount; k++)
 		{
-			if ((level->all.tris[i].reflection_obj_all->tris[k].isgrid || cull_behind(reflection, pos, level->all.tris[i].reflection_obj_all->tris[k])) &&
+			if ((level->all.tris[i].reflection_obj_all->tris[k].isgrid || cull_behind(avg_dir, pos, level->all.tris[i].reflection_obj_all->tris[k])) &&
 				fov_culling(side_normals, pos, level->all.tris[i].reflection_obj_all->tris[k]))
 			{
 				level->all.tris[i].reflection_obj_first_bounce->tris[amount] = level->all.tris[i].reflection_obj_all->tris[k];
