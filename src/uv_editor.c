@@ -14,12 +14,12 @@
 
 static void		uv_pixel_put(int x, int y, int color, unsigned *texture)
 {
-	int oppacity;
+	int opacity;
 
 	if (x < 0 || y < 0 || x > RES_X / 2 || y >= RES_Y)
 		return;
-	oppacity = (color << (8 * 3)) >> (8 * 3);
-	if (!oppacity)
+	opacity = (color << (8 * 3)) >> (8 * 3);
+	if (!opacity)
 		texture[x + (y * RES_X)] = UI_BACKGROUND_COL;
 	else
 		texture[x + (y * RES_X)] = color;
