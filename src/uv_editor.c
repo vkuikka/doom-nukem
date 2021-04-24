@@ -143,13 +143,16 @@ static void	set_fourth_vertex_uv(t_tri *a)
 
 static void		uv_wireframe(t_level *level, unsigned *pixels, float image_scale)
 {
-	int		y_offset;
 	int		next;
 	t_ivec2	color;
 	t_vec2	start;
 	t_vec2	stop;
+	t_ivec2	offset;
 
-	y_offset = 18 - RES_Y / 2 + (level->texture.height * image_scale) / 2;
+	offset.x = 0;
+	offset.y = 18 + RES_Y / 2 + ((level->texture.height * image_scale) / 2);
+	if (level->texture.width < level->texture.height)
+		offset.x = RES_X / 4 - ((level->texture.width * image_scale) / 2);
 	for (int i = 0; i < level->all.tri_amount; i++)
 	{
 		if (level->all.tris[i].selected)
@@ -161,11 +164,13 @@ static void		uv_wireframe(t_level *level, unsigned *pixels, float image_scale)
 				else
 					next = (k + 1) % 3;
 				start.x = (level->texture.width * image_scale) * level->all.tris[i].verts[k].txtr.x;
-				start.y = (level->texture.height * image_scale) * -level->all.tris[i].verts[k].txtr.y + RES_Y;
+				start.y = (level->texture.height * image_scale) * -level->all.tris[i].verts[k].txtr.y;
 				stop.x = (level->texture.width * image_scale) * level->all.tris[i].verts[next].txtr.x;
-				stop.y = (level->texture.height * image_scale) * -level->all.tris[i].verts[next].txtr.y + RES_Y;
-				start.y += y_offset;
-				stop.y += y_offset;
+				stop.y = (level->texture.height * image_scale) * -level->all.tris[i].verts[next].txtr.y;
+				start.y += offset.y;
+				start.x += offset.x;
+				stop.y += offset.y;
+				stop.x += offset.x;
 				color.x = WF_SELECTED_COL >> 8;
 				color.y = WF_SELECTED_COL >> 8;
 				if (k == 3)
