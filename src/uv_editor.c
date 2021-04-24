@@ -27,14 +27,10 @@ static void		uv_pixel_put(int x, int y, int color, unsigned *texture)
 
 static float	get_texture_scale(t_bmp *img)
 {
-	t_vec2	res;
-
-	res.x = (float)RES_X / 2 / img->width;
-	res.y = (float)RES_Y / img->height;
-	if (res.y < res.x)
-		return (res.y);
+	if (img->width < img->height)
+		return ((float)(RES_Y - 18) / img->height);
 	else
-		return (res.x);
+		return ((float)RES_X / 2 / img->width);
 }
 
 void	uv_print_line(t_vec2 start, t_vec2 stop, t_ivec2 color, unsigned *pixels)
@@ -197,7 +193,7 @@ void			uv_editor(t_level *level, t_window *window)
 	static unsigned		*pixels;
 	signed				width;
 	float				image_scale;
-	int					y_offset;
+	t_ivec2				offset;
 
 	if (!texture)
 	{
@@ -207,14 +203,19 @@ void			uv_editor(t_level *level, t_window *window)
 			ft_error("failed to lock texture\n");
 	}
 	image_scale = get_texture_scale(&level->texture);
-	y_offset = 18 + RES_Y / 2 - ((level->texture.height * image_scale) / 2);
+	offset.x = 0;
+	offset.y = 18;
+	if (level->texture.width < level->texture.height)
+		offset.x = RES_X / 4 - ((level->texture.width * image_scale) / 2);
+	else
+		offset.y += RES_Y / 2 - ((level->texture.height * image_scale) / 2);
 	for (int y = 0; y < RES_Y; y++)
 		for (int x = 0; x < RES_X / 2; x++)
 			uv_pixel_put(x, y, UI_BACKGROUND_COL, pixels);
 	for (int y = 0; y < RES_Y; y++)
 		for (int x = 0; x < RES_X / 2; x++)
 			if (x / image_scale < level->texture.width && y / image_scale < level->texture.height)
-				uv_pixel_put(x, y + y_offset, level->texture.image[(int)(y / image_scale) * level->texture.width + (int)(x / image_scale)], pixels);
+				uv_pixel_put(x + offset.x, y + offset.y, level->texture.image[(int)(y / image_scale) * level->texture.width + (int)(x / image_scale)], pixels);
 	uv_wireframe(level, pixels, image_scale);
 	SDL_UnlockTexture(texture);
 	SDL_RenderCopy(window->SDLrenderer, texture, NULL, NULL);
