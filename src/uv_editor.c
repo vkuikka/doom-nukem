@@ -107,7 +107,7 @@ static void		find_closest_to_mouse(t_vec2 *vert, int *i, int *k)
 	}
 }
 
-static void		update_uv_closest_vertex(t_level *level, float image_scale)
+static void		update_uv_closest_vertex(t_level *level, float image_scale, t_ivec2 offset)
 {
 	int	i;
 	int	k;
@@ -117,10 +117,11 @@ static void		update_uv_closest_vertex(t_level *level, float image_scale)
 	find_closest_to_mouse(NULL, &i, &k);
 	if (i != -1 && SDL_GetMouseState(&x, &y) & SDL_BUTTON(SDL_BUTTON_LEFT) && x < RES_X / 2)
 	{
-		y -= 18 - RES_Y / 2 + (level->texture.height * image_scale) / 2;
-		y -= level->texture.height * image_scale / 2;
+		// transform mouse location to image space vertex and then to uv percentage
+		x -= offset.x;
+		y -= offset.y;
 		level->all.tris[i].verts[k].txtr.x = x / (level->texture.width * image_scale);
-		level->all.tris[i].verts[k].txtr.y = 1 - y / (level->texture.height * image_scale);
+		level->all.tris[i].verts[k].txtr.y = y / -(level->texture.height * image_scale);
 	}
 }
 
@@ -189,7 +190,7 @@ static void		uv_wireframe(t_level *level, unsigned *pixels, float image_scale)
 			}
 		}
 	}
-	update_uv_closest_vertex(level, image_scale);
+	update_uv_closest_vertex(level, image_scale, offset);
 }
 
 void			uv_editor(t_level *level, t_window *window)
