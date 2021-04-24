@@ -166,7 +166,7 @@ static t_ivec2	ui_render_internal(SDL_Texture *get_text, SDL_Texture *get_stream
 		size = put_text(state->text, window, text_texture, text_pos);
 		if (state->ui_max_width < text_pos.x + size.x)
 			state->ui_max_width = text_pos.x + size.x;
-		state->ui_text_y_pos += 14;
+		state->ui_text_y_pos += UI_ELEMENT_HEIGHT;
 		return (size);
 	}
 	else//render
@@ -233,7 +233,7 @@ static void	edit_button_var(int *var, t_ui_state *state)
 
 	if (!SDL_GetRelativeMouseMode() && SDL_GetMouseState(&x, &y) & SDL_BUTTON(SDL_BUTTON_LEFT))
 	{
-		if (!state->m1down && x >= 2 && x <= 11 && y >= state->ui_text_y_pos && y <= state->ui_text_y_pos + 14)
+		if (!state->m1down && x >= 2 && x <= 11 && y >= state->ui_text_y_pos && y <= state->ui_text_y_pos + UI_ELEMENT_HEIGHT)
 		{
 			*var = *var ? 0 : 1;
 			state->m1down = 1;
@@ -360,7 +360,7 @@ void	int_slider(int *var, char *str, int min, int max)
 	edit_slider_var(&unit, state);
 	unit = clamp(unit, 0, 1);
 	*var = min + ((max - min) * unit);
-	state->ui_text_y_pos += 14;
+	state->ui_text_y_pos += UI_ELEMENT_HEIGHT;
 }
 
 void	float_slider(float *var, char *str, float min, float max)
@@ -381,7 +381,7 @@ void	float_slider(float *var, char *str, float min, float max)
 	edit_slider_var(&unit, state);
 	unit = clamp(unit, 0, 1);
 	*var = min + ((max - min) * unit);
-	state->ui_text_y_pos += 14;
+	state->ui_text_y_pos += UI_ELEMENT_HEIGHT;
 }
 
 void	file_save(char *str, char *extension, void (*f)(t_level*, char*))
@@ -437,7 +437,7 @@ int		call(char *str, void (*f)(t_level*), t_level *level)
 	state->ui_text_color = UI_BACKGROUND_COL;
 	t_ivec2 size;
 	size = ui_render_internal(NULL, NULL, NULL, NULL, state);
-	state->ui_text_y_pos -= 14;
+	state->ui_text_y_pos -= UI_ELEMENT_HEIGHT;
 	state->ui_text_color = color_tmp;
 	render_call_streaming(NULL, state->ui_text_y_pos, &size, state->ui_text_color);
 	if (edit_call_var(state, size))
@@ -446,7 +446,7 @@ int		call(char *str, void (*f)(t_level*), t_level *level)
 		if (*f)
 			(*f)(level);
 	}
-	state->ui_text_y_pos += 14;
+	state->ui_text_y_pos += UI_ELEMENT_HEIGHT;
 	return (res);
 }
 

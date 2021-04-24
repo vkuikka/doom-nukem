@@ -28,7 +28,7 @@ static void		uv_pixel_put(int x, int y, int color, unsigned *texture)
 static float	get_texture_scale(t_bmp *img)
 {
 	if (img->width < img->height)
-		return ((float)(RES_Y - 18) / img->height);
+		return ((float)(RES_Y - UV_EDITOR_Y_OFFSET) / img->height);
 	else
 		return ((float)RES_X / 2 / img->width);
 }
@@ -151,7 +151,7 @@ static void		uv_wireframe(t_level *level, unsigned *pixels, float image_scale)
 	t_ivec2	offset;
 
 	offset.x = 0;
-	offset.y = 18 + RES_Y / 2 + ((level->texture.height * image_scale) / 2);
+	offset.y = UV_EDITOR_Y_OFFSET + RES_Y / 2 + ((level->texture.height * image_scale) / 2);
 	if (level->texture.width < level->texture.height)
 		offset.x = RES_X / 4 - ((level->texture.width * image_scale) / 2);
 	for (int i = 0; i < level->all.tri_amount; i++)
@@ -210,7 +210,7 @@ void			uv_editor(t_level *level, t_window *window)
 	}
 	image_scale = get_texture_scale(&level->texture);
 	offset.x = 0;
-	offset.y = 18;
+	offset.y = UV_EDITOR_Y_OFFSET;
 	if (level->texture.width < level->texture.height)
 		offset.x = RES_X / 4 - ((level->texture.width * image_scale) / 2);
 	else
