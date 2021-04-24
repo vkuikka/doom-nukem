@@ -84,7 +84,10 @@ static void		raytrace(t_cast_result *res, t_obj *obj, t_ray r, t_level *l)
 		res->reflection_depth < REFLECTION_DEPTH)
 	{
 		res->reflection_depth++;
-		reflection(res, l, l->all.tris[res->face_index].reflection_obj);
+		if (res->reflection_depth == 1)
+			reflection(res, l, l->all.tris[res->face_index].reflection_obj_first_bounce);
+		else
+			reflection(res, l, l->all.tris[res->face_index].reflection_obj_all);
 	}
 	if (l->all.tris[res->face_index].opacity)
 		opacity(res, l, obj);
