@@ -72,7 +72,7 @@ void		render(t_window *window, t_level *level)
 	return ;
 }
 
-static void		read_text_input(t_level *level, SDL_Event event)
+static void		typing_input(t_level *level, SDL_Event event)
 {
 	int	i;
 	int	k;
@@ -109,53 +109,89 @@ static void		read_text_input(t_level *level, SDL_Event event)
 		}
 }
 
+static void		set_mouse_input_location(t_level *level)
+{
+	int	x;
+	int	y;
+
+	SDL_GetMouseState(&x, &y);
+	// else if (level->ui.state.is_uv_editor_open && x < RES_X / 2)
+	// 	level->ui.state.mouse_location = MOUSE_INPUT_GIZMO;
+	level->ui.state.m1_click = FALSE;
+	int prev = level->ui.state.mouse_location;
+	if (level->ui.state.mouse_capture)
+		level->ui.state.mouse_location = MOUSE_LOCATION_GAME;
+	else if (x < level->ui.state.ui_max_width && y < level->ui.state.ui_text_y_pos)
+		level->ui.state.mouse_location = MOUSE_LOCATION_UI;
+	else if (level->ui.state.is_uv_editor_open && x < RES_X / 2)
+		level->ui.state.mouse_location = MOUSE_LOCATION_UV_EDITOR;
+	else
+		level->ui.state.mouse_location = MOUSE_LOCATION_SELECTION;
+	if (prev != level->ui.state.mouse_location)
+		level->ui.state.m1_drag = FALSE;
+}
+
+static void		mouse_input(t_level *level, SDL_Event event)
+{
+	if (event.type == SDL_MOUSEMOTION && level->ui.state.mouse_capture)
+	{
+		level->cam.look_side += (float)event.motion.xrel / 600;
+		level->cam.look_up -= (float)event.motion.yrel / 600;
+	}
+	else if (event.type == SDL_MOUSEBUTTONUP)
+		level->ui.state.m1_drag = FALSE;
+	else if (event.type == SDL_MOUSEBUTTONDOWN)
+	{
+		level->ui.state.text_input_enable = FALSE;
+		if (event.button.button == SDL_BUTTON_LEFT)
+		{
+			level->ui.state.m1_click = TRUE;
+			level->ui.state.m1_drag = TRUE;
+			if (level->ui.state.mouse_location == MOUSE_LOCATION_SELECTION)
+				select_face(&level->cam, level, event.button.x, event.button.y);
+		}
+	}
+}
+
+static void		keyboard_input(t_window *window, t_level *level, SDL_Event event)
+{
+	if (event.key.keysym.scancode == SDL_SCANCODE_PERIOD)
+		level->ui.raycast_quality += 1;
+	else if (event.key.keysym.scancode == SDL_SCANCODE_COMMA && level->ui.raycast_quality > 1)
+		level->ui.raycast_quality -= 1;
+	else if (event.key.keysym.scancode == SDL_SCANCODE_CAPSLOCK)
+		level->ui.noclip = level->ui.noclip ? FALSE : TRUE;
+	else if (event.key.keysym.scancode == SDL_SCANCODE_Z)
+		level->ui.wireframe = level->ui.wireframe ? FALSE : TRUE;
+	else if (event.key.keysym.scancode == SDL_SCANCODE_X)
+		level->ui.show_quads = level->ui.show_quads ? FALSE : TRUE;
+	else if (event.key.keysym.scancode == SDL_SCANCODE_TAB)
+	{
+		level->ui.state.mouse_capture = level->ui.state.mouse_capture ? FALSE : TRUE;
+		if (level->ui.state.mouse_capture)
+			SDL_SetRelativeMouseMode(SDL_TRUE);
+		else
+		{
+			SDL_SetRelativeMouseMode(SDL_FALSE);
+			SDL_WarpMouseInWindow(window->SDLwindow, RES_X / 2, RES_Y / 2);
+		}
+	}
+}
+
 static void		read_input(t_window *window, t_level *level)
 {
 	SDL_Event	event;
-	static int	relmouse = 0;
 
+	set_mouse_input_location(level);
 	while (SDL_PollEvent(&event))
 	{
 		if (event.type == SDL_QUIT || event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
 			exit(0);
-		else if (event.type == SDL_MOUSEMOTION && relmouse)
-		{
-			level->cam.look_side += (float)event.motion.xrel / 600;
-			level->cam.look_up -= (float)event.motion.yrel / 600;
-		}
-		else if (event.type == SDL_MOUSEBUTTONDOWN && !relmouse && level->ui.wireframe &&
-				(event.button.x > level->ui.state.ui_max_width ||
-				event.button.y > level->ui.state.ui_text_y_pos) &&
-				(!level->ui.state.is_uv_editor_open || event.button.x > RES_X / 2))
-			select_face(&level->cam, level, event.button.x, event.button.y);
-		else if (event.type == SDL_MOUSEBUTTONDOWN)
-			level->ui.state.text_input_enable = FALSE;
-		else if (level->ui.state.text_input_enable)
-			read_text_input(level, event);
-		else if (event.key.repeat == 0 && event.type == SDL_KEYDOWN)
-		{
-			if (event.key.keysym.scancode == SDL_SCANCODE_PERIOD)
-				level->ui.raycast_quality += 1;
-			else if (event.key.keysym.scancode == SDL_SCANCODE_COMMA && level->ui.raycast_quality > 1)
-				level->ui.raycast_quality -= 1;
-			else if (event.key.keysym.scancode == SDL_SCANCODE_CAPSLOCK)
-				level->ui.noclip = level->ui.noclip ? FALSE : TRUE;
-			else if (event.key.keysym.scancode == SDL_SCANCODE_Z)
-				level->ui.wireframe = level->ui.wireframe ? FALSE : TRUE;
-			else if (event.key.keysym.scancode == SDL_SCANCODE_X)
-				level->ui.show_quads = level->ui.show_quads ? FALSE : TRUE;
-			else if (event.key.keysym.scancode == SDL_SCANCODE_TAB)
-			{
-				relmouse = relmouse ? 0 : 1;
-				if (relmouse)
-					SDL_SetRelativeMouseMode(SDL_TRUE);
-				else
-				{
-					SDL_SetRelativeMouseMode(SDL_FALSE);
-					SDL_WarpMouseInWindow(window->SDLwindow, RES_X / 2, RES_Y / 2);
-				}
-			}
-		}
+		mouse_input(level, event);
+		if (level->ui.state.text_input_enable)
+			typing_input(level, event);
+		else if (event.type == SDL_KEYDOWN && event.key.repeat == 0)
+			keyboard_input(window, level, event);
 	}
 }
 

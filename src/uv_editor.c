@@ -115,9 +115,9 @@ static void		update_uv_closest_vertex(t_level *level, float image_scale, t_ivec2
 	int	y;
 
 	find_closest_to_mouse(NULL, &i, &k);
-	if (i != -1 && SDL_GetMouseState(&x, &y) & SDL_BUTTON(SDL_BUTTON_LEFT) && x < RES_X / 2)
+	SDL_GetMouseState(&x, &y);
+	if (i != -1 && level->ui.state.mouse_location == MOUSE_LOCATION_UV_EDITOR && level->ui.state.m1_drag)
 	{
-		// transform mouse location to image space vertex and then to uv percentage
 		x -= offset.x;
 		y -= offset.y;
 		level->all.tris[i].verts[k].txtr.x = x / (level->texture.width * image_scale);

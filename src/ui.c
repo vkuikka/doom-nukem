@@ -194,18 +194,11 @@ static void	edit_slider_var(float *unit, t_ui_state *state)
 	int			x;
 	int			y;
 
-	if (!SDL_GetRelativeMouseMode() && SDL_GetMouseState(&x, &y) & SDL_BUTTON(SDL_BUTTON_LEFT))
-	{
-		if (state->m1down == state->ui_text_y_pos ||
-			(!state->m1down && y >= state->ui_text_y_pos + 4 &&
-			y <= state->ui_text_y_pos + 15 && x < 109 && x > 2))
-		{
-			*unit = (float)(x - 4) / (float)100;
-			state->m1down = state->ui_text_y_pos;
-		}
-	}
-	else if (state->m1down)
-		state->m1down = 0;
+	SDL_GetMouseState(&x, &y);
+	if (state->mouse_location == MOUSE_LOCATION_UI && state->m1_drag &&
+	y >= state->ui_text_y_pos + 4 &&
+	y <= state->ui_text_y_pos + 15 && x < 109 && x > 2)
+		*unit = (float)(x - 4) / (float)100;
 }
 
 static int	edit_call_var(t_ui_state *state, t_ivec2 size)
@@ -213,17 +206,11 @@ static int	edit_call_var(t_ui_state *state, t_ivec2 size)
 	int			x;
 	int			y;
 
-	if (!SDL_GetRelativeMouseMode() && SDL_GetMouseState(&x, &y) & SDL_BUTTON(SDL_BUTTON_LEFT))
-	{
-		if (!state->m1down && x >= 3 && x <= size.x + 6 && y >= state->ui_text_y_pos + 4 && y <= state->ui_text_y_pos + size.y + 2)
-		{
-			state->m1down = 1;
-			return (1);
-		}
-	}
-	else if (state->m1down)
-		state->m1down = 0;
-	return (0);
+	SDL_GetMouseState(&x, &y);
+	if (state->mouse_location == MOUSE_LOCATION_UI && state->m1_click &&
+	x >= 3 && x <= size.x + 6 && y >= state->ui_text_y_pos + 4 && y <= state->ui_text_y_pos + size.y + 2)
+		return (TRUE);
+	return (FALSE);
 }
 
 static void	edit_button_var(int *var, t_ui_state *state)
@@ -231,16 +218,10 @@ static void	edit_button_var(int *var, t_ui_state *state)
 	int			x;
 	int			y;
 
-	if (!SDL_GetRelativeMouseMode() && SDL_GetMouseState(&x, &y) & SDL_BUTTON(SDL_BUTTON_LEFT))
-	{
-		if (!state->m1down && x >= 2 && x <= 11 && y >= state->ui_text_y_pos && y <= state->ui_text_y_pos + UI_ELEMENT_HEIGHT)
-		{
-			*var = *var ? 0 : 1;
-			state->m1down = 1;
-		}
-	}
-	else if (state->m1down)
-		state->m1down = 0;
+	SDL_GetMouseState(&x, &y);
+	if (state->mouse_location == MOUSE_LOCATION_UI && state->m1_click &&
+	x >= 2 && x <= 11 && y >= state->ui_text_y_pos && y <= state->ui_text_y_pos + UI_ELEMENT_HEIGHT)
+		*var = *var ? FALSE : TRUE;
 }
 
 static void	render_call_streaming(unsigned *get_texture, int dy, t_ivec2 *size, int color)

@@ -182,6 +182,23 @@ typedef struct			s_camera
 	float				fov_x;
 }						t_camera;
 
+typedef enum			e_ui_location
+{
+	UI_UV_SETTINGS = 1,
+	UI_UV_EDITOR,
+	UI_SERIALIZE,
+	UI_DIRECTORY
+}						t_ui_location;
+
+typedef enum			e_mouse_location
+{
+	MOUSE_LOCATION_GAME = 0,
+	MOUSE_LOCATION_UI,
+	MOUSE_LOCATION_UV_EDITOR,
+	MOUSE_LOCATION_GIZMO,
+	MOUSE_LOCATION_SELECTION
+}						t_mouse_location;
+
 struct					s_level;
 typedef struct			s_ui_state
 {
@@ -189,9 +206,12 @@ typedef struct			s_ui_state
 	int					ui_text_y_pos;
 	int					ui_text_x_offset;
 	int					ui_text_color;
-	int					m1down;
 	char				*text;
 
+	int					mouse_capture;
+	int					m1_click;
+	int					m1_drag;
+	enum e_mouse_location	mouse_location;
 	int					is_uv_editor_open;
 
 	int					is_serialize_open;
