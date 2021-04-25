@@ -75,7 +75,7 @@ static void		put_uv_vertex(t_vec2 vertex, int color, unsigned *pixels)
 	}
 }
 
-static void		find_closest_to_mouse(t_vec2 *vert, int *i, int *k)
+static void		find_closest_to_mouse(t_vec2 *vert, int *i, int *k, t_level *level)
 {
 	static float	nearest_len = -1;
 	static int		nearest_tri_index = -1;
@@ -89,9 +89,12 @@ static void		find_closest_to_mouse(t_vec2 *vert, int *i, int *k)
 	{
 		*k = nearest_vert_index;
 		*i = nearest_tri_index;
-		nearest_vert_index = -1;
-		nearest_tri_index = -1;
-		nearest_len = -1;
+		if (!level->ui.state.m1_drag)
+		{
+			nearest_vert_index = -1;
+			nearest_tri_index = -1;
+			nearest_len = -1;
+		}
 		return ;
 	}
 	SDL_GetMouseState(&x, &y);
@@ -99,7 +102,7 @@ static void		find_closest_to_mouse(t_vec2 *vert, int *i, int *k)
 	test.x -= x;
 	test.y -= y;
 	len = vec2_length(test);
-	if (len < nearest_len || nearest_len == -1)
+	if (level->ui.state.m1_click && (len < nearest_len || nearest_len == -1))
 	{
 		nearest_len = len;
 		nearest_tri_index = *i;
@@ -114,7 +117,7 @@ static void		update_uv_closest_vertex(t_level *level, float image_scale, t_ivec2
 	int	x;
 	int	y;
 
-	find_closest_to_mouse(NULL, &i, &k);
+	find_closest_to_mouse(NULL, &i, &k, level);
 	SDL_GetMouseState(&x, &y);
 	if (i != -1 && level->ui.state.mouse_location == MOUSE_LOCATION_UV_EDITOR && level->ui.state.m1_drag)
 	{
@@ -185,7 +188,7 @@ static void		uv_wireframe(t_level *level, unsigned *pixels, float image_scale)
 				{
 					set_fourth_vertex_uv(&level->all.tris[i]);
 					put_uv_vertex(start, WF_SELECTED_COL, pixels);
-					find_closest_to_mouse(&start, &i, &k);
+					find_closest_to_mouse(&start, &i, &k, level);
 				}
 			}
 		}

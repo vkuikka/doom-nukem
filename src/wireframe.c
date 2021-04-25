@@ -166,6 +166,8 @@ void	render_wireframe(t_window *window, t_level *level, t_obj *obj, int is_visib
 
 	for (int i = 0; i < obj->tri_amount; i++)
 	{
+		if (!level->ui.wireframe && (is_visible || !obj->tris[i].selected))
+			continue ;
 		int amount = obj->tris[i].isquad ? 4 : 3;
 		for (int j = 0; j < amount; j++)
 		{
@@ -202,7 +204,7 @@ void	wireframe(t_window *window, t_level *level)
 {
 	if (!level->ui.wireframe_on_top)
 		ft_memset(window->frame_buffer, WF_BACKGROUND_COL, RES_X * RES_Y * sizeof(int));
-	if (level->ui.wireframe_culling_visual)
+	if (level->ui.wireframe && level->ui.wireframe_culling_visual)
 		render_wireframe(window, level, &level->visible, TRUE);
 	render_wireframe(window, level, &level->all, FALSE);
 	// for (int asd = 0; asd < level->all.tri_amount; asd++)

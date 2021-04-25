@@ -59,8 +59,7 @@ void		render(t_window *window, t_level *level)
 		fill_pixels(window->frame_buffer, level->ui.raycast_quality,
 					level->ui.blur, level->ui.smooth_pixels);
 	}
-	if (level->ui.wireframe)
-		wireframe(window, level);
+	wireframe(window, level);
 
 	SDL_UnlockTexture(window->texture);
 	SDL_RenderClear(window->SDLrenderer);
