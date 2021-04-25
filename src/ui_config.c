@@ -33,22 +33,17 @@ int		    get_fps(void)
 int		get_selected_amount(t_level *level)
 {
 	int	selected_amount;
+	int	i;
 
+	i = 0;
 	selected_amount = 0;
-	for (int i = 0; i < level->all.tri_amount; i++)
+	while (i < level->all.tri_amount)
 	{
-		int counter = 0;
-		int j = 0;
-		while (j < 3 + level->all.tris[i].isquad)
-		{
-			if (level->all.tris[i].verts[j].selected)
-				counter++;
-			j++;
-		}
-		if (counter == 3 + level->all.tris[i].isquad)
+		if (level->all.tris[i].selected)
 			selected_amount++;
+		i++;
 	}
-	return(selected_amount);
+	return (selected_amount);
 }
 
 void	copy_tri_settings(t_tri *a, t_tri *b)
@@ -74,15 +69,7 @@ void	ui_config_selected_faces(t_level *level)
 			reflection_culling(level, i);
 	for (int i = 0; i < level->all.tri_amount; i++)
 	{
-		int counter = 0;
-		int j = 0;
-		while (j < 3 + level->all.tris[i].isquad)
-		{
-			if (level->all.tris[i].verts[j].selected)
-				counter++;
-			j++;
-		}
-		if (counter == 3 + level->all.tris[i].isquad)
+		if (level->all.tris[i].selected)
 		{
 			if (!selected_index)
 			{
@@ -299,6 +286,12 @@ void	ui_config(t_level *level)
 		ui_render_directory(level);
 		return ;
 	}
+	if (level->ui.state.is_uv_editor_open)
+	{
+		set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
+		call("close uv editor", &disable_uv_editor, level);
+		return ;
+	}
 	set_text_color(UI_EDITOR_SETTINGS_TEXT_COLOR);
 	// button(, "face/vert selection");
 	sprintf(buf, "render scale: %d (%.0f%%)", ui->raycast_quality, 100.0 / (float)ui->raycast_quality);
@@ -323,6 +316,7 @@ void	ui_config(t_level *level)
 	file_browser("select level", ".doom-nukem", &open_level);
 	file_browser("select obj", ".obj", &set_obj);
 	file_browser("select texture", ".bmp", &set_texture);
+	call("edit uv", &enable_uv_editor, level);
 	file_browser("select skybox", ".bmp", &set_skybox);
 	button(&ui->fog, "fog");
 	// color(ui->color, "fog color");

@@ -47,6 +47,9 @@
 # define UI_INFO_TEXT_COLOR 0xff5500ff
 # define UI_FACE_SELECTION_TEXT_COLOR 0xffffffff
 # define UI_BACKGROUND_COL 0x222222bb
+# define UI_ELEMENT_HEIGHT 14
+# define UI_PADDING 2
+# define UV_EDITOR_Y_OFFSET UI_ELEMENT_HEIGHT + UI_PADDING * 2
 
 # define SERIALIZE_INITIAL_BUFFER_SIZE 666
 # define OCCLUSION_CULLING_FLOAT_ERROR_MAGIC_NUMBER 10
@@ -144,6 +147,7 @@ typedef struct			s_tri
 	float				opacity;
 	float				reflectivity;
 	int					shader;
+	int					selected;
 	struct s_obj		*reflection_obj_all;
 	struct s_obj		*reflection_obj_first_bounce;
 	// int					breakable;
@@ -178,6 +182,23 @@ typedef struct			s_camera
 	float				fov_x;
 }						t_camera;
 
+typedef enum			e_ui_location
+{
+	UI_UV_SETTINGS = 1,
+	UI_UV_EDITOR,
+	UI_SERIALIZE,
+	UI_DIRECTORY
+}						t_ui_location;
+
+typedef enum			e_mouse_location
+{
+	MOUSE_LOCATION_GAME = 0,
+	MOUSE_LOCATION_UI,
+	MOUSE_LOCATION_UV_EDITOR,
+	MOUSE_LOCATION_GIZMO,
+	MOUSE_LOCATION_SELECTION
+}						t_mouse_location;
+
 struct					s_level;
 typedef struct			s_ui_state
 {
@@ -185,8 +206,13 @@ typedef struct			s_ui_state
 	int					ui_text_y_pos;
 	int					ui_text_x_offset;
 	int					ui_text_color;
-	int					m1down;
 	char				*text;
+
+	int					mouse_capture;
+	int					m1_click;
+	int					m1_drag;
+	enum e_mouse_location	mouse_location;
+	int					is_uv_editor_open;
 
 	int					is_serialize_open;
 	char				*save_filename;
@@ -316,6 +342,10 @@ void		vec_avg(t_vec3 *res, t_vec3 ve1, t_vec3 ve2);
 float		vec_angle(t_vec3 v1, t_vec3 v2);
 void		vec_mult(t_vec3 *res, float mult);
 void		vec_div(t_vec3 *res, float div);
+float		vec2_length(t_vec2 vec);
+void		vec2_avg(t_vec2 *res, t_vec2 ve1, t_vec2 ve2);
+void		vec2_sub(t_vec2 *res, t_vec2 ve1, t_vec2 ve2);
+void		vec2_add(t_vec2 *res, t_vec2 ve1, t_vec2 ve2);
 
 void		init_window(t_window **window);
 void		init_level(t_level **level);
@@ -361,6 +391,10 @@ void		file_save(char *str, char *extension, void (*f)(t_level*, char*));
 void		path_up_dir(char *path);
 void		go_in_dir(char *path, char *folder);
 void		text_input(char *str, t_level *level);
+
+void		uv_editor(t_level *level, t_window *window);
+void		enable_uv_editor(t_level *level);
+void		disable_uv_editor(t_level *level);
 
 void		player_movement(t_level *level);
 
