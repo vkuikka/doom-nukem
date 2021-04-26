@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/26 15:17:30 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/27 00:28:36 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -422,5 +422,6 @@ int			cull_ahead(t_vec3 dir, t_vec3 pos, t_tri tri);
 
 void		fix_uv_overlap(t_level *level);
 int			tri_uv_intersect(t_tri t1, t_tri t2);
+int			point_in_tri(t_vec2 pt, t_vec2 v1, t_vec2 v2, t_vec2 v3);
 
 #endif

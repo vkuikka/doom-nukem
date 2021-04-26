@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/26 15:15:59 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/26 19:58:40 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/27 00:28:28 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ static float	sign(t_vec2 p1, t_vec2 p2, t_vec2 p3)
     return (p1.x - p3.x) * (p2.y - p3.y) - (p2.x - p3.x) * (p1.y - p3.y);
 }
 
-static int		point_in_tri(t_vec2 pt, t_vec2 v1, t_vec2 v2, t_vec2 v3)
+int				point_in_tri(t_vec2 pt, t_vec2 v1, t_vec2 v2, t_vec2 v3)
 {
     float	d1, d2, d3;
     int		has_neg, has_pos;

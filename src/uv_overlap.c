@@ -77,13 +77,16 @@ void		copy_uv(t_tri *t1, float diff_y, float diff_x, t_bmp *img)
 		y = min_y;
 		while (y < max_y)
 		{
-			int	og_x = x + diff_x * img->width; 
-			int	og_y = (img->height - y) + diff_y * img->height;
-			// printf("%d %d <- %d %d\n", x, y, og_x, og_y);
-
-			img->image[x + (img->height - y) * img->width] = img->image[og_x + og_y * img->width];
-			// img->image[x + y * img->width] = 0xff0000ff;
-			// img->image[x + (img->height - y) * img->width] = 0x00ff00ff;
+			t_vec2 check;
+			check.x = x / (float)img->width;
+			check.y = y / (float)img->height;
+			if (point_in_tri(check, t1->verts[0].txtr, t1->verts[1].txtr, t1->verts[2].txtr) ||
+				point_in_tri(check, t1->verts[3].txtr, t1->verts[1].txtr, t1->verts[2].txtr))
+			{
+				int	og_x = x + diff_x * img->width; 
+				int	og_y = (img->height - y) + diff_y * img->height;
+				img->image[x + (img->height - y) * img->width] = img->image[og_x + og_y * img->width];
+			}
 
 			y++;
 		}
@@ -157,11 +160,7 @@ void			fix_uv_overlap(t_level *level)
 			while (j < level->all.tri_amount)
 			{
 				if (i != j && tri_uv_intersect(level->all.tris[i], level->all.tris[j]))
-				{
 					move_uv(&level->all.tris[i], i, level);
-					// level->all.tris[i].selected = 1;
-					// level->all.tris[j].selected = 1;
-				}
 				j++;
 			}
 		}
