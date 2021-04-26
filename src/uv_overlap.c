@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/26 13:48:01 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/26 20:05:16 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/26 21:28:22by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,41 +32,115 @@ void		div_every_uv(t_level *l)
 	}
 }
 
-void		copy_uv(t_tri *t1, t_tri *t2, t_level *l)
+void		copy_uv(t_tri *t1, float diff_y, float diff_x, t_bmp *img)
+{
+	float		min_x;
+	float		max_x;
+	float		min_y;
+	float		max_y;
+	int			x;
+	int			y;
+	
+	min_x = t1->verts[0].txtr.x;
+	min_x = fmin(min_x, t1->verts[1].txtr.x);
+	min_x = fmin(min_x, t1->verts[2].txtr.x);
+	if (t1->isquad)
+		min_x = fmin(min_x, t1->verts[3].txtr.x);
+
+	max_x = t1->verts[0].txtr.x;
+	max_x = fmax(max_x, t1->verts[1].txtr.x);
+	max_x = fmax(max_x, t1->verts[2].txtr.x);
+	if (t1->isquad)
+		max_x = fmax(max_x, t1->verts[3].txtr.x);
+
+	min_y = t1->verts[0].txtr.y;
+	min_y = fmin(min_y, t1->verts[1].txtr.y);
+	min_y = fmin(min_y, t1->verts[2].txtr.y);
+	if (t1->isquad)
+		min_y = fmin(min_y, t1->verts[3].txtr.y);
+
+	max_y = t1->verts[0].txtr.y;
+	max_y = fmax(max_y, t1->verts[1].txtr.y);
+	max_y = fmax(max_y, t1->verts[2].txtr.y);
+	if (t1->isquad)
+		max_y = fmax(max_y, t1->verts[3].txtr.y);
+
+	min_x *= (float)img->width;
+	max_x *= (float)img->width;
+
+	max_y *= (float)img->height;
+	min_y *= (float)img->height;
+
+	x = min_x;
+	while (x < max_x)
+	{
+		y = min_y;
+		while (y < max_y)
+		{
+			int	og_x = x + diff_x * img->width; 
+			int	og_y = (img->height - y) + diff_y * img->height;
+			// printf("%d %d <- %d %d\n", x, y, og_x, og_y);
+
+			img->image[x + (img->height - y) * img->width] = img->image[og_x + og_y * img->width];
+			// img->image[x + y * img->width] = 0xff0000ff;
+			// img->image[x + (img->height - y) * img->width] = 0x00ff00ff;
+
+			y++;
+		}
+		x++;
+	}
+}
+
+void		move_uv(t_tri *t1, int t1_index, t_level *l)
 {
 	int		i;
-
-	while (tri_uv_intersect(*t1, *t2))
-	{
-		t1->verts[0].txtr.y -= 0.01;
-		t1->verts[1].txtr.y -= 0.01;
-		t1->verts[2].txtr.y -= 0.01;
-		if (t1->isquad)
-			t1->verts[3].txtr.y -= 0.01;
-	}
-	if (l->texture.height > 10000)
-		return ;
+	float	diff_y;
+	float	diff_x;
 
 	i = 0;
 	while (i < l->all.tri_amount)
 	{
-		if (t1->selected)
+		if (i == t1_index)
 		{
-			if (t1->verts[0].txtr.y < 0 ||
-				t1->verts[1].txtr.y < 0 ||
-				t1->verts[2].txtr.y < 0)
-			{
-				l->texture.image = realloc(l->texture.image, sizeof(int) * (l->texture.width * (l->texture.height * 2)));
-				if (!l->texture.image)
-					ft_error("failed realloc\n");
-				ft_bzero(&l->texture.image[l->texture.width * l->texture.height], sizeof(int) * (l->texture.width * l->texture.height));
-				div_every_uv(l);
-				l->texture.height *= 2;
-				printf("new height %d\n", l->texture.height);
-			}
+			i++;
+			continue;
 		}
+		if (tri_uv_intersect(*t1, l->all.tris[i]))
+		{
+			while (tri_uv_intersect(*t1, l->all.tris[i]))
+			{
+				t1->verts[0].txtr.y -= 0.01;
+				t1->verts[1].txtr.y -= 0.01;
+				t1->verts[2].txtr.y -= 0.01;
+				if (t1->isquad)
+					t1->verts[3].txtr.y -= 0.01;
+				diff_y -= 0.01;
+			}
+			i = -1;
+		}
+
+		if (t1->verts[0].txtr.y < 0 ||
+			t1->verts[1].txtr.y < 0 ||
+			t1->verts[2].txtr.y < 0 ||
+			(t1->isquad && t1->verts[3].txtr.y < 0))
+		{
+			l->texture.image = realloc(l->texture.image, sizeof(int) * (l->texture.width * (l->texture.height * 2)));
+			if (!l->texture.image)
+				ft_error("failed realloc\n");
+			ft_bzero(&l->texture.image[l->texture.width * l->texture.height], sizeof(int) * (l->texture.width * l->texture.height));
+			div_every_uv(l);
+			l->texture.height *= 2;
+			diff_y /= 2.0;
+			diff_x /= 2.0;
+			printf("new height %d\n", l->texture.height);
+		}
+
+		if (l->texture.height > 10000)
+			return ;
 		i++;
 	}
+	if (diff_y != 0.0 || diff_x != 0.0)
+		copy_uv(t1, diff_y, diff_x, &l->texture);
 }
 
 void			fix_uv_overlap(t_level *level)
@@ -84,7 +158,7 @@ void			fix_uv_overlap(t_level *level)
 			{
 				if (i != j && tri_uv_intersect(level->all.tris[i], level->all.tris[j]))
 				{
-					copy_uv(&level->all.tris[i], &level->all.tris[j], level);
+					move_uv(&level->all.tris[i], i, level);
 					// level->all.tris[i].selected = 1;
 					// level->all.tris[j].selected = 1;
 				}
