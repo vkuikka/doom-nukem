@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/19 17:39:49 by vkuikka           #+#    #+#             */
-/*   Updated: 2019/12/03 15:11:47 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/26 15:52:11 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,13 +14,13 @@
 
 void		*ft_memcpy(void *dst, const void *src, size_t n)
 {
-	size_t		i;
-	unsigned	*ptr;
-	unsigned	*ptr2;
+	size_t			i;
+	unsigned char	*ptr;
+	unsigned char	*ptr2;
 
 	i = 0;
-	ptr = (unsigned *)src;
-	ptr2 = (unsigned *)dst;
+	ptr = (unsigned char *)src;
+	ptr2 = (unsigned char *)dst;
 	while (i < n)
 	{
 		ptr2[i] = ptr[i];
