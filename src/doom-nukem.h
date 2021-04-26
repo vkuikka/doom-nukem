@@ -6,14 +6,14 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/20 16:04:43 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/26 15:17:30 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef DOOM_NUKEM_H
 # define DOOM_NUKEM_H
-# define RES_X 800
-# define RES_Y 600
+# define RES_X 1000
+# define RES_Y 700
 # define THREAD_AMOUNT 4
 # define NOISE_QUALITY_LIMIT 8
 # define SSP_MAX_X 20
@@ -419,5 +419,8 @@ void		open_level(t_level *level, char *filename);
 void		cast_all_color(t_ray r, t_level *l, t_obj *obj, t_cast_result *res);
 int			cull_behind(t_vec3 dir, t_vec3 pos, t_tri tri);
 int			cull_ahead(t_vec3 dir, t_vec3 pos, t_tri tri);
+
+void		fix_uv_overlap(t_level *level);
+int			tri_uv_intersect(t_tri t1, t_tri t2);
 
 #endif

@@ -216,5 +216,6 @@ int			main(int argc, char **argv)
 		screen_space_partition(level);
 		render(window, level);
 		level->ui.frametime = SDL_GetTicks() - frametime;
+		fix_uv_overlap(level);
 	}
 }
