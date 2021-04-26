@@ -6,59 +6,67 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/26 13:48:01 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/26 15:53:24 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/26 20:05:16 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom-nukem.h"
 
-static float	uv_min(t_tri tri)
+void		div_every_uv(t_level *l)
 {
-	float	min;
+	int		i;
+	int		j;
+	t_vert	*vert;
 
-	min = tri.verts[0].txtr.y;
-	if (tri.verts[1].txtr.y < min)
-		min = tri.verts[1].txtr.y;
-	if (tri.verts[2].txtr.y < min)
-		min = tri.verts[2].txtr.y;
-	return (min);
-}
-
-static float	uv_max(t_tri tri)
-{
-	float		max;
-
-	max = tri.verts[0].txtr.y;
-	if (tri.verts[1].txtr.y > max)
-		max = tri.verts[1].txtr.y;
-	if (tri.verts[2].txtr.y > max)
-		max = tri.verts[2].txtr.y;
-	return (max);
+	i = 0;
+	while (i < l->all.tri_amount)
+	{
+		j = 0;
+		while (j < 3 + l->all.tris[i].isquad)
+		{
+			vert = &l->all.tris[i].verts[j];
+			vert->txtr.y = 0.5 + vert->txtr.y / 2;
+			j++;
+		}
+		i++;
+	}
 }
 
 void		copy_uv(t_tri *t1, t_tri *t2, t_level *l)
 {
-	float	height;
+	int		i;
 
 	while (tri_uv_intersect(*t1, *t2))
 	{
-		t2->verts[0].txtr.y -= 0.01;
-		t2->verts[1].txtr.y -= 0.01;
-		t2->verts[2].txtr.y -= 0.01;
-		// if (t2->verts[0].txtr.y > l->texture.height ||
-		// 	t2->verts[1].txtr.y > l->texture.height ||
-		// 	t2->verts[2].txtr.y > l->texture.height)
-		// {
-		// 	height = uv_max(*t2) - uv_min(*t2);
-		// 	l->texture.image = realloc(l->texture.image, l->texture.width * (l->texture.height * 2));
-		// 	if (!l->texture.image)
-		// 		ft_error("failed realloc\n");
-		// 	ft_memcpy(&l->texture.image[l->texture.width * l->texture.height], l->texture.image, l->texture.width * l->texture.height);
-		// 	l->texture.height *= 2;
-		// 	printf("%d\n", l->texture.height);
-		// }
+		t1->verts[0].txtr.y -= 0.01;
+		t1->verts[1].txtr.y -= 0.01;
+		t1->verts[2].txtr.y -= 0.01;
+		if (t1->isquad)
+			t1->verts[3].txtr.y -= 0.01;
 	}
-	// exit(1);
+	if (l->texture.height > 10000)
+		return ;
+
+	i = 0;
+	while (i < l->all.tri_amount)
+	{
+		if (t1->selected)
+		{
+			if (t1->verts[0].txtr.y < 0 ||
+				t1->verts[1].txtr.y < 0 ||
+				t1->verts[2].txtr.y < 0)
+			{
+				l->texture.image = realloc(l->texture.image, sizeof(int) * (l->texture.width * (l->texture.height * 2)));
+				if (!l->texture.image)
+					ft_error("failed realloc\n");
+				ft_bzero(&l->texture.image[l->texture.width * l->texture.height], sizeof(int) * (l->texture.width * l->texture.height));
+				div_every_uv(l);
+				l->texture.height *= 2;
+				printf("new height %d\n", l->texture.height);
+			}
+		}
+		i++;
+	}
 }
 
 void			fix_uv_overlap(t_level *level)
@@ -69,53 +77,21 @@ void			fix_uv_overlap(t_level *level)
 	i = 0;
 	while (i < level->all.tri_amount)
 	{
-		j = 0;
-		while (j < level->all.tri_amount)
+		if (level->all.tris[i].selected)
 		{
-			if (i != j && tri_uv_intersect(level->all.tris[i], level->all.tris[j]))
+			j = 0;
+			while (j < level->all.tri_amount)
 			{
-				// printf("%d %d\n", i, j);
-				level->all.tris[i].selected = 1;
-				level->all.tris[j].selected = 1;
-				copy_uv(&level->all.tris[i], &level->all.tris[j], level);
-			}
-			// else
-			// 	level->all.tris[i].selected = 0;
-			// 	level->all.tris[j].selected = 0;
-			j++;
-		}
-		i++;
-	}
-	if (level->texture.height > 4000)
-		return ;
-	i = 0;
-	t_level *l = level;
-	float height;
-	while (i < level->all.tri_amount)
-	{
-		t_tri *t2 = &level->all.tris[i];
-		if (t2->selected)
-		{
-			// printf("%f %f %f\n", t2->verts[0].txtr.y);
-			// printf("%f %f %f\n", t2->verts[0].txtr.y);
-			// printf("%f %f %f\n", t2->verts[0].txtr.y);
-			// if (t2->verts[0].txtr.y > l->texture.height ||
-			// 	t2->verts[1].txtr.y > l->texture.height ||
-			// 	t2->verts[2].txtr.y > l->texture.height)
-			if (t2->verts[0].txtr.y < 0 ||
-				t2->verts[1].txtr.y < 0 ||
-				t2->verts[2].txtr.y < 0)
-			{
-				height = uv_max(*t2) - uv_min(*t2);
-				l->texture.image = realloc(l->texture.image, sizeof(int) * (l->texture.width * (l->texture.height * 2)));
-				// if (!l->texture.image)
-				// 	ft_error("failed realloc\n");
-				ft_memcpy(&l->texture.image[l->texture.width * l->texture.height], l->texture.image, sizeof(int) * (l->texture.width * l->texture.height));
-				l->texture.height *= 2;
-				printf("asd %d\n", l->texture.height);
+				if (i != j && tri_uv_intersect(level->all.tris[i], level->all.tris[j]))
+				{
+					copy_uv(&level->all.tris[i], &level->all.tris[j], level);
+					// level->all.tris[i].selected = 1;
+					// level->all.tris[j].selected = 1;
+				}
+				j++;
 			}
 		}
 		i++;
 	}
-	printf("%d\n", level->texture.height);
+
 }
