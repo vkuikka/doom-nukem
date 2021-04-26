@@ -35,6 +35,7 @@
 
 # define WF_UNSELECTED_COL 0x333333ff
 # define WF_SELECTED_COL 0xffaa00ff
+# define WF_VERT_COL 0x010101ff
 # define WF_NOT_QUAD_WARNING_COL 0x802222ff
 # define WF_NORMAL_COL 0xff0000ff
 # define WF_VISIBLE_NORMAL_COL 0x00ffffff
@@ -229,6 +230,7 @@ typedef struct			s_editor_ui
 {
 	int					editor_active;
 	int					noclip;
+	int					vertex_select_mode;
 	int					wireframe;
 	int					wireframe_on_top;
 	int					raycast_quality;
@@ -391,6 +393,7 @@ void		file_save(char *str, char *extension, void (*f)(t_level*, char*));
 void		path_up_dir(char *path);
 void		go_in_dir(char *path, char *folder);
 void		text_input(char *str, t_level *level);
+void		find_closest_mouse(t_vec3 *vert, int *i, int *k);
 
 void		uv_editor(t_level *level, t_window *window);
 void		enable_uv_editor(t_level *level);

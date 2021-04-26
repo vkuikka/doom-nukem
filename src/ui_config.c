@@ -299,6 +299,7 @@ void	ui_config(t_level *level)
 	sprintf(buf, "fov: %d", (int)((float)(ui->fov + 0.01) * (180.0 / M_PI)));
 	float_slider(&ui->fov, buf, M_PI / 6, M_PI);
 	button(&ui->noclip, "noclip");
+	button(&ui->vertex_select_mode, "vertex select mode");
 	button(&ui->blur, "blur");
 	button(&ui->smooth_pixels, "smooth pixel transition");
 	button(&ui->wireframe, "wireframe");
