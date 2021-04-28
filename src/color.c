@@ -39,11 +39,11 @@ int			skybox(t_bmp *img, t_obj *obj, t_ray r)
 	res.texture = img;
 	res.normal_map = NULL;
 	for (int i = 0; i < obj->tri_amount; i++)
-	{
-		cast_face(obj->tris[i], r, &res);
-		if (res.dist > 0 && res.color)
+		if (0 < cast_face(obj->tris[i], r, &res))
+		{
+			face_color(res.u, res.v, obj->tris[i], &res);
 			return (res.color);
-	}
+		}
 	return (res.color);
 }
 
@@ -195,6 +195,7 @@ void		face_color(float u, float v, t_tri t, t_cast_result *res)
 	res->color = res->texture->image[x + (y * res->texture->width)];
 	if (!res->normal_map)
 		return;
+
 	x =	((t.verts[0].txtr.x * res->normal_map->width * w +
 			t.verts[1].txtr.x * res->normal_map->width * v +
 			t.verts[2].txtr.x * res->normal_map->width * u) / (float)(u + v + w));

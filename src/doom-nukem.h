@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/20 16:04:43 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/28 18:21:46 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -150,6 +150,7 @@ typedef struct			s_tri
 	int					selected;
 	struct s_obj		*reflection_obj_all;
 	struct s_obj		*reflection_obj_first_bounce;
+	struct s_obj		*shadow_faces;
 	// int					breakable;
 	// int					broken;
 	// int					*reflection_culling_mask;
@@ -313,6 +314,8 @@ typedef struct __attribute__((__packed__))	s_bmp_pixel_24 {
 
 typedef struct			s_cast_result
 {
+	float				u;
+	float				v;
 	float				dist;
 	int					color;
 	int					face_index;

@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/20 17:50:56 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/23 21:18:23 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/28 18:57:35 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -181,6 +181,30 @@ static void		calculate_side_normals(t_vec3 normal[4], t_vec3 corner[4])
 	vec_cross(&normal[3], corner[3], corner[2]);	//bot
 }
 
+void			shadow_face_culling(t_level *level, int i)
+{
+	t_ray		normal;
+
+	level->all.tris[i].shadow_faces->tri_amount = 0;
+	normal.pos.x = 0;
+	normal.pos.y = 0;
+	normal.pos.z = 0;
+	for (int o = 0; o < 3 + level->all.tris[i].isquad; o++)
+		vec_add(&normal.pos, normal.pos, level->all.tris[i].verts[o].pos);
+	vec_div(&normal.pos, 3 + level->all.tris[i].isquad);
+	normal.dir = level->all.tris[i].normal;
+	int amount = 0;
+	for (int k = 0; k < level->all.tri_amount; k++)
+	{
+		if (k != i && cull_ahead(normal.dir, normal.pos, level->all.tris[k]))
+		{
+			level->all.tris[i].shadow_faces->tris[amount] = level->all.tris[k];
+			amount++;
+		}
+	}
+	level->all.tris[i].shadow_faces->tri_amount = amount;
+}
+
 void			reflection_culling_first_bounce(t_level *level, int i)
 {
 	t_vec3		avg_dir = {0, 0, 0};
@@ -271,6 +295,10 @@ void		init_reflection_culling(t_level *level)
 		level->all.tris[i].reflection_obj_first_bounce = (t_obj*)malloc(sizeof(t_obj));
 		level->all.tris[i].reflection_obj_first_bounce->tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount);
 		level->all.tris[i].reflection_obj_first_bounce->tri_amount = level->all.tri_amount;
+
+		level->all.tris[i].shadow_faces = (t_obj*)malloc(sizeof(t_obj));
+		level->all.tris[i].shadow_faces->tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount);
+		level->all.tris[i].shadow_faces->tri_amount = level->all.tri_amount;
 	}
 	for (int i = 0; i < level->all.tri_amount; i++)
 		reflection_culling(level, i);
@@ -350,6 +378,7 @@ void			culling(t_level *level)
 			if (level->visible.tris[i].isgrid || occlusion_culling(level->visible.tris[i], level))
 			{
 				reflection_culling_first_bounce(level, level->visible.tris[i].index);
+				shadow_face_culling(level, level->visible.tris[i].index);
 				level->visible.tris[visible_amount] = level->visible.tris[i];
 				visible_amount++;
 			}

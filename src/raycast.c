@@ -50,7 +50,8 @@ float			cast_face(t_tri t, t_ray ray, t_cast_result *res)
 	float dist = vec_dot(qvec, t.v0v2) * invdet;
 	if (res)
 	{
-		face_color(u, v, t, res);
+		res->u = u;
+		res->v = v;
 		res->dist = dist;
 	}
 	return (dist);
@@ -99,6 +100,8 @@ void			cast_all_color(t_ray r, t_level *l, t_obj *obj, t_cast_result *res)
 	int				new_hit;
 	int				color;
 	int				i;
+	float			u;
+	float			v;
 
 	dist = FLT_MAX;
 	res->dist = FLT_MAX;
@@ -110,8 +113,9 @@ void			cast_all_color(t_ray r, t_level *l, t_obj *obj, t_cast_result *res)
 		if (0 < cast_face(obj->tris[i], r, res) && res->dist < dist && obj->tris[i].index != res->face_index)
 		{
 			dist = res->dist;
-			color = res->color;
-			new_hit = obj->tris[i].index;
+			new_hit = i;
+			u = res->u;
+			v = res->v;
 		}
 		i++;
 	}
@@ -120,8 +124,10 @@ void			cast_all_color(t_ray r, t_level *l, t_obj *obj, t_cast_result *res)
 		res->color = skybox(&l->sky.img, res->reflection_depth ? &l->sky.all : &l->sky.visible, r);
 	else
 	{
-		res->face_index = new_hit;
-		res->color = color;
+		res->u = u;
+		res->v = v;
+		res->face_index = obj->tris[new_hit].index;
+		face_color(res->u, res->v, obj->tris[new_hit], res);
 		vec_mult(&r.dir, dist);
 		vec_add(&r.pos, r.pos, r.dir);
 		raytrace(res, obj, r, l);
