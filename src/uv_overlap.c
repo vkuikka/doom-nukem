@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/26 13:48:01 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/27 00:43:34 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/28 15:02:15 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,7 @@ void		copy_uv(t_tri *t1, float diff_y, float diff_x, t_bmp *img)
 			if (point_in_tri(check, t1->verts[0].txtr, t1->verts[1].txtr, t1->verts[2].txtr) ||
 				point_in_tri(check, t1->verts[3].txtr, t1->verts[1].txtr, t1->verts[2].txtr))
 			{
-				int	og_x = x + diff_x * img->width; 
+				int	og_x = x - diff_x * img->width;
 				int	og_y = (img->height - y) + diff_y * img->height;
 				img->image[x + (img->height - y) * img->width] = img->image[og_x + og_y * img->width];
 			}
@@ -101,6 +101,8 @@ void		move_uv(t_tri *t1, int t1_index, t_level *l)
 	float	diff_x;
 
 	i = 0;
+	diff_y = 0;
+	diff_x = 0;
 	while (i < l->all.tri_amount)
 	{
 		if (i == t1_index)
@@ -134,7 +136,6 @@ void		move_uv(t_tri *t1, int t1_index, t_level *l)
 			div_every_uv(l);
 			l->texture.height *= 2;
 			diff_y /= 2.0;
-			diff_x /= 2.0;
 			printf("new height %d\n", l->texture.height);
 		}
 
