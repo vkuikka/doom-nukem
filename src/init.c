@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/08 14:38:45 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/21 18:19:51 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/28 16:56:46 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ void			init_level(t_level **res)
 
 	if (!(level = (t_level *)malloc(sizeof(t_level))))
 		ft_error("memory allocation failed\n");
+	ft_bzero(level, sizeof(t_level));
 	level->cam.pos.x = 0;
 	level->cam.pos.y = -5;
 	level->cam.pos.z = 0;
@@ -51,7 +52,8 @@ void			init_level(t_level **res)
 
 	level->texture = bmp_read("out.bmp");
 	level->normal_map = bmp_read("normal.bmp");
-	load_obj("skybox.obj", &level->sky.obj);
+	load_obj("skybox.obj", &level->sky.all);
+	load_obj("skybox.obj", &level->sky.visible);
 	level->sky.img = bmp_read("skybox.bmp");
 
 	if (!(level->visible.tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount)))

@@ -28,7 +28,7 @@ unsigned	crossfade(unsigned color1, unsigned color2, unsigned fade)
 	return ((newr << 8 * 3) + (newg << 8 * 2) + (newb << 8 * 1) + 0xff);
 }
 
-int			skybox(t_skybox *skybox, t_ray r)
+int			skybox(t_bmp *img, t_obj *obj, t_ray r)
 {
 	t_cast_result	res;
 
@@ -36,11 +36,11 @@ int			skybox(t_skybox *skybox, t_ray r)
 	r.pos.x = 0;
 	r.pos.y = 0;
 	r.pos.z = 0;
-	res.texture = &skybox->img;
-	res.normal_map = &skybox->img;
-	for (int i = 0; i < skybox->obj.tri_amount; i++)
+	res.texture = img;
+	res.normal_map = NULL;
+	for (int i = 0; i < obj->tri_amount; i++)
 	{
-		cast_face(skybox->obj.tris[i], r, &res);
+		cast_face(obj->tris[i], r, &res);
 		if (res.dist > 0 && res.color)
 			return (res.color);
 	}
@@ -193,7 +193,8 @@ void		face_color(float u, float v, t_tri t, t_cast_result *res)
 	else if (x < 0)
 		x = -x % res->texture->width;
 	res->color = res->texture->image[x + (y * res->texture->width)];
-
+	if (!res->normal_map)
+		return;
 	x =	((t.verts[0].txtr.x * res->normal_map->width * w +
 			t.verts[1].txtr.x * res->normal_map->width * v +
 			t.verts[2].txtr.x * res->normal_map->width * u) / (float)(u + v + w));
@@ -209,6 +210,5 @@ void		face_color(float u, float v, t_tri t, t_cast_result *res)
 		x = x % res->normal_map->width;
 	else if (x < 0)
 		x = -x % res->normal_map->width;
-
 	res->normal = get_normal(res->normal_map->image[x + (y * res->normal_map->width)]);
 }

@@ -166,7 +166,7 @@ static t_ivec2	ui_render_internal(SDL_Texture *get_text, SDL_Texture *get_stream
 		size = put_text(state->text, window, text_texture, text_pos);
 		if (state->ui_max_width < text_pos.x + size.x)
 			state->ui_max_width = text_pos.x + size.x;
-		state->ui_text_y_pos += 14;
+		state->ui_text_y_pos += UI_ELEMENT_HEIGHT;
 		return (size);
 	}
 	else//render
@@ -194,18 +194,11 @@ static void	edit_slider_var(float *unit, t_ui_state *state)
 	int			x;
 	int			y;
 
-	if (!SDL_GetRelativeMouseMode() && SDL_GetMouseState(&x, &y) & SDL_BUTTON(SDL_BUTTON_LEFT))
-	{
-		if (state->m1down == state->ui_text_y_pos ||
-			(!state->m1down && y >= state->ui_text_y_pos + 4 &&
-			y <= state->ui_text_y_pos + 15 && x < 109 && x > 2))
-		{
-			*unit = (float)(x - 4) / (float)100;
-			state->m1down = state->ui_text_y_pos;
-		}
-	}
-	else if (state->m1down)
-		state->m1down = 0;
+	SDL_GetMouseState(&x, &y);
+	if (state->mouse_location == MOUSE_LOCATION_UI && state->m1_drag &&
+	y >= state->ui_text_y_pos + 4 &&
+	y <= state->ui_text_y_pos + 15 && x < 109 && x > 2)
+		*unit = (float)(x - 4) / (float)100;
 }
 
 static int	edit_call_var(t_ui_state *state, t_ivec2 size)
@@ -213,17 +206,11 @@ static int	edit_call_var(t_ui_state *state, t_ivec2 size)
 	int			x;
 	int			y;
 
-	if (!SDL_GetRelativeMouseMode() && SDL_GetMouseState(&x, &y) & SDL_BUTTON(SDL_BUTTON_LEFT))
-	{
-		if (!state->m1down && x >= 3 && x <= size.x + 6 && y >= state->ui_text_y_pos + 4 && y <= state->ui_text_y_pos + size.y + 2)
-		{
-			state->m1down = 1;
-			return (1);
-		}
-	}
-	else if (state->m1down)
-		state->m1down = 0;
-	return (0);
+	SDL_GetMouseState(&x, &y);
+	if (state->mouse_location == MOUSE_LOCATION_UI && state->m1_click &&
+	x >= 3 && x <= size.x + 6 && y >= state->ui_text_y_pos + 4 && y <= state->ui_text_y_pos + size.y + 2)
+		return (TRUE);
+	return (FALSE);
 }
 
 static void	edit_button_var(int *var, t_ui_state *state)
@@ -231,16 +218,10 @@ static void	edit_button_var(int *var, t_ui_state *state)
 	int			x;
 	int			y;
 
-	if (!SDL_GetRelativeMouseMode() && SDL_GetMouseState(&x, &y) & SDL_BUTTON(SDL_BUTTON_LEFT))
-	{
-		if (!state->m1down && x >= 2 && x <= 11 && y >= state->ui_text_y_pos && y <= state->ui_text_y_pos + 14)
-		{
-			*var = *var ? 0 : 1;
-			state->m1down = 1;
-		}
-	}
-	else if (state->m1down)
-		state->m1down = 0;
+	SDL_GetMouseState(&x, &y);
+	if (state->mouse_location == MOUSE_LOCATION_UI && state->m1_click &&
+	x >= 2 && x <= 11 && y >= state->ui_text_y_pos && y <= state->ui_text_y_pos + UI_ELEMENT_HEIGHT)
+		*var = *var ? FALSE : TRUE;
 }
 
 static void	render_call_streaming(unsigned *get_texture, int dy, t_ivec2 *size, int color)
@@ -360,7 +341,7 @@ void	int_slider(int *var, char *str, int min, int max)
 	edit_slider_var(&unit, state);
 	unit = clamp(unit, 0, 1);
 	*var = min + ((max - min) * unit);
-	state->ui_text_y_pos += 14;
+	state->ui_text_y_pos += UI_ELEMENT_HEIGHT;
 }
 
 void	float_slider(float *var, char *str, float min, float max)
@@ -381,7 +362,7 @@ void	float_slider(float *var, char *str, float min, float max)
 	edit_slider_var(&unit, state);
 	unit = clamp(unit, 0, 1);
 	*var = min + ((max - min) * unit);
-	state->ui_text_y_pos += 14;
+	state->ui_text_y_pos += UI_ELEMENT_HEIGHT;
 }
 
 void	file_save(char *str, char *extension, void (*f)(t_level*, char*))
@@ -437,7 +418,7 @@ int		call(char *str, void (*f)(t_level*), t_level *level)
 	state->ui_text_color = UI_BACKGROUND_COL;
 	t_ivec2 size;
 	size = ui_render_internal(NULL, NULL, NULL, NULL, state);
-	state->ui_text_y_pos -= 14;
+	state->ui_text_y_pos -= UI_ELEMENT_HEIGHT;
 	state->ui_text_color = color_tmp;
 	render_call_streaming(NULL, state->ui_text_y_pos, &size, state->ui_text_color);
 	if (edit_call_var(state, size))
@@ -446,7 +427,7 @@ int		call(char *str, void (*f)(t_level*), t_level *level)
 		if (*f)
 			(*f)(level);
 	}
-	state->ui_text_y_pos += 14;
+	state->ui_text_y_pos += UI_ELEMENT_HEIGHT;
 	return (res);
 }
 
@@ -499,10 +480,11 @@ void	init_ui(t_window *window, t_level *level)
 
 	ui = &level->ui;
 	ft_bzero(ui, sizeof(t_editor_ui));
+	ui->noclip = TRUE;
 	ui->blur = FALSE;
 	ui->smooth_pixels = FALSE;
 	ui->backface_culling = TRUE;
-	ui->distance_culling = TRUE;
+	ui->distance_culling = FALSE;
 	ui->wireframe = FALSE;
 	ui->wireframe_on_top = TRUE;
 	ui->wireframe_culling_visual = TRUE;

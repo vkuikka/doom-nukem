@@ -54,9 +54,9 @@ static void			player_input(t_level *level, t_vec3 *wishdir, float *shift)
 	if (keys[SDL_SCANCODE_D])
 		wishdir->x += 1;
 	if (keys[SDL_SCANCODE_LEFT])
-		level->cam.look_side -= 0.004;
+		level->cam.look_side -= 0.04;
 	if (keys[SDL_SCANCODE_RIGHT])
-		level->cam.look_side += 0.004;
+		level->cam.look_side += 0.04;
 	if (keys[SDL_SCANCODE_SPACE])
 		wishdir->y -= 1;
 	if (keys[SDL_SCANCODE_LSHIFT] && level->ui.noclip)

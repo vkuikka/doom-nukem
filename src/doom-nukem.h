@@ -47,6 +47,9 @@
 # define UI_INFO_TEXT_COLOR 0xff5500ff
 # define UI_FACE_SELECTION_TEXT_COLOR 0xffffffff
 # define UI_BACKGROUND_COL 0x222222bb
+# define UI_ELEMENT_HEIGHT 14
+# define UI_PADDING 2
+# define UV_EDITOR_Y_OFFSET UI_ELEMENT_HEIGHT + UI_PADDING * 2
 
 # define SERIALIZE_INITIAL_BUFFER_SIZE 666
 # define OCCLUSION_CULLING_FLOAT_ERROR_MAGIC_NUMBER 10
@@ -139,9 +142,14 @@ typedef struct			s_tri
 	int					isquad;
 	int					isgrid;
 	int					isenemy;
+	int					disable_distance_culling;
+	int					disable_backface_culling;
 	float				opacity;
 	float				reflectivity;
 	int					shader;
+	int					selected;
+	struct s_obj		*reflection_obj_all;
+	struct s_obj		*reflection_obj_first_bounce;
 	// int					breakable;
 	// int					broken;
 	// int					*reflection_culling_mask;
@@ -151,14 +159,13 @@ typedef struct			s_obj
 {
 	struct s_tri		*tris;		//array of triangles that make the object
 	int					tri_amount;	//amount of triangles
-	int					*backface_culling_mask;
-	int					*distance_culling_mask;
 }						t_obj;
 
 typedef struct			s_skybox
 {
 	struct s_bmp		img;
-	struct s_obj		obj;
+	struct s_obj		all;
+	struct s_obj		visible;
 }						t_skybox;
 
 typedef struct			s_camera
@@ -175,6 +182,23 @@ typedef struct			s_camera
 	float				fov_x;
 }						t_camera;
 
+typedef enum			e_ui_location
+{
+	UI_UV_SETTINGS = 1,
+	UI_UV_EDITOR,
+	UI_SERIALIZE,
+	UI_DIRECTORY
+}						t_ui_location;
+
+typedef enum			e_mouse_location
+{
+	MOUSE_LOCATION_GAME = 0,
+	MOUSE_LOCATION_UI,
+	MOUSE_LOCATION_UV_EDITOR,
+	MOUSE_LOCATION_GIZMO,
+	MOUSE_LOCATION_SELECTION
+}						t_mouse_location;
+
 struct					s_level;
 typedef struct			s_ui_state
 {
@@ -182,8 +206,13 @@ typedef struct			s_ui_state
 	int					ui_text_y_pos;
 	int					ui_text_x_offset;
 	int					ui_text_color;
-	int					m1down;
 	char				*text;
+
+	int					mouse_capture;
+	int					m1_click;
+	int					m1_drag;
+	enum e_mouse_location	mouse_location;
+	int					is_uv_editor_open;
 
 	int					is_serialize_open;
 	char				*save_filename;
@@ -313,6 +342,10 @@ void		vec_avg(t_vec3 *res, t_vec3 ve1, t_vec3 ve2);
 float		vec_angle(t_vec3 v1, t_vec3 v2);
 void		vec_mult(t_vec3 *res, float mult);
 void		vec_div(t_vec3 *res, float div);
+float		vec2_length(t_vec2 vec);
+void		vec2_avg(t_vec2 *res, t_vec2 ve1, t_vec2 ve2);
+void		vec2_sub(t_vec2 *res, t_vec2 ve1, t_vec2 ve2);
+void		vec2_add(t_vec2 *res, t_vec2 ve1, t_vec2 ve2);
 
 void		init_window(t_window **window);
 void		init_level(t_level **level);
@@ -336,7 +369,9 @@ t_bmp		bmp_read(char *str);
 
 void		culling(t_level *level);
 int			occlusion_culling(t_tri tri, t_level *level);
-int			normal_plane_culling(t_tri tri, t_vec3 *pos, t_vec3 *dir);
+void		init_reflection_culling(t_level *level);
+void		reflection_culling(t_level *level, int i);
+void		free_reflection_culling(t_level *level);
 void		find_quads(t_obj *obj);
 
 void		rotate_vertex(float angle, t_vec3 *vertex, int axis);
@@ -357,13 +392,17 @@ void		path_up_dir(char *path);
 void		go_in_dir(char *path, char *folder);
 void		text_input(char *str, t_level *level);
 
+void		uv_editor(t_level *level, t_window *window);
+void		enable_uv_editor(t_level *level);
+void		disable_uv_editor(t_level *level);
+
 void		player_movement(t_level *level);
 
 void		enemies_update_physics(t_level *level);
 void		enemies_update_sprites(t_level *level);
 
 int			fog(int color, float dist, unsigned fog_color, t_level *level);
-int			skybox(t_skybox *skybox, t_ray r);
+int			skybox(t_bmp *img, t_obj *obj, t_ray r);
 
 void		opacity(t_cast_result *res, t_level *l, t_obj *obj);
 void		shadow(t_level *l, t_vec3 normal, t_cast_result *res);
@@ -379,5 +418,6 @@ void		open_level(t_level *level, char *filename);
 
 void		cast_all_color(t_ray r, t_level *l, t_obj *obj, t_cast_result *res);
 int			cull_behind(t_vec3 dir, t_vec3 pos, t_tri tri);
+int			cull_ahead(t_vec3 dir, t_vec3 pos, t_tri tri);
 
 #endif

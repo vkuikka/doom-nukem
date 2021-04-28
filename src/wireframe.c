@@ -93,7 +93,7 @@ void	rotate_vertex(float angle, t_vec3 *vertex, int axis)
 	}
 }
 
-void	put_vertex(t_vec3 vertex, int color, t_window *window)
+static void	put_vertex(t_vec3 vertex, int color, t_window *window)
 {
 	if (vertex.z < 0)
 		return ;
@@ -166,6 +166,8 @@ void	render_wireframe(t_window *window, t_level *level, t_obj *obj, int is_visib
 
 	for (int i = 0; i < obj->tri_amount; i++)
 	{
+		if (!level->ui.wireframe && (is_visible || !obj->tris[i].selected))
+			continue ;
 		int amount = obj->tris[i].isquad ? 4 : 3;
 		for (int j = 0; j < amount; j++)
 		{
@@ -178,8 +180,7 @@ void	render_wireframe(t_window *window, t_level *level, t_obj *obj, int is_visib
 			stop = obj->tris[i].verts[next].pos;
 			camera_offset(&start, &level->cam);
 			camera_offset(&stop, &level->cam);
-			if (obj->tris[i].verts[next].selected &&
-				obj->tris[i].verts[j].selected)
+			if (obj->tris[i].selected)
 				print_line(start, stop, WF_SELECTED_COL, window);
 			else if (is_visible)
 				print_line(start, stop, WF_VISIBLE_COL, window);
@@ -187,13 +188,10 @@ void	render_wireframe(t_window *window, t_level *level, t_obj *obj, int is_visib
 				print_line(start, stop, WF_NOT_QUAD_WARNING_COL, window);
 			else
 				print_line(start, stop, WF_UNSELECTED_COL, window);
-			// if (mode == 0)
-			{
-				if (obj->tris[i].verts[j].selected)
-					put_vertex(start, WF_SELECTED_COL, window);
-				else
-					put_vertex(start, 0, window);
-			}
+			if (obj->tris[i].verts[j].selected)
+				put_vertex(start, WF_SELECTED_COL, window);
+			else
+				put_vertex(start, 0, window);
 		}
 		if (is_visible || !level->ui.wireframe_culling_visual)
 			put_normal(window, level, obj->tris[i], WF_VISIBLE_NORMAL_COL);
@@ -206,7 +204,7 @@ void	wireframe(t_window *window, t_level *level)
 {
 	if (!level->ui.wireframe_on_top)
 		ft_memset(window->frame_buffer, WF_BACKGROUND_COL, RES_X * RES_Y * sizeof(int));
-	if (level->ui.wireframe_culling_visual)
+	if (level->ui.wireframe && level->ui.wireframe_culling_visual)
 		render_wireframe(window, level, &level->visible, TRUE);
 	render_wireframe(window, level, &level->all, FALSE);
 	// for (int asd = 0; asd < level->all.tri_amount; asd++)

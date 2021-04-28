@@ -54,6 +54,11 @@ float		vec_length(t_vec3 vec)
 	// return (sqrt(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z));
 }
 
+float		vec2_length(t_vec2 vec)
+{
+	return (sqrt(vec.x * vec.x + vec.y * vec.y));
+}
+
 float		vec_dot(t_vec3 ve1, t_vec3 ve2)
 {
 	return (ve1.x * ve2.x + ve1.y * ve2.y + ve1.z * ve2.z);
@@ -70,6 +75,12 @@ int			vec_cmp(t_vec3 ve1, t_vec3 ve2)
 	return (1);
 }
 
+void		vec2_avg(t_vec2 *res, t_vec2 ve1, t_vec2 ve2)
+{
+	res->x = (ve1.x + ve2.x) / 2;
+	res->y = (ve1.y + ve2.y) / 2;
+}
+
 void		vec_avg(t_vec3 *res, t_vec3 ve1, t_vec3 ve2)
 {
 	res->x = (ve1.x + ve2.x) / 2;
@@ -77,11 +88,23 @@ void		vec_avg(t_vec3 *res, t_vec3 ve1, t_vec3 ve2)
 	res->z = (ve1.z + ve2.z) / 2;
 }
 
+void		vec2_add(t_vec2 *res, t_vec2 ve1, t_vec2 ve2)
+{
+	res->x = ve1.x + ve2.x;
+	res->y = ve1.y + ve2.y;
+}
+
 void		vec_add(t_vec3 *res, t_vec3 ve1, t_vec3 ve2)
 {
 	res->x = ve1.x + ve2.x;
 	res->y = ve1.y + ve2.y;
 	res->z = ve1.z + ve2.z;
+}
+
+void		vec2_sub(t_vec2 *res, t_vec2 ve1, t_vec2 ve2)
+{
+	res->x = ve1.x - ve2.x;
+	res->y = ve1.y - ve2.y;
 }
 
 void		vec_sub(t_vec3 *res, t_vec3 ve1, t_vec3 ve2)

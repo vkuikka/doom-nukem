@@ -33,22 +33,17 @@ int		    get_fps(void)
 int		get_selected_amount(t_level *level)
 {
 	int	selected_amount;
+	int	i;
 
+	i = 0;
 	selected_amount = 0;
-	for (int i = 0; i < level->all.tri_amount; i++)
+	while (i < level->all.tri_amount)
 	{
-		int counter = 0;
-		int j = 0;
-		while (j < 3 + level->all.tris[i].isquad)
-		{
-			if (level->all.tris[i].verts[j].selected)
-				counter++;
-			j++;
-		}
-		if (counter == 3 + level->all.tris[i].isquad)
+		if (level->all.tris[i].selected)
 			selected_amount++;
+		i++;
 	}
-	return(selected_amount);
+	return (selected_amount);
 }
 
 void	copy_tri_settings(t_tri *a, t_tri *b)
@@ -57,6 +52,8 @@ void	copy_tri_settings(t_tri *a, t_tri *b)
 	a->isgrid = b->isgrid;
 	a->opacity = b->opacity;
 	a->reflectivity = b->reflectivity;
+	a->disable_distance_culling = b->disable_distance_culling;
+	a->disable_backface_culling = b->disable_backface_culling;
 }
 
 void	ui_config_selected_faces(t_level *level)
@@ -67,17 +64,12 @@ void	ui_config_selected_faces(t_level *level)
 
 	selected_index = 0;
 	selected_amount = get_selected_amount(level);
+	if (selected_amount)
+		for (int i = 0; i < level->all.tri_amount; i++)
+			reflection_culling(level, i);
 	for (int i = 0; i < level->all.tri_amount; i++)
 	{
-		int counter = 0;
-		int j = 0;
-		while (j < 3 + level->all.tris[i].isquad)
-		{
-			if (level->all.tris[i].verts[j].selected)
-				counter++;
-			j++;
-		}
-		if (counter == 3 + level->all.tris[i].isquad)
+		if (level->all.tris[i].selected)
 		{
 			if (!selected_index)
 			{
@@ -88,13 +80,19 @@ void	ui_config_selected_faces(t_level *level)
 					sprintf(buf, "%d faces selected (toggle all):", selected_amount);
 					text(buf);
 				}
-				sprintf(buf, "reflectivity: %.0f%%", 100 * level->all.tris[i].reflectivity);
+				if (!level->all.tris[i].reflectivity || selected_amount != 1)
+					sprintf(buf, "reflectivity: %.0f%%", 100 * level->all.tris[i].reflectivity);
+				else
+					sprintf(buf, "reflectivity: %.0f%% (%d mirror %d first bounce)", 100 * level->all.tris[i].reflectivity,
+						level->all.tris[i].reflection_obj_all->tri_amount, level->all.tris[i].reflection_obj_first_bounce->tri_amount);
 				float_slider(&level->all.tris[i].reflectivity, buf, 0, 1);
 				sprintf(buf, "opacity: %.0f%%", 100 * level->all.tris[i].opacity);
 				float_slider(&level->all.tris[i].opacity, buf, 0, 1);
 				button(&level->all.tris[i].isgrid, "grid");
 				button(&level->all.tris[i].isenemy, "enemy");
 				button(&level->all.tris[i].shader, "water");
+				button(&level->all.tris[i].disable_distance_culling, "distance culling");
+				button(&level->all.tris[i].disable_backface_culling, "backface culling");
 				// call("flip normal");
 				// call("set animation start");
 				// call("set animation stop");
@@ -111,19 +109,25 @@ void	ui_config_selected_faces(t_level *level)
 
 void	set_obj(t_level *level, char *filename)
 {
-	//free obj
+	free_reflection_culling(level);
+	free(level->all.tris);
+	free(level->visible.tris);
 	load_obj(filename, &level->all);
+	if (!(level->visible.tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount)))
+		ft_error("memory allocation failed\n");
+	init_screen_space_partition(level);
+	init_reflection_culling(level);
 }
 
 void	set_texture(t_level *level, char *filename)
 {
-	//free texture
+	free(level->texture.image);
 	level->texture = bmp_read(filename);
 }
 
 void	set_skybox(t_level *level, char *filename)
 {
-	//free skybox
+	free(level->sky.img.image);
 	level->sky.img = bmp_read(filename);
 }
 
@@ -282,6 +286,12 @@ void	ui_config(t_level *level)
 		ui_render_directory(level);
 		return ;
 	}
+	if (level->ui.state.is_uv_editor_open)
+	{
+		set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
+		call("close uv editor", &disable_uv_editor, level);
+		return ;
+	}
 	set_text_color(UI_EDITOR_SETTINGS_TEXT_COLOR);
 	// button(, "face/vert selection");
 	sprintf(buf, "render scale: %d (%.0f%%)", ui->raycast_quality, 100.0 / (float)ui->raycast_quality);
@@ -306,6 +316,7 @@ void	ui_config(t_level *level)
 	file_browser("select level", ".doom-nukem", &open_level);
 	file_browser("select obj", ".obj", &set_obj);
 	file_browser("select texture", ".bmp", &set_texture);
+	call("edit uv", &enable_uv_editor, level);
 	file_browser("select skybox", ".bmp", &set_skybox);
 	button(&ui->fog, "fog");
 	// color(ui->color, "fog color");

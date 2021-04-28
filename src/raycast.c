@@ -84,7 +84,10 @@ static void		raytrace(t_cast_result *res, t_obj *obj, t_ray r, t_level *l)
 		res->reflection_depth < REFLECTION_DEPTH)
 	{
 		res->reflection_depth++;
-		reflection(res, l, obj);
+		if (res->reflection_depth == 1)
+			reflection(res, l, l->all.tris[res->face_index].reflection_obj_first_bounce);
+		else
+			reflection(res, l, l->all.tris[res->face_index].reflection_obj_all);
 	}
 	if (l->all.tris[res->face_index].opacity)
 		opacity(res, l, obj);
@@ -114,7 +117,7 @@ void			cast_all_color(t_ray r, t_level *l, t_obj *obj, t_cast_result *res)
 	}
 	res->dist = dist;
 	if (new_hit == -1)
-		res->color = skybox(&l->sky, r);
+		res->color = skybox(&l->sky.img, res->reflection_depth ? &l->sky.all : &l->sky.visible, r);
 	else
 	{
 		res->face_index = new_hit;
