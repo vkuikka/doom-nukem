@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/20 17:50:56 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/28 18:57:35 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/28 20:59:58 vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -183,23 +183,53 @@ static void		calculate_side_normals(t_vec3 normal[4], t_vec3 corner[4])
 
 void			shadow_face_culling(t_level *level, int i)
 {
-	t_ray		normal;
+	t_tri		target;
+	t_vec3		avg = {0, 0, 0};
+	t_vec3		tmp[2];
+	t_vec3		v[4];
 
-	level->all.tris[i].shadow_faces->tri_amount = 0;
-	normal.pos.x = 0;
-	normal.pos.y = 0;
-	normal.pos.z = 0;
-	for (int o = 0; o < 3 + level->all.tris[i].isquad; o++)
-		vec_add(&normal.pos, normal.pos, level->all.tris[i].verts[o].pos);
-	vec_div(&normal.pos, 3 + level->all.tris[i].isquad);
-	normal.dir = level->all.tris[i].normal;
+	target = level->all.tris[i];
+	for (int o = 0; o < 3 + target.isquad; o++)
+		vec_add(&avg, avg, target.verts[o].pos);
+	vec_div(&avg, 3 + target.isquad);
+
+	tmp[0] = level->ui.sun_dir;
+	tmp[0].y *= -1;
+	vec_sub(&tmp[1], target.verts[0].pos, target.verts[1].pos);
+	vec_cross(&v[0], tmp[0], tmp[1]);
+	if (target.isquad)
+	{
+		vec_sub(&tmp[1], target.verts[1].pos, target.verts[3].pos);
+		vec_cross(&v[1], tmp[0], tmp[1]);
+
+		vec_sub(&tmp[1], target.verts[3].pos, target.verts[2].pos);
+		vec_cross(&v[3], tmp[0], tmp[1]);
+
+		vec_sub(&tmp[1], target.verts[2].pos, target.verts[0].pos);
+		vec_cross(&v[2], tmp[0], tmp[1]);
+	}
+	else
+	{
+		vec_sub(&tmp[1], target.verts[1].pos, target.verts[2].pos);
+		vec_cross(&v[1], tmp[0], tmp[1]);
+		vec_sub(&tmp[1], target.verts[2].pos, target.verts[0].pos);
+		vec_cross(&v[2], tmp[0], tmp[1]);
+		v[3] = v[0];
+		target.verts[3].pos = target.verts[0].pos;
+	}
 	int amount = 0;
 	for (int k = 0; k < level->all.tri_amount; k++)
 	{
-		if (k != i && cull_ahead(normal.dir, normal.pos, level->all.tris[k]))
+		if (k != i && cull_ahead(level->all.tris[i].normal, avg, level->all.tris[k]))
 		{
-			level->all.tris[i].shadow_faces->tris[amount] = level->all.tris[k];
-			amount++;
+			if (cull_ahead(v[0], target.verts[0].pos, level->all.tris[k]) &&
+				cull_ahead(v[1], target.verts[1].pos, level->all.tris[k]) &&
+				cull_ahead(v[2], target.verts[2].pos, level->all.tris[k]) &&
+				cull_ahead(v[3], target.verts[3].pos, level->all.tris[k]))
+			{
+				level->all.tris[i].shadow_faces->tris[amount] = level->all.tris[k];
+				amount++;
+			}
 		}
 	}
 	level->all.tris[i].shadow_faces->tri_amount = amount;
