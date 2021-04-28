@@ -196,7 +196,9 @@ typedef enum			e_mouse_location
 	MOUSE_LOCATION_GAME = 0,
 	MOUSE_LOCATION_UI,
 	MOUSE_LOCATION_UV_EDITOR,
-	MOUSE_LOCATION_GIZMO,
+	MOUSE_LOCATION_GIZMO_X,
+	MOUSE_LOCATION_GIZMO_Y,
+	MOUSE_LOCATION_GIZMO_Z,
 	MOUSE_LOCATION_SELECTION
 }						t_mouse_location;
 
@@ -398,6 +400,8 @@ void		find_closest_mouse(t_vec3 *vert, int *i, int *k);
 void		uv_editor(t_level *level, t_window *window);
 void		enable_uv_editor(t_level *level);
 void		disable_uv_editor(t_level *level);
+void		obj_editor(t_level *level, t_window *window);
+void		obj_editor_input(t_level *level);
 
 void		player_movement(t_level *level);
 
