@@ -100,14 +100,12 @@ static void		render_translation_gizmo(t_level *level, unsigned *pixels)
 
 	selected_vert_amount = 0;
 	for (int i = 0; i < level->all.tri_amount; i++)
-	{
-		if (level->all.tris[i].selected)
-			for (int k = 0; k < 3 + level->all.tris[i].isquad; k++)
+		for (int k = 0; k < 3 + level->all.tris[i].isquad; k++)
+			if (level->all.tris[i].selected || (level->ui.vertex_select_mode && level->all.tris[i].verts[k].selected))
 			{
 				vec_add(&avg, avg, level->all.tris[i].verts[k].pos);
 				selected_vert_amount++;
 			}
-	}
 	vec_div(&avg, selected_vert_amount);
 	scale_translation_gizmo(&x, &y, &z, vec_sub_return(avg, level->cam.pos));
 	vec_add(&x, x, avg);
@@ -136,13 +134,13 @@ int				is_near(int a, int b, int range)
 void			move_selected(t_level *level, t_vec3 dir)
 {
 	for (int i = 0; i < level->all.tri_amount; i++)
-	{
-		if (level->all.tris[i].selected)
-			for (int k = 0; k < 3 + level->all.tris[i].isquad; k++)
+		for (int k = 0; k < 3 + level->all.tris[i].isquad; k++)
+			if (level->all.tris[i].selected || (level->ui.vertex_select_mode && level->all.tris[i].verts[k].selected))
 			{
 				vec_add(&level->all.tris[i].verts[k].pos, level->all.tris[i].verts[k].pos, dir);
+				vec_sub(&level->all.tris[i].v0v2, level->all.tris[i].verts[1].pos, level->all.tris[i].verts[0].pos);
+				vec_sub(&level->all.tris[i].v0v1, level->all.tris[i].verts[2].pos, level->all.tris[i].verts[0].pos);
 			}
-	}
 }
 
 static t_vec3	calc_move_screen_space(int index, int amount, t_vec3 ss_gizmo)
@@ -169,7 +167,7 @@ static t_vec3	calc_move_screen_space(int index, int amount, t_vec3 ss_gizmo)
 	return (dir);
 }
 
-int				cull_ahead_vertex(t_vec3 dir, t_vec3 pos1, t_vec3 pos2)
+int				cull_ahead_vertex(t_vec3 pos1, t_vec3 pos2, t_vec3 dir)
 {
 	t_vec3	vert;
 
@@ -189,14 +187,12 @@ void				obj_editor_input(t_level *level)
 
 	selected_vert_amount = 0;
 	for (int i = 0; i < level->all.tri_amount; i++)
-	{
-		if (level->all.tris[i].selected)
-			for (int k = 0; k < 3 + level->all.tris[i].isquad; k++)
+		for (int k = 0; k < 3 + level->all.tris[i].isquad; k++)
+			if (level->all.tris[i].selected || (level->ui.vertex_select_mode && level->all.tris[i].verts[k].selected))
 			{
 				vec_add(&avg, avg, level->all.tris[i].verts[k].pos);
 				selected_vert_amount++;
 			}
-	}
 	vec_div(&avg, selected_vert_amount);
 	float dist_from_screen = scale_translation_gizmo(&x, &y, &z, vec_sub_return(avg, level->cam.pos));
 	vec_add(&x, x, avg);
@@ -209,16 +205,26 @@ void				obj_editor_input(t_level *level)
 
 	int			mx;
 	int			my;
+	static int	drag_direction = 1;
 
 	SDL_GetMouseState(&mx, &my);
 	if (level->ui.state.m1_click)
 	{
 		if (x.z > 0 && is_near(mx, x.x , 9) && is_near(my, x.y, 9))
+		{
+			drag_direction = cull_ahead_vertex(avg, z, level->cam.pos) && cull_ahead_vertex(avg, x, level->cam.pos) ? -1 : 1;
 			level->ui.state.mouse_location = MOUSE_LOCATION_GIZMO_X;
+		}
 		else if (y.z > 0 && is_near(mx, y.x , 9) && is_near(my, y.y, 9))
+		{
+			drag_direction = cull_ahead_vertex(avg, y, level->cam.pos) ? 1 : -1;
 			level->ui.state.mouse_location = MOUSE_LOCATION_GIZMO_Y;
+		}
 		else if (z.z > 0 && is_near(mx, z.x , 9) && is_near(my, z.y, 9))
+		{
+			drag_direction = cull_ahead_vertex(avg, x, level->cam.pos) ? 1 : -1;
 			level->ui.state.mouse_location = MOUSE_LOCATION_GIZMO_Z;
+		}
 	}
 	if (!level->ui.state.m1_drag && level->ui.state.mouse_location >= MOUSE_LOCATION_GIZMO_X)
 		level->ui.state.mouse_location = MOUSE_LOCATION_SELECTION;
@@ -229,11 +235,11 @@ void				obj_editor_input(t_level *level)
 	if (deltax || deltay)
 	{
 		if (level->ui.state.mouse_location == MOUSE_LOCATION_GIZMO_X)
-			move_selected(level, calc_move_screen_space(level->ui.state.mouse_location - 3, deltax * dist_from_screen * (cull_ahead_vertex(avg, z, level->cam.pos) ? 1 : -1), x));
+			move_selected(level, calc_move_screen_space(level->ui.state.mouse_location - 3, deltax * dist_from_screen * drag_direction, x));
 		else if (level->ui.state.mouse_location == MOUSE_LOCATION_GIZMO_Y)
-			move_selected(level, calc_move_screen_space(level->ui.state.mouse_location - 3, deltay * dist_from_screen * (cull_ahead_vertex(avg, y, level->cam.pos) ? 1 : -1), y));
+			move_selected(level, calc_move_screen_space(level->ui.state.mouse_location - 3, deltay * dist_from_screen * drag_direction, y));
 		else if (level->ui.state.mouse_location == MOUSE_LOCATION_GIZMO_Z)
-			move_selected(level, calc_move_screen_space(level->ui.state.mouse_location - 3, deltax * dist_from_screen * (cull_ahead_vertex(avg, x, level->cam.pos) ? 1 : -1), z));
+			move_selected(level, calc_move_screen_space(level->ui.state.mouse_location - 3, deltax * dist_from_screen * drag_direction, z));
 	}
 	prevx = mx;
 	prevy = my;
