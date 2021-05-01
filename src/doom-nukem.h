@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/27 00:28:36 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/01 17:01:23 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -213,6 +213,8 @@ typedef struct			s_ui_state
 	int					m1_drag;
 	enum e_mouse_location	mouse_location;
 	int					is_uv_editor_open;
+	float				uv_zoom;
+	struct s_vec2		uv_pos;
 
 	int					is_serialize_open;
 	char				*save_filename;

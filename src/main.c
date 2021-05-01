@@ -175,6 +175,24 @@ static void		keyboard_input(t_window *window, t_level *level, SDL_Event event)
 			SDL_WarpMouseInWindow(window->SDLwindow, RES_X / 2, RES_Y / 2);
 		}
 	}
+	else if (event.key.keysym.scancode == SDL_SCANCODE_O)
+	{
+		for (int i = 0; i < level->all.tri_amount; i++)
+		{
+			level->all.tris[i].selected = TRUE;
+			for (int j = 0; j < 3 + level->all.tris[i].isquad; j++)
+				level->all.tris[i].verts[j].selected = TRUE;
+		}
+	}
+	else if (event.key.keysym.scancode == SDL_SCANCODE_P)
+	{
+		for (int i = 0; i < level->all.tri_amount; i++)
+		{
+			level->all.tris[i].selected = FALSE;
+			for (int j = 0; j < 3 + level->all.tris[i].isquad; j++)
+				level->all.tris[i].verts[j].selected = FALSE;
+		}
+	}
 }
 
 static void		read_input(t_window *window, t_level *level)
@@ -205,6 +223,9 @@ int			main(int argc, char **argv)
 	init_ui(window, level);
 	init_screen_space_partition(level);
 	init_reflection_culling(level);
+	level->ui.state.uv_pos.x = 0;
+	level->ui.state.uv_pos.y = 0;
+	level->ui.state.uv_zoom = 1;
 	while (1)
 	{
 		frametime = SDL_GetTicks();
