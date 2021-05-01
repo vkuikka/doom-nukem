@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/26 13:48:01 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/28 15:02:15 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/01 16:47:13 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,10 +129,13 @@ void		move_uv(t_tri *t1, int t1_index, t_level *l)
 			t1->verts[2].txtr.y < 0 ||
 			(t1->isquad && t1->verts[3].txtr.y < 0))
 		{
-			l->texture.image = realloc(l->texture.image, sizeof(int) * (l->texture.width * (l->texture.height * 2)));
-			if (!l->texture.image)
-				ft_error("failed realloc\n");
-			ft_bzero(&l->texture.image[l->texture.width * l->texture.height], sizeof(int) * (l->texture.width * l->texture.height));
+			int		*new_img;
+			if (!(new_img = (int *)malloc(sizeof(int) * (2 * l->texture.width * l->texture.height))))
+				ft_error("memory allocation failed");
+			ft_bzero(new_img, sizeof(int) * 2 * l->texture.width * l->texture.height);
+			ft_memcpy(new_img, l->texture.image, sizeof(int) * l->texture.width * l->texture.height);
+			free(l->texture.image);
+			l->texture.image = new_img;
 			div_every_uv(l);
 			l->texture.height *= 2;
 			diff_y /= 2.0;
