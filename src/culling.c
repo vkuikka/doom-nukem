@@ -222,10 +222,11 @@ void			shadow_face_culling(t_level *level, int i)
 	{
 		if (k != i && cull_ahead(level->all.tris[i].normal, avg, level->all.tris[k]))
 		{
-			if (cull_ahead(v[0], target.verts[0].pos, level->all.tris[k]) &&
+			if (level->all.tris[k].isgrid || target.isgrid ||
+				(cull_ahead(v[0], target.verts[0].pos, level->all.tris[k]) &&
 				cull_ahead(v[1], target.verts[1].pos, level->all.tris[k]) &&
 				cull_ahead(v[2], target.verts[2].pos, level->all.tris[k]) &&
-				cull_ahead(v[3], target.verts[3].pos, level->all.tris[k]))
+				cull_ahead(v[3], target.verts[3].pos, level->all.tris[k])))
 			{
 				level->all.tris[i].shadow_faces->tris[amount] = level->all.tris[k];
 				amount++;
