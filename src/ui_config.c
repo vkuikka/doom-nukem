@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/04/07 22:58:05 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/22 01:04:05 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -330,6 +330,8 @@ void	ui_config(t_level *level)
 	float_slider(&ui->render_distance, buf, 2, 50);
 	float_slider(&ui->sun_contrast, "sun", 0, 1);
 	float_slider(&ui->direct_shadow_contrast, "shadow", 0, 1);
+	if (ui->sun_contrast > ui->direct_shadow_contrast)
+		ui->direct_shadow_contrast = ui->sun_contrast;
 	sprintf(buf, "sun dir: (%.2f, %.2f, %.2f)", ui->sun_dir.x, ui->sun_dir.y, ui->sun_dir.z);
 	text(buf);
 	//vec3_slider
