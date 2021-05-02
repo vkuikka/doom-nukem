@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/02 14:24:18 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/02 18:25:59 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,8 @@
 # define UI_ELEMENT_HEIGHT 14
 # define UI_PADDING 2
 # define UV_EDITOR_Y_OFFSET UI_ELEMENT_HEIGHT + UI_PADDING * 2
+
+# define UV_PADDING 3
 
 # define SERIALIZE_INITIAL_BUFFER_SIZE 666
 # define OCCLUSION_CULLING_FLOAT_ERROR_MAGIC_NUMBER 10

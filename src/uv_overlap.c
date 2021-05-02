@@ -32,14 +32,43 @@ void		div_every_uv(t_level *l)
 	}
 }
 
-void		copy_uv(t_tri *t1, float diff_y, float diff_x, t_bmp *img)
+/*
+**	Checks 3x3 pixels around pixel corner for triangle intersection
+**	3x3 square is done because vectors can go inside image pixels and then intersection will not be found
+*/
+static void	check_and_color(t_tri *t1, t_bmp *img, t_ivec2 coord, t_vec2 diff)
+{
+	t_vec2	precision;
+	t_vec2	coord_uv;
+	t_vec2	check;
+
+	precision.x = 1 / (float)img->width;
+	precision.y = 1 / (float)img->height;
+	coord_uv.x = coord.x / (float)img->width - precision.x;
+	coord_uv.y = coord.y / (float)img->height - precision.y;
+	for (int x = 0; x < 3; x++)
+		for (int y = 0; y < 3; y++)
+		{
+			check.x = coord_uv.x + precision.x * x;
+			check.y = coord_uv.y + precision.y * y;
+			if (point_in_tri(check, t1->verts[0].txtr, t1->verts[1].txtr, t1->verts[2].txtr) || (t1->isquad &&
+				point_in_tri(check, t1->verts[3].txtr, t1->verts[1].txtr, t1->verts[2].txtr)))
+			{
+				int	og_x = coord.x - diff.x * img->width;
+				int	og_y = (img->height - coord.y) + diff.y * img->height;
+				img->image[coord.x + (img->height - coord.y) * img->width] = img->image[og_x + og_y * img->width];
+				return;
+			}
+		}
+}
+
+void		copy_uv(t_tri *t1, t_vec2 diff, t_bmp *img)
 {
 	float		min_x;
 	float		max_x;
 	float		min_y;
 	float		max_y;
-	int			x;
-	int			y;
+	t_ivec2		coord;
 	
 	min_x = t1->verts[0].txtr.x;
 	min_x = fmin(min_x, t1->verts[1].txtr.x);
@@ -71,38 +100,59 @@ void		copy_uv(t_tri *t1, float diff_y, float diff_x, t_bmp *img)
 	max_y *= (float)img->height;
 	min_y *= (float)img->height;
 
-	x = min_x;
-	while (x < max_x)
+	coord.x = min_x - UV_PADDING;
+	while (coord.x < max_x + UV_PADDING)
 	{
-		y = min_y;
-		while (y < max_y)
+		coord.y = min_y - UV_PADDING;
+		while (coord.y < max_y + UV_PADDING)
 		{
-			t_vec2 check;
-			check.x = x / (float)img->width;
-			check.y = y / (float)img->height;
-			if (point_in_tri(check, t1->verts[0].txtr, t1->verts[1].txtr, t1->verts[2].txtr) ||
-(t1->isquad && point_in_tri(check, t1->verts[3].txtr, t1->verts[1].txtr, t1->verts[2].txtr)))
-			{
-				int	og_x = x - diff_x * img->width;
-				int	og_y = (img->height - y) + diff_y * img->height;
-				img->image[x + (img->height - y) * img->width] = img->image[og_x + og_y * img->width];
-			}
-
-			y++;
+			check_and_color(t1, img, coord, diff);
+			coord.y += 1;
 		}
-		x++;
+		coord.x += 1;
+	}
+}
+
+void		clear_intersection(t_tri *t1, t_level *l, t_vec2 *diff, int i)
+{
+	float max;
+	float min;
+
+	max = t1->verts[0].txtr.y;
+	max = fmax(max, t1->verts[1].txtr.y);
+	max = fmax(max, t1->verts[2].txtr.y);
+	if (t1->isquad)
+		max = fmax(max, t1->verts[3].txtr.y);
+	min = t1->verts[0].txtr.y;
+	min = fmin(min, t1->verts[1].txtr.y);
+	min = fmin(min, t1->verts[2].txtr.y);
+	if (t1->isquad)
+		min = fmin(min, t1->verts[3].txtr.y);
+	t1->verts[0].txtr.y -= max - min;
+	t1->verts[1].txtr.y -= max - min;
+	t1->verts[2].txtr.y -= max - min;
+	if (t1->isquad)
+		t1->verts[3].txtr.y -= max - min;
+	diff->y -= max - min;
+	while (tri_uv_intersect(*t1, l->all.tris[i]))
+	{
+		t1->verts[0].txtr.y -= 0.01;
+		t1->verts[1].txtr.y -= 0.01;
+		t1->verts[2].txtr.y -= 0.01;
+		if (t1->isquad)
+			t1->verts[3].txtr.y -= 0.01;
+		diff->y -= 0.01;
 	}
 }
 
 void		move_uv(t_tri *t1, int t1_index, t_level *l)
 {
 	int		i;
-	float	diff_y;
-	float	diff_x;
+	t_vec2	diff;
 
 	i = 0;
-	diff_y = 0;
-	diff_x = 0;
+	diff.y = 0;
+	diff.x = 0;
 	while (i < l->all.tri_amount)
 	{
 		if (i == t1_index)
@@ -112,15 +162,7 @@ void		move_uv(t_tri *t1, int t1_index, t_level *l)
 		}
 		if (tri_uv_intersect(*t1, l->all.tris[i]))
 		{
-			while (tri_uv_intersect(*t1, l->all.tris[i]))
-			{
-				t1->verts[0].txtr.y -= 0.01;
-				t1->verts[1].txtr.y -= 0.01;
-				t1->verts[2].txtr.y -= 0.01;
-				if (t1->isquad)
-					t1->verts[3].txtr.y -= 0.01;
-				diff_y -= 0.01;
-			}
+			clear_intersection(t1, l, &diff, i);
 			i = -1;
 		}
 		if (t1->verts[0].txtr.y < 0 ||
@@ -145,17 +187,17 @@ void		move_uv(t_tri *t1, int t1_index, t_level *l)
 			l->texture.height *= 2;
 			l->normal_map.height *= 2;
 			div_every_uv(l);
-			diff_y /= 2.0;
+			diff.y /= 2.0;
 			printf("new height %d\n", l->texture.height);
 		}
 		if (l->texture.height > 10000)
 			return ;
 		i++;
 	}
-	if (diff_y != 0.0 || diff_x != 0.0)
+	if (diff.y != 0.0 || diff.x != 0.0)
 	{
-		copy_uv(t1, diff_y, diff_x, &l->texture);
-		copy_uv(t1, diff_y, diff_x, &l->normal_map);
+		copy_uv(t1, diff, &l->texture);
+		copy_uv(t1, diff, &l->normal_map);
 	}
 }
 
