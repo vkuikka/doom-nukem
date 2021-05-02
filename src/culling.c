@@ -305,13 +305,39 @@ void		reflection_culling(t_level *level, int i)
 		int amount = 0;
 		for (int k = 0; k < level->all.tri_amount; k++)
 		{
-			if ((level->all.tris[k].isenemy || level->all.tris[k].isgrid || cull_ahead(level->all.tris[i].normal, avg, level->all.tris[k])) && reflection_backface(level->all.tris[k], level->all.tris[i]))
+			if ((level->all.tris[k].isenemy || level->all.tris[k].isgrid ||
+					cull_ahead(level->all.tris[i].normal, avg, level->all.tris[k])) &&
+					reflection_backface(level->all.tris[k], level->all.tris[i]))
 			{
 				level->all.tris[i].reflection_obj_all->tris[amount] = level->all.tris[k];
 				amount++;
 			}
 		}
 		level->all.tris[i].reflection_obj_all->tri_amount = amount;
+	}
+}
+
+void		opacity_culling(t_level *level, int i)
+{
+	if (level->all.tris[i].opacity)
+	{
+		level->all.tris[i].opacity_obj_all->tri_amount = 0;
+		t_vec3 avg = {0, 0, 0};
+		for (int o = 0; o < 3 + level->all.tris[i].isquad; o++)
+			vec_add(&avg, avg, level->all.tris[i].verts[o].pos);
+		vec_div(&avg, 3 + level->all.tris[i].isquad);
+		int amount = 0;
+		for (int k = 0; k < level->all.tri_amount; k++)
+		{
+			if ((level->all.tris[k].isenemy || level->all.tris[k].isgrid ||
+					cull_behind(level->all.tris[i].normal, avg, level->all.tris[k])) &&
+					backface_culling(level->cam.pos, level->all.tris[k]))
+			{
+				level->all.tris[i].opacity_obj_all->tris[amount] = level->all.tris[k];
+				amount++;
+			}
+		}
+		level->all.tris[i].opacity_obj_all->tri_amount = amount;
 	}
 }
 
@@ -326,7 +352,9 @@ void		init_reflection_culling(t_level *level)
 		level->all.tris[i].reflection_obj_first_bounce = (t_obj*)malloc(sizeof(t_obj));
 		level->all.tris[i].reflection_obj_first_bounce->tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount);
 		level->all.tris[i].reflection_obj_first_bounce->tri_amount = level->all.tri_amount;
-
+		level->all.tris[i].opacity_obj_all = (t_obj*)malloc(sizeof(t_obj));
+		level->all.tris[i].opacity_obj_all->tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount);
+		level->all.tris[i].opacity_obj_all->tri_amount = 0;
 		level->all.tris[i].shadow_faces = (t_obj*)malloc(sizeof(t_obj));
 		level->all.tris[i].shadow_faces->tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount);
 		level->all.tris[i].shadow_faces->tri_amount = level->all.tri_amount;
@@ -410,6 +438,7 @@ void			culling(t_level *level)
 			{
 				reflection_culling_first_bounce(level, level->visible.tris[i].index);
 				shadow_face_culling(level, level->visible.tris[i].index);
+				opacity_culling(level, level->visible.tris[i].index);
 				level->visible.tris[visible_amount] = level->visible.tris[i];
 				visible_amount++;
 			}
