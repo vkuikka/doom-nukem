@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/26 15:15:59 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/27 00:28:28 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/02 19:50:27 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,9 +49,6 @@ static int		line_orientation(t_vec2 p, t_vec2 q, t_vec2 r)
 	float	val;
 	val = (q.y - p.y) * (r.x - q.x) -
 			(q.x - p.x) * (r.y - q.y);
-	// printf("%f\n", val);
-	// exit(1);
-
 	if (val == 0)
 		return (0);	// colinear	(point is on the line (not segment) this is prob useless)
 	if (val > 0)
@@ -62,44 +59,17 @@ static int		line_orientation(t_vec2 p, t_vec2 q, t_vec2 r)
   
 /*
 ** Returns true if line segments 'p1q1' and 'p2q2' intersect.
+** Does not check if point is exactly on segment
 */
 static int		line_intersect(t_vec2 p1, t_vec2 q1, t_vec2 p2, t_vec2 q2)
 {
-    // Find the four orientations needed
     int o1 = line_orientation(p1, q1, p2);
     int o2 = line_orientation(p1, q1, q2);
     int o3 = line_orientation(p2, q2, p1);
     int o4 = line_orientation(p2, q2, q1);
-  
-    // General case (lines intersect)
     if (o1 != o2 && o3 != o4)
-	{
-		// printf("%d %d %d %d\n", o1, o2, o3, o4);
-		// printf("%f %f, %f %f\n", p1.x, p1.y, q1.x, q1.y);
-		// printf("%f %f, %f %f\n", p2.x, p2.y, q2.x, q2.y);
-		// printf("\n");
 		return (TRUE);
-	}
-	return (FALSE);	// skip checks for point exactly on segment
-  
-    // Special Cases
-    // p1, q1 and p2 are colinear and p2 lies on segment p1q1
-    if (o1 == 0 && on_segment(p1, p2, q1))
-		return (TRUE);
-  
-    // p1, q1 and q2 are colinear and q2 lies on segment p1q1
-    if (o2 == 0 && on_segment(p1, q2, q1))
-		return (TRUE);
-  
-    // p2, q2 and p1 are colinear and p1 lies on segment p2q2
-    if (o3 == 0 && on_segment(p2, p1, q2))
-		return (TRUE);
-  
-     // p2, q2 and q1 are colinear and q1 lies on segment p2q2
-    if (o4 == 0 && on_segment(p2, q1, q2))
-		return (TRUE);
-  
-    return (FALSE);
+	return (FALSE);
 }
 
 static void		calc_quad_uv(t_tri *tri)
@@ -121,7 +91,6 @@ int				tri_uv_intersect(t_tri t1, t_tri t2)
 		calc_quad_uv(&t1);
 	if (t2.isquad)
 		calc_quad_uv(&t2);
-
 	while (i < 3 + t1.isquad)
 	{
 		if (point_in_tri(t1.verts[i].txtr, t2.verts[0].txtr, t2.verts[1].txtr, t2.verts[2].txtr) || (t2.isquad &&
@@ -155,7 +124,6 @@ int				tri_uv_intersect(t_tri t1, t_tri t2)
 					if (line_intersect(t1.verts[i].txtr, t1.verts[i + 1].txtr, t2.verts[j].txtr, t2.verts[j + 1].txtr))
 						return (1);
 				}
-
 			}
 			j++;
 		}
