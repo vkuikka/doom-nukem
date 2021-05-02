@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/26 13:48:01 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/01 16:47:13 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/01 16:47:13by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,7 @@ void		copy_uv(t_tri *t1, float diff_y, float diff_x, t_bmp *img)
 			check.x = x / (float)img->width;
 			check.y = y / (float)img->height;
 			if (point_in_tri(check, t1->verts[0].txtr, t1->verts[1].txtr, t1->verts[2].txtr) ||
-				point_in_tri(check, t1->verts[3].txtr, t1->verts[1].txtr, t1->verts[2].txtr))
+(t1->isquad && point_in_tri(check, t1->verts[3].txtr, t1->verts[1].txtr, t1->verts[2].txtr)))
 			{
 				int	og_x = x - diff_x * img->width;
 				int	og_y = (img->height - y) + diff_y * img->height;
@@ -123,31 +123,40 @@ void		move_uv(t_tri *t1, int t1_index, t_level *l)
 			}
 			i = -1;
 		}
-
 		if (t1->verts[0].txtr.y < 0 ||
 			t1->verts[1].txtr.y < 0 ||
 			t1->verts[2].txtr.y < 0 ||
 			(t1->isquad && t1->verts[3].txtr.y < 0))
 		{
 			int		*new_img;
+			int		*new_normal;
 			if (!(new_img = (int *)malloc(sizeof(int) * (2 * l->texture.width * l->texture.height))))
 				ft_error("memory allocation failed");
+			if (!(new_normal = (int *)malloc(sizeof(int) * (2 * l->normal_map.width * l->normal_map.height))))
+				ft_error("memory allocation failed");
 			ft_bzero(new_img, sizeof(int) * 2 * l->texture.width * l->texture.height);
+			ft_bzero(new_normal, sizeof(int) * 2 * l->normal_map.width * l->normal_map.height);
 			ft_memcpy(new_img, l->texture.image, sizeof(int) * l->texture.width * l->texture.height);
+			ft_memcpy(new_normal, l->normal_map.image, sizeof(int) * l->normal_map.width * l->normal_map.height);
 			free(l->texture.image);
+			free(l->normal_map.image);
 			l->texture.image = new_img;
-			div_every_uv(l);
+			l->normal_map.image = new_normal;
 			l->texture.height *= 2;
+			l->normal_map.height *= 2;
+			div_every_uv(l);
 			diff_y /= 2.0;
 			printf("new height %d\n", l->texture.height);
 		}
-
 		if (l->texture.height > 10000)
 			return ;
 		i++;
 	}
 	if (diff_y != 0.0 || diff_x != 0.0)
+	{
 		copy_uv(t1, diff_y, diff_x, &l->texture);
+		copy_uv(t1, diff_y, diff_x, &l->normal_map);
+	}
 }
 
 void			fix_uv_overlap(t_level *level)
@@ -170,5 +179,4 @@ void			fix_uv_overlap(t_level *level)
 		}
 		i++;
 	}
-
 }
