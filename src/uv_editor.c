@@ -209,10 +209,8 @@ void			uv_editor(t_level *level, t_window *window)
 	image_scale = get_texture_scale(&level->texture) * level->ui.state.uv_zoom;
 	offset.x = level->ui.state.uv_pos.x;
 	offset.y = UV_EDITOR_Y_OFFSET + level->ui.state.uv_pos.y;
-	if (level->texture.width < level->texture.height)
-		offset.x += RES_X / 4;
-	else
-		offset.y += RES_Y / 2;
+	offset.x += RES_X / 4;
+	offset.y += RES_Y / 2;
 	offset.x -= level->texture.width * image_scale / 2;
 	offset.y -= level->texture.height * image_scale / 2;
 	for (int y = 0; y < RES_Y; y++)
