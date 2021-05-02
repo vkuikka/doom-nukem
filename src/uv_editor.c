@@ -124,7 +124,7 @@ static void		update_uv_closest_vertex(t_level *level, float image_scale, t_ivec2
 		x -= offset.x;
 		y -= offset.y;
 		level->all.tris[i].verts[k].txtr.x = x / (level->texture.width * image_scale);
-		level->all.tris[i].verts[k].txtr.y = y / -(level->texture.height * image_scale);
+		level->all.tris[i].verts[k].txtr.y = 1 - (y / (level->texture.height * image_scale));
 	}
 }
 
@@ -145,18 +145,13 @@ static void	set_fourth_vertex_uv(t_tri *a)
 	a->verts[3].txtr.y = res.y;
 }
 
-static void		uv_wireframe(t_level *level, unsigned *pixels, float image_scale)
+static void		uv_wireframe(t_level *level, t_ivec2 offset, unsigned *pixels, float image_scale)
 {
 	int		next;
 	t_ivec2	color;
 	t_vec2	start;
 	t_vec2	stop;
-	t_ivec2	offset;
 
-	offset.x = level->ui.state.uv_pos.x;
-	offset.y = UV_EDITOR_Y_OFFSET + RES_Y / 2 + ((level->texture.height * image_scale) / 2) + level->ui.state.uv_pos.y;
-	if (level->texture.width < level->texture.height)
-		offset.x = RES_X / 4 - ((level->texture.width * image_scale) / 2);
 	for (int i = 0; i < level->all.tri_amount; i++)
 	{
 		if (level->all.tris[i].selected)
@@ -168,9 +163,9 @@ static void		uv_wireframe(t_level *level, unsigned *pixels, float image_scale)
 				else
 					next = (k + 1) % 3;
 				start.x = (level->texture.width * image_scale) * level->all.tris[i].verts[k].txtr.x;
-				start.y = (level->texture.height * image_scale) * -level->all.tris[i].verts[k].txtr.y;
+				start.y = (level->texture.height * image_scale) * (1 - level->all.tris[i].verts[k].txtr.y);
 				stop.x = (level->texture.width * image_scale) * level->all.tris[i].verts[next].txtr.x;
-				stop.y = (level->texture.height * image_scale) * -level->all.tris[i].verts[next].txtr.y;
+				stop.y = (level->texture.height * image_scale) * (1 - level->all.tris[i].verts[next].txtr.y);
 				start.y += offset.y;
 				start.x += offset.x;
 				stop.y += offset.y;
@@ -212,12 +207,14 @@ void			uv_editor(t_level *level, t_window *window)
 			ft_error("failed to lock texture\n");
 	}
 	image_scale = get_texture_scale(&level->texture) * level->ui.state.uv_zoom;
-	offset.x = 0 + level->ui.state.uv_pos.x;
+	offset.x = level->ui.state.uv_pos.x;
 	offset.y = UV_EDITOR_Y_OFFSET + level->ui.state.uv_pos.y;
 	if (level->texture.width < level->texture.height)
-		offset.x += RES_X / 4 - ((level->texture.width * image_scale) / 2);
+		offset.x += RES_X / 4;
 	else
-		offset.y += RES_Y / 2 - ((level->texture.height * image_scale) / 2);
+		offset.y += RES_Y / 2;
+	offset.x -= level->texture.width * image_scale / 2;
+	offset.y -= level->texture.height * image_scale / 2;
 	for (int y = 0; y < RES_Y; y++)
 		for (int x = 0; x < RES_X / 2; x++)
 			uv_pixel_put(x, y, UI_BACKGROUND_COL, pixels);
@@ -227,7 +224,7 @@ void			uv_editor(t_level *level, t_window *window)
 				y - offset.y >= 0 && y - offset.y < level->texture.height * image_scale)
 				uv_pixel_put(x, y, level->texture.image[(int)((y - offset.y) / image_scale) * level->texture.width +
 														(int)((x - offset.x) / image_scale)], pixels);
-	uv_wireframe(level, pixels, image_scale);
+	uv_wireframe(level, offset, pixels, image_scale);
 	SDL_UnlockTexture(texture);
 	SDL_RenderCopy(window->SDLrenderer, texture, NULL, NULL);
 	if (SDL_LockTexture(texture, NULL, (void**)&pixels, &width))
