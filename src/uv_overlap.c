@@ -188,10 +188,7 @@ void		move_uv(t_tri *t1, int t1_index, t_level *l)
 			l->normal_map.height *= 2;
 			div_every_uv(l);
 			diff.y /= 2.0;
-			printf("new height %d\n", l->texture.height);
 		}
-		if (l->texture.height > 10000)
-			return ;
 		i++;
 	}
 	if (diff.y != 0.0 || diff.x != 0.0)
