@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/06 08:50:56 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/04/10 15:13:29 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/02 20:05:56 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -454,6 +454,9 @@ void	init_ui_state(t_level *level)
 	ft_memset(level->ui.state.directory, 0, PATH_MAX - 1);
 	ft_memset(level->ui.state.extension, 0, NAME_MAX - 1);
 	ft_memset(level->ui.state.save_filename, 0, NAME_MAX - 1);
+	level->ui.state.uv_pos.x = 0;
+	level->ui.state.uv_pos.y = 0;
+	level->ui.state.uv_zoom = 1;
 
 #ifdef __APPLE__
 	int path_max_size = PATH_MAX - 2;
