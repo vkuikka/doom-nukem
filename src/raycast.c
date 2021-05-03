@@ -91,7 +91,7 @@ static void		raytrace(t_cast_result *res, t_obj *obj, t_ray r, t_level *l)
 			reflection(res, l, l->all.tris[res->face_index].reflection_obj_all);
 	}
 	if (l->all.tris[res->face_index].opacity)
-		opacity(res, l, obj);
+		opacity(res, l, l->all.tris[res->face_index].opacity_obj_all);
 }
 
 void			cast_all_color(t_ray r, t_level *l, t_obj *obj, t_cast_result *res)

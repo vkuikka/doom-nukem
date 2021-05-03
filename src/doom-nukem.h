@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/02 19:59:26 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/03 23:26:47 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,8 +148,10 @@ typedef struct			s_tri
 	int					disable_backface_culling;
 	float				opacity;
 	float				reflectivity;
+	float				refractivity;
 	int					shader;
 	int					selected;
+	struct s_obj		*opacity_obj_all;
 	struct s_obj		*reflection_obj_all;
 	struct s_obj		*reflection_obj_first_bounce;
 	struct s_obj		*shadow_faces;
