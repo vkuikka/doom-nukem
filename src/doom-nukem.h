@@ -377,6 +377,7 @@ void		init_reflection_culling(t_level *level);
 void		reflection_culling(t_level *level, int i);
 void		free_reflection_culling(t_level *level);
 void		find_quads(t_obj *obj);
+void		set_fourth_vertex(t_tri *a);
 
 void		rotate_vertex(float angle, t_vec3 *vertex, int axis);
 void		rot_cam(t_vec3 *cam, const float lon, const float lat);

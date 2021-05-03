@@ -131,16 +131,52 @@ int				is_near(int a, int b, int range)
 	return (-range <= diff && diff <= range);
 }
 
+void			transform_quad(t_tri *tri, t_vec3 dir)
+{
+	for (int k = 0; k < 3 + tri->isquad; k++)
+	{
+		int quadmoved = 0;
+		if (k == 3 && quadmoved)
+			return ;
+		if (tri->verts[k].selected)
+		{
+			vec_add(&tri->verts[k].pos, tri->verts[k].pos, dir);
+			if (k < 3 && tri->isquad)
+			{
+				set_fourth_vertex(tri);
+				quadmoved = 1;
+			}
+			else if (k == 3)
+			{
+				tri->verts[0].pos = tri->verts[3].pos;
+				set_fourth_vertex(tri);
+				t_vec3 tmp = tri->verts[0].pos;
+				tri->verts[0].pos = tri->verts[3].pos;
+				tri->verts[3].pos = tmp;
+			}
+			vec_sub(&tri->v0v2, tri->verts[1].pos, tri->verts[0].pos);
+			vec_sub(&tri->v0v1, tri->verts[2].pos, tri->verts[0].pos);
+		}
+	}
+}
+
 void			move_selected(t_level *level, t_vec3 dir)
 {
 	for (int i = 0; i < level->all.tri_amount; i++)
+	{
+		int amount = 0;
 		for (int k = 0; k < 3 + level->all.tris[i].isquad; k++)
-			if (level->all.tris[i].selected || (level->ui.vertex_select_mode && level->all.tris[i].verts[k].selected))
-			{
+			if (level->all.tris[i].verts[k].selected)
+				amount++;
+		if (level->ui.vertex_select_mode && level->all.tris[i].isquad && amount != 4)
+			transform_quad(&level->all.tris[i], dir);
+		else
+		{
+			for (int k = 0; k < 3 + level->all.tris[i].isquad; k++)
+				if (level->all.tris[i].selected || (level->ui.vertex_select_mode && level->all.tris[i].verts[k].selected))
 				vec_add(&level->all.tris[i].verts[k].pos, level->all.tris[i].verts[k].pos, dir);
-				vec_sub(&level->all.tris[i].v0v2, level->all.tris[i].verts[1].pos, level->all.tris[i].verts[0].pos);
-				vec_sub(&level->all.tris[i].v0v1, level->all.tris[i].verts[2].pos, level->all.tris[i].verts[0].pos);
-			}
+		}
+	}
 }
 
 static t_vec3	calc_move_screen_space(int index, int amount, t_vec3 ss_gizmo)
@@ -154,15 +190,6 @@ static t_vec3	calc_move_screen_space(int index, int amount, t_vec3 ss_gizmo)
 	dir.z = get_dir[2];
 	t_vec3 vert;
 	ss_gizmo.z = 0;
-
-	// if (drag == 2)
-	// 	amount *= -1;
-	// {
-	// 	vec_sub(&vert, avg, ss_gizmo);
-	// 	if (vec_dot(dir, vert) < 0)
-	// 		amount *= -1;
-	// }
-
 	vec_mult(&dir, amount / 100.);
 	return (dir);
 }
