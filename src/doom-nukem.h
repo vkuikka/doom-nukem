@@ -6,15 +6,16 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/12 16:22:57 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/12 16:24:47 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef DOOM_NUKEM_H
 # define DOOM_NUKEM_H
-# define RES_X 1000
+# define RES_X 800
 # define RES_Y 700
-# define THREAD_AMOUNT 4
+# define TICKRATE 128
+# define THREAD_AMOUNT 8
 # define NOISE_QUALITY_LIMIT 8
 # define SSP_MAX_X 20
 # define SSP_MAX_Y 20
@@ -150,6 +151,7 @@ typedef struct			s_tri
 	int					isquad;
 	int					isgrid;
 	struct s_vec3		enemy_dir;	//maybe move enemy variables to a struct
+	float				enemy_dist;
 	int					isenemy;
 	int					disable_distance_culling;
 	int					disable_backface_culling;
