@@ -130,8 +130,7 @@ static void		set_mouse_input_location(t_level *level)
 		{
 			level->ui.state.mouse_location = MOUSE_LOCATION_SELECTION;
 			level->ui.state.m1_drag = FALSE;
-			if (level->ui.state.m1_click)
-				select_face(&level->cam, level, x, y);
+			select_face(&level->cam, level, x, y);
 		}
 	}
 	level->ui.state.m1_click = FALSE;

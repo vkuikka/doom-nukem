@@ -15,10 +15,17 @@
 static void	deselect_all_faces(t_level *level)
 {
 	int	i;
+	int	o;
 
 	i = 0;
 	while (i < level->all.tri_amount)
 	{
+		o = 0;
+		while (o < 3 + level->all.tris[i].isquad)
+		{
+			level->all.tris[i].verts[o].selected = FALSE;
+			o++;
+		}
 		level->all.tris[i].selected = FALSE;
 		i++;
 	}
@@ -65,12 +72,12 @@ static void		update_closest_vertex(t_level *level)
 	int	k;
 
 	find_closest_mouse(NULL, &i, &k);
-	if (i != -1 && level->ui.state.mouse_location == MOUSE_LOCATION_SELECTION)
+	if (level->ui.state.m1_click && i != -1 && level->ui.state.mouse_location == MOUSE_LOCATION_SELECTION)
 	{
 		int new_state = level->all.tris[i].verts[k].selected ? 0 : 1;
 		t_vec3 pos = level->all.tris[i].verts[k].pos;
 		for (int o = 0; o < level->all.tri_amount; o++)
-			for (int p = 0; p < 3; p++)
+			for (int p = 0; p < 3 + level->all.tris[o].isquad; p++)
 				if (vec_cmp(level->all.tris[o].verts[p].pos, pos))
 					level->all.tris[o].verts[p].selected = new_state;
 	}
@@ -109,7 +116,7 @@ void	select_face(t_camera *cam, t_level *level, int x, int y)
 
 	if (level->ui.vertex_select_mode)
 		update_closest_vertex(level);
-	else
+	else if (level->ui.state.m1_click)
 	{
 		r.dir = cam->front;
 		r.pos = cam->pos;
