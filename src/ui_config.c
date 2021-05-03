@@ -295,6 +295,7 @@ void	ui_config(t_level *level)
 	{
 		set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
 		call("close uv editor", &disable_uv_editor, level);
+		call("fix selected uv overlap", &fix_uv_overlap, level);
 		return ;
 	}
 	set_text_color(UI_EDITOR_SETTINGS_TEXT_COLOR);

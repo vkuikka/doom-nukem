@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/26 04:05:50 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/04/23 00:14:13 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/04/27 00:33:53 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ float			area(t_vec3 *a, t_vec3 *b, t_vec3 *c)
 	return (fabs((a->x * (b->y - c->y) + b->x * (c->y - a->y) + c->x * (a->y - b->y)) / 2.0));
 }
  
-int				point_in_tri(t_vec3 *p, t_vec3 *a, t_vec3 *b, t_vec3 *c)
+static int		vec3_point_in_tri(t_vec3 *p, t_vec3 *a, t_vec3 *b, t_vec3 *c)
 {  
 	float A = area(a, b, c);
 	float A1 = area(p, b, c);
@@ -38,9 +38,9 @@ int				point_in_tri(t_vec3 *p, t_vec3 *a, t_vec3 *b, t_vec3 *c)
  
 static int		point_in_face(t_vec3 *p, t_tri *face)
 {
-	if (point_in_tri(p, &face->verts[0].pos, &face->verts[1].pos, &face->verts[2].pos))
+	if (vec3_point_in_tri(p, &face->verts[0].pos, &face->verts[1].pos, &face->verts[2].pos))
 		return (1);
-	if (face->isquad && point_in_tri(p, &face->verts[3].pos, &face->verts[2].pos, &face->verts[1].pos))
+	if (face->isquad && vec3_point_in_tri(p, &face->verts[3].pos, &face->verts[2].pos, &face->verts[1].pos))
 		return (1);
 	return (0);
 }
