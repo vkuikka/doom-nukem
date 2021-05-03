@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/14 17:08:49 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/14 01:18:07 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/03 20:12:22 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,14 +81,18 @@ void			move_enemy(t_tri *face, t_level *level)
 		dist = cast_all(e, level, NULL, NULL, NULL);
 		if (dist > vec_length(e.dir))
 			face->enemy_dir = e.dir;
-		if (face->enemy_dir.x && face->enemy_dir.y && face->enemy_dir.z)
+		if ((dist > vec_length(e.dir) && vec_length(e.dir) > face->enemy_dist) || dist < vec_length(e.dir) || !face->enemy_dist)
 		{
-			e.dir = face->enemy_dir;
-			vec_normalize(&e.dir);
-			vec_div(&e.dir, 100);
-			vec_sub(&face->enemy_dir, face->enemy_dir, e.dir);
-			for (int i = 0; i < 3 + face->isquad; i++)
-				vec_add(&face->verts[i].pos, face->verts[i].pos, e.dir);
+			if (face->enemy_dir.x && face->enemy_dir.y && face->enemy_dir.z)
+			{
+				e.dir = face->enemy_dir;
+				e.dir.y = 0;
+				vec_normalize(&e.dir);
+				vec_div(&e.dir, 100);
+				vec_sub(&face->enemy_dir, face->enemy_dir, e.dir);
+				for (int i = 0; i < 3 + face->isquad; i++)
+					vec_add(&face->verts[i].pos, face->verts[i].pos, e.dir);
+			}
 		}
 	}
 }

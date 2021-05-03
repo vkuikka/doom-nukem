@@ -6,14 +6,14 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/10 20:13:38 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/03 20:11:03 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef DOOM_NUKEM_H
 # define DOOM_NUKEM_H
 # define RES_X 800
-# define RES_Y 600
+# define RES_Y 700
 # define TICKRATE 128
 # define THREAD_AMOUNT 8
 # define NOISE_QUALITY_LIMIT 8
@@ -133,6 +133,7 @@ typedef struct			s_tri
 	int					isquad;
 	int					isgrid;
 	struct s_vec3		enemy_dir;	//maybe move enemy variables to a struct
+	float				enemy_dist;
 	int					isenemy;
 	float				opacity;
 	float				reflectivity;

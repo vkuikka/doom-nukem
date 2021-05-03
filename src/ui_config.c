@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/04/07 22:58:05 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/03 20:07:38 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,8 +93,13 @@ void	ui_config_selected_faces(t_level *level)
 				sprintf(buf, "opacity: %.0f%%", 100 * level->all.tris[i].opacity);
 				float_slider(&level->all.tris[i].opacity, buf, 0, 1);
 				button(&level->all.tris[i].isgrid, "grid");
-				button(&level->all.tris[i].isenemy, "enemy");
 				button(&level->all.tris[i].shader, "water");
+				button(&level->all.tris[i].isenemy, "enemy");
+				if (level->all.tris[i].isenemy)
+				{
+					text("enemy stop distance");
+					float_slider(&level->all.tris[i].enemy_dist, NULL, 0, 10);
+				}
 				// call("flip normal");
 				// call("set animation start");
 				// call("set animation stop");
