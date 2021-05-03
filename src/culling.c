@@ -348,16 +348,16 @@ void		init_reflection_culling(t_level *level)
 		level->all.tris[i].index = i;
 		level->all.tris[i].reflection_obj_all = (t_obj*)malloc(sizeof(t_obj));
 		level->all.tris[i].reflection_obj_all->tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount);
-		level->all.tris[i].reflection_obj_all->tri_amount = level->all.tri_amount;
+		level->all.tris[i].reflection_obj_all->tri_amount = 0;
 		level->all.tris[i].reflection_obj_first_bounce = (t_obj*)malloc(sizeof(t_obj));
 		level->all.tris[i].reflection_obj_first_bounce->tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount);
-		level->all.tris[i].reflection_obj_first_bounce->tri_amount = level->all.tri_amount;
+		level->all.tris[i].reflection_obj_first_bounce->tri_amount = 0;
 		level->all.tris[i].opacity_obj_all = (t_obj*)malloc(sizeof(t_obj));
 		level->all.tris[i].opacity_obj_all->tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount);
 		level->all.tris[i].opacity_obj_all->tri_amount = 0;
 		level->all.tris[i].shadow_faces = (t_obj*)malloc(sizeof(t_obj));
 		level->all.tris[i].shadow_faces->tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount);
-		level->all.tris[i].shadow_faces->tri_amount = level->all.tri_amount;
+		level->all.tris[i].shadow_faces->tri_amount = 0;
 	}
 	for (int i = 0; i < level->all.tri_amount; i++)
 		reflection_culling(level, i);
