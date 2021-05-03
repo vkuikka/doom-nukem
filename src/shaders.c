@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/31 16:52:44 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/03 00:02:36 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/03 23:08:17 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ void		opacity(t_cast_result *res, t_level *l, t_obj *obj)
 	transparent = *res;
 	normal.pos = res->ray.pos;
 	normal.dir = res->normal;
-	vec_mult(&normal.dir, vec_dot(transparent.ray.dir, normal.dir));
+	vec_mult(&normal.dir, vec_dot(transparent.ray.dir, normal.dir) * l->all.tris[res->face_index].refractivity);
 	vec_add(&transparent.ray.dir, transparent.ray.dir, normal.dir);
 	cast_all_color(transparent.ray, l, obj, &transparent);
 	res->color = crossfade((unsigned)res->color >> 8, (unsigned)transparent.color >> 8, l->all.tris[res->face_index].opacity * 0xff);

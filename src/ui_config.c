@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/04/22 01:04:05 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/03 23:29:12 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,6 +88,11 @@ void	ui_config_selected_faces(t_level *level)
 				float_slider(&level->all.tris[i].reflectivity, buf, 0, 1);
 				sprintf(buf, "opacity: %.0f%%", 100 * level->all.tris[i].opacity);
 				float_slider(&level->all.tris[i].opacity, buf, 0, 1);
+				if (level->all.tris[i].opacity)
+				{
+					sprintf(buf, "refractive index: %.2f", level->all.tris[i].refractivity);
+					float_slider(&level->all.tris[i].refractivity, buf, -1, 3);
+				}
 				button(&level->all.tris[i].isgrid, "grid");
 				button(&level->all.tris[i].isenemy, "enemy");
 				button(&level->all.tris[i].shader, "water");
