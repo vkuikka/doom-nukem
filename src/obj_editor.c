@@ -194,16 +194,6 @@ static t_vec3	calc_move_screen_space(int index, int amount, t_vec3 ss_gizmo)
 	return (dir);
 }
 
-int				cull_ahead_vertex(t_vec3 pos1, t_vec3 pos2, t_vec3 dir)
-{
-	t_vec3	vert;
-
-	vec_sub(&vert, pos2, pos1);
-	if (vec_dot(dir, vert) <= 0)
-		return (FALSE);
-	return (TRUE);
-}
-
 void				obj_editor_input(t_level *level)
 {
 	t_vec3	avg = {0, 0, 0};
@@ -239,18 +229,18 @@ void				obj_editor_input(t_level *level)
 	{
 		if (x.z > 0 && is_near(mx, x.x , 9) && is_near(my, x.y, 9))
 		{
-			drag_direction = cull_ahead_vertex(avg, z, level->cam.pos) && cull_ahead_vertex(avg, x, level->cam.pos) ? -1 : 1;
 			level->ui.state.mouse_location = MOUSE_LOCATION_GIZMO_X;
+			drag_direction = vec_dot((t_vec3){0, 0, -1}, level->cam.front) > 0 ? -1 : 1;
 		}
 		else if (y.z > 0 && is_near(mx, y.x , 9) && is_near(my, y.y, 9))
 		{
-			drag_direction = cull_ahead_vertex(avg, y, level->cam.pos) ? 1 : -1;
 			level->ui.state.mouse_location = MOUSE_LOCATION_GIZMO_Y;
+			drag_direction = 1;
 		}
 		else if (z.z > 0 && is_near(mx, z.x , 9) && is_near(my, z.y, 9))
 		{
-			drag_direction = cull_ahead_vertex(avg, x, level->cam.pos) ? 1 : -1;
 			level->ui.state.mouse_location = MOUSE_LOCATION_GIZMO_Z;
+			drag_direction = vec_dot((t_vec3){-1, 0, 0}, level->cam.front) > 0 ? 1 : -1;
 		}
 	}
 	if (!level->ui.state.m1_drag && level->ui.state.mouse_location >= MOUSE_LOCATION_GIZMO_X)
