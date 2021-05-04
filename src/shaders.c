@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/31 16:52:44 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/18 14:10:11by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/03 23:08:17 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,11 +15,15 @@
 void		opacity(t_cast_result *res, t_level *l, t_obj *obj)
 {
 	t_cast_result	transparent;
+	t_ray			normal;
 
 	transparent = *res;
-	transparent.face_index = res->face_index;
+	normal.pos = res->ray.pos;
+	normal.dir = res->normal;
+	vec_mult(&normal.dir, vec_dot(transparent.ray.dir, normal.dir) * l->all.tris[res->face_index].refractivity);
+	vec_add(&transparent.ray.dir, transparent.ray.dir, normal.dir);
 	cast_all_color(transparent.ray, l, obj, &transparent);
-	res->color = crossfade((unsigned)res->color >> 8, transparent.color >> 8, l->all.tris[res->face_index].opacity * 0xff);
+	res->color = crossfade((unsigned)res->color >> 8, (unsigned)transparent.color >> 8, l->all.tris[res->face_index].opacity * 0xff);
 }
 
 void		shadow(t_level *l, t_vec3 normal, t_cast_result *res)
@@ -30,20 +34,20 @@ void		shadow(t_level *l, t_vec3 normal, t_cast_result *res)
 
 	if (vec_dot(normal, l->ui.sun_dir) < 0)
 	{
-		darkness = (l->ui.direct_shadow_contrast);
+		darkness = l->ui.direct_shadow_contrast;
 		res->color = crossfade((unsigned)res->color >> 8, l->shadow_color, darkness * 0xff);
 		return;
 	}
-	r.dir.x = -l->ui.sun_dir.x;
+	r.dir.x = l->ui.sun_dir.x;
 	r.dir.y = -l->ui.sun_dir.y;
-	r.dir.z = -l->ui.sun_dir.z;
+	r.dir.z = l->ui.sun_dir.z;
 	r.pos = res->ray.pos;
 	i = 0;
-	while (i < l->all.tri_amount)
+	while (i < l->all.tris[res->face_index].shadow_faces->tri_amount)
 	{
-		if (cull_behind(r.pos, r.dir, l->all.tris[i]) && 0.0001 < cast_face(l->all.tris[i], r, NULL))
+		if (0 < cast_face(l->all.tris[res->face_index].shadow_faces->tris[i], r, NULL))
 		{
-			darkness = (l->ui.direct_shadow_contrast);
+			darkness = l->ui.direct_shadow_contrast;
 			res->color = crossfade((unsigned)res->color >> 8, l->shadow_color, darkness * 0xff);
 			return;
 		}

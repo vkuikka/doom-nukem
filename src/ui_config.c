@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/04/07 22:58:05 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/03 23:51:38 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,7 @@ void	copy_tri_settings(t_tri *a, t_tri *b)
 	a->isgrid = b->isgrid;
 	a->opacity = b->opacity;
 	a->reflectivity = b->reflectivity;
+	a->refractivity = b->refractivity;
 	a->disable_distance_culling = b->disable_distance_culling;
 	a->disable_backface_culling = b->disable_backface_culling;
 }
@@ -86,6 +87,11 @@ void	ui_config_selected_faces(t_level *level)
 					sprintf(buf, "reflectivity: %.0f%% (%d mirror %d first bounce)", 100 * level->all.tris[i].reflectivity,
 						level->all.tris[i].reflection_obj_all->tri_amount, level->all.tris[i].reflection_obj_first_bounce->tri_amount);
 				float_slider(&level->all.tris[i].reflectivity, buf, 0, 1);
+				if (level->all.tris[i].opacity)
+				{
+					sprintf(buf, "refractive index: %.2f", level->all.tris[i].refractivity);
+					float_slider(&level->all.tris[i].refractivity, buf, -1, 3);
+				}
 				sprintf(buf, "opacity: %.0f%%", 100 * level->all.tris[i].opacity);
 				float_slider(&level->all.tris[i].opacity, buf, 0, 1);
 				button(&level->all.tris[i].isgrid, "grid");
@@ -290,6 +296,7 @@ void	ui_config(t_level *level)
 	{
 		set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
 		call("close uv editor", &disable_uv_editor, level);
+		call("fix selected uv overlap", &fix_uv_overlap, level);
 		return ;
 	}
 	set_text_color(UI_EDITOR_SETTINGS_TEXT_COLOR);
@@ -331,6 +338,8 @@ void	ui_config(t_level *level)
 	float_slider(&ui->render_distance, buf, 2, 50);
 	float_slider(&ui->sun_contrast, "sun", 0, 1);
 	float_slider(&ui->direct_shadow_contrast, "shadow", 0, 1);
+	if (ui->sun_contrast > ui->direct_shadow_contrast)
+		ui->direct_shadow_contrast = ui->sun_contrast;
 	sprintf(buf, "sun dir: (%.2f, %.2f, %.2f)", ui->sun_dir.x, ui->sun_dir.y, ui->sun_dir.z);
 	text(buf);
 	//vec3_slider

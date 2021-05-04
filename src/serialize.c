@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/06 14:13:02 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/04/06 22:01:47 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/04 01:07:49 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -313,10 +313,10 @@ void	save_file(t_level *level, t_buffer *buf)
 	free(filename1);
 	filename1 = ft_strjoin(filename2, ".doom-nukem");
 	free(filename2);
-	fd = open(filename1, O_WRONLY | O_CREAT);
+	fd = open(filename1, O_RDWR | O_CREAT, S_IRGRP | S_IWGRP);
 	if (fd < 3)
-		ft_error("failed to write file");
-	if (write(fd, buf->data, buf->next) != buf->size)
+		ft_error("failed to create write file");
+	if (write(fd, buf->data, buf->next) != buf->next)
 		ft_error("failed to write file");
 	free(filename1);
 	close(fd);

@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/10 01:23:16 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/18 13:12:46 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/01 18:23:14 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,10 +53,28 @@ static void			player_input(t_level *level, t_vec3 *wishdir, float *shift)
 		wishdir->x -= 1;
 	if (keys[SDL_SCANCODE_D])
 		wishdir->x += 1;
-	if (keys[SDL_SCANCODE_LEFT])
-		level->cam.look_side -= 0.04;
-	if (keys[SDL_SCANCODE_RIGHT])
-		level->cam.look_side += 0.04;
+	if (level->ui.state.is_uv_editor_open)
+	{
+		if (keys[SDL_SCANCODE_LEFT])
+			level->ui.state.uv_pos.x -= 10;
+		if (keys[SDL_SCANCODE_RIGHT])
+			level->ui.state.uv_pos.x += 10;
+		if (keys[SDL_SCANCODE_UP])
+			level->ui.state.uv_pos.y -= 10;
+		if (keys[SDL_SCANCODE_DOWN])
+			level->ui.state.uv_pos.y += 10;
+		if (keys[SDL_SCANCODE_MINUS] && level->ui.state.uv_zoom > 0.5)
+			level->ui.state.uv_zoom -= 0.01;
+		if (keys[SDL_SCANCODE_EQUALS] && level->ui.state.uv_zoom < 10)
+			level->ui.state.uv_zoom += 0.01;
+	}
+	else
+	{
+		if (keys[SDL_SCANCODE_LEFT])
+			level->cam.look_side -= 0.04;
+		if (keys[SDL_SCANCODE_RIGHT])
+			level->cam.look_side += 0.04;
+	}
 	if (keys[SDL_SCANCODE_SPACE])
 		wishdir->y -= 1;
 	if (keys[SDL_SCANCODE_LSHIFT] && level->ui.noclip)

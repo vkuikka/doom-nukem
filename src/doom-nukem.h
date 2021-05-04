@@ -6,14 +6,14 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/20 16:04:43 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/03 23:26:47 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef DOOM_NUKEM_H
 # define DOOM_NUKEM_H
-# define RES_X 800
-# define RES_Y 600
+# define RES_X 1000
+# define RES_Y 700
 # define THREAD_AMOUNT 4
 # define NOISE_QUALITY_LIMIT 8
 # define SSP_MAX_X 20
@@ -52,6 +52,8 @@
 # define UI_ELEMENT_HEIGHT 14
 # define UI_PADDING 2
 # define UV_EDITOR_Y_OFFSET UI_ELEMENT_HEIGHT + UI_PADDING * 2
+
+# define UV_PADDING 3
 
 # define SERIALIZE_INITIAL_BUFFER_SIZE 666
 # define OCCLUSION_CULLING_FLOAT_ERROR_MAGIC_NUMBER 10
@@ -148,10 +150,13 @@ typedef struct			s_tri
 	int					disable_backface_culling;
 	float				opacity;
 	float				reflectivity;
+	float				refractivity;
 	int					shader;
 	int					selected;
+	struct s_obj		*opacity_obj_all;
 	struct s_obj		*reflection_obj_all;
 	struct s_obj		*reflection_obj_first_bounce;
+	struct s_obj		*shadow_faces;
 	// int					breakable;
 	// int					broken;
 	// int					*reflection_culling_mask;
@@ -217,6 +222,8 @@ typedef struct			s_ui_state
 	int					m1_drag;
 	enum e_mouse_location	mouse_location;
 	int					is_uv_editor_open;
+	float				uv_zoom;
+	struct s_vec2		uv_pos;
 
 	int					is_serialize_open;
 	char				*save_filename;
@@ -318,6 +325,8 @@ typedef struct __attribute__((__packed__))	s_bmp_pixel_24 {
 
 typedef struct			s_cast_result
 {
+	float				u;
+	float				v;
 	float				dist;
 	int					color;
 	int					face_index;
@@ -428,5 +437,10 @@ void		open_level(t_level *level, char *filename);
 void		cast_all_color(t_ray r, t_level *l, t_obj *obj, t_cast_result *res);
 int			cull_behind(t_vec3 dir, t_vec3 pos, t_tri tri);
 int			cull_ahead(t_vec3 dir, t_vec3 pos, t_tri tri);
+
+void		fix_uv_overlap(t_level *level);
+int			tri_uv_intersect(t_tri t1, t_tri t2);
+int			point_in_tri(t_vec2 pt, t_vec2 v1, t_vec2 v2, t_vec2 v3);
+void		toggle_selection_all(t_level *level);
 
 #endif

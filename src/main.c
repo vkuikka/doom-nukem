@@ -179,6 +179,8 @@ static void		keyboard_input(t_window *window, t_level *level, SDL_Event event)
 			SDL_WarpMouseInWindow(window->SDLwindow, RES_X / 2, RES_Y / 2);
 		}
 	}
+	else if (event.key.keysym.scancode == SDL_SCANCODE_O)
+		toggle_selection_all(level);
 }
 
 static void		read_input(t_window *window, t_level *level)
