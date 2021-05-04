@@ -42,6 +42,7 @@
 # define WF_VISIBLE_COL 0x00ff00ff
 # define WF_BACKGROUND_COL 0x99		//1 byte value
 
+# define GIZMO_SCALE_DIVIDER 4
 # define UI_FONT_SIZE 13
 # define UI_EDITOR_SETTINGS_TEXT_COLOR 0x4444ffff
 # define UI_LEVEL_SETTINGS_TEXT_COLOR 0xffffffff

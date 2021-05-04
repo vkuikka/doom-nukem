@@ -47,8 +47,6 @@ void	obj_print_line(t_vec3 start, t_vec3 stop, int color, unsigned *pixels)
 	}
 }
 
-# define GIZMO_SCALE_DIVIDER 4
-
 static float	scale_translation_gizmo(t_vec3 *x, t_vec3 *y, t_vec3 *z, t_vec3 avg)
 {
 	float dist;
