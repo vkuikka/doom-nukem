@@ -35,12 +35,14 @@
 
 # define WF_UNSELECTED_COL 0x333333ff
 # define WF_SELECTED_COL 0xffaa00ff
+# define WF_VERT_COL 0x010101ff
 # define WF_NOT_QUAD_WARNING_COL 0x802222ff
 # define WF_NORMAL_COL 0xff0000ff
 # define WF_VISIBLE_NORMAL_COL 0x00ffffff
 # define WF_VISIBLE_COL 0x00ff00ff
 # define WF_BACKGROUND_COL 0x99		//1 byte value
 
+# define GIZMO_SCALE_DIVIDER 4
 # define UI_FONT_SIZE 13
 # define UI_EDITOR_SETTINGS_TEXT_COLOR 0x4444ffff
 # define UI_LEVEL_SETTINGS_TEXT_COLOR 0xffffffff
@@ -200,7 +202,9 @@ typedef enum			e_mouse_location
 	MOUSE_LOCATION_GAME = 0,
 	MOUSE_LOCATION_UI,
 	MOUSE_LOCATION_UV_EDITOR,
-	MOUSE_LOCATION_GIZMO,
+	MOUSE_LOCATION_GIZMO_X,
+	MOUSE_LOCATION_GIZMO_Y,
+	MOUSE_LOCATION_GIZMO_Z,
 	MOUSE_LOCATION_SELECTION
 }						t_mouse_location;
 
@@ -236,6 +240,7 @@ typedef struct			s_editor_ui
 {
 	int					editor_active;
 	int					noclip;
+	int					vertex_select_mode;
 	int					wireframe;
 	int					wireframe_on_top;
 	int					raycast_quality;
@@ -382,6 +387,7 @@ void		init_reflection_culling(t_level *level);
 void		reflection_culling(t_level *level, int i);
 void		free_reflection_culling(t_level *level);
 void		find_quads(t_obj *obj);
+void		set_fourth_vertex(t_tri *a);
 
 void		rotate_vertex(float angle, t_vec3 *vertex, int axis);
 void		rot_cam(t_vec3 *cam, const float lon, const float lat);
@@ -400,10 +406,13 @@ void		file_save(char *str, char *extension, void (*f)(t_level*, char*));
 void		path_up_dir(char *path);
 void		go_in_dir(char *path, char *folder);
 void		text_input(char *str, t_level *level);
+void		find_closest_mouse(t_vec3 *vert, int *i, int *k);
 
 void		uv_editor(t_level *level, t_window *window);
 void		enable_uv_editor(t_level *level);
 void		disable_uv_editor(t_level *level);
+void		obj_editor(t_level *level, t_window *window);
+void		obj_editor_input(t_level *level);
 
 void		player_movement(t_level *level);
 

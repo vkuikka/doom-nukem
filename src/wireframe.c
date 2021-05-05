@@ -17,7 +17,8 @@ void	pixel_put(int x, int y, int color, t_window *window)
 	if (x < 0 || y < 0 || x >= RES_X || y >= RES_Y)
 		return;
 	if (color == WF_SELECTED_COL ||
-		(window->frame_buffer[x + (y * RES_X)] != WF_SELECTED_COL &&
+		(window->frame_buffer[x + (y * RES_X)] != WF_VERT_COL &&
+		window->frame_buffer[x + (y * RES_X)] != WF_SELECTED_COL &&
 		window->frame_buffer[x + (y * RES_X)] != WF_VISIBLE_COL &&
 		window->frame_buffer[x + (y * RES_X)] != WF_VISIBLE_NORMAL_COL &&
 		(window->frame_buffer[x + (y * RES_X)] != WF_NOT_QUAD_WARNING_COL ||
@@ -93,6 +94,15 @@ void	rotate_vertex(float angle, t_vec3 *vertex, int axis)
 	}
 }
 
+
+void	pixel_put_force(int x, int y, int color, t_window *window)
+{
+	if (x < 0 || y < 0 || x >= RES_X || y >= RES_Y)
+		return;
+	if (window->frame_buffer[x + (y * RES_X)] != WF_SELECTED_COL)
+		window->frame_buffer[x + (y * RES_X)] = color;
+}
+
 static void	put_vertex(t_vec3 vertex, int color, t_window *window)
 {
 	if (vertex.z < 0)
@@ -101,7 +111,7 @@ static void	put_vertex(t_vec3 vertex, int color, t_window *window)
 	{
 		for (int b = -1; b < 2; b++)
 		{
-			pixel_put(vertex.x + a, vertex.y + b, color, window);
+			pixel_put_force(vertex.x + a, vertex.y + b, color, window);
 		}
 	}
 }
@@ -188,10 +198,13 @@ void	render_wireframe(t_window *window, t_level *level, t_obj *obj, int is_visib
 				print_line(start, stop, WF_NOT_QUAD_WARNING_COL, window);
 			else
 				print_line(start, stop, WF_UNSELECTED_COL, window);
+
 			if (obj->tris[i].verts[j].selected)
 				put_vertex(start, WF_SELECTED_COL, window);
 			else
-				put_vertex(start, 0, window);
+				put_vertex(start, WF_VERT_COL, window);
+			if (!is_visible)
+				find_closest_mouse(&start, &i, &j);
 		}
 		if (is_visible || !level->ui.wireframe_culling_visual)
 			put_normal(window, level, obj->tris[i], WF_VISIBLE_NORMAL_COL);
