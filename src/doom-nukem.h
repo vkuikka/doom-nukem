@@ -397,7 +397,7 @@ void		ui_render(t_level *level);
 void		ui_config(t_level *level);
 void		set_text_color(int color);
 void		text(char *text);
-void		button(int *var, char *text);
+int			button(int *var, char *text);
 void		int_slider(int *var, char *str, int min, int max);
 void		float_slider(float *var, char *str, float min, float max);
 int			call(char *str, void (*f)(t_level*), t_level *level);
