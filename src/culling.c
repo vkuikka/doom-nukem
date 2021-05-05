@@ -162,17 +162,6 @@ static int	reflection_backface(t_tri t1, t_tri t2)
 	return (0);
 }
 
-void		free_reflection_culling(t_level *level)
-{
-	for (int i = 0; i < level->all.tri_amount; i++)
-	{
-		free(level->all.tris[i].reflection_obj_all->tris);
-		free(level->all.tris[i].reflection_obj_all);
-		free(level->all.tris[i].reflection_obj_first_bounce->tris);
-		free(level->all.tris[i].reflection_obj_first_bounce);
-	}
-}
-
 static void		calculate_side_normals(t_vec3 normal[4], t_vec3 corner[4])
 {
 	vec_cross(&normal[0], corner[2], corner[0]);	//left
@@ -341,7 +330,22 @@ void		opacity_culling(t_level *level, int i)
 	}
 }
 
-void		init_reflection_culling(t_level *level)
+void		free_culling(t_level *level)
+{
+	for (int i = 0; i < level->all.tri_amount; i++)
+	{
+		free(level->all.tris[i].reflection_obj_all->tris);
+		free(level->all.tris[i].reflection_obj_all);
+		free(level->all.tris[i].reflection_obj_first_bounce->tris);
+		free(level->all.tris[i].reflection_obj_first_bounce);
+		free(level->all.tris[i].opacity_obj_all->tris);
+		free(level->all.tris[i].opacity_obj_all);
+		free(level->all.tris[i].shadow_faces->tris);
+		free(level->all.tris[i].shadow_faces);
+	}
+}
+
+void		init_culling(t_level *level)
 {
 	for (int i = 0; i < level->all.tri_amount; i++)
 	{

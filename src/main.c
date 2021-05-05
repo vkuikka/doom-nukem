@@ -210,7 +210,7 @@ int			main(int argc, char **argv)
 	init_window(&window);
 	init_ui(window, level);
 	init_screen_space_partition(level);
-	init_reflection_culling(level);
+	init_culling(level);
 	while (1)
 	{
 		frametime = SDL_GetTicks();

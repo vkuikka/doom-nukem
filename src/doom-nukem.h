@@ -383,9 +383,9 @@ t_bmp		bmp_read(char *str);
 
 void		culling(t_level *level);
 int			occlusion_culling(t_tri tri, t_level *level);
-void		init_reflection_culling(t_level *level);
+void		init_culling(t_level *level);
+void		free_culling(t_level *level);
 void		reflection_culling(t_level *level, int i);
-void		free_reflection_culling(t_level *level);
 void		find_quads(t_obj *obj);
 void		set_fourth_vertex(t_tri *a);
 
@@ -442,5 +442,7 @@ void		fix_uv_overlap(t_level *level);
 int			tri_uv_intersect(t_tri t1, t_tri t2);
 int			point_in_tri(t_vec2 pt, t_vec2 v1, t_vec2 v2, t_vec2 v3);
 void		toggle_selection_all(t_level *level);
+void		add_face(t_level *level);
+void		remove_faces(t_level *level);
 
 #endif
