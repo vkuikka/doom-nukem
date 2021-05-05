@@ -94,6 +94,8 @@ void	ui_config_selected_faces(t_level *level)
 				}
 				sprintf(buf, "opacity: %.0f%%", 100 * level->all.tris[i].opacity);
 				float_slider(&level->all.tris[i].opacity, buf, 0, 1);
+				if (button(&level->all.tris[i].isquad, "quad"))
+					set_fourth_vertex(&level->all.tris[i]);
 				button(&level->all.tris[i].isgrid, "grid");
 				button(&level->all.tris[i].isenemy, "enemy");
 				button(&level->all.tris[i].shader, "water");

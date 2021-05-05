@@ -213,7 +213,7 @@ static int	edit_call_var(t_ui_state *state, t_ivec2 size)
 	return (FALSE);
 }
 
-static void	edit_button_var(int *var, t_ui_state *state)
+static int	edit_button_var(int *var, t_ui_state *state)
 {
 	int			x;
 	int			y;
@@ -221,7 +221,11 @@ static void	edit_button_var(int *var, t_ui_state *state)
 	SDL_GetMouseState(&x, &y);
 	if (state->mouse_location == MOUSE_LOCATION_UI && state->m1_click &&
 	x >= 2 && x <= 11 && y >= state->ui_text_y_pos && y <= state->ui_text_y_pos + UI_ELEMENT_HEIGHT)
+	{
 		*var = *var ? FALSE : TRUE;
+		return (TRUE);
+	}
+	return (FALSE);
 }
 
 static void	render_call_streaming(unsigned *get_texture, int dy, t_ivec2 *size, int color)
@@ -302,16 +306,18 @@ void	text(char *text)
 	ui_render_internal(NULL, NULL, NULL, NULL, state);
 }
 
-void	button(int *var, char *text)
+int		button(int *var, char *text)
 {
 	t_ui_state	*state;
+	int			changed;
 
 	state = get_ui_state(NULL);
 	state->text = text;
 	state->ui_text_x_offset = 14;
 	render_button_streaming(NULL, var, state->ui_text_y_pos);
-	edit_button_var(var, state);
+	changed = edit_button_var(var, state);
 	ui_render_internal(NULL, NULL, NULL, NULL, state);
+	return (changed);
 }
 
 float	clamp(float var, float min, float max)
