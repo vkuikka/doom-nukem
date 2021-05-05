@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/05 16:44:10 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/04/10 02:43:32 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/04 23:45:40 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,13 +146,13 @@ void	put_normal(t_window *window, t_level *level, t_tri tri, int color)
 	avg.y /= amount;
 	avg.z /= amount;
 	t_vec3	normal_dir;
-	vec_cross(&normal_dir, tri.v0v1, tri.v0v2);
+	vec_cross(&normal_dir, tri.v0v2, tri.v0v1);
 	vec_normalize(&normal_dir);
 	t_vec3 normal;
 	float normal_len = 0.3;
-	normal.x = avg.x - normal_dir.x * normal_len;
-	normal.y = avg.y - normal_dir.y * normal_len;
-	normal.z = avg.z - normal_dir.z * normal_len;
+	normal.x = avg.x + normal_dir.x * normal_len;
+	normal.y = avg.y + normal_dir.y * normal_len;
+	normal.z = avg.z + normal_dir.z * normal_len;
 	camera_offset(&avg, &level->cam);
 	camera_offset(&normal, &level->cam);
 	put_vertex(avg, 0, window);

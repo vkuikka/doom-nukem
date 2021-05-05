@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/31 16:52:44 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/03 23:08:17 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/05 00:00:59 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ void		shadow(t_level *l, t_vec3 normal, t_cast_result *res)
 		return;
 	}
 	r.dir.x = l->ui.sun_dir.x;
-	r.dir.y = -l->ui.sun_dir.y;
+	r.dir.y = l->ui.sun_dir.y;
 	r.dir.z = l->ui.sun_dir.z;
 	r.pos = res->ray.pos;
 	i = 0;

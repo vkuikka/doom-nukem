@@ -12,7 +12,7 @@
 
 #include "doom-nukem.h"
 
-unsigned	crossfade(unsigned color1, unsigned color2, unsigned fade)
+unsigned		crossfade(unsigned color1, unsigned color2, unsigned fade)
 {
 	unsigned char	*rgb1;
 	unsigned char	*rgb2;
@@ -28,7 +28,7 @@ unsigned	crossfade(unsigned color1, unsigned color2, unsigned fade)
 	return ((newr << 8 * 3) + (newg << 8 * 2) + (newb << 8 * 1) + 0xff);
 }
 
-int			skybox(t_bmp *img, t_obj *obj, t_ray r)
+int				skybox(t_bmp *img, t_obj *obj, t_ray r)
 {
 	t_cast_result	res;
 
@@ -47,7 +47,7 @@ int			skybox(t_bmp *img, t_obj *obj, t_ray r)
 	return (res.color);
 }
 
-int			fog(int color, float dist, unsigned fog_color, t_level *level)
+int				fog(int color, float dist, unsigned fog_color, t_level *level)
 {
 	float	fade;
 
@@ -60,7 +60,7 @@ int			fog(int color, float dist, unsigned fog_color, t_level *level)
 	return (fog_color);
 }
 
-void		blur_pixels(unsigned *color, int gap)
+void			blur_pixels(unsigned *color, int gap)
 {
 	int		res;
 	int		x;
@@ -90,7 +90,7 @@ void		blur_pixels(unsigned *color, int gap)
 	}
 }
 
-int			smooth_color(unsigned *pixels, int gap, int x, int y)
+int				smooth_color(unsigned *pixels, int gap, int x, int y)
 {
 	int		dx;
 	int		dy;
@@ -123,7 +123,7 @@ int			smooth_color(unsigned *pixels, int gap, int x, int y)
 	return(crossfade(tmp >> 8, re1 >> 8, x % gap / (float)gap * 0xff));
 }
 
-void		fill_pixels(unsigned *grid, int gap, int blur, int smooth)
+void			fill_pixels(unsigned *grid, int gap, int blur, int smooth)
 {
 	int		color;
 	int		i;
@@ -158,19 +158,55 @@ void		fill_pixels(unsigned *grid, int gap, int blur, int smooth)
 	}
 }
 
-t_vec3		get_normal(int vec)
+// static t_vec3	normal_rot(t_vec3 v1, t_vec3 v2)
+// {
+// 	t_vec3	res;
+// 	t_vec3	ang;
+
+// 	ang.x = M_PI / 2 - atan2(-v1.y, -v1.z);
+// 	ang.y = M_PI / 2 - atan2(v1.x, v1.z);
+// 	ang.z = M_PI / 2 - atan2(v1.x, -v1.y);
+// 	vec_corss();
+
+// 	/*
+// 		x:
+// 			1		0		0
+// 			0		cos		sin
+// 			0		-sin	cos
+
+// 		y:
+// 			cos		0		-sin
+// 			0		1		0
+// 			sin		0		cos
+
+// 		z:
+// 			cos		sin		0
+// 			-sin	cos		0
+// 			0		0		1
+
+// 		x(1-cos)
+
+// 		xx xy xz
+// 		xy yy yz
+// 		xz yz zz
+// 	*/
+
+
+// }
+
+t_vec3			get_normal(int vec)
 {
 	unsigned char	*v;
 	t_vec3			dir;
 
 	v = (unsigned char*)&vec;
 	dir.x = v[3] - 128;
-	dir.y = v[1] - 128;
+	dir.y = -(v[1] - 128);
 	dir.z = v[2] - 128;
 	return (dir);
 }
 
-void		face_color(float u, float v, t_tri t, t_cast_result *res)
+void			face_color(float u, float v, t_tri t, t_cast_result *res)
 {
 	int		x;
 	int 	y;
@@ -212,4 +248,5 @@ void		face_color(float u, float v, t_tri t, t_cast_result *res)
 	else if (x < 0)
 		x = -x % res->normal_map->width;
 	res->normal = get_normal(res->normal_map->image[x + (y * res->normal_map->width)]);
+	// res->normal = normal_rot(t.normal, get_normal(res->normal_map->image[x + (y * res->normal_map->width)]));
 }
