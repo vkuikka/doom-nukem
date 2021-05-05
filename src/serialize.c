@@ -244,14 +244,14 @@ void	deserialize_level(t_level *level, t_buffer *buf)
 	deserialize_bmp(&level->texture, buf);
 	free(level->sky.img.image);
 	deserialize_bmp(&level->sky.img, buf);
-	free_reflection_culling(level);
+	free_culling(level);
 	free(level->all.tris);
 	free(level->visible.tris);
 	deserialize_obj(&level->all, buf);
 	if (!(level->visible.tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount)))
 		ft_error("memory allocation failed\n");
 	init_screen_space_partition(level);
-	init_reflection_culling(level);
+	init_culling(level);
 }
 
 void	serialize_level(t_level *level, t_buffer *buf)

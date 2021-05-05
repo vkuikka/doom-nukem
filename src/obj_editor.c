@@ -280,3 +280,32 @@ void			obj_editor(t_level *level, t_window *window)
 		ft_error("failed to lock texture\n");
 	ft_memset(pixels, 0, RES_X * RES_Y * 4);
 }
+
+void			add_face(t_level *level)
+{
+
+}
+
+void			remove_faces(t_level *level)
+{
+	int	amount;
+
+	free_culling(level);
+	amount = level->all.tri_amount;
+	for (int i = 0; i < level->all.tri_amount; i++)
+	{
+		if (level->all.tris[i].selected)
+		{
+			for (int k = i; k < level->all.tri_amount - 1; k++)
+				level->all.tris[k] = level->all.tris[k + 1];
+			amount--;
+		}
+	}
+	level->all.tri_amount = amount;
+	if (!(level->all.tris = (t_tri*)realloc(level->all.tris, sizeof(t_tri) * amount)))
+		ft_error("memory allocation failed");
+	if (!(level->visible.tris = (t_tri*)realloc(level->visible.tris, sizeof(t_tri) * amount)))
+		ft_error("memory allocation failed");
+	init_screen_space_partition(level);
+	init_culling(level);
+}
