@@ -33,7 +33,7 @@ void		nonfatal_error(t_level *level, char *message)
 	}
 	else
 	{
-		if (!(level->ui.state.error_start_time = (unsigned*)malloc(sizeof(unsigned) * 1)))
+		if (!(level->ui.state.error_start_time = (unsigned*)malloc(sizeof(unsigned))))
 			ft_error("memory allocation failed\n");
 		level->ui.state.error_start_time[0] = SDL_GetTicks();
 		if (!(level->ui.state.error_message = (char**)malloc(sizeof(char*) * 2)))
@@ -45,10 +45,47 @@ void		nonfatal_error(t_level *level, char *message)
 	}
 }
 
-static void	ui_remove_expired_nonfatal_errors(void)
+static void	ui_remove_expired_nonfatal_errors(t_level *level)
 {
-	if (NONFATAL_ERROR_LIFETIME_SECONDS)
-		;
+	int i;
+	int amount;
+
+	amount = 0;
+	while (level->ui.state.error_message[amount])
+		amount++;
+	i = 0;
+	while (level->ui.state.error_message[i] && amount)
+	{
+		if (level->ui.state.error_start_time[i] + 1000 * NONFATAL_ERROR_LIFETIME_SECONDS < SDL_GetTicks())
+		{
+			amount--;
+			free(level->ui.state.error_message[i]);
+			for (int k = i; level->ui.state.error_message[k + 1]; k++)
+			{
+				level->ui.state.error_message[k] = level->ui.state.error_message[k + 1];
+				level->ui.state.error_start_time[k] = level->ui.state.error_start_time[k + 1];
+			}
+			i--;
+		}
+		i++;
+	}
+	if (amount)
+	{
+		level->ui.state.error_start_time = (unsigned*)realloc(level->ui.state.error_start_time, sizeof(unsigned) * amount);
+		level->ui.state.error_message = (char**)realloc(level->ui.state.error_message, sizeof(char*) * amount + 1);
+		level->ui.state.error_message[amount] = NULL;
+	}
+	else
+	{
+		free(level->ui.state.error_start_time);
+		free(level->ui.state.error_message);
+		level->ui.state.error_message = NULL;
+	}
+}
+
+static int ui_nonfatal_get_fade(t_level *level, int i)
+{
+	return (0xff);
 }
 
 static void	ui_render_nonfatal_errors(SDL_Texture *texture, t_window *window, t_level *level)
@@ -57,15 +94,14 @@ static void	ui_render_nonfatal_errors(SDL_Texture *texture, t_window *window, t_
 
 	if (!level->ui.state.error_message)
 		return ;
-	ui_remove_expired_nonfatal_errors();
-	//check if times are passed
-	//remove realloc passed
-	//while
-	rect.x = RES_X / 2;
+	ui_remove_expired_nonfatal_errors(level);
+	if (!level->ui.state.error_message)
+		return ;
+	rect.x = level->ui.state.ui_max_width + UI_PADDING_4 + UI_PADDING_4;
 	rect.y = RES_Y / 2;
-	set_text_color(0xff0000ff);
 	for (int i = 0; level->ui.state.error_message[i]; i++)
 	{
+		set_text_color(0xff000000 + ui_nonfatal_get_fade(level, i));
 		put_text(level->ui.state.error_message[i], window, texture, rect);
 		rect.y += UI_ELEMENT_HEIGHT;
 	}
@@ -195,7 +231,7 @@ static void	ui_render_background(unsigned *get_texture, SDL_Texture *text_textur
 	else
 	{
 		for (int y = 0; y < state->ui_text_y_pos + 6; y++)
-			for (int x = 0; x < state->ui_max_width + 4; x++)
+			for (int x = 0; x < state->ui_max_width + UI_PADDING_4; x++)
 				if (!texture[x + (y * RES_X)])
 					button_pixel_put(x, y, UI_BACKGROUND_COL, texture);
 	}
@@ -238,9 +274,6 @@ static t_ivec2	ui_render_internal(SDL_Texture *get_text, SDL_Texture *get_stream
 			ft_error("failed to lock texture\n");
 		ft_memset(pixels, 0, RES_X * RES_Y * 4);
 		SDL_RenderCopy(window->SDLrenderer, text_texture, NULL, NULL);
-
-		//maybe this on windows
-		// SDL_SetRenderDrawColor(window->SDLrenderer, 255, 0, 0, 255);
 		SDL_SetRenderTarget(window->SDLrenderer, text_texture);
 		SDL_RenderClear(window->SDLrenderer);
 		SDL_RenderPresent(window->SDLrenderer);
