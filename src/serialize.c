@@ -237,7 +237,11 @@ void	deserialize_level(t_level *level, t_buffer *buf)
 
 	str = deserialize_string(ft_strlen("doom-nukem"), buf);
 	if (ft_strcmp(str, "doom-nukem"))
-		ft_error("not valid doom-nukem map");
+	{
+		nonfatal_error(level, "not valid doom-nukem map");
+		free(str);
+		return ;
+	}
 	free(str);
 	deserialize_settings(level, buf);
 	free(level->texture.image);
@@ -278,8 +282,9 @@ void	save_file(t_level *level, t_buffer *buf)
 	free(filename2);
 	hFile = CreateFile(filename1, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hFile == INVALID_HANDLE_VALUE)
-		ft_error("failed to create file");
-	WriteFile(hFile, buf->data, buf->next, &bytesWritten, NULL);
+		nonfatal_error(level, "failed to create file");
+	else
+		WriteFile(hFile, buf->data, buf->next, &bytesWritten, NULL);
 	free(filename1);
 	CloseHandle(hFile);
 }
@@ -315,9 +320,9 @@ void	save_file(t_level *level, t_buffer *buf)
 	free(filename2);
 	fd = open(filename1, O_RDWR | O_CREAT, S_IRGRP | S_IWGRP);
 	if (fd < 3)
-		ft_error("failed to create write file");
-	if (write(fd, buf->data, buf->next) != buf->next)
-		ft_error("failed to write file");
+		nonfatal_error(level, "failed to create file");
+	else if (write(fd, buf->data, buf->next) != buf->next)
+		nonfatal_error(level, "failed to write file");
 	free(filename1);
 	close(fd);
 }
@@ -344,6 +349,11 @@ void	save_level(t_level *level)
 {
 	t_buffer	buf;
 
+	if (!level->ui.state.save_filename[0] || level->ui.state.save_filename[0] == '.')
+	{
+		nonfatal_error(level, "Invalid filename");
+		return ;
+	}
 	if (!(buf.data = malloc(SERIALIZE_INITIAL_BUFFER_SIZE)))
 		ft_error("memory allocation failed\n");
 	buf.size = SERIALIZE_INITIAL_BUFFER_SIZE;
