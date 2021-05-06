@@ -189,13 +189,15 @@ typedef struct			s_camera
 	float				fov_x;
 }						t_camera;
 
-typedef enum			e_ui_location
+typedef struct			s_door
 {
-	UI_UV_SETTINGS = 1,
-	UI_UV_EDITOR,
-	UI_SERIALIZE,
-	UI_DIRECTORY
-}						t_ui_location;
+	int					*indices;
+	t_vec3				*pos1;
+	t_vec3				*pos2;
+	unsigned			transition_time;
+	int					has_hinge;
+	t_vec3				hinge;
+}						t_door;
 
 typedef enum			e_mouse_location
 {
@@ -208,9 +210,19 @@ typedef enum			e_mouse_location
 	MOUSE_LOCATION_SELECTION
 }						t_mouse_location;
 
+typedef enum			e_ui_location
+{
+	UI_LOCATION_MAIN = 0,
+	UI_LOCATION_FILE_OPEN,
+	UI_LOCATION_FILE_SAVE,
+	UI_LOCATION_UV_EDITOR,
+	UI_LOCATION_DOOR_EDITOR
+}						t_ui_location;
+
 struct					s_level;
 typedef struct			s_ui_state
 {
+	enum e_ui_location	ui_location;
 	int					ui_max_width;
 	int					ui_text_y_pos;
 	int					ui_text_x_offset;
@@ -221,16 +233,13 @@ typedef struct			s_ui_state
 	int					m1_click;
 	int					m1_drag;
 	enum e_mouse_location	mouse_location;
-	int					is_uv_editor_open;
 	float				uv_zoom;
 	struct s_vec2		uv_pos;
 
-	int					is_serialize_open;
 	char				*save_filename;
 	int					text_input_enable;
 	int					ssp_visual;
 
-	int					is_directory_open;
 	char				*directory;
 	char				*extension;
 	void				(*open_file)(struct s_level*, char*);

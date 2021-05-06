@@ -378,7 +378,7 @@ void	file_save(char *str, char *extension, void (*f)(t_level*, char*))
 	state = get_ui_state(NULL);
 	if (call(str, NULL, NULL))
 	{
-		state->is_serialize_open = TRUE;
+		state->ui_location = UI_LOCATION_FILE_SAVE;
 		// state->title malloc extension;
 		ft_strcpy(state->extension, extension);
 		state->open_file = *f;;
@@ -392,7 +392,7 @@ void	file_browser(char *str, char *extension, void (*f)(t_level*, char*))
 	state = get_ui_state(NULL);
 	if (call(str, NULL, NULL))
 	{
-		state->is_directory_open = TRUE;
+		state->ui_location = UI_LOCATION_FILE_OPEN;
 		// state->title malloc extension;
 		ft_strcpy(state->extension, extension);
 		state->open_file = *f;;
