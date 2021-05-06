@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/03 23:26:47 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/06 21:29:32 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@
 # define WF_VISIBLE_NORMAL_COL 0x00ffffff
 # define WF_VISIBLE_COL 0x00ff00ff
 # define WF_BACKGROUND_COL 0x99		//1 byte value
+# define WF_NORMAL_LEN 0.3
 
 # define UI_FONT_SIZE 13
 # define UI_EDITOR_SETTINGS_TEXT_COLOR 0x4444ffff

@@ -24,7 +24,7 @@ int				cull_ahead(t_vec3 dir, t_vec3 pos, t_tri tri)
 	while (i < 3 + tri.isquad)
 	{
 		vec_sub(&vert, tri.verts[i].pos, pos);
-		if (vec_dot(dir, vert) <= 0)
+		if (vec_dot(dir, vert) < 0)
 			return (TRUE);
 		i++;
 	}
