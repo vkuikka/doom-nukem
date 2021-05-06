@@ -53,7 +53,7 @@ static void			player_input(t_level *level, t_vec3 *wishdir, float *shift)
 		wishdir->x -= 1;
 	if (keys[SDL_SCANCODE_D])
 		wishdir->x += 1;
-	if (level->ui.state.is_uv_editor_open)
+	if (level->ui.state.ui_location == UI_LOCATION_UV_EDITOR)
 	{
 		if (keys[SDL_SCANCODE_LEFT])
 			level->ui.state.uv_pos.x -= 10;

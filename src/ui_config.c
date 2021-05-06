@@ -237,14 +237,14 @@ void	ui_render_directory_loopdir(t_level *level, int find_dir, char *extension, 
 				!ft_strcmp(extension, &data.cFileName[ft_strlen(data.cFileName) - ft_strlen(extension)]) &&
 				call(data.cFileName, NULL, level))
 				{
-					if (level->ui.state.is_directory_open)
+					if (level->ui.state.ui_location == UI_LOCATION_FILE_OPEN)
 						make_fileopen_call(level, data.cFileName);
 				}
 				else if (!find_ext && ft_strlen(data.cFileName) > ft_strlen(extension) &&
 				ft_strcmp(extension, &data.cFileName[ft_strlen(data.cFileName) - ft_strlen(extension)]) &&
 				call(data.cFileName, NULL, level))
 				{
-					if (level->ui.state.is_directory_open)
+					if (level->ui.state.ui_location == UI_LOCATION_FILE_OPEN)
 						make_fileopen_call(level, data.cFileName);
 				}
 	}
@@ -258,10 +258,7 @@ void	ui_render_directory(t_level *level)
 	set_text_color(UI_FACE_SELECTION_TEXT_COLOR);
 	text(level->ui.state.directory);
 	if (call("close", NULL, level))
-	{
-		level->ui.state.is_serialize_open = FALSE;
-		level->ui.state.is_directory_open = FALSE;
-	}
+		level->ui.state.ui_location = UI_LOCATION_MAIN;
 	if (call("up dir ..", NULL, level))
 		path_up_dir(level->ui.state.directory);
 	set_text_color(UI_EDITOR_SETTINGS_TEXT_COLOR);
@@ -271,14 +268,13 @@ void	ui_render_directory(t_level *level)
 	set_text_color(UI_INFO_TEXT_COLOR);
 	ui_render_directory_loopdir(level, 0, level->ui.state.extension, 0);
 	set_text_color(UI_FACE_SELECTION_TEXT_COLOR);
-	if (level->ui.state.is_serialize_open)
+	if (level->ui.state.ui_location == UI_LOCATION_FILE_SAVE)
 	{
 		text_input(level->ui.state.save_filename, level);
 		if (call("save", NULL, level))
 		{
 			save_level(level);
-			level->ui.state.is_serialize_open = FALSE;
-			level->ui.state.is_directory_open = FALSE;
+			level->ui.state.ui_location = UI_LOCATION_MAIN;
 		}
 	}
 }
@@ -289,12 +285,12 @@ void	ui_config(t_level *level)
 	t_editor_ui			*ui;
 
 	ui = &level->ui;
-	if (level->ui.state.is_serialize_open || level->ui.state.is_directory_open)
+	if (level->ui.state.ui_location == UI_LOCATION_FILE_SAVE || level->ui.state.ui_location == UI_LOCATION_FILE_OPEN)
 	{
 		ui_render_directory(level);
 		return ;
 	}
-	if (level->ui.state.is_uv_editor_open)
+	if (level->ui.state.ui_location == UI_LOCATION_UV_EDITOR)
 	{
 		set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
 		call("close uv editor", &disable_uv_editor, level);
