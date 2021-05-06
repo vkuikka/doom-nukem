@@ -106,7 +106,7 @@ static void	ui_render_nonfatal_errors(SDL_Texture *texture, t_window *window, t_
 	rect.y = RES_Y / 2;
 	for (int i = 0; level->ui.state.error_message[i]; i++)
 	{
-		set_text_color(0xff000000 + ui_nonfatal_get_fade(level, i));
+		set_text_color(UI_ERROR_COLOR + ui_nonfatal_get_fade(level, i));
 		put_text(level->ui.state.error_message[i], window, texture, rect);
 		rect.y += UI_ELEMENT_HEIGHT;
 	}
