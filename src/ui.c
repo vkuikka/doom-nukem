@@ -85,6 +85,11 @@ static void	ui_remove_expired_nonfatal_errors(t_level *level)
 
 static int ui_nonfatal_get_fade(t_level *level, int i)
 {
+	unsigned time;
+
+	time = level->ui.state.error_start_time[i] + 1000 * NONFATAL_ERROR_LIFETIME_SECONDS - SDL_GetTicks();
+	if (time < NONFATAL_ERROR_FADEOUT_TIME_MS)
+		return (0xff * (time / (float)NONFATAL_ERROR_FADEOUT_TIME_MS));
 	return (0xff);
 }
 
