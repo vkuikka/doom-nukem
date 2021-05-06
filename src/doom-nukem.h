@@ -42,6 +42,7 @@
 # define WF_VISIBLE_COL 0x00ff00ff
 # define WF_BACKGROUND_COL 0x99		//1 byte value
 
+# define NONFATAL_ERROR_LIFETIME_SECONDS 5
 # define GIZMO_SCALE_DIVIDER 4
 # define UI_FONT_SIZE 13
 # define UI_EDITOR_SETTINGS_TEXT_COLOR 0x4444ffff
@@ -216,6 +217,9 @@ typedef struct			s_ui_state
 	int					ui_text_x_offset;
 	int					ui_text_color;
 	char				*text;
+
+	char				**error_message;
+	unsigned			*error_start_time;
 
 	int					mouse_capture;
 	int					m1_click;
@@ -444,5 +448,7 @@ int			point_in_tri(t_vec2 pt, t_vec2 v1, t_vec2 v2, t_vec2 v3);
 void		toggle_selection_all(t_level *level);
 void		add_face(t_level *level);
 void		remove_faces(t_level *level);
+void		nonfatal_error(t_level *level, char *message);
+t_ivec2		put_text(char *text, t_window *window, SDL_Texture *texture, t_ivec2 pos);
 
 #endif

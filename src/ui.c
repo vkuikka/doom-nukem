@@ -12,6 +12,65 @@
 
 #include "doom-nukem.h"
 
+void		nonfatal_error(t_level *level, char *message)
+{
+	int i;
+
+	i = 0;
+	if (level->ui.state.error_message)
+	{
+		while (level->ui.state.error_message[i])
+			i++;
+		if (!(level->ui.state.error_start_time = (unsigned*)realloc(level->ui.state.error_start_time, sizeof(unsigned) * (i + 1))))
+			ft_error("memory allocation failed\n");
+		level->ui.state.error_start_time[i] = SDL_GetTicks();
+		if (!(level->ui.state.error_message = (char**)realloc(level->ui.state.error_message, sizeof(char*) * (i + 2))))
+			ft_error("memory allocation failed\n");
+		if (!(level->ui.state.error_message[i] = (char*)malloc(sizeof(char) * ft_strlen(message) + 1)))
+			ft_error("memory allocation failed\n");
+		ft_strcpy(level->ui.state.error_message[i], message);
+		level->ui.state.error_message[i + 1] = NULL;
+	}
+	else
+	{
+		if (!(level->ui.state.error_start_time = (unsigned*)malloc(sizeof(unsigned) * 1)))
+			ft_error("memory allocation failed\n");
+		level->ui.state.error_start_time[0] = SDL_GetTicks();
+		if (!(level->ui.state.error_message = (char**)malloc(sizeof(char*) * 2)))
+			ft_error("memory allocation failed\n");
+		if (!(level->ui.state.error_message[0] = (char*)malloc(sizeof(char) * ft_strlen(message) + 1)))
+			ft_error("memory allocation failed\n");
+		ft_strcpy(level->ui.state.error_message[0], message);
+		level->ui.state.error_message[1] = NULL;
+	}
+}
+
+static void	ui_remove_expired_nonfatal_errors(void)
+{
+	if (NONFATAL_ERROR_LIFETIME_SECONDS)
+		;
+}
+
+static void	ui_render_nonfatal_errors(SDL_Texture *texture, t_window *window, t_level *level)
+{
+	t_ivec2	rect;
+
+	if (!level->ui.state.error_message)
+		return ;
+	ui_remove_expired_nonfatal_errors();
+	//check if times are passed
+	//remove realloc passed
+	//while
+	rect.x = RES_X / 2;
+	rect.y = RES_Y / 2;
+	set_text_color(0xff0000ff);
+	for (int i = 0; level->ui.state.error_message[i]; i++)
+	{
+		put_text(level->ui.state.error_message[i], window, texture, rect);
+		rect.y += UI_ELEMENT_HEIGHT;
+	}
+}
+
 t_ui_state	*get_ui_state(t_ui_state *get_state)
 {
 	static t_ui_state *state = NULL;
@@ -53,7 +112,7 @@ static SDL_Color get_text_color(void)
 	return (res);
 }
 
-static t_ivec2	put_text(char *text, t_window *window, SDL_Texture *texture, t_ivec2 pos)
+t_ivec2			put_text(char *text, t_window *window, SDL_Texture *texture, t_ivec2 pos)
 {
 	static TTF_Font*	font = NULL;
 
@@ -171,6 +230,7 @@ static t_ivec2	ui_render_internal(SDL_Texture *get_text, SDL_Texture *get_stream
 	}
 	else//render
 	{
+		ui_render_nonfatal_errors(text_texture, window, level);
 		ui_render_background(NULL, text_texture, window, level);
 		SDL_UnlockTexture(streaming_texture);
 		SDL_RenderCopy(window->SDLrenderer, streaming_texture, NULL, NULL);
