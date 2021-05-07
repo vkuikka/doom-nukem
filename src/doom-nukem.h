@@ -223,6 +223,7 @@ typedef struct			s_ui_state
 
 	char				**error_message;
 	unsigned			*error_start_time;
+	int					error_amount;
 
 	int					mouse_capture;
 	int					m1_click;
