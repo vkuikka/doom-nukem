@@ -306,6 +306,7 @@ void	ui_config(t_level *level)
 		find_selected_door_index(level);
 		if (level->doors.selected_index)
 		{
+			call("delete selected door", &delete_door, level);
 			call("set door start position", &set_door_pos_1, level);
 			call("set door stop position", &set_door_pos_2, level);
 			sprintf(buf, "door transition time: %fs", level->doors.door[level->doors.selected_index - 1].transition_time);
@@ -316,13 +317,13 @@ void	ui_config(t_level *level)
 		}
 		else
 		{
-			// amount
-			// while all.tris
-			// 	if selected
-			// 		amount++
-			//if (something selected)
+			int selected = 0;
+			for (int i = 0; i < level->all.tri_amount; i++)
+				if (level->all.tris[i].selected)
+					selected++;
+			if (selected)
 				call("new door from selection", &add_new_door, level);
-			// else
+			else
 				text("Select faces to create door from");
 		}
 		return ;

@@ -12,7 +12,7 @@
 
 #include "doom-nukem.h"
 
-static void	deselect_all_faces(t_level *level)
+void		deselect_all_faces(t_level *level)
 {
 	int	i;
 	int	o;
