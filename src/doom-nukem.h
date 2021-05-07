@@ -29,6 +29,7 @@
 # define PLAYER_HEIGHT 1.75
 # define WALL_CLIP_DIST 0.3
 # define REFLECTION_DEPTH 3
+# define DOOR_ACTIVATION_DISTANCE 2.019234781324
 
 # define TRUE 1
 # define FALSE 0
@@ -198,11 +199,13 @@ typedef struct			s_door
 {
 	int					indice_amount;
 	int					*indices;
+	int					*isquad;
 	t_vec3				**pos1;
 	t_vec3				**pos2;
 	float				transition_time;
 	unsigned			transition_start_time;
 	int					transition_direction;
+
 	int					has_hinge;
 	t_vec3				hinge;
 	int					hinge_axis;
