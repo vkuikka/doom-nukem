@@ -194,10 +194,20 @@ typedef struct			s_door
 	int					*indices;
 	t_vec3				*pos1;
 	t_vec3				*pos2;
-	unsigned			transition_time;
+	float				transition_time;
+	unsigned			transition_start_time;
+	int					transition_direction;
 	int					has_hinge;
 	t_vec3				hinge;
+	int					hinge_axis;
 }						t_door;
+
+typedef struct			s_all_doors
+{
+	struct s_door		*door;
+	int					door_amount;
+	int					selected_index;
+}						t_all_doors;
 
 typedef enum			e_mouse_location
 {
@@ -286,6 +296,7 @@ typedef struct			s_level
 	struct s_skybox		sky;
 	struct s_camera		cam;
 	struct s_editor_ui	ui;
+	struct s_all_doors	doors;
 	int					shadow_color;
 }						t_level;
 
@@ -419,7 +430,6 @@ void		find_closest_mouse(t_vec3 *vert, int *i, int *k);
 
 void		uv_editor(t_level *level, t_window *window);
 void		enable_uv_editor(t_level *level);
-void		disable_uv_editor(t_level *level);
 void		obj_editor(t_level *level, t_window *window);
 void		obj_editor_input(t_level *level);
 
@@ -453,5 +463,13 @@ int			point_in_tri(t_vec2 pt, t_vec2 v1, t_vec2 v2, t_vec2 v3);
 void		toggle_selection_all(t_level *level);
 void		add_face(t_level *level);
 void		remove_faces(t_level *level);
+
+void		door_animate(t_level *level);
+void		add_new_door(t_level *level);
+void		door_activate(t_level *level);
+void		set_door_pos_1(t_level *level);
+void		set_door_pos_2(t_level *level);
+void		enable_door_editor(t_level *level);
+void		find_selected_door_index(t_level *level);
 
 #endif

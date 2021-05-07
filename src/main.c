@@ -181,6 +181,8 @@ static void		keyboard_input(t_window *window, t_level *level, SDL_Event event)
 	}
 	else if (event.key.keysym.scancode == SDL_SCANCODE_O)
 		toggle_selection_all(level);
+	else if (event.key.keysym.scancode == SDL_SCANCODE_E)
+		door_activate(level);
 }
 
 static void		read_input(t_window *window, t_level *level)
@@ -217,6 +219,7 @@ int			main(int argc, char **argv)
 		read_input(window, level);
 		player_movement(level);
 		update_camera(level);
+		door_animate(level);
 		enemies_update_sprites(level);
 		culling(level);
 		screen_space_partition(level);
