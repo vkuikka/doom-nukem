@@ -293,8 +293,38 @@ void	ui_config(t_level *level)
 	if (level->ui.state.ui_location == UI_LOCATION_UV_EDITOR)
 	{
 		set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
-		call("close uv editor", &disable_uv_editor, level);
+		if (call("close uv editor", NULL, level))
+			level->ui.state.ui_location = UI_LOCATION_MAIN;
 		call("fix selected uv overlap", &fix_uv_overlap, level);
+		return ;
+	}
+	if (level->ui.state.ui_location == UI_LOCATION_DOOR_EDITOR)
+	{
+		set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
+		if (call("close door editor", NULL, level))
+			level->ui.state.ui_location = UI_LOCATION_MAIN;
+		find_selected_door_index(level);
+		if (level->doors.selected_index)
+		{
+			call("set door start position", &set_door_pos_1, level);
+			call("set door stop position", &set_door_pos_2, level);
+			sprintf(buf, "door transition time: %fs", level->doors.door[level->doors.selected_index - 1].transition_time);
+			float_slider(&level->doors.door[level->doors.selected_index - 1].transition_time, buf, .2, 7);
+			// button(hinge, "has hinge");
+			//if has hinge
+			//	int_slider("hinge axis", 0, 2);
+		}
+		else
+		{
+			// amount
+			// while all.tris
+			// 	if selected
+			// 		amount++
+			//if (something selected)
+				call("new door from selection", &add_new_door, level);
+			// else
+				text("Select faces to create door from");
+		}
 		return ;
 	}
 	set_text_color(UI_EDITOR_SETTINGS_TEXT_COLOR);
@@ -325,6 +355,7 @@ void	ui_config(t_level *level)
 	call("remove selected faces", &remove_faces, level);
 	file_browser("select texture", ".bmp", &set_texture);
 	call("edit uv", &enable_uv_editor, level);
+	call("edit doors", &enable_door_editor, level);
 	file_browser("select skybox", ".bmp", &set_skybox);
 	button(&ui->fog, "fog");
 	// color(ui->color, "fog color");

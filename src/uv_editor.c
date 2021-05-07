@@ -230,11 +230,6 @@ void			uv_editor(t_level *level, t_window *window)
 	ft_memset(pixels, 0, RES_X * RES_Y * 4);
 }
 
-void	disable_uv_editor(t_level *level)
-{
-	level->ui.state.ui_location = UI_LOCATION_MAIN;
-}
-
 void	enable_uv_editor(t_level *level)
 {
 	level->ui.state.ui_location = UI_LOCATION_UV_EDITOR;
