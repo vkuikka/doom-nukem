@@ -196,9 +196,10 @@ typedef struct			s_camera
 
 typedef struct			s_door
 {
+	int					indice_amount;
 	int					*indices;
-	t_vec3				*pos1;
-	t_vec3				*pos2;
+	t_vec3				**pos1;
+	t_vec3				**pos2;
 	float				transition_time;
 	unsigned			transition_start_time;
 	int					transition_direction;
@@ -461,6 +462,7 @@ void		reflection(t_cast_result *res, t_level *l, t_obj *obj);
 unsigned	wave_shader(t_vec3 mod, t_vec3 *normal, unsigned col1, unsigned col2);
 
 void		select_face(t_camera *cam, t_level *level, int x, int y);
+void		deselect_all_faces(t_level *level);
 
 void		save_level(t_level *level);
 void		open_level(t_level *level, char *filename);
@@ -480,6 +482,7 @@ t_ivec2		put_text(char *text, t_window *window, SDL_Texture *texture, t_ivec2 po
 
 void		door_animate(t_level *level);
 void		add_new_door(t_level *level);
+void		delete_door(t_level *level);
 void		door_activate(t_level *level);
 void		set_door_pos_1(t_level *level);
 void		set_door_pos_2(t_level *level);
