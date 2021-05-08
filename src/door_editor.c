@@ -96,20 +96,31 @@ void	door_animate(t_level *level)
 	for (int a = 0; a < level->doors.door_amount; a++)
 	{
 		t_door* door = &level->doors.door[a];
-
 		if (door->transition_start_time)
 		{
+			float time = (SDL_GetTicks() - door->transition_start_time) / (1000 * door->transition_time);
 			for (int i = 0; i < door->indice_amount; i++)
 			{
 				for (int k = 0; k < 4; k++)
 				{
-					if (door->transition_direction)
-						level->all.tris[door->indices[i]].verts[k].pos = door->pos1[i][k];
+						// level->all.tris[door->indices[i]].verts[k].pos = door->pos1[i][k];
+					if (time < 1)
+					{
+						if (door->transition_direction)
+							level->all.tris[door->indices[i]].verts[k].pos = vec_interpolate(door->pos2[i][k], door->pos1[i][k], time);
+						else
+							level->all.tris[door->indices[i]].verts[k].pos = vec_interpolate(door->pos1[i][k], door->pos2[i][k], time);
+					}
 					else
-						level->all.tris[door->indices[i]].verts[k].pos = door->pos2[i][k];
+					{
+						if (door->transition_direction)
+							level->all.tris[door->indices[i]].verts[k].pos = door->pos1[i][k];
+						else
+							level->all.tris[door->indices[i]].verts[k].pos = door->pos2[i][k];
+						door->transition_start_time = 0;
+					}
 				}
 			}
-			door->transition_start_time = 0;
 		}
 	}
 }
