@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/10 01:23:16 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/01 18:23:14 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/11 02:06:14 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,27 +84,23 @@ static void			player_input(t_level *level, t_vec3 *wishdir, float *shift)
 		*shift = .5;
 }
 
-static void	        player_collision(t_vec3 *vel, t_vec3 *pos, t_level *level)
+static int			player_collision(t_vec3 *vel, t_vec3 *pos, t_level *level)
 {
 	t_ray			r;
 	float			dist = 0;
 	int				index;
 
-	r.pos.x = pos->x;
-	r.pos.y = pos->y;
-	r.pos.z = pos->z;
-	r.dir.x = vel->x;
-	r.dir.y = vel->y;
-	r.dir.z = vel->z;
+	r.pos = *pos;
+	r.dir = *vel;
 	dist = cast_all(r, level, NULL, NULL, &index);
 	if (dist > 0 && dist <= vec_length(*vel) + WALL_CLIP_DIST)
 	{
-		t_vec3	normal;
-		vec_cross(&normal, level->all.tris[index].v0v1, level->all.tris[index].v0v2);
-		vec_normalize(&normal);
+		t_vec3 normal = level->all.tris[index].normal;
 		vec_mult(&normal, vec_dot(*vel, normal));
 		vec_sub(vel, *vel, normal);
+		return (1);
 	}
+	return (0);
 }
 
 static int				is_player_in_air(t_level *level)
@@ -233,7 +229,7 @@ void	        player_movement(t_level *level)
 	if (vel.x || vel.y || vel.z)
 	{
 		vec_mult(&vel, delta_time);
-		player_collision(&vel, &level->cam.pos, level);
+		while (player_collision(&vel, &level->cam.pos, level));
 		level->cam.pos.x += vel.x;
 		level->cam.pos.y += vel.y;
 		level->cam.pos.z += vel.z;
