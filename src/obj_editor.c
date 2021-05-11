@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   obj_editor.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/22 23:13:42 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/04/22 23:13:42 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/05/11 16:00:35 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,9 +16,8 @@ static void		obj_pixel_put(int x, int y, int color, unsigned *texture)
 {
 	int oppacity;
 
-	if (x < 0 || y < 0 || x > RES_X || y >= RES_Y)
-		return;
-	texture[x + (y * RES_X)] = color;
+	if (x >= 0 && y >= 0 && x < RES_X && y < RES_Y)
+        texture[x + (y * RES_X)] = color;
 }
 
 void	obj_print_line(t_vec3 start, t_vec3 stop, int color, unsigned *pixels)
