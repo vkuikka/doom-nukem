@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/03 23:26:47 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/11 20:56:38 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,8 +27,11 @@
 # define MOVE_SPEED 10	//	m/s
 # define GROUND_FRICTION 5.
 # define PLAYER_HEIGHT 1.75
+# define PLAYER_HEIGHT_MAGIC 1.3
+# define CROUCHED_HEIGHT 1
 # define WALL_CLIP_DIST 0.3
 # define REFLECTION_DEPTH 3
+# define WALKABLE_NORMAL_MIN_Y 0.75
 
 # define TRUE 1
 # define FALSE 0
