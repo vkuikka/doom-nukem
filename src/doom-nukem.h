@@ -6,15 +6,14 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/12 16:25:50 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/12 16:30:15 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef DOOM_NUKEM_H
 # define DOOM_NUKEM_H
-# define RES_X 800
+# define RES_X 1000
 # define RES_Y 700
-# define TICKRATE 128
 # define THREAD_AMOUNT 8
 # define NOISE_QUALITY_LIMIT 8
 # define SSP_MAX_X 20
@@ -382,7 +381,6 @@ int			get_ssp_coordinate(int coord, int horizontal);
 
 int			raycast(void *t);
 float		cast_face(t_tri t, t_ray ray, t_cast_result *res);
-float		cast_face(t_tri t, t_ray ray, int *col, t_bmp *img);
 float		cast_all(t_ray vec, t_level *level, float *dist_u, float *dist_d, int *index);
 void		fill_pixels(unsigned *grid, int pixel_gap, int blur, int smooth);
 unsigned	crossfade(unsigned color1, unsigned color2, unsigned fade);

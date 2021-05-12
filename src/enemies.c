@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/14 17:08:49 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/12 16:25:38 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/12 16:33:29by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,8 +70,8 @@ void			move_enemy(t_tri *face, t_level *level)
 	float	dist;
 	t_vec3	player;
 
-	player = level->pos;
-	vec_copy(&e.pos, face->verts[0].pos);
+	player = level->cam.pos;
+	e.pos = face->verts[0].pos;
 	vec_add(&e.pos, e.pos, face->v0v1);
 	vec_add(&e.pos, e.pos, face->v0v2);
 	vec_avg(&e.pos, e.pos, face->verts[0].pos);
@@ -88,7 +88,7 @@ void			move_enemy(t_tri *face, t_level *level)
 				e.dir = face->enemy_dir;
 				e.dir.y = 0;
 				vec_normalize(&e.dir);
-				vec_div(&e.dir, 100);
+				vec_div(&e.dir, 20);
 				vec_sub(&face->enemy_dir, face->enemy_dir, e.dir);
 				for (int i = 0; i < 3 + face->isquad; i++)
 					vec_add(&face->verts[i].pos, face->verts[i].pos, e.dir);
@@ -97,22 +97,6 @@ void			move_enemy(t_tri *face, t_level *level)
 	}
 }
 
-//called from physics
-void			enemies_update_physics(t_level *level)
-{
-	int		face;
-
-	face = 0;
-	while (face < level->all.tri_amount)
-	{
-		if (level->all.tris[face].isenemy)
-			move_enemy(&level->all.tris[face], level);
-		face++;
-	}
-
-}
-
-//called from render
 void			enemies_update_sprites(t_level *level)
 {
 	int		face;
@@ -123,6 +107,7 @@ void			enemies_update_sprites(t_level *level)
 		if (level->all.tris[face].isenemy)
 		{
 			turn_sprite(&level->all.tris[face], level->cam.pos);
+			move_enemy(&level->all.tris[face], level);
 			//get sprite texture from enemy rotation
 		}
 		face++;

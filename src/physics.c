@@ -6,13 +6,13 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/10 01:23:16 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/01 18:23:14 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/12 16:28:20 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom-nukem.h"
 
-static float	        cast_all(t_ray vec, t_level *level, float *dist_u, float *dist_d, int *index)
+float				cast_all(t_ray vec, t_level *level, float *dist_u, float *dist_d, int *index)
 {
 	float	res = FLT_MAX;
 
