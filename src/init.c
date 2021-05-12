@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/08 14:38:45 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/12 23:50:20 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/13 00:26:12 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,4 +91,5 @@ void			init_enemy(t_tri *face)
 	face->enemy->attack_range = 1.5;
 	face->enemy->attack_frequency = 0.5;
 	face->enemy->attack_damage = 10;
+	face->enemy->current_attack_delay = 0;
 }

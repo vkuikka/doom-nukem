@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/12 23:53:22 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/13 01:24:52 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@
 # define REFLECTION_DEPTH 3
 
 # define ENEMY_MOVABLE_HEIGHT_DIFF 1
+# define MAX_PROJECTILE_TRAVEL 100
 
 # define TRUE 1
 # define FALSE 0
@@ -142,6 +143,14 @@ typedef struct			s_vert
 	int					selected;
 }						t_vert;
 
+typedef struct			s_projectile
+{
+	struct s_vec3		dir;
+	float				speed;
+	float				dist;
+	float				damage;
+}						t_projectile;
+
 typedef struct			s_enemy
 {
 	struct s_vec3		dir;
@@ -153,6 +162,7 @@ typedef struct			s_enemy
 	float				attack_frequency;
 	float				projectile_speed;	//	0 = no projectile
 	float				attack_damage;
+	float				current_attack_delay;
 }						t_enemy;
 
 typedef struct			s_tri
@@ -164,6 +174,8 @@ typedef struct			s_tri
 	struct s_vec3		normal;
 	int					isenemy;
 	struct s_enemy		*enemy;
+	int					isprojectile;
+	struct s_projectile	*projectile;
 	int					isquad;
 	int					isgrid;
 	int					disable_distance_culling;
@@ -302,6 +314,7 @@ typedef struct			s_level
 	struct s_camera		cam;
 	struct s_editor_ui	ui;
 	int					shadow_color;
+	float				player_health;
 }						t_level;
 
 typedef struct			s_rthread
@@ -471,6 +484,6 @@ void		add_face(t_level *level);
 void		remove_faces(t_level *level);
 void		nonfatal_error(t_level *level, char *message);
 t_ivec2		put_text(char *text, t_window *window, SDL_Texture *texture, t_ivec2 pos);
-void		set_new_face(t_level *level);
+void		set_new_face(t_level *level, t_vec3 pos, t_vec3 dir);
 
 #endif

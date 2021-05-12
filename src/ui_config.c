@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/05/12 23:32:37 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/13 01:28:11 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,6 +107,14 @@ void	ui_config_selected_faces(t_level *level)
 					float_slider(&level->all.tris[i].enemy->dist_limit, buf, 0, 10);
 					sprintf(buf, "move speed: %.1fm/s", level->all.tris[i].enemy->move_speed);
 					float_slider(&level->all.tris[i].enemy->move_speed, buf, 0, 10);
+					sprintf(buf, "attack frequency: %.2f attacks per second", level->all.tris[i].enemy->attack_frequency);
+					float_slider(&level->all.tris[i].enemy->attack_frequency, buf, 0, 2);
+					sprintf(buf, "attack damage: %.1f", level->all.tris[i].enemy->attack_damage);
+					float_slider(&level->all.tris[i].enemy->attack_damage, buf, 0, 50);
+					sprintf(buf, "attack range: %.1fm", level->all.tris[i].enemy->attack_range);
+					float_slider(&level->all.tris[i].enemy->attack_range, buf, 0, 10);
+					sprintf(buf, "projectile speed: %.1fm/s (0 = no projectile)", level->all.tris[i].enemy->projectile_speed);
+					float_slider(&level->all.tris[i].enemy->projectile_speed, buf, 0, 50);
 				}
 				else if (level->all.tris[i].enemy)
 					free(level->all.tris[i].enemy);
@@ -292,6 +300,20 @@ void	ui_render_directory(t_level *level)
 	}
 }
 
+static int	nothing_selected(t_level *level)
+{
+	int i;
+
+	i = 0;
+	while (i < level->all.tri_amount)
+	{
+		if (level->all.tris[i].selected)
+			return (0);
+		i++;
+	}
+	return (1);
+}
+
 void	ui_config(t_level *level)
 {
 	char				 buf[100];
@@ -331,46 +353,49 @@ void	ui_config(t_level *level)
 	// button(, "face/vert selection");
 
 	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
-	text("level:");
-	file_browser("select level", ".doom-nukem", &open_level);
-	file_browser("select obj", ".obj", &set_obj);
-	call("add face", &add_face, level);
-	call("remove selected faces", &remove_faces, level);
-	file_browser("select texture", ".bmp", &set_texture);
-	call("edit uv", &enable_uv_editor, level);
-	file_browser("select skybox", ".bmp", &set_skybox);
-	button(&ui->fog, "fog");
-	// color(ui->color, "fog color");
-	// call(, "set spawn point");
-	// call(, "spawn enemy");
-	// call(, "remove enemies");
-	// button(&ui->pause_culling_position, "\tpause");
-	button(&ui->backface_culling, "backface & occlusion culling");
-	button(&ui->distance_culling, "distance culling");
-	sprintf(buf, "render distance: %.1fm", ui->render_distance);
-	float_slider(&ui->render_distance, buf, 2, 50);
-	float_slider(&ui->sun_contrast, "sun", 0, 1);
-	float_slider(&ui->direct_shadow_contrast, "shadow", 0, 1);
-	if (ui->sun_contrast > ui->direct_shadow_contrast)
-		ui->direct_shadow_contrast = ui->sun_contrast;
-	sprintf(buf, "sun dir: (%.2f, %.2f, %.2f)", ui->sun_dir.x, ui->sun_dir.y, ui->sun_dir.z);
-	text(buf);
-	//vec3_slider
-	float_slider(&ui->sun_dir.x, NULL, -1, 1);
-	float_slider(&ui->sun_dir.y, NULL, -1, 1);
-	float_slider(&ui->sun_dir.z, NULL, -1, 1);
-	vec_normalize(&ui->sun_dir);
-	file_save("save level", ".doom-nukem", NULL);
+	if (nothing_selected(level))
+	{
+		text("level:");
+		file_browser("select level", ".doom-nukem", &open_level);
+		file_browser("select obj", ".obj", &set_obj);
+		call("add face", &add_face, level);
+		call("remove selected faces", &remove_faces, level);
+		file_browser("select texture", ".bmp", &set_texture);
+		call("edit uv", &enable_uv_editor, level);
+		file_browser("select skybox", ".bmp", &set_skybox);
+		button(&ui->fog, "fog");
+		// color(ui->color, "fog color");
+		// call(, "set spawn point");
+		// call(, "spawn enemy");
+		// call(, "remove enemies");
+		// button(&ui->pause_culling_position, "\tpause");
+		button(&ui->backface_culling, "backface & occlusion culling");
+		button(&ui->distance_culling, "distance culling");
+		sprintf(buf, "render distance: %.1fm", ui->render_distance);
+		float_slider(&ui->render_distance, buf, 2, 50);
+		float_slider(&ui->sun_contrast, "sun", 0, 1);
+		float_slider(&ui->direct_shadow_contrast, "shadow", 0, 1);
+		if (ui->sun_contrast > ui->direct_shadow_contrast)
+			ui->direct_shadow_contrast = ui->sun_contrast;
+		sprintf(buf, "sun dir: (%.2f, %.2f, %.2f)", ui->sun_dir.x, ui->sun_dir.y, ui->sun_dir.z);
+		text(buf);
+		//vec3_slider
+		float_slider(&ui->sun_dir.x, NULL, -1, 1);
+		float_slider(&ui->sun_dir.y, NULL, -1, 1);
+		float_slider(&ui->sun_dir.z, NULL, -1, 1);
+		vec_normalize(&ui->sun_dir);
+		file_save("save level", ".doom-nukem", NULL);
 
-	set_text_color(UI_INFO_TEXT_COLOR);
-	sprintf(buf, "fps:               %d",  get_fps());
-	text(buf);
-	sprintf(buf, "frametime: %ums",  ui->frametime);
-	text(buf);
-	sprintf(buf, "faces:           %d / %d", level->all.tri_amount, level->visible.tri_amount);
-	text(buf);
-	sprintf(buf, "xz velocity:  %.2fms", level->ui.horizontal_velocity);
-	text(buf);
+		set_text_color(UI_INFO_TEXT_COLOR);
+		sprintf(buf, "fps:               %d",  get_fps());
+		text(buf);
+		sprintf(buf, "frametime: %ums",  ui->frametime);
+		text(buf);
+		sprintf(buf, "faces:           %d / %d", level->all.tri_amount, level->visible.tri_amount);
+		text(buf);
+		sprintf(buf, "xz velocity:  %.2fms", level->ui.horizontal_velocity);
+		text(buf);
+	}
 
 	set_text_color(UI_FACE_SELECTION_TEXT_COLOR);
 	ui_config_selected_faces(level);

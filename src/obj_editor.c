@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   obj_editor.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/22 23:13:42 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/04/22 23:13:42 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/05/13 01:12:39 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -300,16 +300,16 @@ void			set_new_face_pos(t_obj *obj, int i, t_vec3 avg)
 	obj->tris[i].verts[2].pos.x += 2;
 }
 
-void			set_new_face(t_level *level)
+void			set_new_face(t_level *level, t_vec3 pos, t_vec3 dir)
 {
 	int		i;
 	t_vec3	tri_avg;
 
 	i = level->all.tri_amount - 1;
 	ft_bzero(&level->all.tris[i], sizeof(t_tri));
-	tri_avg = level->cam.front;
+	tri_avg = dir;
 	vec_mult(&tri_avg, 2);
-	vec_add(&tri_avg, level->cam.pos, tri_avg);
+	vec_add(&tri_avg, pos, tri_avg);
 	set_new_face_pos(&level->all, i, tri_avg);
 	vec_sub(&level->all.tris[i].v0v2, level->all.tris[i].verts[1].pos, level->all.tris[i].verts[0].pos);
 	vec_sub(&level->all.tris[i].v0v1, level->all.tris[i].verts[2].pos, level->all.tris[i].verts[0].pos);
@@ -325,7 +325,7 @@ void			add_face(t_level *level)
 		ft_error("memory allocation failed");
 	if (!(level->visible.tris = (t_tri*)realloc(level->visible.tris, sizeof(t_tri) * level->all.tri_amount)))
 		ft_error("memory allocation failed");
-	set_new_face(level);
+	set_new_face(level, level->cam.pos, level->cam.front);
 	init_screen_space_partition(level);
 	init_culling(level);
 }
