@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/05/12 16:26:44 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/12 23:32:37 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,9 +101,15 @@ void	ui_config_selected_faces(t_level *level)
 				button(&level->all.tris[i].isenemy, "enemy");
 				if (level->all.tris[i].isenemy)
 				{
-					text("enemy stop distance");
-					float_slider(&level->all.tris[i].enemy_dist, NULL, 0, 10);
+					if (!level->all.tris[i].enemy)
+						init_enemy(&level->all.tris[i]);
+					sprintf(buf, "distance limit: %.1fm", level->all.tris[i].enemy->dist_limit);
+					float_slider(&level->all.tris[i].enemy->dist_limit, buf, 0, 10);
+					sprintf(buf, "move speed: %.1fm/s", level->all.tris[i].enemy->move_speed);
+					float_slider(&level->all.tris[i].enemy->move_speed, buf, 0, 10);
 				}
+				else if (level->all.tris[i].enemy)
+					free(level->all.tris[i].enemy);
 				// call("flip normal");
 				// call("set animation start");
 				// call("set animation stop");

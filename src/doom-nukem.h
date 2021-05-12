@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/12 16:30:15 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/12 23:53:22 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,8 @@
 # define PLAYER_HEIGHT 1.75
 # define WALL_CLIP_DIST 0.3
 # define REFLECTION_DEPTH 3
+
+# define ENEMY_MOVABLE_HEIGHT_DIFF 1
 
 # define TRUE 1
 # define FALSE 0
@@ -140,6 +142,19 @@ typedef struct			s_vert
 	int					selected;
 }						t_vert;
 
+typedef struct			s_enemy
+{
+	struct s_vec3		dir;
+	float				move_speed;
+	float				dist_limit;
+	float				initial_health;
+	float				remaining_health;
+	float				attack_range;
+	float				attack_frequency;
+	float				projectile_speed;	//	0 = no projectile
+	float				attack_damage;
+}						t_enemy;
+
 typedef struct			s_tri
 {
 	int					index;
@@ -147,11 +162,10 @@ typedef struct			s_tri
 	struct s_vec3		v0v1;		//vector between vertices 1 and 0
 	struct s_vec3		v0v2;		//vector between vertices 2 and 0
 	struct s_vec3		normal;
+	int					isenemy;
+	struct s_enemy		*enemy;
 	int					isquad;
 	int					isgrid;
-	struct s_vec3		enemy_dir;	//maybe move enemy variables to a struct
-	float				enemy_dist;
-	int					isenemy;
 	int					disable_distance_culling;
 	int					disable_backface_culling;
 	float				opacity;
@@ -402,6 +416,7 @@ void		set_fourth_vertex(t_tri *a);
 void		rotate_vertex(float angle, t_vec3 *vertex, int axis);
 void		rot_cam(t_vec3 *cam, const float lon, const float lat);
 
+void		init_enemy(t_tri *face);
 void		init_ui(t_window *window, t_level *level);
 void		ui_render(t_level *level);
 void		ui_config(t_level *level);
@@ -456,5 +471,6 @@ void		add_face(t_level *level);
 void		remove_faces(t_level *level);
 void		nonfatal_error(t_level *level, char *message);
 t_ivec2		put_text(char *text, t_window *window, SDL_Texture *texture, t_ivec2 pos);
+void		set_new_face(t_level *level);
 
 #endif

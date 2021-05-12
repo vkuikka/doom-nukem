@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/08 14:38:45 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/02 14:24:29 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/12 23:50:20 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,4 +76,19 @@ void			init_window(t_window **window)
 	window[0]->frame_buffer = NULL;
 	if (!(window[0]->depth_buffer = (float *)malloc(sizeof(float) * (RES_X * RES_Y))))
 		ft_error("memory allocation failed\n");
+}
+
+void			init_enemy(t_tri *face)
+{
+	face->isenemy = 1;
+	if (!(face->enemy = (t_enemy*)malloc(sizeof(t_enemy))))
+		ft_error("memory allocation failed");
+	face->enemy->move_speed = 2;
+	face->enemy->dist_limit = 1;
+	face->enemy->initial_health = 100;
+	face->enemy->remaining_health = face->enemy->initial_health;
+	face->enemy->projectile_speed = 0;
+	face->enemy->attack_range = 1.5;
+	face->enemy->attack_frequency = 0.5;
+	face->enemy->attack_damage = 10;
 }

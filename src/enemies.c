@@ -64,7 +64,7 @@ static void		turn_sprite(t_tri *tri, t_vec3 dir)
 	vec_normalize(&tri->normal);
 }
 
-void			move_enemy(t_tri *face, t_level *level)
+void			move_enemy(t_tri *face, t_level *level, float time)
 {
 	t_ray	e;
 	float	dist;
@@ -75,21 +75,22 @@ void			move_enemy(t_tri *face, t_level *level)
 	vec_add(&e.pos, e.pos, face->v0v1);
 	vec_add(&e.pos, e.pos, face->v0v2);
 	vec_avg(&e.pos, e.pos, face->verts[0].pos);
-	if (player.y > e.pos.y - 2 && player.y < e.pos.y + 2)
+	if (player.y > e.pos.y - ENEMY_MOVABLE_HEIGHT_DIFF &&
+		player.y < e.pos.y + ENEMY_MOVABLE_HEIGHT_DIFF)
 	{
 		vec_sub(&e.dir, player, e.pos);
 		dist = cast_all(e, level, NULL, NULL, NULL);
 		if (dist > vec_length(e.dir))
-			face->enemy_dir = e.dir;
-		if ((dist > vec_length(e.dir) && vec_length(e.dir) > face->enemy_dist) || dist < vec_length(e.dir) || !face->enemy_dist)
+			face->enemy->dir = e.dir;
+		if ((dist > vec_length(e.dir) && vec_length(e.dir) > face->enemy->dist_limit) || dist < vec_length(e.dir) - face->enemy->dist_limit)
 		{
-			if (face->enemy_dir.x && face->enemy_dir.y && face->enemy_dir.z)
+			if (face->enemy->dir.x && face->enemy->dir.y && face->enemy->dir.z)
 			{
-				e.dir = face->enemy_dir;
+				e.dir = face->enemy->dir;
 				e.dir.y = 0;
 				vec_normalize(&e.dir);
-				vec_div(&e.dir, 20);
-				vec_sub(&face->enemy_dir, face->enemy_dir, e.dir);
+				vec_mult(&e.dir, face->enemy->move_speed * time);
+				vec_sub(&face->enemy->dir, face->enemy->dir, e.dir);
 				for (int i = 0; i < 3 + face->isquad; i++)
 					vec_add(&face->verts[i].pos, face->verts[i].pos, e.dir);
 			}
@@ -99,17 +100,21 @@ void			move_enemy(t_tri *face, t_level *level)
 
 void			enemies_update_sprites(t_level *level)
 {
-	int		face;
+	static int	time = 0;
+	int			delta_time;
+	int			face;
 
 	face = 0;
+	delta_time = SDL_GetTicks() - time;
 	while (face < level->all.tri_amount)
 	{
 		if (level->all.tris[face].isenemy)
 		{
 			turn_sprite(&level->all.tris[face], level->cam.pos);
-			move_enemy(&level->all.tris[face], level);
+			move_enemy(&level->all.tris[face], level, delta_time / 1000.0);
 			//get sprite texture from enemy rotation
 		}
 		face++;
 	}
+	time = SDL_GetTicks();
 }
