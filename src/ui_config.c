@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/05/12 16:24:57 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/12 16:26:44 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,17 +98,12 @@ void	ui_config_selected_faces(t_level *level)
 					set_fourth_vertex(&level->all.tris[i]);
 				button(&level->all.tris[i].isgrid, "grid");
 				button(&level->all.tris[i].shader, "water");
-<<<<<<< HEAD
-				button(&level->all.tris[i].disable_distance_culling, "distance culling");
-				button(&level->all.tris[i].disable_backface_culling, "backface culling");
-=======
 				button(&level->all.tris[i].isenemy, "enemy");
 				if (level->all.tris[i].isenemy)
 				{
 					text("enemy stop distance");
 					float_slider(&level->all.tris[i].enemy_dist, NULL, 0, 10);
 				}
->>>>>>> added a limitation for enemy distance to player and removed enemy y directional movement
 				// call("flip normal");
 				// call("set animation start");
 				// call("set animation stop");
