@@ -200,7 +200,6 @@ void			shadow_face_culling(t_level *level, int i)
 	vec_div(&avg, 3 + target.isquad);
 
 	tmp[0] = level->ui.sun_dir;
-	tmp[0].y *= -1;
 	vec_sub(&tmp[1], target.verts[0].pos, target.verts[1].pos);
 	vec_cross(&v[0], tmp[1], tmp[0]);
 	if (target.isquad)

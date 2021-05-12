@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/06 08:50:56 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/05/02 20:05:56 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/12 15:13:11 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -503,7 +503,7 @@ void	init_ui(t_window *window, t_level *level)
 	ui->sun_contrast = 0;	//max 1
 	ui->direct_shadow_contrast = 0;	//max 1
 	ui->sun_dir.x = 1;
-	ui->sun_dir.y = 1;
+	ui->sun_dir.y = -1;
 	ui->sun_dir.z = 1;
 	vec_normalize(&ui->sun_dir);
 
