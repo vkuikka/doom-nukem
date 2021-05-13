@@ -64,6 +64,7 @@ void		render(t_window *window, t_level *level)
 	SDL_UnlockTexture(window->texture);
 	SDL_RenderClear(window->SDLrenderer);
 	SDL_RenderCopy(window->SDLrenderer, window->texture, NULL, NULL);
+	obj_editor(level, window);
 	if (level->ui.state.is_uv_editor_open)
 		uv_editor(level, window);
 	ui_render(level);
@@ -114,10 +115,6 @@ static void		set_mouse_input_location(t_level *level)
 	int	y;
 
 	SDL_GetMouseState(&x, &y);
-	// else if (level->ui.state.is_uv_editor_open && x < RES_X / 2)
-	// 	level->ui.state.mouse_location = MOUSE_INPUT_GIZMO;
-	level->ui.state.m1_click = FALSE;
-	int prev = level->ui.state.mouse_location;
 	if (level->ui.state.mouse_capture)
 		level->ui.state.mouse_location = MOUSE_LOCATION_GAME;
 	else if (x < level->ui.state.ui_max_width && y < level->ui.state.ui_text_y_pos)
@@ -125,9 +122,18 @@ static void		set_mouse_input_location(t_level *level)
 	else if (level->ui.state.is_uv_editor_open && x < RES_X / 2)
 		level->ui.state.mouse_location = MOUSE_LOCATION_UV_EDITOR;
 	else
-		level->ui.state.mouse_location = MOUSE_LOCATION_SELECTION;
-	if (prev != level->ui.state.mouse_location)
-		level->ui.state.m1_drag = FALSE;
+	{
+		obj_editor_input(level);
+		if (level->ui.state.mouse_location != MOUSE_LOCATION_GIZMO_X &&
+		level->ui.state.mouse_location != MOUSE_LOCATION_GIZMO_Y &&
+		level->ui.state.mouse_location != MOUSE_LOCATION_GIZMO_Z)
+		{
+			level->ui.state.mouse_location = MOUSE_LOCATION_SELECTION;
+			level->ui.state.m1_drag = FALSE;
+			select_face(&level->cam, level, x, y);
+		}
+	}
+	level->ui.state.m1_click = FALSE;
 }
 
 static void		mouse_input(t_level *level, SDL_Event event)
@@ -146,8 +152,6 @@ static void		mouse_input(t_level *level, SDL_Event event)
 		{
 			level->ui.state.m1_click = TRUE;
 			level->ui.state.m1_drag = TRUE;
-			if (level->ui.state.mouse_location == MOUSE_LOCATION_SELECTION)
-				select_face(&level->cam, level, event.button.x, event.button.y);
 		}
 	}
 }
@@ -206,7 +210,7 @@ int			main(int argc, char **argv)
 	init_window(&window);
 	init_ui(window, level);
 	init_screen_space_partition(level);
-	init_reflection_culling(level);
+	init_culling(level);
 	while (1)
 	{
 		frametime = SDL_GetTicks();

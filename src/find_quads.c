@@ -158,8 +158,6 @@ void	find_quads(t_obj *obj)
 				}
 			}
 		}
-		vec_cross(&obj->tris[i].normal, obj->tris[i].v0v2, obj->tris[i].v0v1);
-		vec_normalize(&obj->tris[i].normal);
 	}
 	if (!(obj->tris = (t_tri*)realloc(obj->tris, sizeof(t_tri) * obj->tri_amount)))
 		ft_error("memory allocation failed\n");

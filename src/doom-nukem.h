@@ -35,12 +35,17 @@
 
 # define WF_UNSELECTED_COL 0x333333ff
 # define WF_SELECTED_COL 0xffaa00ff
+# define WF_VERT_COL 0x010101ff
 # define WF_NOT_QUAD_WARNING_COL 0x802222ff
 # define WF_NORMAL_COL 0xff0000ff
 # define WF_VISIBLE_NORMAL_COL 0x00ffffff
 # define WF_VISIBLE_COL 0x00ff00ff
 # define WF_BACKGROUND_COL 0x99		//1 byte value
 
+# define NONFATAL_ERROR_LIFETIME_SECONDS 7.42
+# define NONFATAL_ERROR_FADEOUT_TIME_MS 666
+# define UI_ERROR_COLOR 0xff000000
+# define GIZMO_SCALE_DIVIDER 4
 # define UI_FONT_SIZE 13
 # define UI_EDITOR_SETTINGS_TEXT_COLOR 0x4444ffff
 # define UI_LEVEL_SETTINGS_TEXT_COLOR 0xffffffff
@@ -49,6 +54,7 @@
 # define UI_BACKGROUND_COL 0x222222bb
 # define UI_ELEMENT_HEIGHT 14
 # define UI_PADDING 2
+# define UI_PADDING_4 4
 # define UV_EDITOR_Y_OFFSET UI_ELEMENT_HEIGHT + UI_PADDING * 2
 
 # define UV_PADDING 3
@@ -200,7 +206,9 @@ typedef enum			e_mouse_location
 	MOUSE_LOCATION_GAME = 0,
 	MOUSE_LOCATION_UI,
 	MOUSE_LOCATION_UV_EDITOR,
-	MOUSE_LOCATION_GIZMO,
+	MOUSE_LOCATION_GIZMO_X,
+	MOUSE_LOCATION_GIZMO_Y,
+	MOUSE_LOCATION_GIZMO_Z,
 	MOUSE_LOCATION_SELECTION
 }						t_mouse_location;
 
@@ -212,6 +220,10 @@ typedef struct			s_ui_state
 	int					ui_text_x_offset;
 	int					ui_text_color;
 	char				*text;
+
+	char				**error_message;
+	unsigned			*error_start_time;
+	int					error_amount;
 
 	int					mouse_capture;
 	int					m1_click;
@@ -236,6 +248,7 @@ typedef struct			s_editor_ui
 {
 	int					editor_active;
 	int					noclip;
+	int					vertex_select_mode;
 	int					wireframe;
 	int					wireframe_on_top;
 	int					raycast_quality;
@@ -378,10 +391,11 @@ t_bmp		bmp_read(char *str);
 
 void		culling(t_level *level);
 int			occlusion_culling(t_tri tri, t_level *level);
-void		init_reflection_culling(t_level *level);
+void		init_culling(t_level *level);
+void		free_culling(t_level *level);
 void		reflection_culling(t_level *level, int i);
-void		free_reflection_culling(t_level *level);
 void		find_quads(t_obj *obj);
+void		set_fourth_vertex(t_tri *a);
 
 void		rotate_vertex(float angle, t_vec3 *vertex, int axis);
 void		rot_cam(t_vec3 *cam, const float lon, const float lat);
@@ -391,7 +405,7 @@ void		ui_render(t_level *level);
 void		ui_config(t_level *level);
 void		set_text_color(int color);
 void		text(char *text);
-void		button(int *var, char *text);
+int			button(int *var, char *text);
 void		int_slider(int *var, char *str, int min, int max);
 void		float_slider(float *var, char *str, float min, float max);
 int			call(char *str, void (*f)(t_level*), t_level *level);
@@ -400,10 +414,13 @@ void		file_save(char *str, char *extension, void (*f)(t_level*, char*));
 void		path_up_dir(char *path);
 void		go_in_dir(char *path, char *folder);
 void		text_input(char *str, t_level *level);
+void		find_closest_mouse(t_vec3 *vert, int *i, int *k);
 
 void		uv_editor(t_level *level, t_window *window);
 void		enable_uv_editor(t_level *level);
 void		disable_uv_editor(t_level *level);
+void		obj_editor(t_level *level, t_window *window);
+void		obj_editor_input(t_level *level);
 
 void		player_movement(t_level *level);
 
@@ -433,5 +450,9 @@ void		fix_uv_overlap(t_level *level);
 int			tri_uv_intersect(t_tri t1, t_tri t2);
 int			point_in_tri(t_vec2 pt, t_vec2 v1, t_vec2 v2, t_vec2 v3);
 void		toggle_selection_all(t_level *level);
+void		add_face(t_level *level);
+void		remove_faces(t_level *level);
+void		nonfatal_error(t_level *level, char *message);
+t_ivec2		put_text(char *text, t_window *window, SDL_Texture *texture, t_ivec2 pos);
 
 #endif

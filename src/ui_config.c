@@ -94,6 +94,8 @@ void	ui_config_selected_faces(t_level *level)
 				}
 				sprintf(buf, "opacity: %.0f%%", 100 * level->all.tris[i].opacity);
 				float_slider(&level->all.tris[i].opacity, buf, 0, 1);
+				if (button(&level->all.tris[i].isquad, "quad"))
+					set_fourth_vertex(&level->all.tris[i]);
 				button(&level->all.tris[i].isgrid, "grid");
 				button(&level->all.tris[i].isenemy, "enemy");
 				button(&level->all.tris[i].shader, "water");
@@ -115,14 +117,14 @@ void	ui_config_selected_faces(t_level *level)
 
 void	set_obj(t_level *level, char *filename)
 {
-	free_reflection_culling(level);
+	free_culling(level);
 	free(level->all.tris);
 	free(level->visible.tris);
 	load_obj(filename, &level->all);
 	if (!(level->visible.tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount)))
 		ft_error("memory allocation failed\n");
 	init_screen_space_partition(level);
-	init_reflection_culling(level);
+	init_culling(level);
 }
 
 void	set_texture(t_level *level, char *filename)
@@ -306,6 +308,7 @@ void	ui_config(t_level *level)
 	sprintf(buf, "fov: %d", (int)((float)(ui->fov + 0.01) * (180.0 / M_PI)));
 	float_slider(&ui->fov, buf, M_PI / 6, M_PI);
 	button(&ui->noclip, "noclip");
+	button(&ui->vertex_select_mode, "vertex select mode");
 	button(&ui->blur, "blur");
 	button(&ui->smooth_pixels, "smooth pixel transition");
 	button(&ui->wireframe, "wireframe");
@@ -322,6 +325,8 @@ void	ui_config(t_level *level)
 	text("level:");
 	file_browser("select level", ".doom-nukem", &open_level);
 	file_browser("select obj", ".obj", &set_obj);
+	call("add face", &add_face, level);
+	call("remove selected faces", &remove_faces, level);
 	file_browser("select texture", ".bmp", &set_texture);
 	call("edit uv", &enable_uv_editor, level);
 	file_browser("select skybox", ".bmp", &set_skybox);

@@ -196,15 +196,6 @@ static void	set_tri(char *str, t_vec3 *verts, t_vec2 *uvs, t_obj *obj, int i)
 		obj->tris[i].verts[2].txtr.x = uvs[uv_index.z].x;
 		obj->tris[i].verts[2].txtr.y = uvs[uv_index.z].y;
 	}
-	else
-	{//idk if this block needed
-		obj->tris[i].verts[0].txtr.x = 0;
-		obj->tris[i].verts[0].txtr.y = 0;
-		obj->tris[i].verts[1].txtr.x = 0;
-		obj->tris[i].verts[1].txtr.y = 0;
-		obj->tris[i].verts[2].txtr.x = 0;
-		obj->tris[i].verts[2].txtr.y = 0;
-	}
 	obj->tris[i].verts[0].pos.x = verts[tex_index.x].x;
 	obj->tris[i].verts[0].pos.y = -verts[tex_index.x].y;
 	obj->tris[i].verts[0].pos.z = -verts[tex_index.x].z;
@@ -216,9 +207,6 @@ static void	set_tri(char *str, t_vec3 *verts, t_vec2 *uvs, t_obj *obj, int i)
 	obj->tris[i].verts[2].pos.x = verts[tex_index.z].x;
 	obj->tris[i].verts[2].pos.y = -verts[tex_index.z].y;
 	obj->tris[i].verts[2].pos.z = -verts[tex_index.z].z;
-
-	vec_sub(&obj->tris[i].v0v2, obj->tris[i].verts[1].pos, obj->tris[i].verts[0].pos);
-	vec_sub(&obj->tris[i].v0v1, obj->tris[i].verts[2].pos, obj->tris[i].verts[0].pos);
 }
 
 void	load_obj(char *filename, t_obj *obj)
@@ -259,5 +247,14 @@ void	load_obj(char *filename, t_obj *obj)
 	free(verts);
 	free(uvs);
 	find_quads(obj);
+	i = 0;
+	while (i < obj->tri_amount)
+	{
+		vec_sub(&obj->tris[i].v0v2, obj->tris[i].verts[1].pos, obj->tris[i].verts[0].pos);
+		vec_sub(&obj->tris[i].v0v1, obj->tris[i].verts[2].pos, obj->tris[i].verts[0].pos);
+		vec_cross(&obj->tris[i].normal, obj->tris[i].v0v2, obj->tris[i].v0v1);
+		vec_normalize(&obj->tris[i].normal);
+		i++;
+	}
 	printf("faces = %d\n", obj->tri_amount);
 }
