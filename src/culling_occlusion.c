@@ -6,11 +6,27 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/26 04:05:50 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/04/27 00:33:53 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/07 01:01:34by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom-nukem.h"
+
+static int		cull_behind_occlusion(t_vec3 dir, t_vec3 pos, t_tri tri)
+{
+	t_vec3	vert;
+	int		i;
+
+	i = 0;
+	while (i < 3 + tri.isquad)
+	{
+		vec_sub(&vert, tri.verts[i].pos, pos);
+		if (vec_dot(dir, vert) >= 0)
+			return (TRUE);
+		i++;
+	}
+	return (FALSE);
+}
 
 int				is_value_close(float a, float b, float range)
 {
@@ -73,7 +89,7 @@ int		occlusion_culling(t_tri tri, t_level *level)
 {
 	for (int i = 0; i < level->visible.tri_amount; i++)
 		if (is_bface_in_aface(level->visible.tris[i], tri, level))
-			if (!cull_ahead(level->visible.tris[i].normal, level->visible.tris[i].verts[0].pos, tri))
+			if (!cull_behind_occlusion(level->visible.tris[i].normal, level->visible.tris[i].verts[0].pos, tri))
 				return (0);
 	return (1);
 } 

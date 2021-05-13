@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/05 16:44:10 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/05/04 23:45:40 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/06 21:29:17 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,36 +137,33 @@ void	camera_offset(t_vec3 *vertex, t_camera *cam)
 }
 
 
-void	put_normal(t_window *window, t_level *level, t_tri tri, int color)
+void    put_normal(t_window *window, t_level *level, t_tri tri, int color)
 {
-	t_vec3	avg;
-	int		amount;
+    t_vec3    normal;
+    t_vec3    avg;
+    int        amount;
 
-	amount = tri.isquad ? 4 : 3;
-	avg.x = 0;
-	avg.y = 0;
-	avg.z = 0;
-	for (int j = 0; j < amount; j++)
-	{
-		avg.x += tri.verts[j].pos.x;
-		avg.y += tri.verts[j].pos.y;
-		avg.z += tri.verts[j].pos.z;
-	}
-	avg.x /= amount;
-	avg.y /= amount;
-	avg.z /= amount;
-	t_vec3	normal_dir;
-	vec_cross(&normal_dir, tri.v0v2, tri.v0v1);
-	vec_normalize(&normal_dir);
-	t_vec3 normal;
-	float normal_len = 0.3;
-	normal.x = avg.x + normal_dir.x * normal_len;
-	normal.y = avg.y + normal_dir.y * normal_len;
-	normal.z = avg.z + normal_dir.z * normal_len;
-	camera_offset(&avg, &level->cam);
-	camera_offset(&normal, &level->cam);
-	put_vertex(avg, 0, window);
-	print_line(avg, normal, color, window);
+    amount = tri.isquad ? 4 : 3;
+    avg.x = 0;
+    avg.y = 0;
+    avg.z = 0;
+    for (int j = 0; j < amount; j++)
+    {
+        avg.x += tri.verts[j].pos.x;
+        avg.y += tri.verts[j].pos.y;
+        avg.z += tri.verts[j].pos.z;
+    }
+    avg.x /= amount;
+    avg.y /= amount;
+    avg.z /= amount;
+    normal = tri.normal;
+    normal.x = avg.x + normal.x * WF_NORMAL_LEN;
+    normal.y = avg.y + normal.y * WF_NORMAL_LEN;
+    normal.z = avg.z + normal.z * WF_NORMAL_LEN;
+    camera_offset(&avg, &level->cam);
+    camera_offset(&normal, &level->cam);
+    put_vertex(avg, 0, window);
+    print_line(avg, normal, color, window);
 }
 
 void	render_wireframe(t_window *window, t_level *level, t_obj *obj, int is_visible)

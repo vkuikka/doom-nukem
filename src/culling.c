@@ -24,7 +24,7 @@ int				cull_ahead(t_vec3 dir, t_vec3 pos, t_tri tri)
 	while (i < 3 + tri.isquad)
 	{
 		vec_sub(&vert, tri.verts[i].pos, pos);
-		if (vec_dot(dir, vert) <= 0)
+		if (vec_dot(dir, vert) < 0)
 			return (TRUE);
 		i++;
 	}
@@ -189,7 +189,6 @@ void			shadow_face_culling(t_level *level, int i)
 	vec_div(&avg, 3 + target.isquad);
 
 	tmp[0] = level->ui.sun_dir;
-	tmp[0].y *= -1;
 	vec_sub(&tmp[1], target.verts[0].pos, target.verts[1].pos);
 	vec_cross(&v[0], tmp[1], tmp[0]);
 	if (target.isquad)

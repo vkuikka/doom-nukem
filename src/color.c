@@ -158,42 +158,6 @@ void			fill_pixels(unsigned *grid, int gap, int blur, int smooth)
 	}
 }
 
-// static t_vec3	normal_rot(t_vec3 v1, t_vec3 v2)
-// {
-// 	t_vec3	res;
-// 	t_vec3	ang;
-
-// 	ang.x = M_PI / 2 - atan2(-v1.y, -v1.z);
-// 	ang.y = M_PI / 2 - atan2(v1.x, v1.z);
-// 	ang.z = M_PI / 2 - atan2(v1.x, -v1.y);
-// 	vec_corss();
-
-// 	/*
-// 		x:
-// 			1		0		0
-// 			0		cos		sin
-// 			0		-sin	cos
-
-// 		y:
-// 			cos		0		-sin
-// 			0		1		0
-// 			sin		0		cos
-
-// 		z:
-// 			cos		sin		0
-// 			-sin	cos		0
-// 			0		0		1
-
-// 		x(1-cos)
-
-// 		xx xy xz
-// 		xy yy yz
-// 		xz yz zz
-// 	*/
-
-
-// }
-
 t_vec3			get_normal(int vec)
 {
 	unsigned char	*v;
@@ -248,5 +212,4 @@ void			face_color(float u, float v, t_tri t, t_cast_result *res)
 	else if (x < 0)
 		x = -x % res->normal_map->width;
 	res->normal = get_normal(res->normal_map->image[x + (y * res->normal_map->width)]);
-	// res->normal = normal_rot(t.normal, get_normal(res->normal_map->image[x + (y * res->normal_map->width)]));
 }
