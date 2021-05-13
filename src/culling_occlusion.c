@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/26 04:05:50 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/05/07 01:01:34by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/07 01:01:34 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,8 +47,6 @@ static int		vec3_point_in_tri(t_vec3 *p, t_vec3 *a, t_vec3 *b, t_vec3 *c)
 	float A2 = area(a, p, c);
 	float A3 = area(a, b, p);
 
-	// printf("A = %f\n", A);
-	// return (A == A1 + A2 + A3);
 	return (is_value_close(A, A1 + A2 + A3, OCCLUSION_CULLING_FLOAT_ERROR_MAGIC_NUMBER));
 }
  
