@@ -271,6 +271,9 @@ typedef struct			s_editor_ui
 	float				horizontal_velocity;
 
 	//info
+	unsigned			ssp;
+	unsigned			cull;
+	unsigned			render;
 	unsigned			frametime;
 	struct s_ui_state	state;
 }						t_editor_ui;

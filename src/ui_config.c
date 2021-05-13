@@ -356,6 +356,12 @@ void	ui_config(t_level *level)
 	set_text_color(UI_INFO_TEXT_COLOR);
 	sprintf(buf, "fps:               %d",  get_fps());
 	text(buf);
+	sprintf(buf, "cull:              %ums",  ui->cull);
+	text(buf);
+	sprintf(buf, "ssp:               %ums",  ui->ssp);
+	text(buf);
+	sprintf(buf, "render:          %ums",  ui->render);
+	text(buf);
 	sprintf(buf, "frametime: %ums",  ui->frametime);
 	text(buf);
 	sprintf(buf, "faces:           %d / %d", level->all.tri_amount, level->visible.tri_amount);
