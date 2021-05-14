@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/05/13 01:28:11 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/14 14:55:03 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,8 +107,8 @@ void	ui_config_selected_faces(t_level *level)
 					float_slider(&level->all.tris[i].enemy->dist_limit, buf, 0, 10);
 					sprintf(buf, "move speed: %.1fm/s", level->all.tris[i].enemy->move_speed);
 					float_slider(&level->all.tris[i].enemy->move_speed, buf, 0, 10);
-					sprintf(buf, "attack frequency: %.2f attacks per second", level->all.tris[i].enemy->attack_frequency);
-					float_slider(&level->all.tris[i].enemy->attack_frequency, buf, 0, 2);
+					sprintf(buf, "attack frequency: %.2f seconds per attack", level->all.tris[i].enemy->attack_frequency);
+					float_slider(&level->all.tris[i].enemy->attack_frequency, buf, 0, 5);
 					sprintf(buf, "attack damage: %.1f", level->all.tris[i].enemy->attack_damage);
 					float_slider(&level->all.tris[i].enemy->attack_damage, buf, 0, 50);
 					sprintf(buf, "attack range: %.1fm", level->all.tris[i].enemy->attack_range);
@@ -116,8 +116,6 @@ void	ui_config_selected_faces(t_level *level)
 					sprintf(buf, "projectile speed: %.1fm/s (0 = no projectile)", level->all.tris[i].enemy->projectile_speed);
 					float_slider(&level->all.tris[i].enemy->projectile_speed, buf, 0, 50);
 				}
-				else if (level->all.tris[i].enemy)
-					free(level->all.tris[i].enemy);
 				// call("flip normal");
 				// call("set animation start");
 				// call("set animation stop");

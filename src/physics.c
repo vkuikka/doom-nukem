@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/10 01:23:16 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/12 16:28:20 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/14 14:45:52 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,20 +19,23 @@ float				cast_all(t_ray vec, t_level *level, float *dist_u, float *dist_d, int *
 	vec_normalize(&vec.dir);
 	for (int i = 0; i < level->all.tri_amount; i++)
 	{
-		float tmp;
-		tmp = cast_face(level->all.tris[i], vec, NULL);
-		if (dist_u != NULL)
+		if (!level->all.tris[i].isprojectile)
 		{
-			if (tmp > 0 && tmp < *dist_d)
-				*dist_d = tmp;
-			else if (tmp < 0 && tmp > *dist_u)
-				*dist_u = tmp;
-		}
-		else if (tmp > 0 && tmp < res)
-		{
-			res = tmp;
-			if (index)
-				*index = i;
+			float tmp;
+			tmp = cast_face(level->all.tris[i], vec, NULL);
+			if (dist_u != NULL)
+			{
+				if (tmp > 0 && tmp < *dist_d)
+					*dist_d = tmp;
+				else if (tmp < 0 && tmp > *dist_u)
+					*dist_u = tmp;
+			}
+			else if (tmp > 0 && tmp < res)
+			{
+				res = tmp;
+				if (index)
+					*index = i;
+			}
 		}
 	}
 	return (res);

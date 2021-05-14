@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/22 23:13:42 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/05/13 01:12:39 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/14 14:18:48 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -307,6 +307,7 @@ void			set_new_face(t_level *level, t_vec3 pos, t_vec3 dir)
 
 	i = level->all.tri_amount - 1;
 	ft_bzero(&level->all.tris[i], sizeof(t_tri));
+	level->all.tris[i].index = i;
 	tri_avg = dir;
 	vec_mult(&tri_avg, 2);
 	vec_add(&tri_avg, pos, tri_avg);

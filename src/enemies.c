@@ -12,9 +12,6 @@
 
 #include "doom-nukem.h"
 
-/*
-**	Returns index of created face
-*/
 static void		create_projectile(t_level *level, t_vec3 pos, t_vec3 dir, t_enemy *enemy)
 {
 	int		index;
@@ -31,10 +28,40 @@ static void		create_projectile(t_level *level, t_vec3 pos, t_vec3 dir, t_enemy *
 	init_culling(level);
 	if (!(level->all.tris[index].projectile = (t_projectile*)malloc(sizeof(t_projectile))))
 		ft_error("memory allocation failed");
+	level->all.tris[index].projectile->dist = enemy->attack_range;
 	level->all.tris[index].projectile->damage = enemy->attack_damage;
 	level->all.tris[index].projectile->speed = enemy->projectile_speed;
 	level->all.tris[index].projectile->dir = dir;
 	level->all.tris[index].isprojectile = 1;
+}
+
+static void		remove_projectile(t_level *level, int remove)
+{
+	int		index;
+	t_tri	*new_tris;
+
+	index = level->all.tri_amount;
+	free_culling(level);
+	level->all.tri_amount--;
+	if (!(new_tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount)))
+		ft_error("memory allocation failed");
+	if (!(level->visible.tris = (t_tri*)realloc(level->visible.tris, sizeof(t_tri) * level->all.tri_amount)))
+		ft_error("memory allocation failed");
+	free(level->all.tris[remove].projectile);
+	for (int i = 0; i < level->all.tri_amount; i++)
+	{
+		if (i < remove)
+			new_tris[i] = level->all.tris[i];
+		else
+		{
+			new_tris[i] = level->all.tris[i + 1];
+			new_tris[i].index = i;
+		}
+	}
+	free(level->all.tris);
+	level->all.tris = new_tris;
+	init_screen_space_partition(level);
+	init_culling(level);
 }
 
 static void		calc_vectors(t_tri *tri)
@@ -142,23 +169,21 @@ static void		move_projectile(t_tri *face, t_level *level, float time)
 	vec_add(&e.pos, e.pos, face->v0v1);
 	vec_add(&e.pos, e.pos, face->v0v2);
 	vec_avg(&e.pos, e.pos, face->verts[0].pos);
-	// vec_sub(&e.dir, player, e.pos);
-	// if (vec_length(e.dir) <= 0.001)
-	// {
-	// 	level->player_health -= face->projectile->damage;
-	// 	free(face->projectile);
-	// 	face->isprojectile = 0;
-	// 	return;
-	// }
-	// dist = cast_all(e, level, NULL, NULL, NULL);
-	// if (dist <= 0.001 || face->projectile->dist > MAX_PROJECTILE_TRAVEL)
-	// {
-	// 	free(face->projectile);
-	// 	face->isprojectile = 0;
-	// 	return;
-	// }
+	vec_sub(&e.dir, player, e.pos);
+	if (vec_length(e.dir) <= 3)
+	{
+		level->player_health -= face->projectile->damage;
+		remove_projectile(level, face->index);
+		return;
+	}
 	e.dir = face->projectile->dir;
+	dist = cast_all(e, level, NULL, NULL, NULL);
 	vec_mult(&e.dir, face->projectile->speed * time);
+	if (dist <= vec_length(e.dir) || face->projectile->dist > MAX_PROJECTILE_TRAVEL)
+	{
+		remove_projectile(level, face->index);
+		return;
+	}
 	for (int i = 0; i < 3 + face->isquad; i++)
 		vec_add(&face->verts[i].pos, face->verts[i].pos, e.dir);
 	face->projectile->dist += vec_length(e.dir);
