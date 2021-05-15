@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/06 21:29:32 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/15 20:33:47 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -434,7 +434,7 @@ void		enemies_update_sprites(t_level *level);
 int			fog(int color, float dist, unsigned fog_color, t_level *level);
 int			skybox(t_bmp *img, t_obj *obj, t_ray r);
 
-void		opacity(t_cast_result *res, t_level *l, t_obj *obj);
+void		opacity(t_cast_result *res, t_level *l, t_obj *obj, float opacity);
 void		shadow(t_level *l, t_vec3 normal, t_cast_result *res);
 
 void		reflection(t_cast_result *res, t_level *l, t_obj *obj);
