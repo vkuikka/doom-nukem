@@ -246,8 +246,8 @@ void			uv_editor(t_level *level, t_window *window)
 			uv_pixel_put(x, y, UI_BACKGROUND_COL, pixels);
 	for (int y = 0 ; y < RES_Y; y++)
 		for (int x = 0 ; x < RES_X / 2; x++)
-			if (x - offset.x >= 0 && x - offset.x < level->texture.width * image_scale &&
-				y - offset.y >= 0 && y - offset.y < level->texture.height * image_scale)
+			if (x - offset.x >= 0 && x - offset.x < (int)(level->texture.width * image_scale) &&
+				y - offset.y >= 0 && y - offset.y < (int)(level->texture.height * image_scale))
 				uv_pixel_put(x, y, level->texture.image[(int)((y - offset.y) / image_scale) * level->texture.width +
 														(int)((x - offset.x) / image_scale)], pixels);
 	uv_wireframe(level, offset, pixels, image_scale);
