@@ -313,26 +313,23 @@ void		reflection_culling(t_level *level, int i)
 
 void		opacity_culling(t_level *level, int i)
 {
-	if (level->all.tris[i].opacity)
+	level->all.tris[i].opacity_obj_all->tri_amount = 0;
+	t_vec3 avg = {0, 0, 0};
+	for (int o = 0; o < 3 + level->all.tris[i].isquad; o++)
+		vec_add(&avg, avg, level->all.tris[i].verts[o].pos);
+	vec_div(&avg, 3 + level->all.tris[i].isquad);
+	int amount = 0;
+	for (int k = 0; k < level->all.tri_amount; k++)
 	{
-		level->all.tris[i].opacity_obj_all->tri_amount = 0;
-		t_vec3 avg = {0, 0, 0};
-		for (int o = 0; o < 3 + level->all.tris[i].isquad; o++)
-			vec_add(&avg, avg, level->all.tris[i].verts[o].pos);
-		vec_div(&avg, 3 + level->all.tris[i].isquad);
-		int amount = 0;
-		for (int k = 0; k < level->all.tri_amount; k++)
+		if ((level->all.tris[k].isenemy || level->all.tris[k].isgrid ||
+				cull_ahead(level->all.tris[i].normal, avg, level->all.tris[k])) &&
+				backface_culling(level->cam.pos, level->all.tris[k]))
 		{
-			if ((level->all.tris[k].isenemy || level->all.tris[k].isgrid ||
-					cull_ahead(level->all.tris[i].normal, avg, level->all.tris[k])) &&
-					backface_culling(level->cam.pos, level->all.tris[k]))
-			{
-				level->all.tris[i].opacity_obj_all->tris[amount] = level->all.tris[k];
-				amount++;
-			}
+			level->all.tris[i].opacity_obj_all->tris[amount] = level->all.tris[k];
+			amount++;
 		}
-		level->all.tris[i].opacity_obj_all->tri_amount = amount;
 	}
+	level->all.tris[i].opacity_obj_all->tri_amount = amount;
 }
 
 void		free_culling(t_level *level)
