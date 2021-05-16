@@ -204,6 +204,9 @@ int			main(int argc, char **argv)
 {
 	t_window	*window;
 	t_level		*level;
+	unsigned	ssp;
+	unsigned	cull;
+	unsigned	rendertime;
 	unsigned	frametime;
 
 	init_level(&level);
@@ -219,9 +222,15 @@ int			main(int argc, char **argv)
 		update_camera(level);
 		if (!level->ui.state.is_uv_editor_open)
 			enemies_update_sprites(level);
+		cull = SDL_GetTicks();
 		culling(level);
+		level->ui.cull = SDL_GetTicks() - cull;
+		ssp = SDL_GetTicks();
 		screen_space_partition(level);
+		level->ui.ssp = SDL_GetTicks() - ssp;
+		rendertime = SDL_GetTicks();
 		render(window, level);
+		level->ui.render = SDL_GetTicks() - rendertime;
 		level->ui.frametime = SDL_GetTicks() - frametime;
 	}
 }

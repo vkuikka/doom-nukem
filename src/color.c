@@ -12,7 +12,7 @@
 
 #include "doom-nukem.h"
 
-unsigned	crossfade(unsigned color1, unsigned color2, unsigned fade)
+unsigned		crossfade(unsigned color1, unsigned color2, unsigned fade)
 {
 	unsigned char	*rgb1;
 	unsigned char	*rgb2;
@@ -28,7 +28,7 @@ unsigned	crossfade(unsigned color1, unsigned color2, unsigned fade)
 	return ((newr << 8 * 3) + (newg << 8 * 2) + (newb << 8 * 1) + 0xff);
 }
 
-int			skybox(t_bmp *img, t_obj *obj, t_ray r)
+int				skybox(t_bmp *img, t_obj *obj, t_ray r)
 {
 	t_cast_result	res;
 
@@ -47,7 +47,7 @@ int			skybox(t_bmp *img, t_obj *obj, t_ray r)
 	return (res.color);
 }
 
-int			fog(int color, float dist, unsigned fog_color, t_level *level)
+int				fog(int color, float dist, unsigned fog_color, t_level *level)
 {
 	float	fade;
 
@@ -60,7 +60,7 @@ int			fog(int color, float dist, unsigned fog_color, t_level *level)
 	return (fog_color);
 }
 
-void		blur_pixels(unsigned *color, int gap)
+void			blur_pixels(unsigned *color, int gap)
 {
 	int		res;
 	int		x;
@@ -90,7 +90,7 @@ void		blur_pixels(unsigned *color, int gap)
 	}
 }
 
-int			smooth_color(unsigned *pixels, int gap, int x, int y)
+int				smooth_color(unsigned *pixels, int gap, int x, int y)
 {
 	int		dx;
 	int		dy;
@@ -123,7 +123,7 @@ int			smooth_color(unsigned *pixels, int gap, int x, int y)
 	return(crossfade(tmp >> 8, re1 >> 8, x % gap / (float)gap * 0xff));
 }
 
-void		fill_pixels(unsigned *grid, int gap, int blur, int smooth)
+void			fill_pixels(unsigned *grid, int gap, int blur, int smooth)
 {
 	int		color;
 	int		i;
@@ -158,19 +158,19 @@ void		fill_pixels(unsigned *grid, int gap, int blur, int smooth)
 	}
 }
 
-t_vec3		get_normal(int vec)
+t_vec3			get_normal(int vec)
 {
 	unsigned char	*v;
 	t_vec3			dir;
 
 	v = (unsigned char*)&vec;
 	dir.x = v[3] - 128;
-	dir.y = v[1] - 128;
+	dir.y = -(v[1] - 128);
 	dir.z = v[2] - 128;
 	return (dir);
 }
 
-void		face_color(float u, float v, t_tri t, t_cast_result *res)
+void			face_color(float u, float v, t_tri t, t_cast_result *res)
 {
 	int		x;
 	int 	y;

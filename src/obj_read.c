@@ -252,7 +252,7 @@ void	load_obj(char *filename, t_obj *obj)
 	{
 		vec_sub(&obj->tris[i].v0v2, obj->tris[i].verts[1].pos, obj->tris[i].verts[0].pos);
 		vec_sub(&obj->tris[i].v0v1, obj->tris[i].verts[2].pos, obj->tris[i].verts[0].pos);
-		vec_cross(&obj->tris[i].normal, obj->tris[i].v0v1, obj->tris[i].v0v2);
+		vec_cross(&obj->tris[i].normal, obj->tris[i].v0v2, obj->tris[i].v0v1);
 		vec_normalize(&obj->tris[i].normal);
 		i++;
 	}

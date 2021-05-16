@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/16 14:03:21 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/16 21:38:28 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,7 @@
 # define WF_VISIBLE_NORMAL_COL 0x00ffffff
 # define WF_VISIBLE_COL 0x00ff00ff
 # define WF_BACKGROUND_COL 0x99		//1 byte value
+# define WF_NORMAL_LEN 0.3
 
 # define NONFATAL_ERROR_LIFETIME_SECONDS 7.42
 # define NONFATAL_ERROR_FADEOUT_TIME_MS 666
@@ -300,6 +301,9 @@ typedef struct			s_editor_ui
 	float				horizontal_velocity;
 
 	//info
+	unsigned			ssp;
+	unsigned			cull;
+	unsigned			render;
 	unsigned			frametime;
 	struct s_ui_state	state;
 }						t_editor_ui;
@@ -462,7 +466,7 @@ void		enemies_update_sprites(t_level *level);
 int			fog(int color, float dist, unsigned fog_color, t_level *level);
 int			skybox(t_bmp *img, t_obj *obj, t_ray r);
 
-void		opacity(t_cast_result *res, t_level *l, t_obj *obj);
+void		opacity(t_cast_result *res, t_level *l, t_obj *obj, float opacity);
 void		shadow(t_level *l, t_vec3 normal, t_cast_result *res);
 
 void		reflection(t_cast_result *res, t_level *l, t_obj *obj);

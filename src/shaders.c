@@ -6,13 +6,13 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/31 16:52:44 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/03 23:08:17 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/15 20:24:20 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom-nukem.h"
 
-void		opacity(t_cast_result *res, t_level *l, t_obj *obj)
+void		opacity(t_cast_result *res, t_level *l, t_obj *obj, float opacity)
 {
 	t_cast_result	transparent;
 	t_ray			normal;
@@ -23,7 +23,7 @@ void		opacity(t_cast_result *res, t_level *l, t_obj *obj)
 	vec_mult(&normal.dir, vec_dot(transparent.ray.dir, normal.dir) * l->all.tris[res->face_index].refractivity);
 	vec_add(&transparent.ray.dir, transparent.ray.dir, normal.dir);
 	cast_all_color(transparent.ray, l, obj, &transparent);
-	res->color = crossfade((unsigned)res->color >> 8, (unsigned)transparent.color >> 8, l->all.tris[res->face_index].opacity * 0xff);
+	res->color = crossfade((unsigned)res->color >> 8, (unsigned)transparent.color >> 8, opacity * 0xff);
 }
 
 void		shadow(t_level *l, t_vec3 normal, t_cast_result *res)
@@ -39,7 +39,7 @@ void		shadow(t_level *l, t_vec3 normal, t_cast_result *res)
 		return;
 	}
 	r.dir.x = l->ui.sun_dir.x;
-	r.dir.y = -l->ui.sun_dir.y;
+	r.dir.y = l->ui.sun_dir.y;
 	r.dir.z = l->ui.sun_dir.z;
 	r.pos = res->ray.pos;
 	i = 0;

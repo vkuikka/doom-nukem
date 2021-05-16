@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/05/14 14:55:03 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/16 21:39:35 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,13 +87,13 @@ void	ui_config_selected_faces(t_level *level)
 					sprintf(buf, "reflectivity: %.0f%% (%d mirror %d first bounce)", 100 * level->all.tris[i].reflectivity,
 						level->all.tris[i].reflection_obj_all->tri_amount, level->all.tris[i].reflection_obj_first_bounce->tri_amount);
 				float_slider(&level->all.tris[i].reflectivity, buf, 0, 1);
+				sprintf(buf, "opacity: %.0f%%", 100 * level->all.tris[i].opacity);
+				float_slider(&level->all.tris[i].opacity, buf, 0, 1);
 				if (level->all.tris[i].opacity)
 				{
 					sprintf(buf, "refractive index: %.2f", level->all.tris[i].refractivity);
 					float_slider(&level->all.tris[i].refractivity, buf, -1, 3);
 				}
-				sprintf(buf, "opacity: %.0f%%", 100 * level->all.tris[i].opacity);
-				float_slider(&level->all.tris[i].opacity, buf, 0, 1);
 				if (button(&level->all.tris[i].isquad, "quad"))
 					set_fourth_vertex(&level->all.tris[i]);
 				button(&level->all.tris[i].isgrid, "grid");
@@ -386,6 +386,12 @@ void	ui_config(t_level *level)
 
 		set_text_color(UI_INFO_TEXT_COLOR);
 		sprintf(buf, "fps:               %d",  get_fps());
+		text(buf);
+		sprintf(buf, "cull:              %ums",  ui->cull);
+		text(buf);
+		sprintf(buf, "ssp:               %ums",  ui->ssp);
+		text(buf);
+		sprintf(buf, "render:          %ums",  ui->render);
 		text(buf);
 		sprintf(buf, "frametime: %ums",  ui->frametime);
 		text(buf);
