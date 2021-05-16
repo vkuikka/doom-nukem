@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/06 08:50:56 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/05/12 15:13:11 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/16 22:51:45 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -208,7 +208,7 @@ static void	ui_render_background(unsigned *get_texture, SDL_Texture *text_textur
 			{
 				sprintf(buf, "%d", level->ssp[y * SSP_MAX_X + x].tri_amount);
 				int red = (float)level->ssp[y * SSP_MAX_X + x].tri_amount / max_tris * 0xff;
-				red = crossfade(0x00ff00, 0xff0000, red);
+				red = crossfade(0x00ff00, 0xff0000, red, 0xff);
 				set_text_color(red);
 				put_text(buf, window, text_texture,
 				(t_ivec2){(RES_X / SSP_MAX_X) * x + (RES_X / SSP_MAX_X / 2) - 5,

@@ -115,7 +115,7 @@ static void		turn_sprite(t_tri *tri, t_vec3 dir)
 		vec_add(&tri->verts[vert].pos, rot_vert, face_mid);
 	}
 	calc_vectors(tri);
-	vec_cross(&tri->normal, tri->v0v1, tri->v0v2);
+	vec_cross(&tri->normal, tri->v0v2, tri->v0v1);
 	vec_normalize(&tri->normal);
 }
 

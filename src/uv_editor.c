@@ -49,7 +49,7 @@ void	uv_print_line(t_vec2 start, t_vec2 stop, t_ivec2 color, unsigned *pixels)
 	step.y = (stop.y - start.y) / (float)step.z;
 	while (pos.z <= step.z && i < 10000)
 	{
-		uv_pixel_put(pos.x, pos.y, crossfade(color.x, color.y, 0xff * (pos.z / step.z)), pixels);
+		uv_pixel_put(pos.x, pos.y, crossfade(color.x, color.y, 0xff * (pos.z / step.z), 0xff), pixels);
 		pos.x += step.x;
 		pos.y += step.y;
 		pos.z++;
