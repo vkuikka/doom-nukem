@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/13 01:24:52 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/16 14:03:21 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@
 # define TRUE 1
 # define FALSE 0
 
+# define WF_PROJECTILE_COL 0xff4422ff
 # define WF_UNSELECTED_COL 0x333333ff
 # define WF_SELECTED_COL 0xffaa00ff
 # define WF_VERT_COL 0x010101ff
@@ -154,6 +155,7 @@ typedef struct			s_projectile
 typedef struct			s_enemy
 {
 	struct s_vec3		dir;
+	struct s_vec2		projectile_uv[3];
 	float				move_speed;
 	float				dist_limit;
 	float				initial_health;

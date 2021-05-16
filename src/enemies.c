@@ -33,6 +33,9 @@ static void		create_projectile(t_level *level, t_vec3 pos, t_vec3 dir, t_enemy *
 	level->all.tris[index].projectile->speed = enemy->projectile_speed;
 	level->all.tris[index].projectile->dir = dir;
 	level->all.tris[index].isprojectile = 1;
+	level->all.tris[index].verts[0].txtr = enemy->projectile_uv[0];
+	level->all.tris[index].verts[1].txtr = enemy->projectile_uv[1];
+	level->all.tris[index].verts[2].txtr = enemy->projectile_uv[2];
 }
 
 static void		remove_projectile(t_level *level, int remove)

@@ -217,7 +217,8 @@ int			main(int argc, char **argv)
 		read_input(window, level);
 		player_movement(level);
 		update_camera(level);
-		enemies_update_sprites(level);
+		if (!level->ui.state.is_uv_editor_open)
+			enemies_update_sprites(level);
 		culling(level);
 		screen_space_partition(level);
 		render(window, level);
