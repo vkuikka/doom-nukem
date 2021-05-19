@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/05/07 01:11:38 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/19 19:50:31 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,19 @@ void	copy_tri_settings(t_tri *a, t_tri *b)
 	a->refractivity = b->refractivity;
 	a->disable_distance_culling = b->disable_distance_culling;
 	a->disable_backface_culling = b->disable_backface_culling;
+	if (a->enemy && b->enemy)
+	{
+		a->enemy->attack_damage = b->enemy->attack_damage;
+		a->enemy->attack_frequency = b->enemy->attack_frequency;
+		a->enemy->attack_range = b->enemy->attack_range;
+		a->enemy->dist_limit = b->enemy->dist_limit;
+		a->enemy->initial_health = b->enemy->initial_health;
+		a->enemy->move_speed = b->enemy->move_speed;
+		a->enemy->projectile_speed = b->enemy->projectile_speed;
+		a->enemy->projectile_uv[0] = b->enemy->projectile_uv[0];
+		a->enemy->projectile_uv[1] = b->enemy->projectile_uv[1];
+		a->enemy->projectile_uv[2] = b->enemy->projectile_uv[2];
+	}
 }
 
 void	ui_config_selected_faces(t_level *level)
@@ -78,9 +91,12 @@ void	ui_config_selected_faces(t_level *level)
 					text("Selected face:");
 				else
 				{
-					sprintf(buf, "%d faces selected (toggle all):", selected_amount);
+					sprintf(buf, "%d faces selected:", selected_amount);
 					text(buf);
 				}
+				if (call("remove faces", &remove_faces, level))
+					return;
+				call("edit uv", &enable_uv_editor, level);
 				if (!level->all.tris[i].reflectivity || selected_amount != 1)
 					sprintf(buf, "reflectivity: %.0f%%", 100 * level->all.tris[i].reflectivity);
 				else
@@ -97,10 +113,27 @@ void	ui_config_selected_faces(t_level *level)
 				if (button(&level->all.tris[i].isquad, "quad"))
 					set_fourth_vertex(&level->all.tris[i]);
 				button(&level->all.tris[i].isgrid, "grid");
-				button(&level->all.tris[i].isenemy, "enemy");
 				button(&level->all.tris[i].shader, "water");
-				button(&level->all.tris[i].disable_distance_culling, "distance culling");
-				button(&level->all.tris[i].disable_backface_culling, "backface culling");
+				button(&level->all.tris[i].isenemy, "enemy");
+				if (level->all.tris[i].isenemy)
+				{
+					if (!level->all.tris[i].enemy)
+						init_enemy(&level->all.tris[i]);
+					sprintf(buf, "distance limit: %.1fm", level->all.tris[i].enemy->dist_limit);
+					float_slider(&level->all.tris[i].enemy->dist_limit, buf, 1, 10);
+					sprintf(buf, "move speed: %.1fm/s", level->all.tris[i].enemy->move_speed);
+					float_slider(&level->all.tris[i].enemy->move_speed, buf, 0, 10);
+					sprintf(buf, "attack frequency: %.2f seconds per attack", level->all.tris[i].enemy->attack_frequency);
+					float_slider(&level->all.tris[i].enemy->attack_frequency, buf, 0, 5);
+					sprintf(buf, "attack damage: %.1f", level->all.tris[i].enemy->attack_damage);
+					float_slider(&level->all.tris[i].enemy->attack_damage, buf, 0, 50);
+					sprintf(buf, "attack range: %.1fm", level->all.tris[i].enemy->attack_range);
+					float_slider(&level->all.tris[i].enemy->attack_range, buf, 0, 10);
+					sprintf(buf, "projectile speed: %.1fm/s (0 = no projectile)", level->all.tris[i].enemy->projectile_speed);
+					float_slider(&level->all.tris[i].enemy->projectile_speed, buf, 0, 50);
+					sprintf(buf, "projectile scale: %.2f", level->all.tris[i].enemy->projectile_scale);
+					float_slider(&level->all.tris[i].enemy->projectile_scale, buf, 0.1, 5);
+				}
 				// call("flip normal");
 				// call("set animation start");
 				// call("set animation stop");
@@ -110,7 +143,11 @@ void	ui_config_selected_faces(t_level *level)
 				selected_index = i + 1;
 			}
 			else
+			{
+				if (level->all.tris[selected_index - 1].isenemy && !level->all.tris[i].enemy)
+					init_enemy(&level->all.tris[i]);
 				copy_tri_settings(&level->all.tris[i], &level->all.tris[selected_index - 1]);
+			}
 		}
 	}
 }
@@ -279,6 +316,20 @@ void	ui_render_directory(t_level *level)
 	}
 }
 
+static int	nothing_selected(t_level *level)
+{
+	int i;
+
+	i = 0;
+	while (i < level->all.tri_amount)
+	{
+		if (level->all.tris[i].selected)
+			return (0);
+		i++;
+	}
+	return (1);
+}
+
 void	ui_config(t_level *level)
 {
 	char				 buf[100];
@@ -349,53 +400,54 @@ void	ui_config(t_level *level)
 	// button(, "face/vert selection");
 
 	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
-	text("level:");
-	file_browser("select level", ".doom-nukem", &open_level);
-	file_browser("select obj", ".obj", &set_obj);
-	call("add face", &add_face, level);
-	call("remove selected faces", &remove_faces, level);
-	file_browser("select texture", ".bmp", &set_texture);
-	call("edit uv", &enable_uv_editor, level);
-	call("edit doors", &enable_door_editor, level);
-	file_browser("select skybox", ".bmp", &set_skybox);
-	button(&ui->fog, "fog");
-	// color(ui->color, "fog color");
-	// call(, "set spawn point");
-	// call(, "spawn enemy");
-	// call(, "remove enemies");
-	// button(&ui->pause_culling_position, "\tpause");
-	button(&ui->backface_culling, "backface & occlusion culling");
-	button(&ui->distance_culling, "distance culling");
-	sprintf(buf, "render distance: %.1fm", ui->render_distance);
-	float_slider(&ui->render_distance, buf, 2, 50);
-	float_slider(&ui->sun_contrast, "sun", 0, 1);
-	float_slider(&ui->direct_shadow_contrast, "shadow", 0, 1);
-	if (ui->sun_contrast > ui->direct_shadow_contrast)
-		ui->direct_shadow_contrast = ui->sun_contrast;
-	sprintf(buf, "sun dir: (%.2f, %.2f, %.2f)", ui->sun_dir.x, ui->sun_dir.y, ui->sun_dir.z);
-	text(buf);
-	//vec3_slider
-	float_slider(&ui->sun_dir.x, NULL, -1, 1);
-	float_slider(&ui->sun_dir.y, NULL, -1, 1);
-	float_slider(&ui->sun_dir.z, NULL, -1, 1);
-	vec_normalize(&ui->sun_dir);
-	file_save("save level", ".doom-nukem", NULL);
+	if (nothing_selected(level))
+	{
+		text("level:");
+		file_browser("select level", ".doom-nukem", &open_level);
+		file_browser("select obj", ".obj", &set_obj);
+		file_browser("select texture", ".bmp", &set_texture);
+		file_browser("select skybox", ".bmp", &set_skybox);
+		call("add face", &add_face, level);
+		call("edit doors", &enable_door_editor, level);
+		button(&ui->fog, "fog");
+		// color(ui->color, "fog color");
+		// call(, "set spawn point");
+		// call(, "spawn enemy");
+		// call(, "remove enemies");
+		// button(&ui->pause_culling_position, "\tpause");
+		button(&ui->backface_culling, "backface & occlusion culling");
+		button(&ui->distance_culling, "distance culling");
+		sprintf(buf, "render distance: %.1fm", ui->render_distance);
+		float_slider(&ui->render_distance, buf, 2, 50);
+		float_slider(&ui->sun_contrast, "sun", 0, 1);
+		float_slider(&ui->direct_shadow_contrast, "shadow", 0, 1);
+		if (ui->sun_contrast > ui->direct_shadow_contrast)
+			ui->direct_shadow_contrast = ui->sun_contrast;
+		sprintf(buf, "sun dir: (%.2f, %.2f, %.2f)", ui->sun_dir.x, ui->sun_dir.y, ui->sun_dir.z);
+		text(buf);
+		//vec3_slider
+		float_slider(&ui->sun_dir.x, NULL, -1, 1);
+		float_slider(&ui->sun_dir.y, NULL, -1, 1);
+		float_slider(&ui->sun_dir.z, NULL, -1, 1);
+		vec_normalize(&ui->sun_dir);
+		file_save("save level", ".doom-nukem", NULL);
 
-	set_text_color(UI_INFO_TEXT_COLOR);
-	sprintf(buf, "fps:               %d",  get_fps());
-	text(buf);
-	sprintf(buf, "cull:              %ums",  ui->cull);
-	text(buf);
-	sprintf(buf, "ssp:               %ums",  ui->ssp);
-	text(buf);
-	sprintf(buf, "render:          %ums",  ui->render);
-	text(buf);
-	sprintf(buf, "frametime: %ums",  ui->frametime);
-	text(buf);
-	sprintf(buf, "faces:           %d / %d", level->all.tri_amount, level->visible.tri_amount);
-	text(buf);
-	sprintf(buf, "xz velocity:  %.2fms", level->ui.horizontal_velocity);
-	text(buf);
+		set_text_color(UI_INFO_TEXT_COLOR);
+		sprintf(buf, "fps:               %d",  get_fps());
+		text(buf);
+		sprintf(buf, "cull:              %ums",  ui->cull);
+		text(buf);
+		sprintf(buf, "ssp:               %ums",  ui->ssp);
+		text(buf);
+		sprintf(buf, "render:          %ums",  ui->render);
+		text(buf);
+		sprintf(buf, "frametime: %ums",  ui->frametime);
+		text(buf);
+		sprintf(buf, "faces:           %d / %d", level->all.tri_amount, level->visible.tri_amount);
+		text(buf);
+		sprintf(buf, "xz velocity:  %.2fms", level->ui.horizontal_velocity);
+		text(buf);
+	}
 
 	set_text_color(UI_FACE_SELECTION_TEXT_COLOR);
 	ui_config_selected_faces(level);

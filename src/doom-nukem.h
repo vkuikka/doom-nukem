@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/15 20:33:47 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/16 22:46:38 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 # define DOOM_NUKEM_H
 # define RES_X 1000
 # define RES_Y 700
-# define THREAD_AMOUNT 4
+# define THREAD_AMOUNT 8
 # define NOISE_QUALITY_LIMIT 8
 # define SSP_MAX_X 20
 # define SSP_MAX_Y 20
@@ -32,9 +32,13 @@
 # define DOOR_ACTIVATION_DISTANCE 3.
 # define DOOR_LOCATION_INFO_COLOR 0x880088ff
 
+# define ENEMY_MOVABLE_HEIGHT_DIFF 1
+# define MAX_PROJECTILE_TRAVEL 100
+
 # define TRUE 1
 # define FALSE 0
 
+# define WF_PROJECTILE_COL 0xff4422ff
 # define WF_UNSELECTED_COL 0x333333ff
 # define WF_SELECTED_COL 0xffaa00ff
 # define WF_VERT_COL 0x010101ff
@@ -143,6 +147,30 @@ typedef struct			s_vert
 	int					selected;
 }						t_vert;
 
+typedef struct			s_projectile
+{
+	struct s_vec3		dir;
+	float				speed;
+	float				dist;
+	float				damage;
+}						t_projectile;
+
+typedef struct			s_enemy
+{
+	struct s_vec3		dir;
+	struct s_vec2		projectile_uv[3];
+	float				move_speed;
+	float				dist_limit;
+	float				initial_health;
+	float				remaining_health;
+	float				attack_range;
+	float				attack_frequency;
+	float				projectile_speed;	//	0 = no projectile
+	float				projectile_scale;
+	float				attack_damage;
+	float				current_attack_delay;
+}						t_enemy;
+
 typedef struct			s_tri
 {
 	int					index;
@@ -150,9 +178,12 @@ typedef struct			s_tri
 	struct s_vec3		v0v1;		//vector between vertices 1 and 0
 	struct s_vec3		v0v2;		//vector between vertices 2 and 0
 	struct s_vec3		normal;
+	int					isenemy;
+	struct s_enemy		*enemy;
+	int					isprojectile;
+	struct s_projectile	*projectile;
 	int					isquad;
 	int					isgrid;
-	int					isenemy;
 	int					disable_distance_culling;
 	int					disable_backface_culling;
 	float				opacity;
@@ -311,6 +342,7 @@ typedef struct			s_level
 	struct s_editor_ui	ui;
 	struct s_all_doors	doors;
 	int					shadow_color;
+	float				player_health;
 }						t_level;
 
 typedef struct			s_rthread
@@ -404,10 +436,10 @@ int			get_ssp_coordinate(int coord, int horizontal);
 
 int			raycast(void *t);
 float		cast_face(t_tri t, t_ray ray, t_cast_result *res);
+float		cast_all(t_ray vec, t_level *level, float *dist_u, float *dist_d, int *index);
 void		fill_pixels(unsigned *grid, int pixel_gap, int blur, int smooth);
-unsigned	crossfade(unsigned color1, unsigned color2, unsigned fade);
+unsigned	crossfade(unsigned color1, unsigned color2, unsigned fade, unsigned alpha);
 void		face_color(float u, float v, t_tri t, t_cast_result *res);
-
 void		wireframe(t_window *window, t_level *level);
 void		camera_offset(t_vec3 *vertex, t_camera *cam);
 
@@ -425,6 +457,7 @@ void		set_fourth_vertex(t_tri *a);
 void		rotate_vertex(float angle, t_vec3 *vertex, int axis);
 void		rot_cam(t_vec3 *cam, const float lon, const float lat);
 
+void		init_enemy(t_tri *face);
 void		init_ui(t_window *window, t_level *level);
 void		ui_render(t_level *level);
 void		ui_config(t_level *level);
@@ -480,6 +513,7 @@ void		add_face(t_level *level);
 void		remove_faces(t_level *level);
 void		nonfatal_error(t_level *level, char *message);
 t_ivec2		put_text(char *text, t_window *window, SDL_Texture *texture, t_ivec2 pos);
+void		set_new_face(t_level *level, t_vec3 pos, t_vec3 dir, float scale);
 
 void		door_animate(t_level *level);
 void		door_put_text(t_window *window, t_level *level);

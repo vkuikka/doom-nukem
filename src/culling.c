@@ -366,7 +366,10 @@ void		init_culling(t_level *level)
 		level->all.tris[i].shadow_faces->tri_amount = 0;
 	}
 	for (int i = 0; i < level->all.tri_amount; i++)
+	{
 		reflection_culling(level, i);
+		opacity_culling(level, i);
+	}
 }
 
 static void		calculate_corner_vectors(t_vec3 corner[4], t_camera *cam)
