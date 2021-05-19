@@ -226,6 +226,13 @@ typedef enum			e_mouse_location
 	MOUSE_LOCATION_SELECTION
 }						t_mouse_location;
 
+typedef enum			e_game_location
+{
+	GAME_LOCATION_MAIN_MENU = 0,
+	GAME_LOCATION_EDITOR,
+	GAME_LOCATION_INGAME,
+}						t_game_location;
+
 typedef enum			e_ui_location
 {
 	UI_LOCATION_MAIN = 0,

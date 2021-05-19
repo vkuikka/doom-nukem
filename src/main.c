@@ -23,7 +23,7 @@ void		update_camera(t_level *l)
 	l->cam.fov_x = l->ui.fov * ((float)RES_X / RES_Y);
 }
 
-void		render(t_window *window, t_level *level)
+void		render(t_window *window, t_level *level, t_game_location game_location)
 {
 	SDL_Thread		*threads[THREAD_AMOUNT];
 	t_rthread		**thread_data;
@@ -59,15 +59,23 @@ void		render(t_window *window, t_level *level)
 		fill_pixels(window->frame_buffer, level->ui.raycast_quality,
 					level->ui.blur, level->ui.smooth_pixels);
 	}
-	wireframe(window, level);
+	if (game_location == GAME_LOCATION_EDITOR)
+		wireframe(window, level);
 
 	SDL_UnlockTexture(window->texture);
 	SDL_RenderClear(window->SDLrenderer);
 	SDL_RenderCopy(window->SDLrenderer, window->texture, NULL, NULL);
-	obj_editor(level, window);
-	if (level->ui.state.ui_location == UI_LOCATION_UV_EDITOR)
-		uv_editor(level, window);
-	ui_render(level);
+	if (game_location == GAME_LOCATION_INGAME)
+		;//hud
+	else if (game_location == GAME_LOCATION_MAIN_MENU)
+		;//main_menu();
+	else if (game_location == GAME_LOCATION_EDITOR)
+	{
+		obj_editor(level, window);
+		if (level->ui.state.ui_location == UI_LOCATION_UV_EDITOR)
+			uv_editor(level, window);
+		ui_render(level);
+	}
 	SDL_RenderPresent(window->SDLrenderer);
 	return ;
 }
@@ -206,11 +214,14 @@ int			main(int argc, char **argv)
 {
 	t_window	*window;
 	t_level		*level;
+	t_game_location game_location;
 	unsigned	ssp;
 	unsigned	cull;
 	unsigned	rendertime;
 	unsigned	frametime;
 
+	game_location = GAME_LOCATION_MAIN_MENU;
+	game_location = GAME_LOCATION_EDITOR;
 	init_level(&level);
 	init_window(&window);
 	init_ui(window, level);
@@ -220,7 +231,10 @@ int			main(int argc, char **argv)
 	{
 		frametime = SDL_GetTicks();
 		read_input(window, level);
-		player_movement(level);
+		if (game_location == GAME_LOCATION_MAIN_MENU)
+			main_menu_move();
+		else
+			player_movement(level);
 		update_camera(level);
 		door_animate(level);
 		door_put_text(window, level);
@@ -232,7 +246,7 @@ int			main(int argc, char **argv)
 		screen_space_partition(level);
 		level->ui.ssp = SDL_GetTicks() - ssp;
 		rendertime = SDL_GetTicks();
-		render(window, level);
+		render(window, level, game_location);
 		level->ui.render = SDL_GetTicks() - rendertime;
 		level->ui.frametime = SDL_GetTicks() - frametime;
 	}
