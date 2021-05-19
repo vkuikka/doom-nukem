@@ -220,6 +220,7 @@ int			main(int argc, char **argv)
 		player_movement(level);
 		update_camera(level);
 		door_animate(level);
+		door_put_text(window, level);
 		enemies_update_sprites(level);
 		culling(level);
 		screen_space_partition(level);

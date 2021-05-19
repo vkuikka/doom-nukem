@@ -86,6 +86,17 @@ static t_ivec2	put_text(char *text, t_window *window, SDL_Texture *texture, t_iv
 	return (size);
 }
 
+void		render_text(char *text, t_window *window, t_ivec2 *pos, SDL_Texture *get_texture)
+{
+	static SDL_Texture *texture;
+
+	if (get_texture)
+	{
+		texture = get_texture;
+		return ;
+	}
+	put_text(text, window, texture, *pos);
+}
 
 static void	ui_render_background(unsigned *get_texture, SDL_Texture *text_texture, t_window *window, t_level *level)
 {
@@ -526,4 +537,5 @@ void	init_ui(t_window *window, t_level *level)
 	render_slider_streaming(pixels, 0, 0);
 	render_call_streaming(pixels, 0, NULL, 0);
 	ui_render_background(pixels, NULL, NULL, NULL);
+	render_text(NULL, NULL, NULL, text_texture);
  }

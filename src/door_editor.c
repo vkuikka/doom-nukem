@@ -91,19 +91,56 @@ t_vec3	vec_interpolate(t_vec3 a, t_vec3 b, float f)
 	return (res);
 }
 
-void	door_animate(t_level *level)
+void	door_put_text(t_window *window, t_level *level)
 {
+	t_vec3	avg;
+	t_door*	door;
+	int		avg_amount;
+	t_ivec2	text_pos;
+
 	for (int a = 0; a < level->doors.door_amount; a++)
 	{
-		t_door* door = &level->doors.door[a];
+		avg.x = 0;
+		avg.y = 0;
+		avg.z = 0;
+		avg_amount = 0;
+		door = &level->doors.door[a];
+		for (int i = 0; i < door->indice_amount; i++)
+		{
+			for (int k = 0; k < 3 + door->isquad[i]; k++)
+			{
+				vec_add(&avg, avg, level->all.tris[door->indices[i]].verts[k].pos);
+				avg_amount++;
+			}
+		}
+		if (avg_amount)
+		{
+			vec_div(&avg, avg_amount);
+			camera_offset(&avg, &level->cam);
+			if (avg.z < 0)
+				return ;
+			set_text_color(DOOR_LOCATION_INFO_COLOR);
+			text_pos.x = avg.x;
+			text_pos.y = avg.y;
+			render_text("door", window, &text_pos, NULL);
+		}
+	}
+}
+
+void	door_animate(t_level *level)
+{
+	t_door* door;
+
+	for (int a = 0; a < level->doors.door_amount; a++)
+	{
+		door = &level->doors.door[a];
 		if (door->transition_start_time)
 		{
 			float time = (SDL_GetTicks() - door->transition_start_time) / (1000 * door->transition_time);
 			for (int i = 0; i < door->indice_amount; i++)
 			{
-				for (int k = 0; k < 4; k++)
+				for (int k = 0; k < 3 + door->isquad[i]; k++)
 				{
-						// level->all.tris[door->indices[i]].verts[k].pos = door->pos1[i][k];
 					if (time < 1)
 					{
 						if (door->transition_direction)
