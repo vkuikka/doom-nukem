@@ -231,6 +231,79 @@ void	serialize_string(char *str, t_buffer *buf)
 	}
 }
 
+void	deserialize_door(t_door *door, t_buffer *buf)
+{
+	deserialize_int(&door->indice_amount, buf);
+	if (!(door->indices = (int*)malloc(sizeof(int) * door->indice_amount)))
+		ft_error("memory allocation failed\n");
+	if (!(door->isquad = (int*)malloc(sizeof(int) * door->indice_amount)))
+		ft_error("memory allocation failed\n");
+	if (!(door->pos1 = (t_vec3**)malloc(sizeof(t_vec3*) * door->indice_amount)))
+		ft_error("memory allocation failed\n");
+	if (!(door->pos2 = (t_vec3**)malloc(sizeof(t_vec3*) * door->indice_amount)))
+		ft_error("memory allocation failed\n");
+	for (int i = 0; i < door->indice_amount; i++)
+	{
+		deserialize_int(&door->indices[i], buf);
+		deserialize_int(&door->isquad[i], buf);
+		if (!(door->pos1[i] = (t_vec3*)malloc(sizeof(t_vec3) * 4)))
+			ft_error("memory allocation failed\n");
+		if (!(door->pos2[i] = (t_vec3*)malloc(sizeof(t_vec3) * 4)))
+			ft_error("memory allocation failed\n");
+		for (int k = 0; k < 4; k++)
+		{
+			deserialize_vec3(&door->pos1[i][k], buf);
+			deserialize_vec3(&door->pos2[i][k], buf);
+		}
+	}
+	deserialize_float(&door->transition_time, buf);
+}
+
+void	serialize_door(t_door *door, t_buffer *buf)
+{
+	serialize_int(door->indice_amount, buf);
+	for (int i = 0; i < door->indice_amount; i++)
+	{
+		serialize_int(door->indices[i], buf);
+		serialize_int(door->isquad[i], buf);
+		for (int k = 0; k < 4; k++)
+		{
+			serialize_vec3(door->pos1[i][k], buf);
+			serialize_vec3(door->pos2[i][k], buf);
+		}
+	}
+	serialize_float(door->transition_time, buf);
+}
+
+void	deserialize_doors(t_level *level, t_buffer *buf)
+{
+	for (int i = 0; i < level->doors.door_amount; i++)
+	{
+		free(level->doors.door[i].indices);
+		free(level->doors.door[i].isquad);
+		for (int k = 0; k < level->doors.door[i].indice_amount; k++)
+		{
+			free(level->doors.door[i].pos1[k]);
+			free(level->doors.door[i].pos2[k]);
+		}
+		free(level->doors.door[i].pos1);
+		free(level->doors.door[i].pos2);
+	}
+	free(level->doors.door);
+	deserialize_int(&level->doors.door_amount, buf);
+	if (!(level->doors.door = (t_door*)malloc(sizeof(t_door) * level->doors.door_amount)))
+		ft_error("memory allocation failed\n");
+	for (int i = 0; i < level->doors.door_amount; i++)
+		deserialize_door(&level->doors.door[i], buf);
+}
+
+void	serialize_doors(t_level *level, t_buffer *buf)
+{
+	serialize_int(level->doors.door_amount, buf);
+	for (int i = 0; i < level->doors.door_amount; i++)
+		serialize_door(&level->doors.door[i], buf);
+}
+
 void	deserialize_level(t_level *level, t_buffer *buf)
 {
 	char	*str;
@@ -248,6 +321,7 @@ void	deserialize_level(t_level *level, t_buffer *buf)
 	free(level->all.tris);
 	free(level->visible.tris);
 	deserialize_obj(&level->all, buf);
+	deserialize_doors(level, buf);
 	if (!(level->visible.tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount)))
 		ft_error("memory allocation failed\n");
 	init_screen_space_partition(level);
@@ -261,6 +335,7 @@ void	serialize_level(t_level *level, t_buffer *buf)
 	serialize_bmp(&level->texture, buf);
 	serialize_bmp(&level->sky.img, buf);
 	serialize_obj(&level->all, buf);
+	serialize_doors(level, buf);
 }
 
 #ifdef _WIN32
