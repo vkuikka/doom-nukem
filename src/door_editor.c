@@ -44,13 +44,14 @@ void	door_activate(t_level *level)
 	int		nearest_index;
 	float	len;
 	float	nearest_len;
+	t_door	*door;
 
 	nearest_index = -1;
 	nearest_len = FLT_MAX;;
 	for (int i = 0; i < level->doors.door_amount; i++)
 	{
 		t_vec3 avg = {0, 0, 0};
-		t_door *door = &level->doors.door[i];
+		door = &level->doors.door[i];
 		int amount = 0;
 		for (int j = 0; j < door->indice_amount; j++)
 		{
@@ -71,8 +72,13 @@ void	door_activate(t_level *level)
 	}
 	if (nearest_index != -1 && nearest_len < DOOR_ACTIVATION_DISTANCE)
 	{
-		level->doors.door[nearest_index].transition_direction = level->doors.door[nearest_index].transition_direction ? 0 : 1;
-		level->doors.door[nearest_index].transition_start_time = SDL_GetTicks();
+		door = &level->doors.door[nearest_index];
+		door->transition_direction = door->transition_direction ? 0 : 1;
+		float time = (SDL_GetTicks() - door->transition_start_time) / (1000 * door->transition_time);
+		if (time < 1)
+			door->transition_start_time = SDL_GetTicks() - ((door->transition_time * 1000) - (SDL_GetTicks() - door->transition_start_time));
+		else
+			door->transition_start_time = SDL_GetTicks();
 	}
 }
 
