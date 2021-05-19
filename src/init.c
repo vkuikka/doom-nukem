@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/08 14:38:45 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/02 14:24:29 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/14 17:30:16 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,4 +76,28 @@ void			init_window(t_window **window)
 	window[0]->frame_buffer = NULL;
 	if (!(window[0]->depth_buffer = (float *)malloc(sizeof(float) * (RES_X * RES_Y))))
 		ft_error("memory allocation failed\n");
+}
+
+void			init_enemy(t_tri *face)
+{
+	face->isenemy = 1;
+	if (!(face->enemy = (t_enemy*)malloc(sizeof(t_enemy))))
+		ft_error("memory allocation failed");
+	ft_bzero(face->enemy, sizeof(t_enemy));
+	face->enemy->move_speed = 2;
+	face->enemy->dist_limit = 1;
+	face->enemy->initial_health = 100;
+	face->enemy->remaining_health = face->enemy->initial_health;
+	face->enemy->projectile_speed = 0;
+	face->enemy->projectile_scale = 1;
+	face->enemy->attack_range = 1.5;
+	face->enemy->attack_frequency = 0.5;
+	face->enemy->attack_damage = 10;
+	face->enemy->current_attack_delay = 0;
+	face->enemy->projectile_uv[0].x = .5;
+	face->enemy->projectile_uv[0].y = 0;
+	face->enemy->projectile_uv[1].x = 0;
+	face->enemy->projectile_uv[1].y = 1;
+	face->enemy->projectile_uv[2].x = 1;
+	face->enemy->projectile_uv[2].y = 1;
 }

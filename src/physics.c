@@ -6,33 +6,36 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/10 01:23:16 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/01 18:23:14 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/19 19:08:18 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom-nukem.h"
 
-static float	        cast_all(t_ray vec, t_level *level, float *dist_u, float *dist_d, int *index)
+float				cast_all(t_ray vec, t_level *level, float *dist_u, float *dist_d, int *index)
 {
 	float	res = FLT_MAX;
 
 	vec_normalize(&vec.dir);
 	for (int i = 0; i < level->all.tri_amount; i++)
 	{
-		float tmp;
-		tmp = cast_face(level->all.tris[i], vec, NULL);
-		if (dist_u != NULL)
+		if (!level->all.tris[i].isprojectile && !level->all.tris[i].isenemy)
 		{
-			if (tmp > 0 && tmp < *dist_d)
-				*dist_d = tmp;
-			else if (tmp < 0 && tmp > *dist_u)
-				*dist_u = tmp;
-		}
-		else if (tmp > 0 && tmp < res)
-		{
-			res = tmp;
-			if (index)
-				*index = i;
+			float tmp;
+			tmp = cast_face(level->all.tris[i], vec, NULL);
+			if (dist_u != NULL)
+			{
+				if (tmp > 0 && tmp < *dist_d)
+					*dist_d = tmp;
+				else if (tmp < 0 && tmp > *dist_u)
+					*dist_u = tmp;
+			}
+			else if (tmp > 0 && tmp < res)
+			{
+				res = tmp;
+				if (index)
+					*index = i;
+			}
 		}
 	}
 	return (res);
@@ -219,6 +222,11 @@ void	        player_movement(t_level *level)
 	float			shift;
 	float			delta_time;
 
+	if (!level)
+	{
+		vec_mult(&vel, 0);
+		return;
+	}
 	delta_time = level->ui.frametime / 1000.;
 	player_input(level, &wishdir, &shift);
 	rotate_wishdir(level, &wishdir, &vel);
