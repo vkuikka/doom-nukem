@@ -30,6 +30,7 @@
 # define WALL_CLIP_DIST 0.3
 # define REFLECTION_DEPTH 3
 # define DOOR_ACTIVATION_DISTANCE 3.
+# define DOOR_LOCATION_INFO_COLOR 0x880088ff
 
 # define TRUE 1
 # define FALSE 0
@@ -439,6 +440,7 @@ void		path_up_dir(char *path);
 void		go_in_dir(char *path, char *folder);
 void		text_input(char *str, t_level *level);
 void		find_closest_mouse(t_vec3 *vert, int *i, int *k);
+void		render_text(char *text, t_window *window, t_ivec2 *pos, SDL_Texture *get_texture);
 
 void		uv_editor(t_level *level, t_window *window);
 void		enable_uv_editor(t_level *level);
@@ -480,6 +482,7 @@ void		nonfatal_error(t_level *level, char *message);
 t_ivec2		put_text(char *text, t_window *window, SDL_Texture *texture, t_ivec2 pos);
 
 void		door_animate(t_level *level);
+void		door_put_text(t_window *window, t_level *level);
 void		add_new_door(t_level *level);
 void		delete_door(t_level *level);
 void		door_activate(t_level *level);
