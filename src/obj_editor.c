@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/22 23:13:42 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/05/14 14:18:48 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/19 17:07:38y vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -314,7 +314,7 @@ void			set_new_face(t_level *level, t_vec3 pos, t_vec3 dir)
 	set_new_face_pos(&level->all, i, tri_avg);
 	vec_sub(&level->all.tris[i].v0v2, level->all.tris[i].verts[1].pos, level->all.tris[i].verts[0].pos);
 	vec_sub(&level->all.tris[i].v0v1, level->all.tris[i].verts[2].pos, level->all.tris[i].verts[0].pos);
-	vec_cross(&level->all.tris[i].normal, level->all.tris[i].v0v1, level->all.tris[i].v0v2);
+	vec_cross(&level->all.tris[i].normal, level->all.tris[i].v0v2, level->all.tris[i].v0v1);
 	vec_normalize(&level->all.tris[i].normal);
 }
 
@@ -341,8 +341,15 @@ void			remove_faces(t_level *level)
 	{
 		if (level->all.tris[i].selected)
 		{
+			if (level->all.tris[i].enemy)
+				free(level->all.tris[i].enemy);
+			if (level->all.tris[i].projectile)
+				free(level->all.tris[i].projectile);
 			for (int k = i; k < level->all.tri_amount - 1; k++)
+			{
 				level->all.tris[k] = level->all.tris[k + 1];
+				level->all.tris[k].index = k;
+			}
 			amount--;
 		}
 	}

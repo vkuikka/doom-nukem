@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/05/16 21:39:35 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/19 17:10:22 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,19 @@ void	copy_tri_settings(t_tri *a, t_tri *b)
 	a->refractivity = b->refractivity;
 	a->disable_distance_culling = b->disable_distance_culling;
 	a->disable_backface_culling = b->disable_backface_culling;
+	if (a->enemy && b->enemy)
+	{
+		a->enemy->attack_damage = b->enemy->attack_damage;
+		a->enemy->attack_frequency = b->enemy->attack_frequency;
+		a->enemy->attack_range = b->enemy->attack_range;
+		a->enemy->dist_limit = b->enemy->dist_limit;
+		a->enemy->initial_health = b->enemy->initial_health;
+		a->enemy->move_speed = b->enemy->move_speed;
+		a->enemy->projectile_speed = b->enemy->projectile_speed;
+		a->enemy->projectile_uv[0] = b->enemy->projectile_uv[0];
+		a->enemy->projectile_uv[1] = b->enemy->projectile_uv[1];
+		a->enemy->projectile_uv[2] = b->enemy->projectile_uv[2];
+	}
 }
 
 void	ui_config_selected_faces(t_level *level)
@@ -78,9 +91,12 @@ void	ui_config_selected_faces(t_level *level)
 					text("Selected face:");
 				else
 				{
-					sprintf(buf, "%d faces selected (toggle all):", selected_amount);
+					sprintf(buf, "%d faces selected:", selected_amount);
 					text(buf);
 				}
+				if (call("remove faces", &remove_faces, level))
+					return;
+				call("edit uv", &enable_uv_editor, level);
 				if (!level->all.tris[i].reflectivity || selected_amount != 1)
 					sprintf(buf, "reflectivity: %.0f%%", 100 * level->all.tris[i].reflectivity);
 				else
@@ -125,7 +141,11 @@ void	ui_config_selected_faces(t_level *level)
 				selected_index = i + 1;
 			}
 			else
+			{
+				if (level->all.tris[selected_index - 1].isenemy && !level->all.tris[i].enemy)
+					init_enemy(&level->all.tris[i]);
 				copy_tri_settings(&level->all.tris[i], &level->all.tris[selected_index - 1]);
+			}
 		}
 	}
 }
@@ -357,9 +377,7 @@ void	ui_config(t_level *level)
 		file_browser("select level", ".doom-nukem", &open_level);
 		file_browser("select obj", ".obj", &set_obj);
 		call("add face", &add_face, level);
-		call("remove selected faces", &remove_faces, level);
 		file_browser("select texture", ".bmp", &set_texture);
-		call("edit uv", &enable_uv_editor, level);
 		file_browser("select skybox", ".bmp", &set_skybox);
 		button(&ui->fog, "fog");
 		// color(ui->color, "fog color");

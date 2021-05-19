@@ -219,6 +219,30 @@ static void		uv_wireframe(t_level *level, t_ivec2 offset, unsigned *pixels, floa
 		update_uv_closest_vertex(level, image_scale, offset, mouse);
 }
 
+static void		match_projectile_uv(t_level *level)
+{
+	int 	i;
+	int		copy_index;
+
+	i = 0;
+	copy_index = -1;
+	while (i < level->all.tri_amount)
+	{
+		if (level->all.tris[i].selected && level->all.tris[i].isenemy)
+		{
+			if (copy_index != -1)
+			{
+				level->all.tris[i].enemy->projectile_uv[0] = level->all.tris[copy_index].enemy->projectile_uv[0];
+				level->all.tris[i].enemy->projectile_uv[1] = level->all.tris[copy_index].enemy->projectile_uv[1];
+				level->all.tris[i].enemy->projectile_uv[2] = level->all.tris[copy_index].enemy->projectile_uv[2];
+			}
+			else
+				copy_index = i;
+		}
+		i++;
+	}
+}
+
 void			uv_editor(t_level *level, t_window *window)
 {
 	static SDL_Texture	*texture = NULL;
@@ -250,6 +274,7 @@ void			uv_editor(t_level *level, t_window *window)
 				y - offset.y >= 0 && y - offset.y < (int)(level->texture.height * image_scale))
 				uv_pixel_put(x, y, level->texture.image[(int)((y - offset.y) / image_scale) * level->texture.width +
 														(int)((x - offset.x) / image_scale)], pixels);
+	match_projectile_uv(level);
 	uv_wireframe(level, offset, pixels, image_scale);
 	SDL_UnlockTexture(texture);
 	SDL_RenderCopy(window->SDLrenderer, texture, NULL, NULL);
