@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/10 01:23:16 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/14 14:45:52 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/19 19:08:18 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ float				cast_all(t_ray vec, t_level *level, float *dist_u, float *dist_d, int *
 	vec_normalize(&vec.dir);
 	for (int i = 0; i < level->all.tri_amount; i++)
 	{
-		if (!level->all.tris[i].isprojectile)
+		if (!level->all.tris[i].isprojectile && !level->all.tris[i].isenemy)
 		{
 			float tmp;
 			tmp = cast_face(level->all.tris[i], vec, NULL);
@@ -222,6 +222,11 @@ void	        player_movement(t_level *level)
 	float			shift;
 	float			delta_time;
 
+	if (!level)
+	{
+		vec_mult(&vel, 0);
+		return;
+	}
 	delta_time = level->ui.frametime / 1000.;
 	player_input(level, &wishdir, &shift);
 	rotate_wishdir(level, &wishdir, &vel);

@@ -124,40 +124,59 @@ void			move_enemy(t_tri *face, t_level *level, float time)
 	t_ray	e;
 	float	dist;
 	t_vec3	player;
+	t_vec3	tmp;
 
 	player = level->cam.pos;
-	e.pos = face->verts[0].pos;
-	vec_add(&e.pos, e.pos, face->v0v1);
-	vec_add(&e.pos, e.pos, face->v0v2);
-	vec_avg(&e.pos, e.pos, face->verts[0].pos);
+	e.pos.x = 0;
+	e.pos.y = 0;
+	e.pos.z = 0;
+	for (int i = 0; i < 3 + face->isquad; i++)
+		vec_add(&e.pos, e.pos, face->verts[i].pos);
+	vec_div(&e.pos, 3 + face->isquad);
 	vec_sub(&e.dir, player, e.pos);
+	dist = cast_all(e, level, NULL, NULL, NULL);
 	if (player.y > e.pos.y - ENEMY_MOVABLE_HEIGHT_DIFF &&
 		player.y < e.pos.y + ENEMY_MOVABLE_HEIGHT_DIFF)
 	{
-		dist = cast_all(e, level, NULL, NULL, NULL);
 		if (dist > vec_length(e.dir))
 			face->enemy->dir = e.dir;
 		if ((dist > vec_length(e.dir) && vec_length(e.dir) > face->enemy->dist_limit) || dist < vec_length(e.dir) - face->enemy->dist_limit)
 		{
-			if (face->enemy->dir.x && face->enemy->dir.y && face->enemy->dir.z)
+			if (face->enemy->dir.x || face->enemy->dir.z)
 			{
 				e.dir = face->enemy->dir;
 				e.dir.y = 0;
 				vec_normalize(&e.dir);
 				vec_mult(&e.dir, face->enemy->move_speed * time);
-				vec_sub(&face->enemy->dir, face->enemy->dir, e.dir);
-				for (int i = 0; i < 3 + face->isquad; i++)
-					vec_add(&face->verts[i].pos, face->verts[i].pos, e.dir);
+				tmp = e.dir;
+				vec_add(&e.pos, e.pos, e.dir);
+				vec_sub(&tmp, face->enemy->dir, e.dir);
+				if (vec_dot(tmp, e.dir) > 0)
+				{
+					face->enemy->dir = tmp;
+					for (int i = 0; i < 3 + face->isquad; i++)
+						vec_add(&face->verts[i].pos, face->verts[i].pos, e.dir);
+				}
 			}
 		}
 	}
+	vec_sub(&tmp, player, e.pos);
 	face->enemy->current_attack_delay += time;
-	if (face->enemy->current_attack_delay >= face->enemy->attack_frequency && face->enemy->projectile_speed)
+	if (dist > vec_length(tmp) && face->enemy->current_attack_delay >= face->enemy->attack_frequency)
 	{
-		face->enemy->current_attack_delay = 0;
-		vec_sub(&e.dir, player, e.pos);
-		vec_normalize(&e.dir);
-		create_projectile(level, e.pos, e.dir, face->enemy);
+		if (face->enemy->projectile_speed)
+		{
+			face->enemy->current_attack_delay = 0;
+			vec_sub(&e.dir, player, e.pos);
+			vec_normalize(&e.dir);
+			create_projectile(level, e.pos, e.dir, face->enemy);
+		}
+		if (vec_length(tmp) < face->enemy->attack_range)
+		{
+			face->enemy->current_attack_delay = 0;
+			player_movement(NULL);
+			level->player_health -= face->enemy->attack_damage;
+		}
 	}
 }
 
@@ -175,6 +194,7 @@ static void		move_projectile(t_tri *face, t_level *level, float time)
 	vec_sub(&e.dir, player, e.pos);
 	if (vec_length(e.dir) <= 3)
 	{
+		player_movement(NULL);
 		level->player_health -= face->projectile->damage;
 		remove_projectile(level, face->index);
 		return;

@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/05/19 17:10:22 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/19 17:57:16 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,7 +120,7 @@ void	ui_config_selected_faces(t_level *level)
 					if (!level->all.tris[i].enemy)
 						init_enemy(&level->all.tris[i]);
 					sprintf(buf, "distance limit: %.1fm", level->all.tris[i].enemy->dist_limit);
-					float_slider(&level->all.tris[i].enemy->dist_limit, buf, 0, 10);
+					float_slider(&level->all.tris[i].enemy->dist_limit, buf, 1, 10);
 					sprintf(buf, "move speed: %.1fm/s", level->all.tris[i].enemy->move_speed);
 					float_slider(&level->all.tris[i].enemy->move_speed, buf, 0, 10);
 					sprintf(buf, "attack frequency: %.2f seconds per attack", level->all.tris[i].enemy->attack_frequency);
