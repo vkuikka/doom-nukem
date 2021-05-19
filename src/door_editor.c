@@ -127,6 +127,26 @@ void	door_animate(t_level *level)
 
 void	delete_door(t_level *level)
 {
+	t_door *door = &level->doors.door[level->doors.selected_index - 1];
+
+	for (int i = 0; i < door->indice_amount; i++)
+	{
+		free(door->pos1[i]);
+		free(door->pos2[i]);
+	}
+	free(door->pos1);
+	free(door->pos2);
+	free(door->indices);
+	free(door->isquad);
+	for (int i = level->doors.selected_index - 1; i < level->doors.door_amount - 1; i++)
+	{
+		level->doors.door[i] = level->doors.door[i + 1];
+	}
+	level->doors.door_amount--;
+	if (!(level->doors.door = (t_door*)realloc(level->doors.door, sizeof(t_door) * level->doors.door_amount)))
+		ft_error("memory allocation failed\n");
+	if (!(level->doors.door = (t_door*)realloc(level->doors.door, sizeof(t_door) * level->doors.door_amount)))
+		ft_error("memory allocation failed\n");
 }
 
 void	add_new_door(t_level *level)
