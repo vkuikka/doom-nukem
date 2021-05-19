@@ -283,14 +283,9 @@ void			uv_editor(t_level *level, t_window *window)
 	ft_memset(pixels, 0, RES_X * RES_Y * 4);
 }
 
-void	disable_uv_editor(t_level *level)
-{
-	level->ui.state.is_uv_editor_open = FALSE;
-}
-
 void	enable_uv_editor(t_level *level)
 {
-	level->ui.state.is_uv_editor_open = TRUE;
+	level->ui.state.ui_location = UI_LOCATION_UV_EDITOR;
 	level->ui.wireframe = TRUE;
 	level->ui.wireframe_on_top = TRUE;
 }

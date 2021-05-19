@@ -65,7 +65,7 @@ void		render(t_window *window, t_level *level)
 	SDL_RenderClear(window->SDLrenderer);
 	SDL_RenderCopy(window->SDLrenderer, window->texture, NULL, NULL);
 	obj_editor(level, window);
-	if (level->ui.state.is_uv_editor_open)
+	if (level->ui.state.ui_location == UI_LOCATION_UV_EDITOR)
 		uv_editor(level, window);
 	ui_render(level);
 	SDL_RenderPresent(window->SDLrenderer);
@@ -119,7 +119,7 @@ static void		set_mouse_input_location(t_level *level)
 		level->ui.state.mouse_location = MOUSE_LOCATION_GAME;
 	else if (x < level->ui.state.ui_max_width && y < level->ui.state.ui_text_y_pos)
 		level->ui.state.mouse_location = MOUSE_LOCATION_UI;
-	else if (level->ui.state.is_uv_editor_open && x < RES_X / 2)
+	else if (level->ui.state.ui_location == UI_LOCATION_UV_EDITOR && x < RES_X / 2)
 		level->ui.state.mouse_location = MOUSE_LOCATION_UV_EDITOR;
 	else
 	{
@@ -181,6 +181,8 @@ static void		keyboard_input(t_window *window, t_level *level, SDL_Event event)
 	}
 	else if (event.key.keysym.scancode == SDL_SCANCODE_O)
 		toggle_selection_all(level);
+	else if (event.key.keysym.scancode == SDL_SCANCODE_E)
+		door_activate(level);
 }
 
 static void		read_input(t_window *window, t_level *level)
@@ -220,8 +222,9 @@ int			main(int argc, char **argv)
 		read_input(window, level);
 		player_movement(level);
 		update_camera(level);
-		if (!level->ui.state.is_uv_editor_open)
-			enemies_update_sprites(level);
+		door_animate(level);
+		door_put_text(window, level);
+		enemies_update_sprites(level);
 		cull = SDL_GetTicks();
 		culling(level);
 		level->ui.cull = SDL_GetTicks() - cull;

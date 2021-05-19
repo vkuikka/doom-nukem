@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/05/19 17:57:16 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/19 19:50:31 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -274,14 +274,14 @@ void	ui_render_directory_loopdir(t_level *level, int find_dir, char *extension, 
 				!ft_strcmp(extension, &data.cFileName[ft_strlen(data.cFileName) - ft_strlen(extension)]) &&
 				call(data.cFileName, NULL, level))
 				{
-					if (level->ui.state.is_directory_open)
+					if (level->ui.state.ui_location == UI_LOCATION_FILE_OPEN)
 						make_fileopen_call(level, data.cFileName);
 				}
 				else if (!find_ext && ft_strlen(data.cFileName) > ft_strlen(extension) &&
 				ft_strcmp(extension, &data.cFileName[ft_strlen(data.cFileName) - ft_strlen(extension)]) &&
 				call(data.cFileName, NULL, level))
 				{
-					if (level->ui.state.is_directory_open)
+					if (level->ui.state.ui_location == UI_LOCATION_FILE_OPEN)
 						make_fileopen_call(level, data.cFileName);
 				}
 	}
@@ -295,10 +295,7 @@ void	ui_render_directory(t_level *level)
 	set_text_color(UI_FACE_SELECTION_TEXT_COLOR);
 	text(level->ui.state.directory);
 	if (call("close", NULL, level))
-	{
-		level->ui.state.is_serialize_open = FALSE;
-		level->ui.state.is_directory_open = FALSE;
-	}
+		level->ui.state.ui_location = UI_LOCATION_MAIN;
 	if (call("up dir ..", NULL, level))
 		path_up_dir(level->ui.state.directory);
 	set_text_color(UI_EDITOR_SETTINGS_TEXT_COLOR);
@@ -308,14 +305,13 @@ void	ui_render_directory(t_level *level)
 	set_text_color(UI_INFO_TEXT_COLOR);
 	ui_render_directory_loopdir(level, 0, level->ui.state.extension, 0);
 	set_text_color(UI_FACE_SELECTION_TEXT_COLOR);
-	if (level->ui.state.is_serialize_open)
+	if (level->ui.state.ui_location == UI_LOCATION_FILE_SAVE)
 	{
 		text_input(level->ui.state.save_filename, level);
 		if (call("save", NULL, level))
 		{
 			save_level(level);
-			level->ui.state.is_serialize_open = FALSE;
-			level->ui.state.is_directory_open = FALSE;
+			level->ui.state.ui_location = UI_LOCATION_MAIN;
 		}
 	}
 }
@@ -340,16 +336,47 @@ void	ui_config(t_level *level)
 	t_editor_ui			*ui;
 
 	ui = &level->ui;
-	if (level->ui.state.is_serialize_open || level->ui.state.is_directory_open)
+	if (level->ui.state.ui_location == UI_LOCATION_FILE_SAVE || level->ui.state.ui_location == UI_LOCATION_FILE_OPEN)
 	{
 		ui_render_directory(level);
 		return ;
 	}
-	if (level->ui.state.is_uv_editor_open)
+	if (level->ui.state.ui_location == UI_LOCATION_UV_EDITOR)
 	{
 		set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
-		call("close uv editor", &disable_uv_editor, level);
+		if (call("close uv editor", NULL, level))
+			level->ui.state.ui_location = UI_LOCATION_MAIN;
 		call("fix selected uv overlap", &fix_uv_overlap, level);
+		return ;
+	}
+	if (level->ui.state.ui_location == UI_LOCATION_DOOR_EDITOR)
+	{
+		set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
+		if (call("close door editor", NULL, level))
+			level->ui.state.ui_location = UI_LOCATION_MAIN;
+		find_selected_door_index(level);
+		if (level->doors.selected_index)
+		{
+			call("delete selected door", &delete_door, level);
+			call("set door start position", &set_door_pos_1, level);
+			call("set door stop position", &set_door_pos_2, level);
+			sprintf(buf, "door transition time: %fs", level->doors.door[level->doors.selected_index - 1].transition_time);
+			float_slider(&level->doors.door[level->doors.selected_index - 1].transition_time, buf, .2, 7);
+			// button(hinge, "has hinge");
+			//if has hinge
+			//	int_slider("hinge axis", 0, 2);
+		}
+		else
+		{
+			int selected = 0;
+			for (int i = 0; i < level->all.tri_amount; i++)
+				if (level->all.tris[i].selected)
+					selected++;
+			if (selected)
+				call("new door from selection", &add_new_door, level);
+			else
+				text("Select faces to create door from");
+		}
 		return ;
 	}
 	set_text_color(UI_EDITOR_SETTINGS_TEXT_COLOR);
@@ -378,9 +405,10 @@ void	ui_config(t_level *level)
 		text("level:");
 		file_browser("select level", ".doom-nukem", &open_level);
 		file_browser("select obj", ".obj", &set_obj);
-		call("add face", &add_face, level);
 		file_browser("select texture", ".bmp", &set_texture);
 		file_browser("select skybox", ".bmp", &set_skybox);
+		call("add face", &add_face, level);
+		call("edit doors", &enable_door_editor, level);
 		button(&ui->fog, "fog");
 		// color(ui->color, "fog color");
 		// call(, "set spawn point");

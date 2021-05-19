@@ -29,6 +29,8 @@
 # define PLAYER_HEIGHT 1.75
 # define WALL_CLIP_DIST 0.3
 # define REFLECTION_DEPTH 3
+# define DOOR_ACTIVATION_DISTANCE 3.
+# define DOOR_LOCATION_INFO_COLOR 0x880088ff
 
 # define ENEMY_MOVABLE_HEIGHT_DIFF 1
 # define MAX_PROJECTILE_TRAVEL 100
@@ -225,13 +227,24 @@ typedef struct			s_camera
 	float				fov_x;
 }						t_camera;
 
-typedef enum			e_ui_location
+typedef struct			s_door
 {
-	UI_UV_SETTINGS = 1,
-	UI_UV_EDITOR,
-	UI_SERIALIZE,
-	UI_DIRECTORY
-}						t_ui_location;
+	int					indice_amount;
+	int					*indices;
+	int					*isquad;
+	t_vec3				**pos1;
+	t_vec3				**pos2;
+	float				transition_time;
+	unsigned			transition_start_time;
+	int					transition_direction;
+}						t_door;
+
+typedef struct			s_all_doors
+{
+	struct s_door		*door;
+	int					door_amount;
+	int					selected_index;
+}						t_all_doors;
 
 typedef enum			e_mouse_location
 {
@@ -244,9 +257,19 @@ typedef enum			e_mouse_location
 	MOUSE_LOCATION_SELECTION
 }						t_mouse_location;
 
+typedef enum			e_ui_location
+{
+	UI_LOCATION_MAIN = 0,
+	UI_LOCATION_FILE_OPEN,
+	UI_LOCATION_FILE_SAVE,
+	UI_LOCATION_UV_EDITOR,
+	UI_LOCATION_DOOR_EDITOR
+}						t_ui_location;
+
 struct					s_level;
 typedef struct			s_ui_state
 {
+	enum e_ui_location	ui_location;
 	int					ui_max_width;
 	int					ui_text_y_pos;
 	int					ui_text_x_offset;
@@ -261,16 +284,13 @@ typedef struct			s_ui_state
 	int					m1_click;
 	int					m1_drag;
 	enum e_mouse_location	mouse_location;
-	int					is_uv_editor_open;
 	float				uv_zoom;
 	struct s_vec2		uv_pos;
 
-	int					is_serialize_open;
 	char				*save_filename;
 	int					text_input_enable;
 	int					ssp_visual;
 
-	int					is_directory_open;
 	char				*directory;
 	char				*extension;
 	void				(*open_file)(struct s_level*, char*);
@@ -320,6 +340,7 @@ typedef struct			s_level
 	struct s_skybox		sky;
 	struct s_camera		cam;
 	struct s_editor_ui	ui;
+	struct s_all_doors	doors;
 	int					shadow_color;
 	float				player_health;
 }						t_level;
@@ -452,10 +473,10 @@ void		path_up_dir(char *path);
 void		go_in_dir(char *path, char *folder);
 void		text_input(char *str, t_level *level);
 void		find_closest_mouse(t_vec3 *vert, int *i, int *k);
+void		render_text(char *text, t_window *window, t_ivec2 *pos, SDL_Texture *get_texture);
 
 void		uv_editor(t_level *level, t_window *window);
 void		enable_uv_editor(t_level *level);
-void		disable_uv_editor(t_level *level);
 void		obj_editor(t_level *level, t_window *window);
 void		obj_editor_input(t_level *level);
 
@@ -475,6 +496,7 @@ void		reflection(t_cast_result *res, t_level *l, t_obj *obj);
 unsigned	wave_shader(t_vec3 mod, t_vec3 *normal, unsigned col1, unsigned col2);
 
 void		select_face(t_camera *cam, t_level *level, int x, int y);
+void		deselect_all_faces(t_level *level);
 
 void		save_level(t_level *level);
 void		open_level(t_level *level, char *filename);
@@ -492,5 +514,15 @@ void		remove_faces(t_level *level);
 void		nonfatal_error(t_level *level, char *message);
 t_ivec2		put_text(char *text, t_window *window, SDL_Texture *texture, t_ivec2 pos);
 void		set_new_face(t_level *level, t_vec3 pos, t_vec3 dir, float scale);
+
+void		door_animate(t_level *level);
+void		door_put_text(t_window *window, t_level *level);
+void		add_new_door(t_level *level);
+void		delete_door(t_level *level);
+void		door_activate(t_level *level);
+void		set_door_pos_1(t_level *level);
+void		set_door_pos_2(t_level *level);
+void		enable_door_editor(t_level *level);
+void		find_selected_door_index(t_level *level);
 
 #endif
