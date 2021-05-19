@@ -482,6 +482,10 @@ void		text_input(char *str, t_level *level);
 void		find_closest_mouse(t_vec3 *vert, int *i, int *k);
 void		render_text(char *text, t_window *window, t_ivec2 *pos, SDL_Texture *get_texture);
 
+void		main_menu(t_level *level);
+void		main_menu_move_background(t_level *level);
+void		hud(t_level *level);
+
 void		uv_editor(t_level *level, t_window *window);
 void		enable_uv_editor(t_level *level);
 void		obj_editor(t_level *level, t_window *window);

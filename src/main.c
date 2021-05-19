@@ -66,9 +66,9 @@ void		render(t_window *window, t_level *level, t_game_location game_location)
 	SDL_RenderClear(window->SDLrenderer);
 	SDL_RenderCopy(window->SDLrenderer, window->texture, NULL, NULL);
 	if (game_location == GAME_LOCATION_INGAME)
-		;//hud
+		hud(level);
 	else if (game_location == GAME_LOCATION_MAIN_MENU)
-		;//main_menu();
+		main_menu(level);
 	else if (game_location == GAME_LOCATION_EDITOR)
 	{
 		obj_editor(level, window);
@@ -232,7 +232,7 @@ int			main(int argc, char **argv)
 		frametime = SDL_GetTicks();
 		read_input(window, level);
 		if (game_location == GAME_LOCATION_MAIN_MENU)
-			main_menu_move();
+			main_menu_move_background(level);
 		else
 			player_movement(level);
 		update_camera(level);
