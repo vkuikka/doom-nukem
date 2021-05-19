@@ -131,6 +131,8 @@ void	ui_config_selected_faces(t_level *level)
 					float_slider(&level->all.tris[i].enemy->attack_range, buf, 0, 10);
 					sprintf(buf, "projectile speed: %.1fm/s (0 = no projectile)", level->all.tris[i].enemy->projectile_speed);
 					float_slider(&level->all.tris[i].enemy->projectile_speed, buf, 0, 50);
+					sprintf(buf, "projectile scale: %.2f", level->all.tris[i].enemy->projectile_scale);
+					float_slider(&level->all.tris[i].enemy->projectile_scale, buf, 0.1, 5);
 				}
 				// call("flip normal");
 				// call("set animation start");

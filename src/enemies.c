@@ -23,7 +23,7 @@ static void		create_projectile(t_level *level, t_vec3 pos, t_vec3 dir, t_enemy *
 		ft_error("memory allocation failed");
 	if (!(level->visible.tris = (t_tri*)realloc(level->visible.tris, sizeof(t_tri) * level->all.tri_amount)))
 		ft_error("memory allocation failed");
-	set_new_face(level, pos, dir);
+	set_new_face(level, pos, dir, enemy->projectile_scale);
 	init_screen_space_partition(level);
 	init_culling(level);
 	if (!(level->all.tris[index].projectile = (t_projectile*)malloc(sizeof(t_projectile))))

@@ -164,6 +164,7 @@ typedef struct			s_enemy
 	float				attack_range;
 	float				attack_frequency;
 	float				projectile_speed;	//	0 = no projectile
+	float				projectile_scale;
 	float				attack_damage;
 	float				current_attack_delay;
 }						t_enemy;
@@ -490,6 +491,6 @@ void		add_face(t_level *level);
 void		remove_faces(t_level *level);
 void		nonfatal_error(t_level *level, char *message);
 t_ivec2		put_text(char *text, t_window *window, SDL_Texture *texture, t_ivec2 pos);
-void		set_new_face(t_level *level, t_vec3 pos, t_vec3 dir);
+void		set_new_face(t_level *level, t_vec3 pos, t_vec3 dir, float scale);
 
 #endif

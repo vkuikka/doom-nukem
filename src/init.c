@@ -83,11 +83,13 @@ void			init_enemy(t_tri *face)
 	face->isenemy = 1;
 	if (!(face->enemy = (t_enemy*)malloc(sizeof(t_enemy))))
 		ft_error("memory allocation failed");
+	ft_bzero(face->enemy, sizeof(t_enemy));
 	face->enemy->move_speed = 2;
 	face->enemy->dist_limit = 1;
 	face->enemy->initial_health = 100;
 	face->enemy->remaining_health = face->enemy->initial_health;
 	face->enemy->projectile_speed = 0;
+	face->enemy->projectile_scale = 1;
 	face->enemy->attack_range = 1.5;
 	face->enemy->attack_frequency = 0.5;
 	face->enemy->attack_damage = 10;
