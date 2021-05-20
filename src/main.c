@@ -198,6 +198,8 @@ static void		keyboard_input(t_window *window, t_level *level, SDL_Event event, t
 		*game_state = GAME_STATE_MAIN_MENU;
 		level->ui.state.ui_location = UI_LOCATION_MAIN;
 	}
+	else if (event.key.keysym.scancode == SDL_SCANCODE_R)
+		level->reload_start_time = SDL_GetTicks();
 }
 
 static void		read_input(t_window *window, t_level *level, t_game_state *game_state)
@@ -217,8 +219,23 @@ static void		read_input(t_window *window, t_level *level, t_game_state *game_sta
 	}
 }
 
+static void	player_reload(t_level *level)
+{
+	float time = (SDL_GetTicks() - level->reload_start_time) / (1000 * VIEWMODEL_ANIM_FPS);
+	if (time < 1)
+		level->viewmodel_index = (int)(time * VIEWMODEL_FRAMES);
+	else
+	{
+		level->viewmodel_index = 0;
+		level->reload_start_time = 0;
+		level->player_ammo = PLAYER_AMMO_MAX;
+	}
+}
+
 void		game_logic(t_level *level)
 {
+	if (level->reload_start_time)
+		player_reload(level);
 	if (level->ui.state.m1_click)
 	{
 		if (level->player_ammo)
@@ -226,12 +243,9 @@ void		game_logic(t_level *level)
 			level->player_ammo--;
 			level->player.dir = level->cam.front;
 			create_projectile(level, level->cam.pos, level->cam.front, &level->player);
-			//add projectile
 		}
 		else
-		{
-			level->player_ammo = PLAYER_AMMO_MAX;
-		}
+			level->reload_start_time = SDL_GetTicks();
 	}
 }
 

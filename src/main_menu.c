@@ -18,7 +18,7 @@ static void	put_text_main_menu(char *text, t_window *window, SDL_Texture *textur
 
 	if (!font)
 	{
-		font = TTF_OpenFont("Roboto-Medium.ttf", MAIN_MENU_FONT_SIZE);
+		font = TTF_OpenFont("embed/Roboto-Medium.ttf", MAIN_MENU_FONT_SIZE);
 		if (!font)
 		{
 			printf("TTF_OpenFont: %s\n", TTF_GetError());

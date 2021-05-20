@@ -136,7 +136,7 @@ t_ivec2			put_text(char *text, t_window *window, SDL_Texture *texture, t_ivec2 p
 
 	if (!font)
 	{
-		font = TTF_OpenFont("Roboto-Medium.ttf", UI_FONT_SIZE);
+		font = TTF_OpenFont("embed/Roboto-Medium.ttf", UI_FONT_SIZE);
 		if (!font)
 		{
 			printf("TTF_OpenFont: %s\n", TTF_GetError());

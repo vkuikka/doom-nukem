@@ -59,7 +59,9 @@
 # define MAIN_MENU_FONT_PADDING_MULTIPLIER 1.5
 # define CROSSHAIR_COLOR 0xff0000ff
 # define PLAYER_HEALTH_MAX 100
-# define PLAYER_AMMO_MAX 30
+# define PLAYER_AMMO_MAX 3
+# define VIEWMODEL_FRAMES 6
+# define VIEWMODEL_ANIM_FPS 2.0
 
 # define NONFATAL_ERROR_LIFETIME_SECONDS 7.42
 # define NONFATAL_ERROR_FADEOUT_TIME_MS 666
@@ -383,7 +385,9 @@ typedef struct			s_level
 	int					player_health;
 	int					player_ammo;
 	struct s_vec3		player_vel;
-	struct s_bmp		viewmodel;
+	unsigned			reload_start_time;
+	int					viewmodel_index;
+	struct s_bmp		viewmodel[VIEWMODEL_FRAMES];
 }						t_level;
 
 typedef struct			s_rthread

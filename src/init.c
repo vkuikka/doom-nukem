@@ -54,10 +54,16 @@ void			init_level(t_level **res)
 
 	level->texture = bmp_read("out.bmp");
 	level->normal_map = bmp_read("normal.bmp");
-	load_obj("skybox.obj", &level->sky.all);
-	load_obj("skybox.obj", &level->sky.visible);
+	load_obj("embed/skybox.obj", &level->sky.all);
+	load_obj("embed/skybox.obj", &level->sky.visible);
 	level->sky.img = bmp_read("skybox.bmp");
-	level->viewmodel = bmp_read("m4.bmp");
+
+	char viewmodel_name[] = "embed/viewmodel/m4_0.bmp";
+	for (int i = 0; i < VIEWMODEL_FRAMES; i++)
+	{
+		viewmodel_name[19] = '0' + i;
+		level->viewmodel[i] = bmp_read(viewmodel_name);
+	}
 
 	if (!(level->visible.tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount)))
 		ft_error("memory allocation failed\n");
