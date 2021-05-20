@@ -57,6 +57,7 @@ void			init_level(t_level **res)
 	load_obj("skybox.obj", &level->sky.all);
 	load_obj("skybox.obj", &level->sky.visible);
 	level->sky.img = bmp_read("skybox.bmp");
+	level->viewmodel = bmp_read("m4.bmp");
 
 	if (!(level->visible.tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount)))
 		ft_error("memory allocation failed\n");

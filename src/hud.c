@@ -52,7 +52,7 @@ static void	pixel_put_hud(int x, int y, int color, unsigned *texture)
 	texture[x + (y * RES_X)] = color;
 }
 
-void	crosshair(unsigned *pixels)
+static void	crosshair(unsigned *pixels)
 {
 	int x;
 	int y;
@@ -77,7 +77,18 @@ void	crosshair(unsigned *pixels)
 		}
 }
 
-void	hud(t_level *level, t_window *window)
+static void	viewmodel(unsigned *pixels, t_bmp img)
+{
+	for (int x = 0; x < img.width; x++)
+	{
+		for (int y = 0; y < img.height; y++)
+		{
+			pixel_put_hud(RES_X - img.width + x - 40, RES_Y - img.height + y, img.image[x + (y * img.width)], pixels);
+		}
+	}
+}
+
+void		hud(t_level *level, t_window *window)
 {
 	static SDL_Texture *texture = NULL;
 	unsigned	*pixels;
@@ -92,7 +103,7 @@ void	hud(t_level *level, t_window *window)
 	if (SDL_LockTexture(texture, NULL, (void**)&pixels, &width) != 0)
 		ft_error("failed to lock texture\n");
 	ft_memset(pixels, 0, RES_X * RES_Y * 4);
-	//viewmodel
+	viewmodel(pixels, level->viewmodel);
 	crosshair(pixels);
 	sprintf(buf, "%d+", level->player_health);
 	put_text_hud(buf, window, texture, (t_ivec2){HUD_FONT_SIZE / 4, RES_Y - HUD_FONT_SIZE});
