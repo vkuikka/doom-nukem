@@ -25,7 +25,6 @@ t_ivec2			put_text_hud(char *text, t_window *window, SDL_Texture *texture, t_ive
 			ft_error("font open fail");
 		}
 	}
-	// SDL_Surface* surfaceMessage = TTF_RenderText_Solid(font, text, get_text_color());
 	SDL_Surface* surfaceMessage = TTF_RenderText_Blended(font, text, get_sdl_color(HUD_TEXT_COLOR));
 	SDL_Texture* Message = SDL_CreateTextureFromSurface(window->SDLrenderer, surfaceMessage);
 	SDL_Rect text_rect;
@@ -50,6 +49,13 @@ static void	pixel_put_hud(int x, int y, int color, unsigned *texture)
 	if (x < 0 || y < 0 || x >= RES_X || y >= RES_Y)
 		return;
 	texture[x + (y * RES_X)] = color;
+}
+
+static void	death_overlay(unsigned *pixels)
+{
+	for (int x = 0; x < RES_X; x++)
+		for (int y = 0; y < RES_Y; y++)
+			pixel_put_hud(x, y, DEATH_OVERLAY_COLOR, pixels);
 }
 
 static void	crosshair(unsigned *pixels)
@@ -88,7 +94,7 @@ static void	viewmodel(unsigned *pixels, t_bmp img)
 	}
 }
 
-void		hud(t_level *level, t_window *window)
+void		hud(t_level *level, t_window *window, t_game_state game_state)
 {
 	static SDL_Texture *texture = NULL;
 	unsigned	*pixels;
@@ -104,11 +110,16 @@ void		hud(t_level *level, t_window *window)
 		ft_error("failed to lock texture\n");
 	ft_memset(pixels, 0, RES_X * RES_Y * 4);
 	viewmodel(pixels, level->viewmodel[level->viewmodel_index]);
-	crosshair(pixels);
-	sprintf(buf, "%d+", level->player_health);
-	put_text_hud(buf, window, texture, (t_ivec2){HUD_FONT_SIZE / 4, RES_Y - HUD_FONT_SIZE});
-	sprintf(buf, "%d", level->player_ammo);
-	put_text_hud(buf, window, texture, (t_ivec2){RES_X - ((HUD_FONT_SIZE / 2) * strlen(buf)), RES_Y - HUD_FONT_SIZE});
+	if (game_state == GAME_STATE_DEAD)
+		death_overlay(pixels);
+	else
+	{
+		crosshair(pixels);
+		sprintf(buf, "%d+", level->player_health);
+		put_text_hud(buf, window, texture, (t_ivec2){HUD_FONT_SIZE / 4, RES_Y - HUD_FONT_SIZE});
+		sprintf(buf, "%d", level->player_ammo);
+		put_text_hud(buf, window, texture, (t_ivec2){RES_X - ((HUD_FONT_SIZE / 2) * strlen(buf)), RES_Y - HUD_FONT_SIZE});
+	}
 	SDL_UnlockTexture(texture);
 	SDL_RenderCopy(window->SDLrenderer, texture, NULL, NULL);
 }
