@@ -49,6 +49,10 @@
 # define WF_BACKGROUND_COL 0x99		//1 byte value
 # define WF_NORMAL_LEN 0.3
 
+# define HUD_TEXT_COLOR 0xff6666bb
+# define HUD_FONT_SIZE 42
+# define CROSSHAIR_COLOR 0xff0000ff
+
 # define NONFATAL_ERROR_LIFETIME_SECONDS 7.42
 # define NONFATAL_ERROR_FADEOUT_TIME_MS 666
 # define UI_ERROR_COLOR 0xff000000
@@ -257,12 +261,12 @@ typedef enum			e_mouse_location
 	MOUSE_LOCATION_SELECTION
 }						t_mouse_location;
 
-typedef enum			e_game_location
+typedef enum			e_game_state
 {
-	GAME_LOCATION_MAIN_MENU = 0,
-	GAME_LOCATION_EDITOR,
-	GAME_LOCATION_INGAME,
-}						t_game_location;
+	GAME_STATE_MAIN_MENU = 0,
+	GAME_STATE_EDITOR,
+	GAME_STATE_INGAME,
+}						t_game_state;
 
 typedef enum			e_ui_location
 {
@@ -484,7 +488,7 @@ void		render_text(char *text, t_window *window, t_ivec2 *pos, SDL_Texture *get_t
 
 void		main_menu(t_level *level);
 void		main_menu_move_background(t_level *level);
-void		hud(t_level *level);
+void		hud(t_level *level, t_window *window);
 
 void		uv_editor(t_level *level, t_window *window);
 void		enable_uv_editor(t_level *level);
