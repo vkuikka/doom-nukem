@@ -372,6 +372,7 @@ typedef struct			s_level
 	int					player_health;
 	int					player_ammo;
 	struct s_vec3		player_vel;
+	struct s_bmp		viewmodel;
 }						t_level;
 
 typedef struct			s_rthread
@@ -505,7 +506,7 @@ void		text_input(char *str, t_level *level);
 void		find_closest_mouse(t_vec3 *vert, int *i, int *k);
 void		render_text(char *text, t_window *window, t_ivec2 *pos, SDL_Texture *get_texture);
 
-void		main_menu(t_level *level, t_window *window);
+void		main_menu(t_level *level, t_window *window, t_game_state *game_state);
 void		main_menu_move_background(t_level *level);
 void		hud(t_level *level, t_window *window);
 void		create_projectile(t_level *level, t_vec3 pos, t_vec3 dir, t_enemy *enemy);

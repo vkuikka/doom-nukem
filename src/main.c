@@ -23,7 +23,7 @@ void		update_camera(t_level *l)
 	l->cam.fov_x = l->ui.fov * ((float)RES_X / RES_Y);
 }
 
-void		render(t_window *window, t_level *level, t_game_state game_state)
+void		render(t_window *window, t_level *level, t_game_state *game_state)
 {
 	SDL_Thread		*threads[THREAD_AMOUNT];
 	t_rthread		**thread_data;
@@ -59,16 +59,16 @@ void		render(t_window *window, t_level *level, t_game_state game_state)
 		fill_pixels(window->frame_buffer, level->ui.raycast_quality,
 					level->ui.blur, level->ui.smooth_pixels);
 	}
-	if (game_state == GAME_STATE_EDITOR)
+	if (*game_state == GAME_STATE_EDITOR)
 		wireframe(window, level);
 
 	SDL_UnlockTexture(window->texture);
 	SDL_RenderClear(window->SDLrenderer);
 	SDL_RenderCopy(window->SDLrenderer, window->texture, NULL, NULL);
-	if (game_state == GAME_STATE_INGAME)
+	if (*game_state == GAME_STATE_INGAME)
 		hud(level, window);
-	else if (game_state == GAME_STATE_MAIN_MENU)
-		main_menu(level, window);
+	else if (*game_state == GAME_STATE_MAIN_MENU)
+		main_menu(level, window, game_state);
 	else
 	{
 		obj_editor(level, window);
@@ -192,7 +192,11 @@ static void		keyboard_input(t_window *window, t_level *level, SDL_Event event, t
 	else if (event.key.keysym.scancode == SDL_SCANCODE_E)
 		door_activate(level);
 	else if (event.key.keysym.scancode == SDL_SCANCODE_Q)
+	{
+		level->ui.state.mouse_capture = FALSE;
+		SDL_SetRelativeMouseMode(SDL_FALSE);
 		*game_state = GAME_STATE_MAIN_MENU;
+	}
 }
 
 static void		read_input(t_window *window, t_level *level, t_game_state *game_state)
@@ -271,7 +275,7 @@ int			main(int argc, char **argv)
 		screen_space_partition(level);
 		level->ui.ssp = SDL_GetTicks() - ssp;
 		rendertime = SDL_GetTicks();
-		render(window, level, game_state);
+		render(window, level, &game_state);
 		level->ui.render = SDL_GetTicks() - rendertime;
 		level->ui.frametime = SDL_GetTicks() - frametime;
 	}

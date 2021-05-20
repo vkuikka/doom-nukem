@@ -81,7 +81,7 @@ void			main_menu_move_background(t_level *level)
 	//lerp pos1 pos2
 }
 
-void			main_menu(t_level *level, t_window *window)
+void			main_menu(t_level *level, t_window *window, t_game_state *game_state)
 {
 	static SDL_Texture *texture = NULL;
 	static SDL_Texture *background_texture = NULL;
@@ -99,29 +99,29 @@ void			main_menu(t_level *level, t_window *window)
 	if (SDL_LockTexture(background_texture, NULL, (void**)&pixels, &width) != 0)
 		ft_error("failed to lock texture\n");
 	ft_memset(pixels, 0, RES_X * RES_Y * 4);
-	rect = main_menu_button_text("open level", window, texture, 0);
+	rect = main_menu_button_text("play level", window, texture, 0);
 	main_menu_text_background(rect, pixels);
 	if (mouse_collision(rect, level))
 	{
-		printf("a\n");
+		*game_state = GAME_STATE_INGAME;
 	}
 	rect = main_menu_button_text("edit level", window, texture, 1);
 	main_menu_text_background(rect, pixels);
 	if (mouse_collision(rect, level))
 	{
-		printf("b\n");
+		*game_state = GAME_STATE_EDITOR;
 	}
 	rect = main_menu_button_text("new level", window, texture, 2);
 	main_menu_text_background(rect, pixels);
 	if (mouse_collision(rect, level))
 	{
-		printf("c\n");
+		*game_state = GAME_STATE_EDITOR;
 	}
 	rect = main_menu_button_text("settings", window, texture, 3);
 	main_menu_text_background(rect, pixels);
 	if (mouse_collision(rect, level))
 	{
-		printf("d\n");
+		*game_state = GAME_STATE_EDITOR;
 	}
 	SDL_UnlockTexture(background_texture);
 	SDL_RenderCopy(window->SDLrenderer, background_texture, NULL, NULL);
