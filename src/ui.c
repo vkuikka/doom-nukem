@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/06 08:50:56 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/05/02 20:05:56 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/16 22:51:45 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,17 +123,11 @@ void		set_text_color(int color)
 
 static SDL_Color get_text_color(void)
 {
-	SDL_Color	res;
 	unsigned	get;
 	t_ui_state	*state;
 
 	state = get_ui_state(NULL);
-	get = state->ui_text_color;
-	res.r = (get << 8 * 0) >> 8 * 3;
-	res.g = (get << 8 * 1) >> 8 * 3;
-	res.b = (get << 8 * 2) >> 8 * 3;
-	res.a = (get << 8 * 3) >> 8 * 3;
-	return (res);
+	return (get_sdl_color(state->ui_text_color));
 }
 
 t_ivec2			put_text(char *text, t_window *window, SDL_Texture *texture, t_ivec2 pos)
@@ -142,7 +136,7 @@ t_ivec2			put_text(char *text, t_window *window, SDL_Texture *texture, t_ivec2 p
 
 	if (!font)
 	{
-		font = TTF_OpenFont("Roboto-Medium.ttf", UI_FONT_SIZE);
+		font = TTF_OpenFont("embed/Roboto-Medium.ttf", UI_FONT_SIZE);
 		if (!font)
 		{
 			printf("TTF_OpenFont: %s\n", TTF_GetError());
@@ -169,6 +163,17 @@ t_ivec2			put_text(char *text, t_window *window, SDL_Texture *texture, t_ivec2 p
 	return (size);
 }
 
+void		render_text(char *text, t_window *window, t_ivec2 *pos, SDL_Texture *get_texture)
+{
+	static SDL_Texture *texture;
+
+	if (get_texture)
+	{
+		texture = get_texture;
+		return ;
+	}
+	put_text(text, window, texture, *pos);
+}
 
 static void	ui_render_background(unsigned *get_texture, SDL_Texture *text_texture, t_window *window, t_level *level)
 {
@@ -208,7 +213,7 @@ static void	ui_render_background(unsigned *get_texture, SDL_Texture *text_textur
 			{
 				sprintf(buf, "%d", level->ssp[y * SSP_MAX_X + x].tri_amount);
 				int red = (float)level->ssp[y * SSP_MAX_X + x].tri_amount / max_tris * 0xff;
-				red = crossfade(0x00ff00, 0xff0000, red);
+				red = crossfade(0x00ff00, 0xff0000, red, 0xff);
 				set_text_color(red);
 				put_text(buf, window, text_texture,
 				(t_ivec2){(RES_X / SSP_MAX_X) * x + (RES_X / SSP_MAX_X / 2) - 5,
@@ -459,7 +464,7 @@ void	file_save(char *str, char *extension, void (*f)(t_level*, char*))
 	state = get_ui_state(NULL);
 	if (call(str, NULL, NULL))
 	{
-		state->is_serialize_open = TRUE;
+		state->ui_location = UI_LOCATION_FILE_SAVE;
 		// state->title malloc extension;
 		ft_strcpy(state->extension, extension);
 		state->open_file = *f;;
@@ -473,7 +478,7 @@ void	file_browser(char *str, char *extension, void (*f)(t_level*, char*))
 	state = get_ui_state(NULL);
 	if (call(str, NULL, NULL))
 	{
-		state->is_directory_open = TRUE;
+		state->ui_location = UI_LOCATION_FILE_OPEN;
 		// state->title malloc extension;
 		ft_strcpy(state->extension, extension);
 		state->open_file = *f;;
@@ -590,7 +595,7 @@ void	init_ui(t_window *window, t_level *level)
 	ui->sun_contrast = 0;	//max 1
 	ui->direct_shadow_contrast = 0;	//max 1
 	ui->sun_dir.x = 1;
-	ui->sun_dir.y = 1;
+	ui->sun_dir.y = -1;
 	ui->sun_dir.z = 1;
 	vec_normalize(&ui->sun_dir);
 
@@ -607,4 +612,5 @@ void	init_ui(t_window *window, t_level *level)
 	render_slider_streaming(pixels, 0, 0);
 	render_call_streaming(pixels, 0, NULL, 0);
 	ui_render_background(pixels, NULL, NULL, NULL);
+	render_text(NULL, NULL, NULL, text_texture);
  }

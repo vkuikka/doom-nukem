@@ -23,7 +23,7 @@ void		update_camera(t_level *l)
 	l->cam.fov_x = l->ui.fov * ((float)RES_X / RES_Y);
 }
 
-void		render(t_window *window, t_level *level)
+void		render(t_window *window, t_level *level, t_game_state *game_state)
 {
 	SDL_Thread		*threads[THREAD_AMOUNT];
 	t_rthread		**thread_data;
@@ -59,15 +59,23 @@ void		render(t_window *window, t_level *level)
 		fill_pixels(window->frame_buffer, level->ui.raycast_quality,
 					level->ui.blur, level->ui.smooth_pixels);
 	}
-	wireframe(window, level);
-
+	if (*game_state == GAME_STATE_EDITOR && level->ui.state.ui_location != UI_LOCATION_SETTINGS)
+		wireframe(window, level);
 	SDL_UnlockTexture(window->texture);
 	SDL_RenderClear(window->SDLrenderer);
 	SDL_RenderCopy(window->SDLrenderer, window->texture, NULL, NULL);
-	obj_editor(level, window);
-	if (level->ui.state.is_uv_editor_open)
-		uv_editor(level, window);
-	ui_render(level);
+	if (*game_state == GAME_STATE_INGAME || *game_state == GAME_STATE_DEAD)
+		hud(level, window, *game_state);
+	else if (*game_state == GAME_STATE_MAIN_MENU)
+		main_menu(level, window, game_state);
+	else
+	{
+		if (level->ui.state.ui_location != UI_LOCATION_SETTINGS)
+			obj_editor(level, window);
+		if (level->ui.state.ui_location == UI_LOCATION_UV_EDITOR)
+			uv_editor(level, window);
+		ui_render(level);
+	}
 	SDL_RenderPresent(window->SDLrenderer);
 	return ;
 }
@@ -109,17 +117,19 @@ static void		typing_input(t_level *level, SDL_Event event)
 		}
 }
 
-static void		set_mouse_input_location(t_level *level)
+static void		set_mouse_input_location(t_level *level, t_game_state game_state)
 {
 	int	x;
 	int	y;
 
 	SDL_GetMouseState(&x, &y);
-	if (level->ui.state.mouse_capture)
+	if (game_state == GAME_STATE_MAIN_MENU)
+		level->ui.state.mouse_location = MOUSE_LOCATION_MAIN_MENU;
+	else if (level->ui.state.mouse_capture)
 		level->ui.state.mouse_location = MOUSE_LOCATION_GAME;
 	else if (x < level->ui.state.ui_max_width && y < level->ui.state.ui_text_y_pos)
 		level->ui.state.mouse_location = MOUSE_LOCATION_UI;
-	else if (level->ui.state.is_uv_editor_open && x < RES_X / 2)
+	else if (level->ui.state.ui_location == UI_LOCATION_UV_EDITOR && x < RES_X / 2)
 		level->ui.state.mouse_location = MOUSE_LOCATION_UV_EDITOR;
 	else
 	{
@@ -136,9 +146,9 @@ static void		set_mouse_input_location(t_level *level)
 	level->ui.state.m1_click = FALSE;
 }
 
-static void		mouse_input(t_level *level, SDL_Event event)
+static void		mouse_input(t_level *level, SDL_Event event, t_game_state game_state)
 {
-	if (event.type == SDL_MOUSEMOTION && level->ui.state.mouse_capture)
+	if (event.type == SDL_MOUSEMOTION && level->ui.state.mouse_capture && game_state != GAME_STATE_DEAD)
 	{
 		level->cam.look_side += (float)event.motion.xrel / 600;
 		level->cam.look_up -= (float)event.motion.yrel / 600;
@@ -156,7 +166,7 @@ static void		mouse_input(t_level *level, SDL_Event event)
 	}
 }
 
-static void		keyboard_input(t_window *window, t_level *level, SDL_Event event)
+static void		keyboard_input(t_window *window, t_level *level, SDL_Event event, t_game_state *game_state)
 {
 	if (event.key.keysym.scancode == SDL_SCANCODE_PERIOD)
 		level->ui.raycast_quality += 1;
@@ -168,7 +178,7 @@ static void		keyboard_input(t_window *window, t_level *level, SDL_Event event)
 		level->ui.wireframe = level->ui.wireframe ? FALSE : TRUE;
 	else if (event.key.keysym.scancode == SDL_SCANCODE_X)
 		level->ui.show_quads = level->ui.show_quads ? FALSE : TRUE;
-	else if (event.key.keysym.scancode == SDL_SCANCODE_TAB)
+	else if (event.key.keysym.scancode == SDL_SCANCODE_TAB && *game_state != GAME_STATE_MAIN_MENU)
 	{
 		level->ui.state.mouse_capture = level->ui.state.mouse_capture ? FALSE : TRUE;
 		if (level->ui.state.mouse_capture)
@@ -181,22 +191,86 @@ static void		keyboard_input(t_window *window, t_level *level, SDL_Event event)
 	}
 	else if (event.key.keysym.scancode == SDL_SCANCODE_O)
 		toggle_selection_all(level);
+	else if (event.key.keysym.scancode == SDL_SCANCODE_E)
+		door_activate(level);
+	else if (event.key.keysym.scancode == SDL_SCANCODE_Q)
+	{
+		level->ui.state.mouse_capture = FALSE;
+		SDL_SetRelativeMouseMode(SDL_FALSE);
+		*game_state = GAME_STATE_MAIN_MENU;
+		level->ui.state.ui_location = UI_LOCATION_MAIN;
+		level->cam.pos = level->main_menu_pos1.pos;
+		level->cam.look_side = level->main_menu_pos1.look_side;
+		level->cam.look_up = level->main_menu_pos1.look_up;
+		level->main_menu_anim_start_time = SDL_GetTicks();
+	}
+	else if (event.key.keysym.scancode == SDL_SCANCODE_R)
+		level->reload_start_time = SDL_GetTicks();
 }
 
-static void		read_input(t_window *window, t_level *level)
+static void		read_input(t_window *window, t_level *level, t_game_state *game_state)
 {
 	SDL_Event	event;
 
-	set_mouse_input_location(level);
+	set_mouse_input_location(level, *game_state);
 	while (SDL_PollEvent(&event))
 	{
 		if (event.type == SDL_QUIT || event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
 			exit(0);
-		mouse_input(level, event);
+		mouse_input(level, event, *game_state);
 		if (level->ui.state.text_input_enable)
 			typing_input(level, event);
 		else if (event.type == SDL_KEYDOWN && event.key.repeat == 0)
-			keyboard_input(window, level, event);
+			keyboard_input(window, level, event, game_state);
+	}
+}
+
+static void	player_reload(t_level *level)
+{
+	float time = (SDL_GetTicks() - level->reload_start_time) / (1000 * VIEWMODEL_ANIM_FPS);
+	if (time < 1)
+		level->viewmodel_index = (int)(time * VIEWMODEL_FRAMES);
+	else
+	{
+		level->viewmodel_index = 0;
+		level->reload_start_time = 0;
+		level->player_ammo = PLAYER_AMMO_MAX;
+	}
+}
+
+void		game_logic(t_level *level, t_game_state *game_state)
+{
+	if (level->reload_start_time && *game_state != GAME_STATE_DEAD)
+		player_reload(level);
+	if (level->ui.state.m1_click && level->ui.state.mouse_capture && *game_state != GAME_STATE_DEAD)
+	{
+		if (level->player_ammo)
+		{
+			level->player_ammo--;
+			level->player.dir = level->cam.front;
+			create_projectile(level, level->cam.pos, level->cam.front, &level->player);
+		}
+		else
+			level->reload_start_time = SDL_GetTicks();
+	}
+	if (level->death_start_time)
+	{
+		level->player_health = 0;
+		float time = (SDL_GetTicks() - level->death_start_time) / (1000.0 * DEATH_LENGTH_SEC);
+		if (time > 1)
+		{
+			*game_state = GAME_STATE_MAIN_MENU;
+			level->ui.state.mouse_capture = FALSE;
+			SDL_SetRelativeMouseMode(SDL_FALSE);
+			level->death_start_time = 0;
+		}
+	}
+	else if (level->player_health <= 0)
+	{
+		level->reload_start_time = 0;
+		level->death_start_time = SDL_GetTicks();
+		*game_state = GAME_STATE_DEAD;
+		level->cam.look_up = 1;
 	}
 }
 
@@ -204,23 +278,46 @@ int			main(int argc, char **argv)
 {
 	t_window	*window;
 	t_level		*level;
+	t_game_state game_state;
+	unsigned	ssp;
+	unsigned	cull;
+	unsigned	rendertime;
 	unsigned	frametime;
 
+	game_state = GAME_STATE_MAIN_MENU;
+	game_state = GAME_STATE_EDITOR;//remove
 	init_level(&level);
 	init_window(&window);
 	init_ui(window, level);
 	init_screen_space_partition(level);
 	init_culling(level);
+	init_player(&level->player);
 	while (1)
 	{
 		frametime = SDL_GetTicks();
-		read_input(window, level);
-		player_movement(level);
+		read_input(window, level, &game_state);
+		if (game_state == GAME_STATE_MAIN_MENU)
+			main_menu_move_background(level);
+		else
+		{
+			if (game_state == GAME_STATE_INGAME || game_state == GAME_STATE_DEAD)
+				game_logic(level, &game_state);
+			if (game_state != GAME_STATE_DEAD)
+				player_movement(level, game_state);
+		}
 		update_camera(level);
+		door_animate(level);
+		door_put_text(window, level);
 		enemies_update_sprites(level);
+		cull = SDL_GetTicks();
 		culling(level);
+		level->ui.cull = SDL_GetTicks() - cull;
+		ssp = SDL_GetTicks();
 		screen_space_partition(level);
-		render(window, level);
+		level->ui.ssp = SDL_GetTicks() - ssp;
+		rendertime = SDL_GetTicks();
+		render(window, level, &game_state);
+		level->ui.render = SDL_GetTicks() - rendertime;
 		level->ui.frametime = SDL_GetTicks() - frametime;
 	}
 }

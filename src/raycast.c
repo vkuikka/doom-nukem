@@ -70,9 +70,10 @@ void			rot_cam(t_vec3 *cam, const float lon, const float lat)
 
 static void		raytrace(t_cast_result *res, t_obj *obj, t_ray r, t_level *l)
 {
+	float		opacity_value;
+
 	vec_normalize(&res->normal);
 	res->ray = r;
-
 	if (l->all.tris[res->face_index].shader == 1)
 	{
 		t_vec3 tmp;
@@ -90,10 +91,13 @@ static void		raytrace(t_cast_result *res, t_obj *obj, t_ray r, t_level *l)
 		else
 			reflection(res, l, l->all.tris[res->face_index].reflection_obj_all);
 	}
-	if (l->all.tris[res->face_index].opacity)
+	opacity_value = 1.0 - ((unsigned)res->color << 24 >> 24) / (float)0xff;
+	if (!opacity_value)
+		opacity_value = l->all.tris[res->face_index].opacity;
+	if (opacity_value)
 	{
 		res->reflection_depth++;
-		opacity(res, l, l->all.tris[res->face_index].opacity_obj_all);
+		opacity(res, l, l->all.tris[res->face_index].opacity_obj_all, opacity_value);
 	}
 }
 
@@ -180,7 +184,7 @@ int				raycast(void *data_pointer)
 				cast_all_color(r, t->level, &t->level->ssp[get_ssp_index(x, y)], &res);
 				if (t->level->ui.fog)
 					res.color = fog(res.color, res.dist, t->level->ui.fog_color, t->level);
-				t->window->frame_buffer[x + (y * RES_X)] = res.color;
+				t->window->frame_buffer[x + (y * RES_X)] = (res.color >> 8 << 8) + 0xff;
 				t->window->depth_buffer[x + (y * RES_X)] = res.dist;
 			}
 		}

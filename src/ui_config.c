@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/05/03 23:51:38 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/20 16:10:07 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,19 @@ void	copy_tri_settings(t_tri *a, t_tri *b)
 	a->refractivity = b->refractivity;
 	a->disable_distance_culling = b->disable_distance_culling;
 	a->disable_backface_culling = b->disable_backface_culling;
+	if (a->enemy && b->enemy)
+	{
+		a->enemy->attack_damage = b->enemy->attack_damage;
+		a->enemy->attack_frequency = b->enemy->attack_frequency;
+		a->enemy->attack_range = b->enemy->attack_range;
+		a->enemy->dist_limit = b->enemy->dist_limit;
+		a->enemy->initial_health = b->enemy->initial_health;
+		a->enemy->move_speed = b->enemy->move_speed;
+		a->enemy->projectile_speed = b->enemy->projectile_speed;
+		a->enemy->projectile_uv[0] = b->enemy->projectile_uv[0];
+		a->enemy->projectile_uv[1] = b->enemy->projectile_uv[1];
+		a->enemy->projectile_uv[2] = b->enemy->projectile_uv[2];
+	}
 }
 
 void	ui_config_selected_faces(t_level *level)
@@ -78,29 +91,48 @@ void	ui_config_selected_faces(t_level *level)
 					text("Selected face:");
 				else
 				{
-					sprintf(buf, "%d faces selected (toggle all):", selected_amount);
+					sprintf(buf, "%d faces selected:", selected_amount);
 					text(buf);
 				}
+				if (call("remove faces", &remove_faces, level))
+					return;
 				if (!level->all.tris[i].reflectivity || selected_amount != 1)
 					sprintf(buf, "reflectivity: %.0f%%", 100 * level->all.tris[i].reflectivity);
 				else
 					sprintf(buf, "reflectivity: %.0f%% (%d mirror %d first bounce)", 100 * level->all.tris[i].reflectivity,
 						level->all.tris[i].reflection_obj_all->tri_amount, level->all.tris[i].reflection_obj_first_bounce->tri_amount);
 				float_slider(&level->all.tris[i].reflectivity, buf, 0, 1);
+				sprintf(buf, "opacity: %.0f%%", 100 * level->all.tris[i].opacity);
+				float_slider(&level->all.tris[i].opacity, buf, 0, 1);
 				if (level->all.tris[i].opacity)
 				{
 					sprintf(buf, "refractive index: %.2f", level->all.tris[i].refractivity);
 					float_slider(&level->all.tris[i].refractivity, buf, -1, 3);
 				}
-				sprintf(buf, "opacity: %.0f%%", 100 * level->all.tris[i].opacity);
-				float_slider(&level->all.tris[i].opacity, buf, 0, 1);
 				if (button(&level->all.tris[i].isquad, "quad"))
 					set_fourth_vertex(&level->all.tris[i]);
 				button(&level->all.tris[i].isgrid, "grid");
-				button(&level->all.tris[i].isenemy, "enemy");
 				button(&level->all.tris[i].shader, "water");
-				button(&level->all.tris[i].disable_distance_culling, "distance culling");
-				button(&level->all.tris[i].disable_backface_culling, "backface culling");
+				button(&level->all.tris[i].isenemy, "enemy");
+				if (level->all.tris[i].isenemy)
+				{
+					if (!level->all.tris[i].enemy)
+						init_enemy(&level->all.tris[i]);
+					sprintf(buf, "distance limit: %.1fm", level->all.tris[i].enemy->dist_limit);
+					float_slider(&level->all.tris[i].enemy->dist_limit, buf, 1, 10);
+					sprintf(buf, "move speed: %.1fm/s", level->all.tris[i].enemy->move_speed);
+					float_slider(&level->all.tris[i].enemy->move_speed, buf, 0, 10);
+					sprintf(buf, "attack frequency: %.2f seconds per attack", level->all.tris[i].enemy->attack_frequency);
+					float_slider(&level->all.tris[i].enemy->attack_frequency, buf, 0, 5);
+					sprintf(buf, "attack damage: %.1f", level->all.tris[i].enemy->attack_damage);
+					float_slider(&level->all.tris[i].enemy->attack_damage, buf, 0, 50);
+					sprintf(buf, "attack range: %.1fm", level->all.tris[i].enemy->attack_range);
+					float_slider(&level->all.tris[i].enemy->attack_range, buf, 0, 10);
+					sprintf(buf, "projectile speed: %.1fm/s (0 = no projectile)", level->all.tris[i].enemy->projectile_speed);
+					float_slider(&level->all.tris[i].enemy->projectile_speed, buf, 0, 50);
+					sprintf(buf, "projectile scale: %.2f", level->all.tris[i].enemy->projectile_scale);
+					float_slider(&level->all.tris[i].enemy->projectile_scale, buf, 0.1, 5);
+				}
 				// call("flip normal");
 				// call("set animation start");
 				// call("set animation stop");
@@ -110,7 +142,11 @@ void	ui_config_selected_faces(t_level *level)
 				selected_index = i + 1;
 			}
 			else
+			{
+				if (level->all.tris[selected_index - 1].isenemy && !level->all.tris[i].enemy)
+					init_enemy(&level->all.tris[i]);
 				copy_tri_settings(&level->all.tris[i], &level->all.tris[selected_index - 1]);
+			}
 		}
 	}
 }
@@ -137,6 +173,27 @@ void	set_skybox(t_level *level, char *filename)
 {
 	free(level->sky.img.image);
 	level->sky.img = bmp_read(filename);
+}
+
+void	set_spawn_pos(t_level *level)
+{
+	level->spawn_pos.pos = level->cam.pos;
+	level->spawn_pos.look_side = level->cam.look_side;
+	level->spawn_pos.look_up = level->cam.look_up;
+}
+
+void	set_menu_pos_1(t_level *level)
+{
+	level->main_menu_pos1.pos = level->cam.pos;
+	level->main_menu_pos1.look_side = level->cam.look_side;
+	level->main_menu_pos1.look_up = level->cam.look_up;
+}
+
+void	set_menu_pos_2(t_level *level)
+{
+	level->main_menu_pos2.pos = level->cam.pos;
+	level->main_menu_pos2.look_side = level->cam.look_side;
+	level->main_menu_pos2.look_up = level->cam.look_up;
 }
 
 void	go_in_dir(char *path, char *folder)
@@ -237,14 +294,14 @@ void	ui_render_directory_loopdir(t_level *level, int find_dir, char *extension, 
 				!ft_strcmp(extension, &data.cFileName[ft_strlen(data.cFileName) - ft_strlen(extension)]) &&
 				call(data.cFileName, NULL, level))
 				{
-					if (level->ui.state.is_directory_open)
+					if (level->ui.state.ui_location == UI_LOCATION_FILE_OPEN)
 						make_fileopen_call(level, data.cFileName);
 				}
 				else if (!find_ext && ft_strlen(data.cFileName) > ft_strlen(extension) &&
 				ft_strcmp(extension, &data.cFileName[ft_strlen(data.cFileName) - ft_strlen(extension)]) &&
 				call(data.cFileName, NULL, level))
 				{
-					if (level->ui.state.is_directory_open)
+					if (level->ui.state.ui_location == UI_LOCATION_FILE_OPEN)
 						make_fileopen_call(level, data.cFileName);
 				}
 	}
@@ -258,10 +315,7 @@ void	ui_render_directory(t_level *level)
 	set_text_color(UI_FACE_SELECTION_TEXT_COLOR);
 	text(level->ui.state.directory);
 	if (call("close", NULL, level))
-	{
-		level->ui.state.is_serialize_open = FALSE;
-		level->ui.state.is_directory_open = FALSE;
-	}
+		level->ui.state.ui_location = UI_LOCATION_MAIN;
 	if (call("up dir ..", NULL, level))
 		path_up_dir(level->ui.state.directory);
 	set_text_color(UI_EDITOR_SETTINGS_TEXT_COLOR);
@@ -271,16 +325,29 @@ void	ui_render_directory(t_level *level)
 	set_text_color(UI_INFO_TEXT_COLOR);
 	ui_render_directory_loopdir(level, 0, level->ui.state.extension, 0);
 	set_text_color(UI_FACE_SELECTION_TEXT_COLOR);
-	if (level->ui.state.is_serialize_open)
+	if (level->ui.state.ui_location == UI_LOCATION_FILE_SAVE)
 	{
 		text_input(level->ui.state.save_filename, level);
 		if (call("save", NULL, level))
 		{
 			save_level(level);
-			level->ui.state.is_serialize_open = FALSE;
-			level->ui.state.is_directory_open = FALSE;
+			level->ui.state.ui_location = UI_LOCATION_MAIN;
 		}
 	}
+}
+
+int		nothing_selected(t_level *level)
+{
+	int i;
+
+	i = 0;
+	while (i < level->all.tri_amount)
+	{
+		if (level->all.tris[i].selected)
+			return (0);
+		i++;
+	}
+	return (1);
 }
 
 void	ui_config(t_level *level)
@@ -289,28 +356,63 @@ void	ui_config(t_level *level)
 	t_editor_ui			*ui;
 
 	ui = &level->ui;
-	if (level->ui.state.is_serialize_open || level->ui.state.is_directory_open)
+	if (level->ui.state.ui_location == UI_LOCATION_FILE_SAVE || level->ui.state.ui_location == UI_LOCATION_FILE_OPEN)
 	{
 		ui_render_directory(level);
 		return ;
 	}
-	if (level->ui.state.is_uv_editor_open)
+	if (level->ui.state.ui_location == UI_LOCATION_UV_EDITOR)
 	{
 		set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
-		call("close uv editor", &disable_uv_editor, level);
+		if (call("close uv editor", NULL, level))
+			level->ui.state.ui_location = UI_LOCATION_MAIN;
 		call("fix selected uv overlap", &fix_uv_overlap, level);
 		return ;
 	}
+	if (level->ui.state.ui_location == UI_LOCATION_DOOR_EDITOR)
+	{
+		set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
+		if (call("close door editor", NULL, level))
+			level->ui.state.ui_location = UI_LOCATION_MAIN;
+		find_selected_door_index(level);
+		if (level->doors.selected_index)
+		{
+			call("delete selected door", &delete_door, level);
+			call("set door start position", &set_door_pos_1, level);
+			call("set door stop position", &set_door_pos_2, level);
+			sprintf(buf, "door transition time: %fs", level->doors.door[level->doors.selected_index - 1].transition_time);
+			float_slider(&level->doors.door[level->doors.selected_index - 1].transition_time, buf, .2, 7);
+			// button(hinge, "has hinge");
+			//if has hinge
+			//	int_slider("hinge axis", 0, 2);
+		}
+		else
+		{
+			int selected = 0;
+			for (int i = 0; i < level->all.tri_amount; i++)
+				if (level->all.tris[i].selected)
+					selected++;
+			if (selected)
+				call("new door from selection", &add_new_door, level);
+			else
+				text("Select faces to create door from");
+		}
+		return ;
+	}
 	set_text_color(UI_EDITOR_SETTINGS_TEXT_COLOR);
-	// button(, "face/vert selection");
-	sprintf(buf, "render scale: %d (%.0f%%)", ui->raycast_quality, 100.0 / (float)ui->raycast_quality);
-	int_slider(&ui->raycast_quality, buf, 1, 20);
-	sprintf(buf, "fov: %d", (int)((float)(ui->fov + 0.01) * (180.0 / M_PI)));
-	float_slider(&ui->fov, buf, M_PI / 6, M_PI);
+	if (level->ui.state.ui_location == UI_LOCATION_SETTINGS)
+	{
+		sprintf(buf, "render scale: %d (%.0f%%)", ui->raycast_quality, 100.0 / (float)ui->raycast_quality);
+		int_slider(&ui->raycast_quality, buf, 1, 20);
+		sprintf(buf, "fov: %d", (int)((float)(ui->fov + 0.01) * (180.0 / M_PI)));
+		float_slider(&ui->fov, buf, M_PI / 6, M_PI);
+		button(&ui->blur, "blur");
+		button(&ui->smooth_pixels, "smooth pixel transition");
+		button(&ui->state.ssp_visual, "ssp visualize");
+		return ;
+	}
 	button(&ui->noclip, "noclip");
 	button(&ui->vertex_select_mode, "vertex select mode");
-	button(&ui->blur, "blur");
-	button(&ui->smooth_pixels, "smooth pixel transition");
 	button(&ui->wireframe, "wireframe");
 	if (ui->wireframe)
 	{
@@ -318,50 +420,62 @@ void	ui_config(t_level *level)
 		button(&ui->show_quads, "quad visualize");
 		button(&ui->wireframe_culling_visual, "culling visualize");
 	}
-	button(&ui->state.ssp_visual, "ssp visualize");
-	// button(, "face/vert selection");
 
 	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
-	text("level:");
-	file_browser("select level", ".doom-nukem", &open_level);
-	file_browser("select obj", ".obj", &set_obj);
-	call("add face", &add_face, level);
-	call("remove selected faces", &remove_faces, level);
-	file_browser("select texture", ".bmp", &set_texture);
 	call("edit uv", &enable_uv_editor, level);
-	file_browser("select skybox", ".bmp", &set_skybox);
-	button(&ui->fog, "fog");
-	// color(ui->color, "fog color");
-	// call(, "set spawn point");
-	// call(, "spawn enemy");
-	// call(, "remove enemies");
-	// button(&ui->pause_culling_position, "\tpause");
-	button(&ui->backface_culling, "backface & occlusion culling");
-	button(&ui->distance_culling, "distance culling");
-	sprintf(buf, "render distance: %.1fm", ui->render_distance);
-	float_slider(&ui->render_distance, buf, 2, 50);
-	float_slider(&ui->sun_contrast, "sun", 0, 1);
-	float_slider(&ui->direct_shadow_contrast, "shadow", 0, 1);
-	if (ui->sun_contrast > ui->direct_shadow_contrast)
-		ui->direct_shadow_contrast = ui->sun_contrast;
-	sprintf(buf, "sun dir: (%.2f, %.2f, %.2f)", ui->sun_dir.x, ui->sun_dir.y, ui->sun_dir.z);
-	text(buf);
-	//vec3_slider
-	float_slider(&ui->sun_dir.x, NULL, -1, 1);
-	float_slider(&ui->sun_dir.y, NULL, -1, 1);
-	float_slider(&ui->sun_dir.z, NULL, -1, 1);
-	vec_normalize(&ui->sun_dir);
-	file_save("save level", ".doom-nukem", NULL);
+	call("edit doors", &enable_door_editor, level);
+	if (nothing_selected(level))
+	{
+		text("level:");
+		file_browser("select level", ".doom-nukem", &open_level);
+		file_browser("select obj", ".obj", &set_obj);
+		file_browser("select texture", ".bmp", &set_texture);
+		file_browser("select skybox", ".bmp", &set_skybox);
+		call("add face", &add_face, level);
+		call("set spawn position", &set_spawn_pos, level);
+		call("set menu position 1", &set_menu_pos_1, level);
+		call("set menu position 2", &set_menu_pos_2, level);
+		sprintf(buf, "main menu animation time %ds", level->main_menu_anim_time);
+		int_slider(&level->main_menu_anim_time, buf, 2, 50);
+		button(&ui->fog, "fog");
+		// color(ui->color, "fog color");
+		// call(, "set spawn point");
+		// call(, "spawn enemy");
+		// call(, "remove enemies");
+		// button(&ui->pause_culling_position, "\tpause");
+		button(&ui->backface_culling, "backface & occlusion culling");
+		button(&ui->distance_culling, "distance culling");
+		sprintf(buf, "render distance: %.1fm", ui->render_distance);
+		float_slider(&ui->render_distance, buf, 2, 50);
+		float_slider(&ui->sun_contrast, "sun", 0, 1);
+		float_slider(&ui->direct_shadow_contrast, "shadow", 0, 1);
+		if (ui->sun_contrast > ui->direct_shadow_contrast)
+			ui->direct_shadow_contrast = ui->sun_contrast;
+		sprintf(buf, "sun dir: (%.2f, %.2f, %.2f)", ui->sun_dir.x, ui->sun_dir.y, ui->sun_dir.z);
+		text(buf);
+		//vec3_slider
+		float_slider(&ui->sun_dir.x, NULL, -1, 1);
+		float_slider(&ui->sun_dir.y, NULL, -1, 1);
+		float_slider(&ui->sun_dir.z, NULL, -1, 1);
+		vec_normalize(&ui->sun_dir);
+		file_save("save level", ".doom-nukem", NULL);
 
-	set_text_color(UI_INFO_TEXT_COLOR);
-	sprintf(buf, "fps:               %d",  get_fps());
-	text(buf);
-	sprintf(buf, "frametime: %ums",  ui->frametime);
-	text(buf);
-	sprintf(buf, "faces:           %d / %d", level->all.tri_amount, level->visible.tri_amount);
-	text(buf);
-	sprintf(buf, "xz velocity:  %.2fms", level->ui.horizontal_velocity);
-	text(buf);
+		set_text_color(UI_INFO_TEXT_COLOR);
+		sprintf(buf, "fps:               %d",  get_fps());
+		text(buf);
+		sprintf(buf, "cull:              %ums",  ui->cull);
+		text(buf);
+		sprintf(buf, "ssp:               %ums",  ui->ssp);
+		text(buf);
+		sprintf(buf, "render:          %ums",  ui->render);
+		text(buf);
+		sprintf(buf, "frametime: %ums",  ui->frametime);
+		text(buf);
+		sprintf(buf, "faces:           %d / %d", level->all.tri_amount, level->visible.tri_amount);
+		text(buf);
+		sprintf(buf, "xz velocity:  %.2fms", level->ui.horizontal_velocity);
+		text(buf);
+	}
 
 	set_text_color(UI_FACE_SELECTION_TEXT_COLOR);
 	ui_config_selected_faces(level);

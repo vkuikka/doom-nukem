@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/06 14:13:02 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/05/04 01:07:49 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/18 20:50:43 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,6 +134,54 @@ void	serialize_vert(t_vert *vert, t_buffer *buf)
 	serialize_vec2(vert->txtr, buf);
 }
 
+void	deserialize_enemy(t_enemy *enemy, t_buffer *buf)
+{
+	deserialize_vec3(&enemy->dir, buf);
+	for (int i = 0; i < 3; i++)
+		deserialize_vec2(&enemy->projectile_uv[i], buf);
+	deserialize_float(&enemy->move_speed, buf);
+	deserialize_float(&enemy->dist_limit, buf);
+	deserialize_float(&enemy->initial_health, buf);
+	deserialize_float(&enemy->remaining_health, buf);
+	deserialize_float(&enemy->attack_range, buf);
+	deserialize_float(&enemy->attack_frequency, buf);
+	deserialize_float(&enemy->projectile_speed, buf);
+	deserialize_float(&enemy->attack_damage, buf);
+	deserialize_float(&enemy->current_attack_delay, buf);
+}
+
+void	serialize_enemy(t_enemy *enemy, t_buffer *buf)
+{
+	serialize_vec3(enemy->dir, buf);
+	for (int i = 0; i < 3; i++)
+		serialize_vec2(enemy->projectile_uv[i], buf);
+	serialize_float(enemy->move_speed, buf);
+	serialize_float(enemy->dist_limit, buf);
+	serialize_float(enemy->initial_health, buf);
+	serialize_float(enemy->remaining_health, buf);
+	serialize_float(enemy->attack_range, buf);
+	serialize_float(enemy->attack_frequency, buf);
+	serialize_float(enemy->projectile_speed, buf);
+	serialize_float(enemy->attack_damage, buf);
+	serialize_float(enemy->current_attack_delay, buf);
+}
+
+void	deserialize_projectile(t_projectile *projectile, t_buffer *buf)
+{
+	deserialize_vec3(&projectile->dir, buf);
+	deserialize_float(&projectile->speed, buf);
+	deserialize_float(&projectile->dist, buf);
+	deserialize_float(&projectile->damage, buf);
+}
+
+void	serialize_projectile(t_projectile *projectile, t_buffer *buf)
+{
+	serialize_vec3(projectile->dir, buf);
+	serialize_float(projectile->speed, buf);
+	serialize_float(projectile->dist, buf);
+	serialize_float(projectile->damage, buf);
+}
+
 void	deserialize_tri(t_tri *tri, t_buffer *buf)
 {
 	for (int i = 0; i < 4; i++)
@@ -144,9 +192,22 @@ void	deserialize_tri(t_tri *tri, t_buffer *buf)
 	deserialize_int(&tri->isquad, buf);
 	deserialize_int(&tri->isgrid, buf);
 	deserialize_int(&tri->isenemy, buf);
+	deserialize_int(&tri->isprojectile, buf);
 	deserialize_float(&tri->opacity, buf);
 	deserialize_float(&tri->reflectivity, buf);
 	deserialize_int(&tri->shader, buf);
+	if (tri->isenemy)
+	{
+		if (!(tri->enemy = (t_enemy*)malloc(sizeof(t_enemy))))
+			ft_error("failed to allocate memory for file");
+		deserialize_enemy(tri->enemy, buf);
+	}
+	if (tri->isprojectile)
+	{
+		if (!(tri->projectile = (t_projectile*)malloc(sizeof(t_projectile))))
+			ft_error("failed to allocate memory for file");
+		deserialize_projectile(tri->projectile, buf);
+	}
 }
 
 void	serialize_tri(t_tri *tri, t_buffer *buf)
@@ -159,9 +220,14 @@ void	serialize_tri(t_tri *tri, t_buffer *buf)
 	serialize_int(tri->isquad, buf);
 	serialize_int(tri->isgrid, buf);
 	serialize_int(tri->isenemy, buf);
+	serialize_int(tri->isprojectile, buf);
 	serialize_float(tri->opacity, buf);
 	serialize_float(tri->reflectivity, buf);
 	serialize_int(tri->shader, buf);
+	if (tri->isenemy)
+		serialize_enemy(tri->enemy, buf);
+	if (tri->isprojectile)
+		serialize_projectile(tri->projectile, buf);
 }
 
 void	deserialize_obj(t_obj *obj, t_buffer *buf)
@@ -231,6 +297,79 @@ void	serialize_string(char *str, t_buffer *buf)
 	}
 }
 
+void	deserialize_door(t_door *door, t_buffer *buf)
+{
+	deserialize_int(&door->indice_amount, buf);
+	if (!(door->indices = (int*)malloc(sizeof(int) * door->indice_amount)))
+		ft_error("memory allocation failed\n");
+	if (!(door->isquad = (int*)malloc(sizeof(int) * door->indice_amount)))
+		ft_error("memory allocation failed\n");
+	if (!(door->pos1 = (t_vec3**)malloc(sizeof(t_vec3*) * door->indice_amount)))
+		ft_error("memory allocation failed\n");
+	if (!(door->pos2 = (t_vec3**)malloc(sizeof(t_vec3*) * door->indice_amount)))
+		ft_error("memory allocation failed\n");
+	for (int i = 0; i < door->indice_amount; i++)
+	{
+		deserialize_int(&door->indices[i], buf);
+		deserialize_int(&door->isquad[i], buf);
+		if (!(door->pos1[i] = (t_vec3*)malloc(sizeof(t_vec3) * 4)))
+			ft_error("memory allocation failed\n");
+		if (!(door->pos2[i] = (t_vec3*)malloc(sizeof(t_vec3) * 4)))
+			ft_error("memory allocation failed\n");
+		for (int k = 0; k < 4; k++)
+		{
+			deserialize_vec3(&door->pos1[i][k], buf);
+			deserialize_vec3(&door->pos2[i][k], buf);
+		}
+	}
+	deserialize_float(&door->transition_time, buf);
+}
+
+void	serialize_door(t_door *door, t_buffer *buf)
+{
+	serialize_int(door->indice_amount, buf);
+	for (int i = 0; i < door->indice_amount; i++)
+	{
+		serialize_int(door->indices[i], buf);
+		serialize_int(door->isquad[i], buf);
+		for (int k = 0; k < 4; k++)
+		{
+			serialize_vec3(door->pos1[i][k], buf);
+			serialize_vec3(door->pos2[i][k], buf);
+		}
+	}
+	serialize_float(door->transition_time, buf);
+}
+
+void	deserialize_doors(t_level *level, t_buffer *buf)
+{
+	for (int i = 0; i < level->doors.door_amount; i++)
+	{
+		free(level->doors.door[i].indices);
+		free(level->doors.door[i].isquad);
+		for (int k = 0; k < level->doors.door[i].indice_amount; k++)
+		{
+			free(level->doors.door[i].pos1[k]);
+			free(level->doors.door[i].pos2[k]);
+		}
+		free(level->doors.door[i].pos1);
+		free(level->doors.door[i].pos2);
+	}
+	free(level->doors.door);
+	deserialize_int(&level->doors.door_amount, buf);
+	if (!(level->doors.door = (t_door*)malloc(sizeof(t_door) * level->doors.door_amount)))
+		ft_error("memory allocation failed\n");
+	for (int i = 0; i < level->doors.door_amount; i++)
+		deserialize_door(&level->doors.door[i], buf);
+}
+
+void	serialize_doors(t_level *level, t_buffer *buf)
+{
+	serialize_int(level->doors.door_amount, buf);
+	for (int i = 0; i < level->doors.door_amount; i++)
+		serialize_door(&level->doors.door[i], buf);
+}
+
 void	deserialize_level(t_level *level, t_buffer *buf)
 {
 	char	*str;
@@ -244,14 +383,21 @@ void	deserialize_level(t_level *level, t_buffer *buf)
 	}
 	free(str);
 	deserialize_settings(level, buf);
+
 	free(level->texture.image);
 	deserialize_bmp(&level->texture, buf);
+
+	free(level->normal_map.image);
+	deserialize_bmp(&level->normal_map, buf);
+
 	free(level->sky.img.image);
 	deserialize_bmp(&level->sky.img, buf);
+
 	free_culling(level);
 	free(level->all.tris);
 	free(level->visible.tris);
 	deserialize_obj(&level->all, buf);
+	deserialize_doors(level, buf);
 	if (!(level->visible.tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount)))
 		ft_error("memory allocation failed\n");
 	init_screen_space_partition(level);
@@ -263,8 +409,10 @@ void	serialize_level(t_level *level, t_buffer *buf)
 	serialize_string("doom-nukem", buf);
 	serialize_settings(level, buf);
 	serialize_bmp(&level->texture, buf);
+	serialize_bmp(&level->normal_map, buf);
 	serialize_bmp(&level->sky.img, buf);
 	serialize_obj(&level->all, buf);
+	serialize_doors(level, buf);
 }
 
 #ifdef _WIN32
@@ -318,7 +466,9 @@ void	save_file(t_level *level, t_buffer *buf)
 	free(filename1);
 	filename1 = ft_strjoin(filename2, ".doom-nukem");
 	free(filename2);
-	fd = open(filename1, O_RDWR | O_CREAT, S_IRGRP | S_IWGRP);
+	fd = open(filename1, O_RDWR | O_CREAT,
+			S_IRGRP | S_IWGRP | S_IXGRP |
+			S_IRUSR | S_IWUSR | S_IXUSR);
 	if (fd < 3)
 		nonfatal_error(level, "failed to create file");
 	else if (write(fd, buf->data, buf->next) != buf->next)

@@ -16,7 +16,7 @@ static void		uv_pixel_put(int x, int y, int color, unsigned *texture)
 {
 	int opacity;
 
-	if (x < 0 || y < 0 || x > RES_X / 2 || y >= RES_Y)
+	if (x < 0 || y < 0 || x >= RES_X / 2 || y >= RES_Y)
 		return;
 	opacity = (color << (8 * 3)) >> (8 * 3);
 	if (!opacity)
@@ -49,7 +49,7 @@ void	uv_print_line(t_vec2 start, t_vec2 stop, t_ivec2 color, unsigned *pixels)
 	step.y = (stop.y - start.y) / (float)step.z;
 	while (pos.z <= step.z && i < 10000)
 	{
-		uv_pixel_put(pos.x, pos.y, crossfade(color.x, color.y, 0xff * (pos.z / step.z)), pixels);
+		uv_pixel_put(pos.x, pos.y, crossfade(color.x, color.y, 0xff * (pos.z / step.z), 0xff), pixels);
 		pos.x += step.x;
 		pos.y += step.y;
 		pos.z++;
@@ -75,56 +75,46 @@ static void		put_uv_vertex(t_vec2 vertex, int color, unsigned *pixels)
 	}
 }
 
-static void		find_closest_to_mouse(t_vec2 *vert, int *i, int *k, t_level *level)
+static t_vec2	*find_closest_to_mouse(t_level *level, t_vec2 *txtr, t_vec2 *screen_pos, t_ivec2 *mouse)
 {
-	static float	nearest_len = -1;
-	static int		nearest_tri_index = -1;
-	static int		nearest_vert_index = -1;
-	float			len;
-	t_vec2			test;
-	int				x;
-	int				y;
+	static float	closest_dist = -1;
+	static t_vec2	*closest = NULL;
+	t_vec2			*res;
+	t_vec2			tmp;
+	float			dist;
 
-	if (!vert)
+	if (!txtr || !screen_pos || !mouse)
 	{
-		*k = nearest_vert_index;
-		*i = nearest_tri_index;
+		res = closest;
 		if (!level->ui.state.m1_drag)
 		{
-			nearest_vert_index = -1;
-			nearest_tri_index = -1;
-			nearest_len = -1;
+			closest = NULL;
+			closest_dist = -1;
 		}
-		return ;
+		return (res);
 	}
-	SDL_GetMouseState(&x, &y);
-	test = *vert;
-	test.x -= x;
-	test.y -= y;
-	len = vec2_length(test);
-	if (level->ui.state.m1_click && (len < nearest_len || nearest_len == -1))
+	tmp.x = screen_pos->x - mouse->x;
+	tmp.y = screen_pos->y - mouse->y;
+	dist = vec2_length(tmp);
+	if (level->ui.state.m1_click && (dist < closest_dist || closest_dist == -1))
 	{
-		nearest_len = len;
-		nearest_tri_index = *i;
-		nearest_vert_index = *k;
+		closest_dist = dist;
+		closest = txtr;
 	}
+	return (NULL);
 }
 
-static void		update_uv_closest_vertex(t_level *level, float image_scale, t_ivec2 offset)
+static void		update_uv_closest_vertex(t_level *level, float image_scale, t_ivec2 offset, t_ivec2 mouse)
 {
-	int	i;
-	int	k;
-	int	x;
-	int	y;
+	t_vec2	*closest;
 
-	find_closest_to_mouse(NULL, &i, &k, level);
-	SDL_GetMouseState(&x, &y);
-	if (i != -1 && level->ui.state.mouse_location == MOUSE_LOCATION_UV_EDITOR && level->ui.state.m1_drag)
+	closest = find_closest_to_mouse(level, NULL, NULL, NULL);
+	if (closest && level->ui.state.mouse_location == MOUSE_LOCATION_UV_EDITOR && level->ui.state.m1_drag)
 	{
-		x -= offset.x;
-		y -= offset.y;
-		level->all.tris[i].verts[k].txtr.x = x / (level->texture.width * image_scale);
-		level->all.tris[i].verts[k].txtr.y = 1 - (y / (level->texture.height * image_scale));
+		mouse.x -= offset.x;
+		mouse.y -= offset.y;
+		closest->x = mouse.x / (level->texture.width * image_scale);
+		closest->y = 1 - (mouse.y / (level->texture.height * image_scale));
 	}
 }
 
@@ -145,50 +135,130 @@ static void	set_fourth_vertex_uv(t_tri *a)
 	a->verts[3].txtr.y = res.y;
 }
 
-static void		uv_wireframe(t_level *level, t_ivec2 offset, unsigned *pixels, float image_scale)
+static void		draw_uv(t_level *level, t_uv_parameters param, t_vec2 uv[3], t_ivec2 mouse)
 {
-	int		next;
 	t_ivec2	color;
 	t_vec2	start;
 	t_vec2	stop;
+	int		next;
+	int		k;
 
-	for (int i = 0; i < level->all.tri_amount; i++)
+	k = 0;
+	while (k < 3)
 	{
-		if (level->all.tris[i].selected)
+		next = (k + 1) % 3;
+		start.x = param.scale.x * uv[k].x;
+		start.y = param.scale.y * (1 - uv[k].y);
+		stop.x = param.scale.x * uv[next].x;
+		stop.y = param.scale.y * (1 - uv[next].y);
+		vec2_add(&start, start, param.offset);
+		vec2_add(&stop, stop, param.offset);
+		color.x = WF_PROJECTILE_COL >> 8;
+		color.y = WF_PROJECTILE_COL >> 8;
+		uv_print_line(start, stop, color, param.pixels);
+		put_uv_vertex(start, WF_PROJECTILE_COL, param.pixels);
+		find_closest_to_mouse(level, &uv[k], &start, &mouse);
+		k++;
+	}
+}
+
+static void		draw_face_uv(t_level *level, t_uv_parameters param, t_ivec2 mouse)
+{
+	t_ivec2		color;
+	t_vec2		start;
+	t_vec2		stop;
+	int			k;
+	int			next;
+
+	k = 0;
+	while (k < 3 + param.tri->isquad)
+	{
+		if (param.tri->isquad)
+			next = (int[4]){1, 3, 0, 2}[k];
+		else
+			next = (k + 1) % 3;
+		start.x = param.scale.x * param.tri->verts[k].txtr.x;
+		start.y = param.scale.y * (1 - param.tri->verts[k].txtr.y);
+		stop.x = param.scale.x * param.tri->verts[next].txtr.x;
+		stop.y = param.scale.y * (1 - param.tri->verts[next].txtr.y);
+		vec2_add(&start, start, param.offset);
+		vec2_add(&stop, stop, param.offset);
+		color.x = WF_SELECTED_COL >> 8;
+		color.y = WF_SELECTED_COL >> 8;
+		if (k == 3)
+			color.x = WF_UNSELECTED_COL >> 8;
+		if (next == 3)
+			color.y = WF_UNSELECTED_COL >> 8;
+		uv_print_line(start, stop, color, param.pixels);
+		if (k == 3)
+			put_uv_vertex(start, 0xff, param.pixels);
+		else
 		{
-			for (int k = 0; k < 3 + level->all.tris[i].isquad; k++)
+			set_fourth_vertex_uv(param.tri);
+			put_uv_vertex(start, WF_SELECTED_COL, param.pixels);
+			find_closest_to_mouse(level, &param.tri->verts[k].txtr, &start, &mouse);
+		}
+		k++;
+	}
+}
+
+static void		uv_wireframe(t_level *level, t_ivec2 offset, unsigned *pixels, float image_scale)
+{
+	t_ivec2	mouse;
+	t_vec2	start;
+	t_vec2	stop;
+	t_uv_parameters		param;
+
+	SDL_GetMouseState(&mouse.x, &mouse.y);
+	param.offset.x = offset.x;
+	param.offset.y = offset.y;
+	param.scale.x = level->texture.width * image_scale;
+	param.scale.y = level->texture.height * image_scale;
+	param.pixels = pixels;
+	if (nothing_selected(level))
+	{
+		draw_uv(level, param, level->player.projectile_uv, mouse);
+		for (int k = 0; k < 3; k++)
+			find_closest_to_mouse(level, &level->player.projectile_uv[k], &start, &mouse);
+	}
+	else
+		for (int i = 0; i < level->all.tri_amount; i++)
+			if (level->all.tris[i].selected)
 			{
-				if (level->all.tris[i].isquad)
-					next = (int[4]){1, 3, 0, 2}[k];
-				else
-					next = (k + 1) % 3;
-				start.x = (level->texture.width * image_scale) * level->all.tris[i].verts[k].txtr.x;
-				start.y = (level->texture.height * image_scale) * (1 - level->all.tris[i].verts[k].txtr.y);
-				stop.x = (level->texture.width * image_scale) * level->all.tris[i].verts[next].txtr.x;
-				stop.y = (level->texture.height * image_scale) * (1 - level->all.tris[i].verts[next].txtr.y);
-				start.y += offset.y;
-				start.x += offset.x;
-				stop.y += offset.y;
-				stop.x += offset.x;
-				color.x = WF_SELECTED_COL >> 8;
-				color.y = WF_SELECTED_COL >> 8;
-				if (k == 3)
-					color.x = WF_UNSELECTED_COL >> 8;
-				if (next == 3)
-					color.y = WF_UNSELECTED_COL >> 8;
-				uv_print_line(start, stop, color, pixels);
-				if (k == 3)
-					put_uv_vertex(start, 0xff, pixels);
-				else
+				param.tri = &level->all.tris[i];
+				draw_face_uv(level, param, mouse);
+				if (level->all.tris[i].enemy)
 				{
-					set_fourth_vertex_uv(&level->all.tris[i]);
-					put_uv_vertex(start, WF_SELECTED_COL, pixels);
-					find_closest_to_mouse(&start, &i, &k, level);
+					draw_uv(level, param, level->all.tris[i].enemy->projectile_uv, mouse);
+					for (int k = 0; k < 3; k++)
+						find_closest_to_mouse(level, &level->all.tris[i].enemy->projectile_uv[k], &start, &mouse);
 				}
 			}
+	update_uv_closest_vertex(level, image_scale, offset, mouse);
+}
+
+static void		match_projectile_uv(t_level *level)
+{
+	int 	i;
+	int		copy_index;
+
+	i = 0;
+	copy_index = -1;
+	while (i < level->all.tri_amount)
+	{
+		if (level->all.tris[i].selected && level->all.tris[i].isenemy)
+		{
+			if (copy_index != -1)
+			{
+				level->all.tris[i].enemy->projectile_uv[0] = level->all.tris[copy_index].enemy->projectile_uv[0];
+				level->all.tris[i].enemy->projectile_uv[1] = level->all.tris[copy_index].enemy->projectile_uv[1];
+				level->all.tris[i].enemy->projectile_uv[2] = level->all.tris[copy_index].enemy->projectile_uv[2];
+			}
+			else
+				copy_index = i;
 		}
+		i++;
 	}
-	update_uv_closest_vertex(level, image_scale, offset);
 }
 
 void			uv_editor(t_level *level, t_window *window)
@@ -218,10 +288,11 @@ void			uv_editor(t_level *level, t_window *window)
 			uv_pixel_put(x, y, UI_BACKGROUND_COL, pixels);
 	for (int y = 0 ; y < RES_Y; y++)
 		for (int x = 0 ; x < RES_X / 2; x++)
-			if (x - offset.x >= 0 && x - offset.x < level->texture.width * image_scale &&
-				y - offset.y >= 0 && y - offset.y < level->texture.height * image_scale)
+			if (x - offset.x >= 0 && x - offset.x < (int)(level->texture.width * image_scale) &&
+				y - offset.y >= 0 && y - offset.y < (int)(level->texture.height * image_scale))
 				uv_pixel_put(x, y, level->texture.image[(int)((y - offset.y) / image_scale) * level->texture.width +
 														(int)((x - offset.x) / image_scale)], pixels);
+	match_projectile_uv(level);
 	uv_wireframe(level, offset, pixels, image_scale);
 	SDL_UnlockTexture(texture);
 	SDL_RenderCopy(window->SDLrenderer, texture, NULL, NULL);
@@ -230,14 +301,9 @@ void			uv_editor(t_level *level, t_window *window)
 	ft_memset(pixels, 0, RES_X * RES_Y * 4);
 }
 
-void	disable_uv_editor(t_level *level)
-{
-	level->ui.state.is_uv_editor_open = FALSE;
-}
-
 void	enable_uv_editor(t_level *level)
 {
-	level->ui.state.is_uv_editor_open = TRUE;
+	level->ui.state.ui_location = UI_LOCATION_UV_EDITOR;
 	level->ui.wireframe = TRUE;
 	level->ui.wireframe_on_top = TRUE;
 }

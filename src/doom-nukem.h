@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/11 20:56:38 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/21 00:03:22 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 # define DOOM_NUKEM_H
 # define RES_X 1000
 # define RES_Y 700
-# define THREAD_AMOUNT 4
+# define THREAD_AMOUNT 8
 # define NOISE_QUALITY_LIMIT 8
 # define SSP_MAX_X 20
 # define SSP_MAX_Y 20
@@ -24,7 +24,8 @@
 # define JUMP_SPEED 5	//	m/s
 # define AIR_ACCEL .3	//	m/s^2
 # define MOVE_ACCEL 70	//	m/s^2
-# define MOVE_SPEED 10	//	m/s
+# define RUN_SPEED 10	//	m/s
+# define WALK_SPEED 4	//	m/s
 # define GROUND_FRICTION 5.
 # define PLAYER_HEIGHT 1.75
 # define PLAYER_HEIGHT_MAGIC 1.3
@@ -32,10 +33,16 @@
 # define WALL_CLIP_DIST 0.3
 # define REFLECTION_DEPTH 3
 # define WALKABLE_NORMAL_MIN_Y 0.75
+# define DOOR_ACTIVATION_DISTANCE 3.
+# define DOOR_LOCATION_INFO_COLOR 0x880088ff
+
+# define ENEMY_MOVABLE_HEIGHT_DIFF 1
+# define MAX_PROJECTILE_TRAVEL 100
 
 # define TRUE 1
 # define FALSE 0
 
+# define WF_PROJECTILE_COL 0xff4422ff
 # define WF_UNSELECTED_COL 0x333333ff
 # define WF_SELECTED_COL 0xffaa00ff
 # define WF_VERT_COL 0x010101ff
@@ -44,6 +51,22 @@
 # define WF_VISIBLE_NORMAL_COL 0x00ffffff
 # define WF_VISIBLE_COL 0x00ff00ff
 # define WF_BACKGROUND_COL 0x99		//1 byte value
+# define WF_NORMAL_LEN 0.3
+
+# define HUD_TEXT_COLOR 0xff6666bb
+# define HUD_FONT_SIZE 42
+# define MAIN_MENU_FONT_SIZE 30
+# define MAIN_MENU_BUTTON_AMOUNT 4
+# define MAIN_MENU_FONT_BACKGROUND_COLOR 0xffffff55
+# define MAIN_MENU_FONT_COLOR 0x000000ff
+# define MAIN_MENU_FONT_PADDING_MULTIPLIER 1.5
+# define CROSSHAIR_COLOR 0xff0000ff
+# define PLAYER_HEALTH_MAX 100
+# define PLAYER_AMMO_MAX 30
+# define DEATH_LENGTH_SEC 5
+# define DEATH_OVERLAY_COLOR 0xff000088
+# define VIEWMODEL_FRAMES 6
+# define VIEWMODEL_ANIM_FPS 2.0
 
 # define NONFATAL_ERROR_LIFETIME_SECONDS 7.42
 # define NONFATAL_ERROR_FADEOUT_TIME_MS 666
@@ -104,6 +127,14 @@ typedef struct			s_window
 	float				*depth_buffer;
 }						t_window;
 
+typedef struct			s_rect
+{
+	int					x;
+	int					y;
+	int					w;
+	int					h;
+}						t_rect;
+
 typedef struct			s_ivec3
 {
 	int					x;
@@ -143,6 +174,38 @@ typedef struct			s_vert
 	int					selected;
 }						t_vert;
 
+typedef struct			s_uv_parameters
+{
+	struct s_vec2		scale;
+	struct s_tri		*tri;
+	struct s_vec2		offset;
+	unsigned			*pixels;
+}						t_uv_parameters;
+
+typedef struct			s_projectile
+{
+	struct s_vec3		dir;
+	float				speed;
+	float				dist;
+	float				damage;
+}						t_projectile;
+
+typedef struct			s_enemy
+{
+	struct s_vec3		dir;
+	struct s_vec2		projectile_uv[3];
+	float				move_speed;
+	float				dist_limit;
+	float				initial_health;
+	float				remaining_health;
+	float				attack_range;
+	float				attack_frequency;
+	float				projectile_speed;	//	0 = no projectile
+	float				projectile_scale;
+	float				attack_damage;
+	float				current_attack_delay;
+}						t_enemy;
+
 typedef struct			s_tri
 {
 	int					index;
@@ -150,9 +213,12 @@ typedef struct			s_tri
 	struct s_vec3		v0v1;		//vector between vertices 1 and 0
 	struct s_vec3		v0v2;		//vector between vertices 2 and 0
 	struct s_vec3		normal;
+	int					isenemy;
+	struct s_enemy		*enemy;
+	int					isprojectile;
+	struct s_projectile	*projectile;
 	int					isquad;
 	int					isgrid;
-	int					isenemy;
 	int					disable_distance_culling;
 	int					disable_backface_culling;
 	float				opacity;
@@ -196,13 +262,24 @@ typedef struct			s_camera
 	float				fov_x;
 }						t_camera;
 
-typedef enum			e_ui_location
+typedef struct			s_door
 {
-	UI_UV_SETTINGS = 1,
-	UI_UV_EDITOR,
-	UI_SERIALIZE,
-	UI_DIRECTORY
-}						t_ui_location;
+	int					indice_amount;
+	int					*indices;
+	int					*isquad;
+	t_vec3				**pos1;
+	t_vec3				**pos2;
+	float				transition_time;
+	unsigned			transition_start_time;
+	int					transition_direction;
+}						t_door;
+
+typedef struct			s_all_doors
+{
+	struct s_door		*door;
+	int					door_amount;
+	int					selected_index;
+}						t_all_doors;
 
 typedef enum			e_mouse_location
 {
@@ -212,12 +289,32 @@ typedef enum			e_mouse_location
 	MOUSE_LOCATION_GIZMO_X,
 	MOUSE_LOCATION_GIZMO_Y,
 	MOUSE_LOCATION_GIZMO_Z,
+	MOUSE_LOCATION_MAIN_MENU,
 	MOUSE_LOCATION_SELECTION
 }						t_mouse_location;
+
+typedef enum			e_game_state
+{
+	GAME_STATE_MAIN_MENU = 0,
+	GAME_STATE_EDITOR,
+	GAME_STATE_INGAME,
+	GAME_STATE_DEAD
+}						t_game_state;
+
+typedef enum			e_ui_location
+{
+	UI_LOCATION_MAIN = 0,
+	UI_LOCATION_FILE_OPEN,
+	UI_LOCATION_FILE_SAVE,
+	UI_LOCATION_UV_EDITOR,
+	UI_LOCATION_SETTINGS,
+	UI_LOCATION_DOOR_EDITOR
+}						t_ui_location;
 
 struct					s_level;
 typedef struct			s_ui_state
 {
+	enum e_ui_location	ui_location;
 	int					ui_max_width;
 	int					ui_text_y_pos;
 	int					ui_text_x_offset;
@@ -232,16 +329,13 @@ typedef struct			s_ui_state
 	int					m1_click;
 	int					m1_drag;
 	enum e_mouse_location	mouse_location;
-	int					is_uv_editor_open;
 	float				uv_zoom;
 	struct s_vec2		uv_pos;
 
-	int					is_serialize_open;
 	char				*save_filename;
 	int					text_input_enable;
 	int					ssp_visual;
 
-	int					is_directory_open;
 	char				*directory;
 	char				*extension;
 	void				(*open_file)(struct s_level*, char*);
@@ -273,9 +367,19 @@ typedef struct			s_editor_ui
 	float				horizontal_velocity;
 
 	//info
+	unsigned			ssp;
+	unsigned			cull;
+	unsigned			render;
 	unsigned			frametime;
 	struct s_ui_state	state;
 }						t_editor_ui;
+
+typedef struct			s_player_pos
+{
+	struct s_vec3		pos;
+	float				look_side;
+	float				look_up;
+}						t_player_pos;
 
 typedef struct			s_level
 {
@@ -288,7 +392,21 @@ typedef struct			s_level
 	struct s_skybox		sky;
 	struct s_camera		cam;
 	struct s_editor_ui	ui;
+	struct s_all_doors	doors;
+	struct s_enemy		player;
 	int					shadow_color;
+	int					player_health;
+	int					player_ammo;
+	struct s_player_pos	spawn_pos;
+	struct s_player_pos	main_menu_pos1;
+	struct s_player_pos	main_menu_pos2;
+	unsigned			main_menu_anim_time;
+	unsigned			main_menu_anim_start_time;
+	unsigned			death_start_time;
+	struct s_vec3		player_vel;
+	unsigned			reload_start_time;
+	int					viewmodel_index;
+	struct s_bmp		viewmodel[VIEWMODEL_FRAMES];
 }						t_level;
 
 typedef struct			s_rthread
@@ -382,12 +500,13 @@ int			get_ssp_coordinate(int coord, int horizontal);
 
 int			raycast(void *t);
 float		cast_face(t_tri t, t_ray ray, t_cast_result *res);
+float		cast_all(t_ray vec, t_level *level, float *dist_u, float *dist_d, int *index);
 void		fill_pixels(unsigned *grid, int pixel_gap, int blur, int smooth);
-unsigned	crossfade(unsigned color1, unsigned color2, unsigned fade);
+unsigned	crossfade(unsigned color1, unsigned color2, unsigned fade, unsigned alpha);
 void		face_color(float u, float v, t_tri t, t_cast_result *res);
-
 void		wireframe(t_window *window, t_level *level);
 void		camera_offset(t_vec3 *vertex, t_camera *cam);
+SDL_Color	get_sdl_color(unsigned color);
 
 void		load_obj(char *filename, t_obj *obj);
 t_bmp		bmp_read(char *str);
@@ -403,7 +522,9 @@ void		set_fourth_vertex(t_tri *a);
 void		rotate_vertex(float angle, t_vec3 *vertex, int axis);
 void		rot_cam(t_vec3 *cam, const float lon, const float lat);
 
+void		init_enemy(t_tri *face);
 void		init_ui(t_window *window, t_level *level);
+void		init_player(t_enemy *player);
 void		ui_render(t_level *level);
 void		ui_config(t_level *level);
 void		set_text_color(int color);
@@ -418,14 +539,19 @@ void		path_up_dir(char *path);
 void		go_in_dir(char *path, char *folder);
 void		text_input(char *str, t_level *level);
 void		find_closest_mouse(t_vec3 *vert, int *i, int *k);
+void		render_text(char *text, t_window *window, t_ivec2 *pos, SDL_Texture *get_texture);
+
+void		main_menu(t_level *level, t_window *window, t_game_state *game_state);
+void		main_menu_move_background(t_level *level);
+void		hud(t_level *level, t_window *window, t_game_state game_state);
+void		create_projectile(t_level *level, t_vec3 pos, t_vec3 dir, t_enemy *enemy);
 
 void		uv_editor(t_level *level, t_window *window);
 void		enable_uv_editor(t_level *level);
-void		disable_uv_editor(t_level *level);
 void		obj_editor(t_level *level, t_window *window);
 void		obj_editor_input(t_level *level);
 
-void		player_movement(t_level *level);
+void		player_movement(t_level *level, t_game_state game_state);
 
 void		enemies_update_physics(t_level *level);
 void		enemies_update_sprites(t_level *level);
@@ -433,7 +559,7 @@ void		enemies_update_sprites(t_level *level);
 int			fog(int color, float dist, unsigned fog_color, t_level *level);
 int			skybox(t_bmp *img, t_obj *obj, t_ray r);
 
-void		opacity(t_cast_result *res, t_level *l, t_obj *obj);
+void		opacity(t_cast_result *res, t_level *l, t_obj *obj, float opacity);
 void		shadow(t_level *l, t_vec3 normal, t_cast_result *res);
 
 void		reflection(t_cast_result *res, t_level *l, t_obj *obj);
@@ -441,6 +567,7 @@ void		reflection(t_cast_result *res, t_level *l, t_obj *obj);
 unsigned	wave_shader(t_vec3 mod, t_vec3 *normal, unsigned col1, unsigned col2);
 
 void		select_face(t_camera *cam, t_level *level, int x, int y);
+void		deselect_all_faces(t_level *level);
 
 void		save_level(t_level *level);
 void		open_level(t_level *level, char *filename);
@@ -457,5 +584,20 @@ void		add_face(t_level *level);
 void		remove_faces(t_level *level);
 void		nonfatal_error(t_level *level, char *message);
 t_ivec2		put_text(char *text, t_window *window, SDL_Texture *texture, t_ivec2 pos);
+void		set_new_face(t_level *level, t_vec3 pos, t_vec3 dir, float scale);
+
+t_vec3		vec_interpolate(t_vec3 a, t_vec3 b, float f);
+float		lerp(float a, float b, float f);
+
+void		door_animate(t_level *level);
+void		door_put_text(t_window *window, t_level *level);
+void		add_new_door(t_level *level);
+void		delete_door(t_level *level);
+void		door_activate(t_level *level);
+void		set_door_pos_1(t_level *level);
+void		set_door_pos_2(t_level *level);
+void		enable_door_editor(t_level *level);
+void		find_selected_door_index(t_level *level);
+int			nothing_selected(t_level *level);
 
 #endif

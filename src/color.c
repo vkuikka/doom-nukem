@@ -12,7 +12,7 @@
 
 #include "doom-nukem.h"
 
-unsigned	crossfade(unsigned color1, unsigned color2, unsigned fade)
+unsigned		crossfade(unsigned color1, unsigned color2, unsigned fade, unsigned alpha)
 {
 	unsigned char	*rgb1;
 	unsigned char	*rgb2;
@@ -25,10 +25,10 @@ unsigned	crossfade(unsigned color1, unsigned color2, unsigned fade)
 	newr = (rgb1[2] * (0xff - fade) + rgb2[2] * fade) / 0xff;
 	newg = (rgb1[1] * (0xff - fade) + rgb2[1] * fade) / 0xff;
 	newb = (rgb1[0] * (0xff - fade) + rgb2[0] * fade) / 0xff;
-	return ((newr << 8 * 3) + (newg << 8 * 2) + (newb << 8 * 1) + 0xff);
+	return ((newr << 8 * 3) + (newg << 8 * 2) + (newb << 8 * 1) + alpha);
 }
 
-int			skybox(t_bmp *img, t_obj *obj, t_ray r)
+int				skybox(t_bmp *img, t_obj *obj, t_ray r)
 {
 	t_cast_result	res;
 
@@ -47,7 +47,7 @@ int			skybox(t_bmp *img, t_obj *obj, t_ray r)
 	return (res.color);
 }
 
-int			fog(int color, float dist, unsigned fog_color, t_level *level)
+int				fog(int color, float dist, unsigned fog_color, t_level *level)
 {
 	float	fade;
 
@@ -55,12 +55,12 @@ int			fog(int color, float dist, unsigned fog_color, t_level *level)
 	{
 		fade = (dist + 1) / (level->ui.render_distance - 1);
 		fade = fade > 1 ? 1 : fade;
-		return (crossfade(color >> 8, fog_color >> 8, 0xff * fade));
+		return (crossfade(color >> 8, fog_color >> 8, 0xff * fade, 0xff));
 	}
 	return (fog_color);
 }
 
-void		blur_pixels(unsigned *color, int gap)
+void			blur_pixels(unsigned *color, int gap)
 {
 	int		res;
 	int		x;
@@ -79,10 +79,10 @@ void		blur_pixels(unsigned *color, int gap)
 			int col3 = color[x + gap + (y * RES_X)];
 			int col4 = color[x + ((y + gap) * RES_X)];
 			float fade = 1.0 / 4.0;
-			res = crossfade(res >> 8, col1 >> 8, fade * 0xff);
-			res = crossfade(res >> 8, col2 >> 8, fade * 0xff);
-			res = crossfade(res >> 8, col3 >> 8, fade * 0xff);
-			res = crossfade(res >> 8, col4 >> 8, fade * 0xff);
+			res = crossfade(res >> 8, col1 >> 8, fade * 0xff, 0xff);
+			res = crossfade(res >> 8, col2 >> 8, fade * 0xff, 0xff);
+			res = crossfade(res >> 8, col3 >> 8, fade * 0xff, 0xff);
+			res = crossfade(res >> 8, col4 >> 8, fade * 0xff, 0xff);
 			color[x + (y * RES_X)] = res;
 			x += gap;
 		}
@@ -90,7 +90,7 @@ void		blur_pixels(unsigned *color, int gap)
 	}
 }
 
-int			smooth_color(unsigned *pixels, int gap, int x, int y)
+int				smooth_color(unsigned *pixels, int gap, int x, int y)
 {
 	int		dx;
 	int		dy;
@@ -106,24 +106,24 @@ int			smooth_color(unsigned *pixels, int gap, int x, int y)
 	{
 		re1 = pixels[dx + dy * RES_X];
 		re2 = pixels[dx + (dy + gap) * RES_X];
-		return(crossfade(re1 >> 8, re2 >> 8, y % gap / (float)gap * 0xff));
+		return(crossfade(re1 >> 8, re2 >> 8, y % gap / (float)gap * 0xff, 0xff));
 	}
 	if (y >= RES_Y - gap)
 	{
 		re1 = pixels[dx + dy * RES_X];
 		re2 = pixels[dx + gap + dy * RES_X];
-		return(crossfade(re1 >> 8, re2 >> 8, x % gap / (float)gap * 0xff));
+		return(crossfade(re1 >> 8, re2 >> 8, x % gap / (float)gap * 0xff, 0xff));
 	}
 	re1 = pixels[dx + dy * RES_X];
 	re2 = pixels[dx + (dy + gap) * RES_X];
-	tmp = crossfade(re1 >> 8, re2 >> 8, y % gap / (float)gap * 0xff);
+	tmp = crossfade(re1 >> 8, re2 >> 8, y % gap / (float)gap * 0xff, 0xff);
 	re1 = pixels[dx + gap + dy * RES_X];
 	re2 = pixels[dx + gap + (dy + gap) * RES_X];
-	re1 = crossfade(re1 >> 8, re2 >> 8, y % gap / (float)gap * 0xff);
-	return(crossfade(tmp >> 8, re1 >> 8, x % gap / (float)gap * 0xff));
+	re1 = crossfade(re1 >> 8, re2 >> 8, y % gap / (float)gap * 0xff, 0xff);
+	return(crossfade(tmp >> 8, re1 >> 8, x % gap / (float)gap * 0xff, 0xff));
 }
 
-void		fill_pixels(unsigned *grid, int gap, int blur, int smooth)
+void			fill_pixels(unsigned *grid, int gap, int blur, int smooth)
 {
 	int		color;
 	int		i;
@@ -158,19 +158,30 @@ void		fill_pixels(unsigned *grid, int gap, int blur, int smooth)
 	}
 }
 
-t_vec3		get_normal(int vec)
+SDL_Color		get_sdl_color(unsigned color)
+{
+	SDL_Color	res;
+
+	res.r = (color << 8 * 0) >> 8 * 3;
+	res.g = (color << 8 * 1) >> 8 * 3;
+	res.b = (color << 8 * 2) >> 8 * 3;
+	res.a = (color << 8 * 3) >> 8 * 3;
+	return (res);
+}
+
+t_vec3			get_normal(int vec)
 {
 	unsigned char	*v;
 	t_vec3			dir;
 
 	v = (unsigned char*)&vec;
 	dir.x = v[3] - 128;
-	dir.y = v[1] - 128;
+	dir.y = -(v[1] - 128);
 	dir.z = v[2] - 128;
 	return (dir);
 }
 
-void		face_color(float u, float v, t_tri t, t_cast_result *res)
+void			face_color(float u, float v, t_tri t, t_cast_result *res)
 {
 	int		x;
 	int 	y;
