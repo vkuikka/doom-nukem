@@ -158,6 +158,17 @@ void			fill_pixels(unsigned *grid, int gap, int blur, int smooth)
 	}
 }
 
+SDL_Color		get_sdl_color(unsigned color)
+{
+	SDL_Color	res;
+
+	res.r = (color << 8 * 0) >> 8 * 3;
+	res.g = (color << 8 * 1) >> 8 * 3;
+	res.b = (color << 8 * 2) >> 8 * 3;
+	res.a = (color << 8 * 3) >> 8 * 3;
+	return (res);
+}
+
 t_vec3			get_normal(int vec)
 {
 	unsigned char	*v;
