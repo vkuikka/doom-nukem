@@ -175,6 +175,27 @@ void	set_skybox(t_level *level, char *filename)
 	level->sky.img = bmp_read(filename);
 }
 
+void	set_spawn_pos(t_level *level)
+{
+	level->spawn_pos.pos = level->cam.pos;
+	level->spawn_pos.look_side = level->cam.look_side;
+	level->spawn_pos.look_up = level->cam.look_up;
+}
+
+void	set_menu_pos_1(t_level *level)
+{
+	level->main_menu_pos1.pos = level->cam.pos;
+	level->main_menu_pos1.look_side = level->cam.look_side;
+	level->main_menu_pos1.look_up = level->cam.look_up;
+}
+
+void	set_menu_pos_2(t_level *level)
+{
+	level->main_menu_pos2.pos = level->cam.pos;
+	level->main_menu_pos2.look_side = level->cam.look_side;
+	level->main_menu_pos2.look_up = level->cam.look_up;
+}
+
 void	go_in_dir(char *path, char *folder)
 {
 	int i;
@@ -411,6 +432,11 @@ void	ui_config(t_level *level)
 		file_browser("select skybox", ".bmp", &set_skybox);
 		call("add face", &add_face, level);
 		call("edit doors", &enable_door_editor, level);
+		call("set spawn position", &set_spawn_pos, level);
+		call("set menu position 1", &set_menu_pos_1, level);
+		call("set menu position 2", &set_menu_pos_2, level);
+		sprintf(buf, "main menu animation time %ds", level->main_menu_anim_time);
+		int_slider(&level->main_menu_anim_time, buf, 2, 50);
 		button(&ui->fog, "fog");
 		// color(ui->color, "fog color");
 		// call(, "set spawn point");

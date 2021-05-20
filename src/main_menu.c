@@ -78,7 +78,24 @@ static int		mouse_collision(t_rect rect, t_level *level)
 
 void			main_menu_move_background(t_level *level)
 {
-	//lerp pos1 pos2
+	float	time;
+
+	time = (SDL_GetTicks() - level->main_menu_anim_start_time) / (1000.0 * level->main_menu_anim_time);
+	if (time < 1)
+	{
+		level->cam.pos = vec_interpolate(level->main_menu_pos1.pos, level->main_menu_pos2.pos, time);
+		level->cam.look_side = lerp(level->main_menu_pos1.look_side, level->main_menu_pos2.look_side, time);
+		level->cam.look_up = lerp(level->main_menu_pos1.look_up, level->main_menu_pos2.look_up, time);
+	}
+	else if (time < 2)
+	{
+		time -= 1;
+		level->cam.pos = vec_interpolate(level->main_menu_pos2.pos, level->main_menu_pos1.pos, time);
+		level->cam.look_side = lerp(level->main_menu_pos2.look_side, level->main_menu_pos1.look_side, time);
+		level->cam.look_up = lerp(level->main_menu_pos2.look_up, level->main_menu_pos1.look_up, time);
+	}
+	else
+		level->main_menu_anim_start_time = SDL_GetTicks();
 }
 
 void			main_menu(t_level *level, t_window *window, t_game_state *game_state)
@@ -101,21 +118,25 @@ void			main_menu(t_level *level, t_window *window, t_game_state *game_state)
 	ft_memset(pixels, 0, RES_X * RES_Y * 4);
 	rect = main_menu_button_text("play level", window, texture, 0);
 	main_menu_text_background(rect, pixels);
+	int state_changed = FALSE;
 	if (mouse_collision(rect, level))
 	{
 		*game_state = GAME_STATE_INGAME;
+		state_changed = TRUE;
 	}
 	rect = main_menu_button_text("edit level", window, texture, 1);
 	main_menu_text_background(rect, pixels);
 	if (mouse_collision(rect, level))
 	{
 		*game_state = GAME_STATE_EDITOR;
+		state_changed = TRUE;
 	}
 	rect = main_menu_button_text("new level", window, texture, 2);
 	main_menu_text_background(rect, pixels);
 	if (mouse_collision(rect, level))
 	{
 		*game_state = GAME_STATE_EDITOR;
+		state_changed = TRUE;
 	}
 	rect = main_menu_button_text("settings", window, texture, 3);
 	main_menu_text_background(rect, pixels);
@@ -123,6 +144,16 @@ void			main_menu(t_level *level, t_window *window, t_game_state *game_state)
 	{
 		*game_state = GAME_STATE_EDITOR;
 		level->ui.state.ui_location = UI_LOCATION_SETTINGS;
+		state_changed = TRUE;
+	}
+	if (state_changed)
+	{
+		level->cam.pos = level->spawn_pos.pos;
+		level->cam.look_side = level->spawn_pos.look_side;
+		level->cam.look_up = level->spawn_pos.look_up;
+		level->player_vel.x = 0;
+		level->player_vel.y = 0;
+		level->player_vel.z = 0;
 	}
 	SDL_UnlockTexture(background_texture);
 	SDL_RenderCopy(window->SDLrenderer, background_texture, NULL, NULL);

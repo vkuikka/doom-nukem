@@ -368,6 +368,13 @@ typedef struct			s_editor_ui
 	struct s_ui_state	state;
 }						t_editor_ui;
 
+typedef struct			s_player_pos
+{
+	struct s_vec3		pos;
+	float				look_side;
+	float				look_up;
+}						t_player_pos;
+
 typedef struct			s_level
 {
 	// struct s_obj		*all_objs;	//(if want to add multiple objects) array of objects in the level
@@ -384,6 +391,11 @@ typedef struct			s_level
 	int					shadow_color;
 	int					player_health;
 	int					player_ammo;
+	struct s_player_pos	spawn_pos;
+	struct s_player_pos	main_menu_pos1;
+	struct s_player_pos	main_menu_pos2;
+	unsigned			main_menu_anim_time;
+	unsigned			main_menu_anim_start_time;
 	struct s_vec3		player_vel;
 	unsigned			reload_start_time;
 	int					viewmodel_index;
@@ -566,6 +578,9 @@ void		remove_faces(t_level *level);
 void		nonfatal_error(t_level *level, char *message);
 t_ivec2		put_text(char *text, t_window *window, SDL_Texture *texture, t_ivec2 pos);
 void		set_new_face(t_level *level, t_vec3 pos, t_vec3 dir, float scale);
+
+t_vec3		vec_interpolate(t_vec3 a, t_vec3 b, float f);
+float		lerp(float a, float b, float f);
 
 void		door_animate(t_level *level);
 void		door_put_text(t_window *window, t_level *level);
