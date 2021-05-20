@@ -142,6 +142,7 @@ static void	noclip(t_level *level, t_vec3 *wishdir, t_vec3 *vel, float delta_tim
 	level->cam.pos.z += wishdir->z * delta_time;
 	ft_bzero(vel, sizeof(t_vec3));
 	level->ui.horizontal_velocity = vec_length(*wishdir);
+	level->player_vel = *vel;
 }
 
 static void	        rotate_wishdir(t_level *level, t_vec3 *wishdir, t_vec3 *vel)
@@ -214,19 +215,16 @@ void		horizontal_movement(t_vec3 *wishdir, t_vec3 *vel, float delta_time, float 
 	}
 }
 
-void	        player_movement(t_level *level)
+void		player_movement(t_level *level, t_game_state game_state)
 {
-	static t_vec3	vel = {0, 0, 0};
 	int				in_air;
 	t_vec3			wishdir;
 	float			shift;
 	float			delta_time;
 
-	if (!level)
-	{
-		vec_mult(&vel, 0);
-		return;
-	}
+	if (game_state != GAME_STATE_EDITOR)
+		level->ui.noclip = FALSE;
+	t_vec3	vel = level->player_vel;
 	delta_time = level->ui.frametime / 1000.;
 	player_input(level, &wishdir, &shift);
 	rotate_wishdir(level, &wishdir, &vel);
@@ -248,4 +246,5 @@ void	        player_movement(t_level *level)
 		vec_div(&vel, delta_time);
 		level->ui.horizontal_velocity = sqrt(vel.x * vel.x + vel.z * vel.z);
 	}
+	level->player_vel = vel;
 }

@@ -212,6 +212,24 @@ static void		read_input(t_window *window, t_level *level, t_game_state *game_sta
 	}
 }
 
+void		game_logic(t_level *level)
+{
+	if (level->ui.state.m1_click)
+	{
+		if (level->player_ammo)
+		{
+			level->player_ammo--;
+			init_enemy(&level->all.tris[0]);
+			create_projectile(level, level->cam.pos, level->cam.front, level->all.tris[0].enemy);
+			//add projectile
+		}
+		else
+		{
+			level->player_ammo = PLAYER_AMMO_MAX;
+		}
+	}
+}
+
 int			main(int argc, char **argv)
 {
 	t_window	*window;
@@ -237,7 +255,11 @@ int			main(int argc, char **argv)
 		if (game_state == GAME_STATE_MAIN_MENU)
 			main_menu_move_background(level);
 		else
-			player_movement(level);
+		{
+			if (game_state == GAME_STATE_INGAME)
+				game_logic(level);
+			player_movement(level, game_state);
+		}
 		update_camera(level);
 		door_animate(level);
 		door_put_text(window, level);

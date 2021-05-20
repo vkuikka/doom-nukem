@@ -88,13 +88,13 @@ void	crosshair(unsigned *pixels)
 		}
 }
 
-
 void	hud(t_level *level, t_window *window)
 {
 	static SDL_Texture *texture = NULL;
 	unsigned	*pixels;
 	signed		width;
-	t_editor_ui *ui;
+	t_editor_ui	*ui;
+	char		buf[100];
 
 	if (!texture)
 	{
@@ -103,14 +103,13 @@ void	hud(t_level *level, t_window *window)
 	}
 	if (SDL_LockTexture(texture, NULL, (void**)&pixels, &width) != 0)
 		ft_error("failed to lock texture\n");
-	//hp
-	//ammo
+	ft_memset(pixels, 0, RES_X * RES_Y * 4);
+	//viewmodel
 	crosshair(pixels);
-	put_text_hud("asdasda", window, texture, (t_ivec2){100, 100});
+	sprintf(buf, "%d+", level->player_health);
+	put_text_hud(buf, window, texture, (t_ivec2){HUD_FONT_SIZE / 4, RES_Y - HUD_FONT_SIZE});
+	sprintf(buf, "%d", level->player_ammo);
+	put_text_hud(buf, window, texture, (t_ivec2){RES_X - ((HUD_FONT_SIZE / 2) * strlen(buf)), RES_Y - HUD_FONT_SIZE});
 	SDL_UnlockTexture(texture);
 	SDL_RenderCopy(window->SDLrenderer, texture, NULL, NULL);
-	// SDL_SetRenderTarget(window->SDLrenderer, texture);
-	// SDL_RenderClear(window->SDLrenderer);
-	// SDL_RenderPresent(window->SDLrenderer);
-	// SDL_SetRenderTarget(window->SDLrenderer, NULL);
 }
