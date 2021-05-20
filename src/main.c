@@ -59,9 +59,8 @@ void		render(t_window *window, t_level *level, t_game_state *game_state)
 		fill_pixels(window->frame_buffer, level->ui.raycast_quality,
 					level->ui.blur, level->ui.smooth_pixels);
 	}
-	if (*game_state == GAME_STATE_EDITOR)
+	if (*game_state == GAME_STATE_EDITOR && level->ui.state.ui_location != UI_LOCATION_SETTINGS)
 		wireframe(window, level);
-
 	SDL_UnlockTexture(window->texture);
 	SDL_RenderClear(window->SDLrenderer);
 	SDL_RenderCopy(window->SDLrenderer, window->texture, NULL, NULL);
@@ -71,7 +70,8 @@ void		render(t_window *window, t_level *level, t_game_state *game_state)
 		main_menu(level, window, game_state);
 	else
 	{
-		obj_editor(level, window);
+		if (level->ui.state.ui_location != UI_LOCATION_SETTINGS)
+			obj_editor(level, window);
 		if (level->ui.state.ui_location == UI_LOCATION_UV_EDITOR)
 			uv_editor(level, window);
 		ui_render(level);
@@ -117,13 +117,15 @@ static void		typing_input(t_level *level, SDL_Event event)
 		}
 }
 
-static void		set_mouse_input_location(t_level *level)
+static void		set_mouse_input_location(t_level *level, t_game_state game_state)
 {
 	int	x;
 	int	y;
 
 	SDL_GetMouseState(&x, &y);
-	if (level->ui.state.mouse_capture)
+	if (game_state == GAME_STATE_MAIN_MENU)
+		level->ui.state.mouse_location = MOUSE_LOCATION_MAIN_MENU;
+	else if (level->ui.state.mouse_capture)
 		level->ui.state.mouse_location = MOUSE_LOCATION_GAME;
 	else if (x < level->ui.state.ui_max_width && y < level->ui.state.ui_text_y_pos)
 		level->ui.state.mouse_location = MOUSE_LOCATION_UI;
@@ -176,7 +178,7 @@ static void		keyboard_input(t_window *window, t_level *level, SDL_Event event, t
 		level->ui.wireframe = level->ui.wireframe ? FALSE : TRUE;
 	else if (event.key.keysym.scancode == SDL_SCANCODE_X)
 		level->ui.show_quads = level->ui.show_quads ? FALSE : TRUE;
-	else if (event.key.keysym.scancode == SDL_SCANCODE_TAB)
+	else if (event.key.keysym.scancode == SDL_SCANCODE_TAB && *game_state != GAME_STATE_MAIN_MENU)
 	{
 		level->ui.state.mouse_capture = level->ui.state.mouse_capture ? FALSE : TRUE;
 		if (level->ui.state.mouse_capture)
@@ -210,7 +212,7 @@ static void		read_input(t_window *window, t_level *level, t_game_state *game_sta
 {
 	SDL_Event	event;
 
-	set_mouse_input_location(level);
+	set_mouse_input_location(level, *game_state);
 	while (SDL_PollEvent(&event))
 	{
 		if (event.type == SDL_QUIT || event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
@@ -240,7 +242,7 @@ void		game_logic(t_level *level)
 {
 	if (level->reload_start_time)
 		player_reload(level);
-	if (level->ui.state.m1_click)
+	if (level->ui.state.m1_click && level->ui.state.mouse_capture)
 	{
 		if (level->player_ammo)
 		{
@@ -264,8 +266,7 @@ int			main(int argc, char **argv)
 	unsigned	frametime;
 
 	game_state = GAME_STATE_MAIN_MENU;
-	game_state = GAME_STATE_EDITOR;
-	game_state = GAME_STATE_INGAME;
+	game_state = GAME_STATE_EDITOR;//remove
 	init_level(&level);
 	init_window(&window);
 	init_ui(window, level);
