@@ -409,6 +409,19 @@ void	ui_config(t_level *level)
 		file_browser("select skybox", ".bmp", &set_skybox);
 		call("add face", &add_face, level);
 		call("edit doors", &enable_door_editor, level);
+		if (level->is_baked)
+		{
+			set_text_color(UI_LEVEL_BAKED_COLOR);
+			call("bake lighting", NULL, level);
+		}
+		else
+		{
+			set_text_color(UI_LEVEL_NOT_BAKED_COLOR);
+			// if (call("bake lighting", &bake_lighting, level))
+			if (call("bake lighting", NULL, level))
+				level->is_baked = TRUE;
+		}
+		set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
 		button(&ui->fog, "fog");
 		// color(ui->color, "fog color");
 		// call(, "set spawn point");

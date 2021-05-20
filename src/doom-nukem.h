@@ -63,6 +63,8 @@
 # define UI_PADDING 2
 # define UI_PADDING_4 4
 # define UV_EDITOR_Y_OFFSET UI_ELEMENT_HEIGHT + UI_PADDING * 2
+# define UI_LEVEL_BAKED_COLOR 0x33aa33ff
+# define UI_LEVEL_NOT_BAKED_COLOR 0xcc3333ff
 
 # define UV_PADDING 3
 
@@ -336,6 +338,8 @@ typedef struct			s_level
 	struct s_obj		visible;	//visible faces
 	struct s_obj		*ssp;		//screen space partition
 	struct s_bmp		texture;
+	int					is_baked;
+	struct s_bmp		baked;
 	struct s_bmp		normal_map;
 	struct s_skybox		sky;
 	struct s_camera		cam;
