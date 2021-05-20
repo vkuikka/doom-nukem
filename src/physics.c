@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/10 01:23:16 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/19 19:08:18 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/20 14:57:12 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ float				cast_all(t_ray vec, t_level *level, float *dist_u, float *dist_d, int *
 	return (res);
 }
 
-static void			player_input(t_level *level, t_vec3 *wishdir, float *shift)
+static void			player_input(t_level *level, t_vec3 *wishdir)
 {
 	const Uint8		*keys = SDL_GetKeyboardState(NULL);
 
@@ -82,9 +82,10 @@ static void			player_input(t_level *level, t_vec3 *wishdir, float *shift)
 		wishdir->y -= 1;
 	if (keys[SDL_SCANCODE_LSHIFT] && level->ui.noclip)
 		wishdir->y += 1;
-	*shift = 1;
 	if (keys[SDL_SCANCODE_LSHIFT] && !level->ui.noclip)
-		*shift = .5;
+		level->player.move_speed = WALK_SPEED;
+	else if (!level->ui.noclip)
+		level->player.move_speed = RUN_SPEED;
 }
 
 static void	        player_collision(t_vec3 *vel, t_vec3 *pos, t_level *level)
@@ -186,17 +187,17 @@ void		air_movement(t_vec3 *wishdir, t_vec3 *vel, float delta_time)
 	}
 }
 
-void		horizontal_movement(t_vec3 *wishdir, t_vec3 *vel, float delta_time, float shift)
+void		horizontal_movement(t_vec3 *wishdir, t_vec3 *vel, float delta_time, float movespeed)
 {
 	if (wishdir->x || wishdir->z)
 	{
 		vel->x += wishdir->x * MOVE_ACCEL * delta_time;
 		vel->z += wishdir->z * MOVE_ACCEL * delta_time;
 		float speed;
-		if ((speed = sqrtf(vel->x * vel->x + vel->z * vel->z)) > MOVE_SPEED * shift)
+		if ((speed = sqrtf(vel->x * vel->x + vel->z * vel->z)) > movespeed)
 		{
-			vel->x *= MOVE_SPEED * shift / speed;
-			vel->z *= MOVE_SPEED * shift / speed;
+			vel->x *= movespeed / speed;
+			vel->z *= movespeed / speed;
 		}
 	}
 	else
@@ -219,14 +220,13 @@ void		player_movement(t_level *level, t_game_state game_state)
 {
 	int				in_air;
 	t_vec3			wishdir;
-	float			shift;
 	float			delta_time;
 
 	if (game_state != GAME_STATE_EDITOR)
 		level->ui.noclip = FALSE;
 	t_vec3	vel = level->player_vel;
 	delta_time = level->ui.frametime / 1000.;
-	player_input(level, &wishdir, &shift);
+	player_input(level, &wishdir);
 	rotate_wishdir(level, &wishdir, &vel);
 	if (level->ui.noclip)
 		return (noclip(level, &wishdir, &vel, delta_time));
@@ -235,7 +235,7 @@ void		player_movement(t_level *level, t_game_state game_state)
 	if (in_air || wishdir.y)
 		air_movement(&wishdir, &vel, delta_time);
 	else
-		horizontal_movement(&wishdir, &vel, delta_time, shift);
+		horizontal_movement(&wishdir, &vel, delta_time, level->player.move_speed);
 	if (vel.x || vel.y || vel.z)
 	{
 		vec_mult(&vel, delta_time);

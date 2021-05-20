@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/08 14:38:45 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/14 17:30:16 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/20 16:18:36 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,4 +103,22 @@ void			init_enemy(t_tri *face)
 	face->enemy->projectile_uv[1].y = 1;
 	face->enemy->projectile_uv[2].x = 1;
 	face->enemy->projectile_uv[2].y = 1;
+}
+
+void			init_player(t_enemy *player)
+{
+	player->move_speed = RUN_SPEED;
+	player->initial_health = 100;
+	player->remaining_health = player->initial_health;
+	player->projectile_speed = 40;
+	player->projectile_scale = 0.5;
+	player->attack_frequency = 0.5;
+	player->attack_damage = -10;
+	player->current_attack_delay = 0;
+	player->projectile_uv[0].x = .5;
+	player->projectile_uv[0].y = 0;
+	player->projectile_uv[1].x = 0;
+	player->projectile_uv[1].y = 1;
+	player->projectile_uv[2].x = 1;
+	player->projectile_uv[2].y = 1;
 }

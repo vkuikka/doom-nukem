@@ -164,18 +164,18 @@ void			move_enemy(t_tri *face, t_level *level, float time)
 	face->enemy->current_attack_delay += time;
 	if (dist > vec_length(tmp) && face->enemy->current_attack_delay >= face->enemy->attack_frequency)
 	{
-		if (face->enemy->projectile_speed)
-		{
-			face->enemy->current_attack_delay = 0;
-			vec_sub(&e.dir, player, e.pos);
-			vec_normalize(&e.dir);
-			create_projectile(level, e.pos, e.dir, face->enemy);
-		}
 		if (vec_length(tmp) < face->enemy->attack_range)
 		{
 			face->enemy->current_attack_delay = 0;
 			vec_mult(&level->player_vel, 0);
 			level->player_health -= face->enemy->attack_damage;
+		}
+		else if (face->enemy->projectile_speed)
+		{
+			face->enemy->current_attack_delay = 0;
+			vec_sub(&e.dir, player, e.pos);
+			vec_normalize(&e.dir);
+			create_projectile(level, e.pos, e.dir, face->enemy);
 		}
 	}
 }
@@ -192,7 +192,7 @@ static void		move_projectile(t_tri *face, t_level *level, float time)
 	vec_add(&e.pos, e.pos, face->v0v2);
 	vec_avg(&e.pos, e.pos, face->verts[0].pos);
 	vec_sub(&e.dir, player, e.pos);
-	if (vec_length(e.dir) <= 3)
+	if (vec_length(e.dir) <= 3 && face->projectile->damage > 0)
 	{
 		vec_mult(&level->player_vel, 0);
 		level->player_health -= face->projectile->damage;

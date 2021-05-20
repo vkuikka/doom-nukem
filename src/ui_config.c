@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/05/19 19:50:31 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/20 16:10:07 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,7 +96,6 @@ void	ui_config_selected_faces(t_level *level)
 				}
 				if (call("remove faces", &remove_faces, level))
 					return;
-				call("edit uv", &enable_uv_editor, level);
 				if (!level->all.tris[i].reflectivity || selected_amount != 1)
 					sprintf(buf, "reflectivity: %.0f%%", 100 * level->all.tris[i].reflectivity);
 				else
@@ -316,7 +315,7 @@ void	ui_render_directory(t_level *level)
 	}
 }
 
-static int	nothing_selected(t_level *level)
+int		nothing_selected(t_level *level)
 {
 	int i;
 
@@ -400,6 +399,7 @@ void	ui_config(t_level *level)
 	// button(, "face/vert selection");
 
 	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
+	call("edit uv", &enable_uv_editor, level);
 	if (nothing_selected(level))
 	{
 		text("level:");
