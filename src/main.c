@@ -23,7 +23,7 @@ void		update_camera(t_level *l)
 	l->cam.fov_x = l->ui.fov * ((float)RES_X / RES_Y);
 }
 
-void		render(t_window *window, t_level *level, t_game_location game_location)
+void		render(t_window *window, t_level *level, t_game_state game_state)
 {
 	SDL_Thread		*threads[THREAD_AMOUNT];
 	t_rthread		**thread_data;
@@ -59,17 +59,17 @@ void		render(t_window *window, t_level *level, t_game_location game_location)
 		fill_pixels(window->frame_buffer, level->ui.raycast_quality,
 					level->ui.blur, level->ui.smooth_pixels);
 	}
-	if (game_location == GAME_LOCATION_EDITOR)
+	if (game_state == GAME_STATE_EDITOR)
 		wireframe(window, level);
 
 	SDL_UnlockTexture(window->texture);
 	SDL_RenderClear(window->SDLrenderer);
 	SDL_RenderCopy(window->SDLrenderer, window->texture, NULL, NULL);
-	if (game_location == GAME_LOCATION_INGAME)
-		hud(level);
-	else if (game_location == GAME_LOCATION_MAIN_MENU)
+	if (game_state == GAME_STATE_INGAME)
+		hud(level, window);
+	else if (game_state == GAME_STATE_MAIN_MENU)
 		main_menu(level);
-	else if (game_location == GAME_LOCATION_EDITOR)
+	else
 	{
 		obj_editor(level, window);
 		if (level->ui.state.ui_location == UI_LOCATION_UV_EDITOR)
@@ -164,7 +164,7 @@ static void		mouse_input(t_level *level, SDL_Event event)
 	}
 }
 
-static void		keyboard_input(t_window *window, t_level *level, SDL_Event event)
+static void		keyboard_input(t_window *window, t_level *level, SDL_Event event, t_game_state *game_state)
 {
 	if (event.key.keysym.scancode == SDL_SCANCODE_PERIOD)
 		level->ui.raycast_quality += 1;
@@ -191,9 +191,11 @@ static void		keyboard_input(t_window *window, t_level *level, SDL_Event event)
 		toggle_selection_all(level);
 	else if (event.key.keysym.scancode == SDL_SCANCODE_E)
 		door_activate(level);
+	else if (event.key.keysym.scancode == SDL_SCANCODE_Q)
+		*game_state = GAME_STATE_MAIN_MENU;
 }
 
-static void		read_input(t_window *window, t_level *level)
+static void		read_input(t_window *window, t_level *level, t_game_state *game_state)
 {
 	SDL_Event	event;
 
@@ -206,7 +208,7 @@ static void		read_input(t_window *window, t_level *level)
 		if (level->ui.state.text_input_enable)
 			typing_input(level, event);
 		else if (event.type == SDL_KEYDOWN && event.key.repeat == 0)
-			keyboard_input(window, level, event);
+			keyboard_input(window, level, event, game_state);
 	}
 }
 
@@ -214,14 +216,15 @@ int			main(int argc, char **argv)
 {
 	t_window	*window;
 	t_level		*level;
-	t_game_location game_location;
+	t_game_state game_state;
 	unsigned	ssp;
 	unsigned	cull;
 	unsigned	rendertime;
 	unsigned	frametime;
 
-	game_location = GAME_LOCATION_MAIN_MENU;
-	game_location = GAME_LOCATION_EDITOR;
+	game_state = GAME_STATE_MAIN_MENU;
+	game_state = GAME_STATE_EDITOR;
+	game_state = GAME_STATE_INGAME;
 	init_level(&level);
 	init_window(&window);
 	init_ui(window, level);
@@ -230,8 +233,8 @@ int			main(int argc, char **argv)
 	while (1)
 	{
 		frametime = SDL_GetTicks();
-		read_input(window, level);
-		if (game_location == GAME_LOCATION_MAIN_MENU)
+		read_input(window, level, &game_state);
+		if (game_state == GAME_STATE_MAIN_MENU)
 			main_menu_move_background(level);
 		else
 			player_movement(level);
@@ -246,7 +249,7 @@ int			main(int argc, char **argv)
 		screen_space_partition(level);
 		level->ui.ssp = SDL_GetTicks() - ssp;
 		rendertime = SDL_GetTicks();
-		render(window, level, game_location);
+		render(window, level, game_state);
 		level->ui.render = SDL_GetTicks() - rendertime;
 		level->ui.frametime = SDL_GetTicks() - frametime;
 	}

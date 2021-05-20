@@ -22,5 +22,6 @@ void	main_menu(t_level *level)
 	//open level
 	//edit level
 	//new level
+	//settings
 	//exit
 }
