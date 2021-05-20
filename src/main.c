@@ -256,7 +256,7 @@ void		game_logic(t_level *level, t_game_state *game_state)
 	if (level->death_start_time)
 	{
 		level->player_health = 0;
-		float time = (SDL_GetTicks() - level->death_start_time) / (1000.0 * DEAT_LENGTH_SEC);
+		float time = (SDL_GetTicks() - level->death_start_time) / (1000.0 * DEATH_LENGTH_SEC);
 		if (time > 1)
 		{
 			*game_state = GAME_STATE_MAIN_MENU;
