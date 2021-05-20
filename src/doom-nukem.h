@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/16 22:46:38 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/20 20:08:28 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,8 @@
 # define JUMP_SPEED 5	//	m/s
 # define AIR_ACCEL .3	//	m/s^2
 # define MOVE_ACCEL 70	//	m/s^2
-# define MOVE_SPEED 10	//	m/s
+# define RUN_SPEED 10	//	m/s
+# define WALK_SPEED 4	//	m/s
 # define GROUND_FRICTION 5.
 # define PLAYER_HEIGHT 1.75
 # define WALL_CLIP_DIST 0.3
@@ -165,6 +166,14 @@ typedef struct			s_vert
 	struct s_vec2		txtr;		//texture position in 2d
 	int					selected;
 }						t_vert;
+
+typedef struct			s_uv_parameters
+{
+	struct s_vec2		scale;
+	struct s_tri		*tri;
+	struct s_vec2		offset;
+	unsigned			*pixels;
+}						t_uv_parameters;
 
 typedef struct			s_projectile
 {
@@ -368,6 +377,7 @@ typedef struct			s_level
 	struct s_camera		cam;
 	struct s_editor_ui	ui;
 	struct s_all_doors	doors;
+	struct s_enemy		player;
 	int					shadow_color;
 	int					player_health;
 	int					player_ammo;
@@ -490,6 +500,7 @@ void		rot_cam(t_vec3 *cam, const float lon, const float lat);
 
 void		init_enemy(t_tri *face);
 void		init_ui(t_window *window, t_level *level);
+void		init_player(t_enemy *player);
 void		ui_render(t_level *level);
 void		ui_config(t_level *level);
 void		set_text_color(int color);
@@ -560,5 +571,6 @@ void		set_door_pos_1(t_level *level);
 void		set_door_pos_2(t_level *level);
 void		enable_door_editor(t_level *level);
 void		find_selected_door_index(t_level *level);
+int			nothing_selected(t_level *level);
 
 #endif

@@ -223,8 +223,8 @@ void		game_logic(t_level *level)
 		if (level->player_ammo)
 		{
 			level->player_ammo--;
-			init_enemy(&level->all.tris[0]);
-			create_projectile(level, level->cam.pos, level->cam.front, level->all.tris[0].enemy);
+			level->player.dir = level->cam.front;
+			create_projectile(level, level->cam.pos, level->cam.front, &level->player);
 			//add projectile
 		}
 		else
@@ -252,6 +252,7 @@ int			main(int argc, char **argv)
 	init_ui(window, level);
 	init_screen_space_partition(level);
 	init_culling(level);
+	init_player(&level->player);
 	while (1)
 	{
 		frametime = SDL_GetTicks();
