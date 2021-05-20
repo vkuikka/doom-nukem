@@ -122,6 +122,7 @@ void			main_menu(t_level *level, t_window *window, t_game_state *game_state)
 	if (mouse_collision(rect, level))
 	{
 		*game_state = GAME_STATE_EDITOR;
+		level->ui.state.ui_location = UI_LOCATION_SETTINGS;
 	}
 	SDL_UnlockTexture(background_texture);
 	SDL_RenderCopy(window->SDLrenderer, background_texture, NULL, NULL);

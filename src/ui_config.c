@@ -379,15 +379,19 @@ void	ui_config(t_level *level)
 		return ;
 	}
 	set_text_color(UI_EDITOR_SETTINGS_TEXT_COLOR);
-	// button(, "face/vert selection");
-	sprintf(buf, "render scale: %d (%.0f%%)", ui->raycast_quality, 100.0 / (float)ui->raycast_quality);
-	int_slider(&ui->raycast_quality, buf, 1, 20);
-	sprintf(buf, "fov: %d", (int)((float)(ui->fov + 0.01) * (180.0 / M_PI)));
-	float_slider(&ui->fov, buf, M_PI / 6, M_PI);
+	if (level->ui.state.ui_location == UI_LOCATION_SETTINGS)
+	{
+		sprintf(buf, "render scale: %d (%.0f%%)", ui->raycast_quality, 100.0 / (float)ui->raycast_quality);
+		int_slider(&ui->raycast_quality, buf, 1, 20);
+		sprintf(buf, "fov: %d", (int)((float)(ui->fov + 0.01) * (180.0 / M_PI)));
+		float_slider(&ui->fov, buf, M_PI / 6, M_PI);
+		button(&ui->blur, "blur");
+		button(&ui->smooth_pixels, "smooth pixel transition");
+		button(&ui->state.ssp_visual, "ssp visualize");
+		return ;
+	}
 	button(&ui->noclip, "noclip");
 	button(&ui->vertex_select_mode, "vertex select mode");
-	button(&ui->blur, "blur");
-	button(&ui->smooth_pixels, "smooth pixel transition");
 	button(&ui->wireframe, "wireframe");
 	if (ui->wireframe)
 	{
@@ -395,8 +399,6 @@ void	ui_config(t_level *level)
 		button(&ui->show_quads, "quad visualize");
 		button(&ui->wireframe_culling_visual, "culling visualize");
 	}
-	button(&ui->state.ssp_visual, "ssp visualize");
-	// button(, "face/vert selection");
 
 	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
 	call("edit uv", &enable_uv_editor, level);

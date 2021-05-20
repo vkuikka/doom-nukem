@@ -196,6 +196,7 @@ static void		keyboard_input(t_window *window, t_level *level, SDL_Event event, t
 		level->ui.state.mouse_capture = FALSE;
 		SDL_SetRelativeMouseMode(SDL_FALSE);
 		*game_state = GAME_STATE_MAIN_MENU;
+		level->ui.state.ui_location = UI_LOCATION_MAIN;
 	}
 }
 
