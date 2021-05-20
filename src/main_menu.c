@@ -123,6 +123,8 @@ void			main_menu(t_level *level, t_window *window, t_game_state *game_state)
 	{
 		*game_state = GAME_STATE_INGAME;
 		state_changed = TRUE;
+		level->player_health = PLAYER_HEALTH_MAX;
+		level->player_ammo = PLAYER_AMMO_MAX;
 	}
 	rect = main_menu_button_text("edit level", window, texture, 1);
 	main_menu_text_background(rect, pixels);

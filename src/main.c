@@ -64,8 +64,8 @@ void		render(t_window *window, t_level *level, t_game_state *game_state)
 	SDL_UnlockTexture(window->texture);
 	SDL_RenderClear(window->SDLrenderer);
 	SDL_RenderCopy(window->SDLrenderer, window->texture, NULL, NULL);
-	if (*game_state == GAME_STATE_INGAME)
-		hud(level, window);
+	if (*game_state == GAME_STATE_INGAME || *game_state == GAME_STATE_DEAD)
+		hud(level, window, *game_state);
 	else if (*game_state == GAME_STATE_MAIN_MENU)
 		main_menu(level, window, game_state);
 	else
@@ -146,9 +146,9 @@ static void		set_mouse_input_location(t_level *level, t_game_state game_state)
 	level->ui.state.m1_click = FALSE;
 }
 
-static void		mouse_input(t_level *level, SDL_Event event)
+static void		mouse_input(t_level *level, SDL_Event event, t_game_state game_state)
 {
-	if (event.type == SDL_MOUSEMOTION && level->ui.state.mouse_capture)
+	if (event.type == SDL_MOUSEMOTION && level->ui.state.mouse_capture && game_state != GAME_STATE_DEAD)
 	{
 		level->cam.look_side += (float)event.motion.xrel / 600;
 		level->cam.look_up -= (float)event.motion.yrel / 600;
@@ -217,7 +217,7 @@ static void		read_input(t_window *window, t_level *level, t_game_state *game_sta
 	{
 		if (event.type == SDL_QUIT || event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
 			exit(0);
-		mouse_input(level, event);
+		mouse_input(level, event, *game_state);
 		if (level->ui.state.text_input_enable)
 			typing_input(level, event);
 		else if (event.type == SDL_KEYDOWN && event.key.repeat == 0)
@@ -238,11 +238,11 @@ static void	player_reload(t_level *level)
 	}
 }
 
-void		game_logic(t_level *level)
+void		game_logic(t_level *level, t_game_state *game_state)
 {
-	if (level->reload_start_time)
+	if (level->reload_start_time && *game_state != GAME_STATE_DEAD)
 		player_reload(level);
-	if (level->ui.state.m1_click && level->ui.state.mouse_capture)
+	if (level->ui.state.m1_click && level->ui.state.mouse_capture && *game_state != GAME_STATE_DEAD)
 	{
 		if (level->player_ammo)
 		{
@@ -252,6 +252,25 @@ void		game_logic(t_level *level)
 		}
 		else
 			level->reload_start_time = SDL_GetTicks();
+	}
+	if (level->death_start_time)
+	{
+		level->player_health = 0;
+		float time = (SDL_GetTicks() - level->death_start_time) / (1000.0 * DEAT_LENGTH_SEC);
+		if (time > 1)
+		{
+			*game_state = GAME_STATE_MAIN_MENU;
+			level->ui.state.mouse_capture = FALSE;
+			SDL_SetRelativeMouseMode(SDL_FALSE);
+			level->death_start_time = 0;
+		}
+	}
+	else if (level->player_health <= 0)
+	{
+		level->reload_start_time = 0;
+		level->death_start_time = SDL_GetTicks();
+		*game_state = GAME_STATE_DEAD;
+		level->cam.look_up = 1;
 	}
 }
 
@@ -281,9 +300,10 @@ int			main(int argc, char **argv)
 			main_menu_move_background(level);
 		else
 		{
-			if (game_state == GAME_STATE_INGAME)
-				game_logic(level);
-			player_movement(level, game_state);
+			if (game_state == GAME_STATE_INGAME || game_state == GAME_STATE_DEAD)
+				game_logic(level, &game_state);
+			if (game_state != GAME_STATE_DEAD)
+				player_movement(level, game_state);
 		}
 		update_camera(level);
 		door_animate(level);

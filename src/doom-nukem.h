@@ -60,6 +60,8 @@
 # define CROSSHAIR_COLOR 0xff0000ff
 # define PLAYER_HEALTH_MAX 100
 # define PLAYER_AMMO_MAX 30
+# define DEAT_LENGTH_SEC 5
+# define DEATH_OVERLAY_COLOR 0xff000088
 # define VIEWMODEL_FRAMES 6
 # define VIEWMODEL_ANIM_FPS 2.0
 
@@ -397,6 +399,7 @@ typedef struct			s_level
 	struct s_player_pos	main_menu_pos2;
 	unsigned			main_menu_anim_time;
 	unsigned			main_menu_anim_start_time;
+	unsigned			death_start_time;
 	struct s_vec3		player_vel;
 	unsigned			reload_start_time;
 	int					viewmodel_index;
@@ -537,7 +540,7 @@ void		render_text(char *text, t_window *window, t_ivec2 *pos, SDL_Texture *get_t
 
 void		main_menu(t_level *level, t_window *window, t_game_state *game_state);
 void		main_menu_move_background(t_level *level);
-void		hud(t_level *level, t_window *window);
+void		hud(t_level *level, t_window *window, t_game_state game_state);
 void		create_projectile(t_level *level, t_vec3 pos, t_vec3 dir, t_enemy *enemy);
 
 void		uv_editor(t_level *level, t_window *window);

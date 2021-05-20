@@ -423,6 +423,7 @@ void	ui_config(t_level *level)
 
 	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
 	call("edit uv", &enable_uv_editor, level);
+	call("edit doors", &enable_door_editor, level);
 	if (nothing_selected(level))
 	{
 		text("level:");
@@ -431,7 +432,6 @@ void	ui_config(t_level *level)
 		file_browser("select texture", ".bmp", &set_texture);
 		file_browser("select skybox", ".bmp", &set_skybox);
 		call("add face", &add_face, level);
-		call("edit doors", &enable_door_editor, level);
 		call("set spawn position", &set_spawn_pos, level);
 		call("set menu position 1", &set_menu_pos_1, level);
 		call("set menu position 2", &set_menu_pos_2, level);
