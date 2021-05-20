@@ -197,6 +197,10 @@ static void		keyboard_input(t_window *window, t_level *level, SDL_Event event, t
 		SDL_SetRelativeMouseMode(SDL_FALSE);
 		*game_state = GAME_STATE_MAIN_MENU;
 		level->ui.state.ui_location = UI_LOCATION_MAIN;
+		level->cam.pos = level->main_menu_pos1.pos;
+		level->cam.look_side = level->main_menu_pos1.look_side;
+		level->cam.look_up = level->main_menu_pos1.look_up;
+		level->main_menu_anim_start_time = SDL_GetTicks();
 	}
 	else if (event.key.keysym.scancode == SDL_SCANCODE_R)
 		level->reload_start_time = SDL_GetTicks();

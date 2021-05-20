@@ -39,6 +39,7 @@ void			init_level(t_level **res)
 	level->cam.look_side = 0;
 	level->cam.look_up = 0;
 	level->shadow_color = 0;
+	level->main_menu_anim_time = 2;
 
 	// load_obj("level/two.obj", &level->all);
 	// load_obj("level/test.obj", &level->all);
