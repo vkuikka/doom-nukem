@@ -12,7 +12,7 @@
 
 #include "doom-nukem.h"
 
-static void		create_projectile(t_level *level, t_vec3 pos, t_vec3 dir, t_enemy *enemy)
+void			create_projectile(t_level *level, t_vec3 pos, t_vec3 dir, t_enemy *enemy)
 {
 	int		index;
 
@@ -174,7 +174,7 @@ void			move_enemy(t_tri *face, t_level *level, float time)
 		if (vec_length(tmp) < face->enemy->attack_range)
 		{
 			face->enemy->current_attack_delay = 0;
-			player_movement(NULL);
+			vec_mult(&level->player_vel, 0);
 			level->player_health -= face->enemy->attack_damage;
 		}
 	}
@@ -194,7 +194,7 @@ static void		move_projectile(t_tri *face, t_level *level, float time)
 	vec_sub(&e.dir, player, e.pos);
 	if (vec_length(e.dir) <= 3)
 	{
-		player_movement(NULL);
+		vec_mult(&level->player_vel, 0);
 		level->player_health -= face->projectile->damage;
 		remove_projectile(level, face->index);
 		return;

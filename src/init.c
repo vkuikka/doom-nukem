@@ -31,6 +31,8 @@ void			init_level(t_level **res)
 	if (!(level = (t_level *)malloc(sizeof(t_level))))
 		ft_error("memory allocation failed\n");
 	ft_bzero(level, sizeof(t_level));
+	level->player_health = PLAYER_HEALTH_MAX;
+	level->player_ammo = PLAYER_AMMO_MAX;
 	level->cam.pos.x = 0;
 	level->cam.pos.y = -5;
 	level->cam.pos.z = 0;

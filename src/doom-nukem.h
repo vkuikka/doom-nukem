@@ -52,6 +52,8 @@
 # define HUD_TEXT_COLOR 0xff6666bb
 # define HUD_FONT_SIZE 42
 # define CROSSHAIR_COLOR 0xff0000ff
+# define PLAYER_HEALTH_MAX 100
+# define PLAYER_AMMO_MAX 30
 
 # define NONFATAL_ERROR_LIFETIME_SECONDS 7.42
 # define NONFATAL_ERROR_FADEOUT_TIME_MS 666
@@ -266,6 +268,7 @@ typedef enum			e_game_state
 	GAME_STATE_MAIN_MENU = 0,
 	GAME_STATE_EDITOR,
 	GAME_STATE_INGAME,
+	GAME_STATE_DEAD
 }						t_game_state;
 
 typedef enum			e_ui_location
@@ -353,7 +356,9 @@ typedef struct			s_level
 	struct s_editor_ui	ui;
 	struct s_all_doors	doors;
 	int					shadow_color;
-	float				player_health;
+	int					player_health;
+	int					player_ammo;
+	struct s_vec3		player_vel;
 }						t_level;
 
 typedef struct			s_rthread
@@ -489,13 +494,14 @@ void		render_text(char *text, t_window *window, t_ivec2 *pos, SDL_Texture *get_t
 void		main_menu(t_level *level);
 void		main_menu_move_background(t_level *level);
 void		hud(t_level *level, t_window *window);
+void		create_projectile(t_level *level, t_vec3 pos, t_vec3 dir, t_enemy *enemy);
 
 void		uv_editor(t_level *level, t_window *window);
 void		enable_uv_editor(t_level *level);
 void		obj_editor(t_level *level, t_window *window);
 void		obj_editor_input(t_level *level);
 
-void		player_movement(t_level *level);
+void		player_movement(t_level *level, t_game_state game_state);
 
 void		enemies_update_physics(t_level *level);
 void		enemies_update_sprites(t_level *level);
