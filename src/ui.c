@@ -123,17 +123,11 @@ void		set_text_color(int color)
 
 static SDL_Color get_text_color(void)
 {
-	SDL_Color	res;
 	unsigned	get;
 	t_ui_state	*state;
 
 	state = get_ui_state(NULL);
-	get = state->ui_text_color;
-	res.r = (get << 8 * 0) >> 8 * 3;
-	res.g = (get << 8 * 1) >> 8 * 3;
-	res.b = (get << 8 * 2) >> 8 * 3;
-	res.a = (get << 8 * 3) >> 8 * 3;
-	return (res);
+	return (get_sdl_color(state->ui_text_color));
 }
 
 t_ivec2			put_text(char *text, t_window *window, SDL_Texture *texture, t_ivec2 pos)

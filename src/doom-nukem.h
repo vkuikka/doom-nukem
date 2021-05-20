@@ -51,6 +51,11 @@
 
 # define HUD_TEXT_COLOR 0xff6666bb
 # define HUD_FONT_SIZE 42
+# define MAIN_MENU_FONT_SIZE 30
+# define MAIN_MENU_BUTTON_AMOUNT 4
+# define MAIN_MENU_FONT_BACKGROUND_COLOR 0xffffff55
+# define MAIN_MENU_FONT_COLOR 0x000000ff
+# define MAIN_MENU_FONT_PADDING_MULTIPLIER 1.5
 # define CROSSHAIR_COLOR 0xff0000ff
 # define PLAYER_HEALTH_MAX 100
 # define PLAYER_AMMO_MAX 30
@@ -113,6 +118,14 @@ typedef struct			s_window
 	unsigned int		*frame_buffer;
 	float				*depth_buffer;
 }						t_window;
+
+typedef struct			s_rect
+{
+	int					x;
+	int					y;
+	int					w;
+	int					h;
+}						t_rect;
 
 typedef struct			s_ivec3
 {
@@ -458,6 +471,7 @@ unsigned	crossfade(unsigned color1, unsigned color2, unsigned fade, unsigned alp
 void		face_color(float u, float v, t_tri t, t_cast_result *res);
 void		wireframe(t_window *window, t_level *level);
 void		camera_offset(t_vec3 *vertex, t_camera *cam);
+SDL_Color	get_sdl_color(unsigned color);
 
 void		load_obj(char *filename, t_obj *obj);
 t_bmp		bmp_read(char *str);
@@ -491,7 +505,7 @@ void		text_input(char *str, t_level *level);
 void		find_closest_mouse(t_vec3 *vert, int *i, int *k);
 void		render_text(char *text, t_window *window, t_ivec2 *pos, SDL_Texture *get_texture);
 
-void		main_menu(t_level *level);
+void		main_menu(t_level *level, t_window *window);
 void		main_menu_move_background(t_level *level);
 void		hud(t_level *level, t_window *window);
 void		create_projectile(t_level *level, t_vec3 pos, t_vec3 dir, t_enemy *enemy);

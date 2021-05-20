@@ -68,7 +68,7 @@ void		render(t_window *window, t_level *level, t_game_state game_state)
 	if (game_state == GAME_STATE_INGAME)
 		hud(level, window);
 	else if (game_state == GAME_STATE_MAIN_MENU)
-		main_menu(level);
+		main_menu(level, window);
 	else
 	{
 		obj_editor(level, window);
