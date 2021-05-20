@@ -18,7 +18,7 @@ t_ivec2			put_text_hud(char *text, t_window *window, SDL_Texture *texture, t_ive
 
 	if (!font)
 	{
-		font = TTF_OpenFont("digital.ttf", HUD_FONT_SIZE);
+		font = TTF_OpenFont("embed/digital.ttf", HUD_FONT_SIZE);
 		if (!font)
 		{
 			printf("TTF_OpenFont: %s\n", TTF_GetError());
@@ -103,7 +103,7 @@ void		hud(t_level *level, t_window *window)
 	if (SDL_LockTexture(texture, NULL, (void**)&pixels, &width) != 0)
 		ft_error("failed to lock texture\n");
 	ft_memset(pixels, 0, RES_X * RES_Y * 4);
-	viewmodel(pixels, level->viewmodel);
+	viewmodel(pixels, level->viewmodel[level->viewmodel_index]);
 	crosshair(pixels);
 	sprintf(buf, "%d+", level->player_health);
 	put_text_hud(buf, window, texture, (t_ivec2){HUD_FONT_SIZE / 4, RES_Y - HUD_FONT_SIZE});
