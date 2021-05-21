@@ -83,8 +83,11 @@ static void			player_input(t_level *level, t_vec3 *wishdir, float *height)
 	if (keys[SDL_SCANCODE_LSHIFT] && level->ui.noclip)
 		wishdir->y += 1;
 	if (keys[SDL_SCANCODE_LCTRL] && !level->ui.noclip)
+	{
 		*height = CROUCHED_HEIGHT;
-	if (keys[SDL_SCANCODE_LSHIFT] && !level->ui.noclip)
+		level->player.move_speed = CROUCH_SPEED;
+	}
+	else if (keys[SDL_SCANCODE_LSHIFT] && !level->ui.noclip)
 		level->player.move_speed = WALK_SPEED;
 	else if (!level->ui.noclip)
 		level->player.move_speed = RUN_SPEED;
@@ -131,9 +134,6 @@ static int				is_player_in_air(t_level *level, float height)
 	r.dir.y = 1;
 	r.dir.z = 0;
 	dist = cast_all(r, level, NULL, NULL, &index);
-	// printf("%f\n", dist);
-	// printf("%d\n", level->ui.noclip);
-	// printf("%f\n", level->all.tris[index].normal.y);
 	if (dist < height + .02 && -level->all.tris[index].normal.y > WALKABLE_NORMAL_MIN_Y && !level->ui.noclip)
 	{
 		return (FALSE);
@@ -242,7 +242,6 @@ void		player_movement(t_level *level, t_game_state game_state)
 	if (level->ui.noclip)
 		return (noclip(level, &wishdir, &vel, delta_time));
 	in_air = is_player_in_air(level, height);
-	printf("in air %d\n", in_air);
 	vertical_movement(&wishdir, &vel, delta_time, in_air);
 	if (in_air || wishdir.y)
 		air_movement(&wishdir, &vel, delta_time);

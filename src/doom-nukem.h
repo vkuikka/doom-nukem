@@ -26,6 +26,7 @@
 # define MOVE_ACCEL 70	//	m/s^2
 # define RUN_SPEED 10	//	m/s
 # define WALK_SPEED 4	//	m/s
+# define CROUCH_SPEED 3	//	m/s
 # define GROUND_FRICTION 5.
 # define PLAYER_HEIGHT 1.75
 # define PLAYER_HEIGHT_MAGIC 1.3
