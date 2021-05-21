@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/05/19 19:50:31 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/20 16:10:07 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,7 +96,6 @@ void	ui_config_selected_faces(t_level *level)
 				}
 				if (call("remove faces", &remove_faces, level))
 					return;
-				call("edit uv", &enable_uv_editor, level);
 				if (!level->all.tris[i].reflectivity || selected_amount != 1)
 					sprintf(buf, "reflectivity: %.0f%%", 100 * level->all.tris[i].reflectivity);
 				else
@@ -174,6 +173,27 @@ void	set_skybox(t_level *level, char *filename)
 {
 	free(level->sky.img.image);
 	level->sky.img = bmp_read(filename);
+}
+
+void	set_spawn_pos(t_level *level)
+{
+	level->spawn_pos.pos = level->cam.pos;
+	level->spawn_pos.look_side = level->cam.look_side;
+	level->spawn_pos.look_up = level->cam.look_up;
+}
+
+void	set_menu_pos_1(t_level *level)
+{
+	level->main_menu_pos1.pos = level->cam.pos;
+	level->main_menu_pos1.look_side = level->cam.look_side;
+	level->main_menu_pos1.look_up = level->cam.look_up;
+}
+
+void	set_menu_pos_2(t_level *level)
+{
+	level->main_menu_pos2.pos = level->cam.pos;
+	level->main_menu_pos2.look_side = level->cam.look_side;
+	level->main_menu_pos2.look_up = level->cam.look_up;
 }
 
 void	go_in_dir(char *path, char *folder)
@@ -316,7 +336,7 @@ void	ui_render_directory(t_level *level)
 	}
 }
 
-static int	nothing_selected(t_level *level)
+int		nothing_selected(t_level *level)
 {
 	int i;
 
@@ -380,15 +400,19 @@ void	ui_config(t_level *level)
 		return ;
 	}
 	set_text_color(UI_EDITOR_SETTINGS_TEXT_COLOR);
-	// button(, "face/vert selection");
-	sprintf(buf, "render scale: %d (%.0f%%)", ui->raycast_quality, 100.0 / (float)ui->raycast_quality);
-	int_slider(&ui->raycast_quality, buf, 1, 20);
-	sprintf(buf, "fov: %d", (int)((float)(ui->fov + 0.01) * (180.0 / M_PI)));
-	float_slider(&ui->fov, buf, M_PI / 6, M_PI);
+	if (level->ui.state.ui_location == UI_LOCATION_SETTINGS)
+	{
+		sprintf(buf, "render scale: %d (%.0f%%)", ui->raycast_quality, 100.0 / (float)ui->raycast_quality);
+		int_slider(&ui->raycast_quality, buf, 1, 20);
+		sprintf(buf, "fov: %d", (int)((float)(ui->fov + 0.01) * (180.0 / M_PI)));
+		float_slider(&ui->fov, buf, M_PI / 6, M_PI);
+		button(&ui->blur, "blur");
+		button(&ui->smooth_pixels, "smooth pixel transition");
+		button(&ui->state.ssp_visual, "ssp visualize");
+		return ;
+	}
 	button(&ui->noclip, "noclip");
 	button(&ui->vertex_select_mode, "vertex select mode");
-	button(&ui->blur, "blur");
-	button(&ui->smooth_pixels, "smooth pixel transition");
 	button(&ui->wireframe, "wireframe");
 	if (ui->wireframe)
 	{
@@ -396,10 +420,10 @@ void	ui_config(t_level *level)
 		button(&ui->show_quads, "quad visualize");
 		button(&ui->wireframe_culling_visual, "culling visualize");
 	}
-	button(&ui->state.ssp_visual, "ssp visualize");
-	// button(, "face/vert selection");
 
 	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
+	call("edit uv", &enable_uv_editor, level);
+	call("edit doors", &enable_door_editor, level);
 	if (nothing_selected(level))
 	{
 		text("level:");
@@ -408,7 +432,6 @@ void	ui_config(t_level *level)
 		file_browser("select texture", ".bmp", &set_texture);
 		file_browser("select skybox", ".bmp", &set_skybox);
 		call("add face", &add_face, level);
-		call("edit doors", &enable_door_editor, level);
 		if (level->is_baked)
 		{
 			set_text_color(UI_LEVEL_BAKED_COLOR);
@@ -422,6 +445,11 @@ void	ui_config(t_level *level)
 				level->is_baked = TRUE;
 		}
 		set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
+		call("set spawn position", &set_spawn_pos, level);
+		call("set menu position 1", &set_menu_pos_1, level);
+		call("set menu position 2", &set_menu_pos_2, level);
+		sprintf(buf, "main menu animation time %ds", level->main_menu_anim_time);
+		int_slider((int*)&level->main_menu_anim_time, buf, 2, 50);
 		button(&ui->fog, "fog");
 		// color(ui->color, "fog color");
 		// call(, "set spawn point");

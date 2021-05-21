@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/08 14:38:45 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/14 17:30:16 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/20 16:18:36 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,12 +31,15 @@ void			init_level(t_level **res)
 	if (!(level = (t_level *)malloc(sizeof(t_level))))
 		ft_error("memory allocation failed\n");
 	ft_bzero(level, sizeof(t_level));
+	level->player_health = PLAYER_HEALTH_MAX;
+	level->player_ammo = PLAYER_AMMO_MAX;
 	level->cam.pos.x = 0;
 	level->cam.pos.y = -5;
 	level->cam.pos.z = 0;
 	level->cam.look_side = 0;
 	level->cam.look_up = 0;
 	level->shadow_color = 0;
+	level->main_menu_anim_time = 2;
 
 	// load_obj("level/two.obj", &level->all);
 	// load_obj("level/test.obj", &level->all);
@@ -52,9 +55,18 @@ void			init_level(t_level **res)
 
 	level->texture = bmp_read("out.bmp");
 	level->normal_map = bmp_read("normal.bmp");
-	load_obj("skybox.obj", &level->sky.all);
-	load_obj("skybox.obj", &level->sky.visible);
+	load_obj("embed/skybox.obj", &level->sky.all);
+	load_obj("embed/skybox.obj", &level->sky.visible);
 	level->sky.img = bmp_read("skybox.bmp");
+
+	level->main_menu_title = bmp_read("embed/title.bmp");
+
+	char viewmodel_name[] = "embed/viewmodel/m4_0.bmp";
+	for (int i = 0; i < VIEWMODEL_FRAMES; i++)
+	{
+		viewmodel_name[19] = '0' + i;
+		level->viewmodel[i] = bmp_read(viewmodel_name);
+	}
 
 	if (!(level->visible.tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount)))
 		ft_error("memory allocation failed\n");
@@ -100,4 +112,22 @@ void			init_enemy(t_tri *face)
 	face->enemy->projectile_uv[1].y = 1;
 	face->enemy->projectile_uv[2].x = 1;
 	face->enemy->projectile_uv[2].y = 1;
+}
+
+void			init_player(t_enemy *player)
+{
+	player->move_speed = RUN_SPEED;
+	player->initial_health = 100;
+	player->remaining_health = player->initial_health;
+	player->projectile_speed = 40;
+	player->projectile_scale = 0.5;
+	player->attack_frequency = 0.5;
+	player->attack_damage = -10;
+	player->current_attack_delay = 0;
+	player->projectile_uv[0].x = .5;
+	player->projectile_uv[0].y = 0;
+	player->projectile_uv[1].x = 0;
+	player->projectile_uv[1].y = 1;
+	player->projectile_uv[2].x = 1;
+	player->projectile_uv[2].y = 1;
 }

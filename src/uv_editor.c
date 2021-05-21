@@ -135,88 +135,106 @@ static void	set_fourth_vertex_uv(t_tri *a)
 	a->verts[3].txtr.y = res.y;
 }
 
-static void		draw_projectile_uv(t_level *level, t_ivec2 offset, unsigned *pixels, float image_scale, int i)
+static void		draw_uv(t_level *level, t_uv_parameters param, t_vec2 uv[3], t_ivec2 mouse)
 {
-	t_ivec2	mouse;
 	t_ivec2	color;
 	t_vec2	start;
 	t_vec2	stop;
 	int		next;
+	int		k;
 
-	for (int k = 0; k < 3; k++)
+	k = 0;
+	while (k < 3)
 	{
 		next = (k + 1) % 3;
-		start.x = (level->texture.width * image_scale) * level->all.tris[i].enemy->projectile_uv[k].x;
-		start.y = (level->texture.height * image_scale) * (1 - level->all.tris[i].enemy->projectile_uv[k].y);
-		stop.x = (level->texture.width * image_scale) * level->all.tris[i].enemy->projectile_uv[next].x;
-		stop.y = (level->texture.height * image_scale) * (1 - level->all.tris[i].enemy->projectile_uv[next].y);
-		start.y += offset.y;
-		start.x += offset.x;
-		stop.y += offset.y;
-		stop.x += offset.x;
+		start.x = param.scale.x * uv[k].x;
+		start.y = param.scale.y * (1 - uv[k].y);
+		stop.x = param.scale.x * uv[next].x;
+		stop.y = param.scale.y * (1 - uv[next].y);
+		vec2_add(&start, start, param.offset);
+		vec2_add(&stop, stop, param.offset);
 		color.x = WF_PROJECTILE_COL >> 8;
 		color.y = WF_PROJECTILE_COL >> 8;
-		uv_print_line(start, stop, color, pixels);
-		put_uv_vertex(start, WF_PROJECTILE_COL, pixels);
-		SDL_GetMouseState(&mouse.x, &mouse.y);
-		find_closest_to_mouse(level, &level->all.tris[i].enemy->projectile_uv[k], &start, &mouse);
+		uv_print_line(start, stop, color, param.pixels);
+		put_uv_vertex(start, WF_PROJECTILE_COL, param.pixels);
+		find_closest_to_mouse(level, &uv[k], &start, &mouse);
+		k++;
+	}
+}
+
+static void		draw_face_uv(t_level *level, t_uv_parameters param, t_ivec2 mouse)
+{
+	t_ivec2		color;
+	t_vec2		start;
+	t_vec2		stop;
+	int			k;
+	int			next;
+
+	k = 0;
+	while (k < 3 + param.tri->isquad)
+	{
+		if (param.tri->isquad)
+			next = (int[4]){1, 3, 0, 2}[k];
+		else
+			next = (k + 1) % 3;
+		start.x = param.scale.x * param.tri->verts[k].txtr.x;
+		start.y = param.scale.y * (1 - param.tri->verts[k].txtr.y);
+		stop.x = param.scale.x * param.tri->verts[next].txtr.x;
+		stop.y = param.scale.y * (1 - param.tri->verts[next].txtr.y);
+		vec2_add(&start, start, param.offset);
+		vec2_add(&stop, stop, param.offset);
+		color.x = WF_SELECTED_COL >> 8;
+		color.y = WF_SELECTED_COL >> 8;
+		if (k == 3)
+			color.x = WF_UNSELECTED_COL >> 8;
+		if (next == 3)
+			color.y = WF_UNSELECTED_COL >> 8;
+		uv_print_line(start, stop, color, param.pixels);
+		if (k == 3)
+			put_uv_vertex(start, 0xff, param.pixels);
+		else
+		{
+			set_fourth_vertex_uv(param.tri);
+			put_uv_vertex(start, WF_SELECTED_COL, param.pixels);
+			find_closest_to_mouse(level, &param.tri->verts[k].txtr, &start, &mouse);
+		}
+		k++;
 	}
 }
 
 static void		uv_wireframe(t_level *level, t_ivec2 offset, unsigned *pixels, float image_scale)
 {
-	int		next;
 	t_ivec2	mouse;
-	t_ivec2	color;
 	t_vec2	start;
 	t_vec2	stop;
+	t_uv_parameters		param;
 
 	SDL_GetMouseState(&mouse.x, &mouse.y);
-	next = -1;
-	for (int i = 0; i < level->all.tri_amount; i++)
+	param.offset.x = offset.x;
+	param.offset.y = offset.y;
+	param.scale.x = level->texture.width * image_scale;
+	param.scale.y = level->texture.height * image_scale;
+	param.pixels = pixels;
+	if (nothing_selected(level))
 	{
-		if (level->all.tris[i].selected)
-		{
-			for (int k = 0; k < 3 + level->all.tris[i].isquad; k++)
+		draw_uv(level, param, level->player.projectile_uv, mouse);
+		for (int k = 0; k < 3; k++)
+			find_closest_to_mouse(level, &level->player.projectile_uv[k], &start, &mouse);
+	}
+	else
+		for (int i = 0; i < level->all.tri_amount; i++)
+			if (level->all.tris[i].selected)
 			{
-				if (level->all.tris[i].isquad)
-					next = (int[4]){1, 3, 0, 2}[k];
-				else
-					next = (k + 1) % 3;
-				start.x = (level->texture.width * image_scale) * level->all.tris[i].verts[k].txtr.x;
-				start.y = (level->texture.height * image_scale) * (1 - level->all.tris[i].verts[k].txtr.y);
-				stop.x = (level->texture.width * image_scale) * level->all.tris[i].verts[next].txtr.x;
-				stop.y = (level->texture.height * image_scale) * (1 - level->all.tris[i].verts[next].txtr.y);
-				start.y += offset.y;
-				start.x += offset.x;
-				stop.y += offset.y;
-				stop.x += offset.x;
-				color.x = WF_SELECTED_COL >> 8;
-				color.y = WF_SELECTED_COL >> 8;
-				if (k == 3)
-					color.x = WF_UNSELECTED_COL >> 8;
-				if (next == 3)
-					color.y = WF_UNSELECTED_COL >> 8;
-				uv_print_line(start, stop, color, pixels);
-				if (k == 3)
-					put_uv_vertex(start, 0xff, pixels);
-				else
+				param.tri = &level->all.tris[i];
+				draw_face_uv(level, param, mouse);
+				if (level->all.tris[i].enemy)
 				{
-					set_fourth_vertex_uv(&level->all.tris[i]);
-					put_uv_vertex(start, WF_SELECTED_COL, pixels);
-					find_closest_to_mouse(level, &level->all.tris[i].verts[k].txtr, &start, &mouse);
+					draw_uv(level, param, level->all.tris[i].enemy->projectile_uv, mouse);
+					for (int k = 0; k < 3; k++)
+						find_closest_to_mouse(level, &level->all.tris[i].enemy->projectile_uv[k], &start, &mouse);
 				}
 			}
-			if (level->all.tris[i].enemy)
-			{
-				draw_projectile_uv(level, offset, pixels, image_scale, i);
-				for (int k = 0; k < 3; k++)
-					find_closest_to_mouse(level, &level->all.tris[i].enemy->projectile_uv[k], &start, &mouse);
-			}
-		}
-	}
-	if (next != -1)
-		update_uv_closest_vertex(level, image_scale, offset, mouse);
+	update_uv_closest_vertex(level, image_scale, offset, mouse);
 }
 
 static void		match_projectile_uv(t_level *level)
