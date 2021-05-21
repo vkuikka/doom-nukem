@@ -419,6 +419,7 @@ void	ui_config(t_level *level)
 			float_slider(&level->lights[level->selected_light_index - 1].brightness, buf, .1, 20);
 			sprintf(buf, "radius %.2f", level->lights[level->selected_light_index - 1].radius);
 			float_slider(&level->lights[level->selected_light_index - 1].radius, buf, .1, 20);
+			call("delete light", &delete_light, level);
 		}
 		return ;
 	}

@@ -70,6 +70,26 @@ void	select_light(t_level *level, int x, int y)
 		level->selected_light_index = nearest_index + 1;
 }
 
+void	delete_light(t_level *level)
+{
+	if (level->light_amount < 1)
+		return ;
+	for (int i = level->selected_light_index - 1; i < level->light_amount - 1; i++)
+		level->lights[i] = level->lights[i + 1];
+	level->light_amount--;
+	if (level->light_amount < 1)
+	{
+		free(level->lights);
+		level->lights = NULL;
+	}
+	else
+	{
+		if (!(level->lights = (t_light*)realloc(level->lights, sizeof(t_light) * level->light_amount)))
+			ft_error("memory allocation failed\n");
+	}
+	level->selected_light_index = 0;
+}
+
 void	add_light(t_level *level)
 {
 	level->light_amount++;

@@ -653,5 +653,6 @@ void		light_put_text(t_window *window, t_level *level);
 void		enable_light_editor(t_level *level);
 void		add_light(t_level *level);
 void		select_light(t_level *level, int x, int y);
+void		delete_light(t_level *level);
 
 #endif
