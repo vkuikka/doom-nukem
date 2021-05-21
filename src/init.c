@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/08 14:38:45 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/20 16:18:36 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/21 17:15:10y vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,4 +130,26 @@ void			init_player(t_enemy *player)
 	player->projectile_uv[1].y = 1;
 	player->projectile_uv[2].x = 1;
 	player->projectile_uv[2].y = 1;
+}
+
+void	init_audio(t_level *l)
+{
+	if (Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 8, 4096) < 0)
+		ft_error("Failed to initialize SDL_Mixer");
+	l->audio.music_volume = AUDIO_VOLUME_INIT;
+	l->audio.sound_effect_volume = AUDIO_VOLUME_INIT;
+	Mix_VolumeMusic(l->audio.music_volume);
+	Mix_Volume(-1, l->audio.sound_effect_volume);
+	if (!(l->audio.music = Mix_LoadMUS(AUDIO_MUSIC)))
+		ft_error(AUDIO_MUSIC);
+	if (!(l->audio.jump = Mix_LoadWAV(AUDIO_JUMP)))
+		ft_error(AUDIO_JUMP);
+	if (!(l->audio.gunshot = Mix_LoadWAV(AUDIO_GUNSHOT)))
+		ft_error(AUDIO_GUNSHOT);
+	if (!(l->audio.reload = Mix_LoadWAV(AUDIO_RELOAD)))
+		ft_error(AUDIO_RELOAD);
+	if (!(l->audio.death = Mix_LoadWAV(AUDIO_DEATH)))
+		ft_error(AUDIO_DEATH);
+	if (!(l->audio.door = Mix_LoadWAV(AUDIO_DOOR)))
+		ft_error(AUDIO_DOOR);
 }

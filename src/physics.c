@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/10 01:23:16 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/21 02:35:01 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/21 17:04:13 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -166,7 +166,7 @@ static void	        rotate_wishdir(t_level *level, t_vec3 *wishdir, t_vec3 *vel)
 	rotate_vertex(level->cam.look_side, wishdir, 0);
 }
 
-void		vertical_movement(t_vec3 *wishdir, t_vec3 *vel, float delta_time, int in_air)
+int			vertical_movement(t_vec3 *wishdir, t_vec3 *vel, float delta_time, int in_air)
 {
 	if (in_air)
 	{
@@ -178,7 +178,10 @@ void		vertical_movement(t_vec3 *wishdir, t_vec3 *vel, float delta_time, int in_a
 		if (vel->y > 0)
 			vel->y = 0;
 		vel->y = wishdir->y * JUMP_SPEED;
+		if (wishdir->y == -1)
+			return (1);
 	}
+	return (0);
 }
 
 void		air_movement(t_vec3 *wishdir, t_vec3 *vel, float delta_time)
@@ -242,7 +245,8 @@ void		player_movement(t_level *level, t_game_state game_state)
 	if (level->ui.noclip)
 		return (noclip(level, &wishdir, &vel, delta_time));
 	in_air = is_player_in_air(level, height);
-	vertical_movement(&wishdir, &vel, delta_time, in_air);
+	if (vertical_movement(&wishdir, &vel, delta_time, in_air))
+		Mix_PlayChannel(AUDIO_JUMP_CHANNEL, level->audio.jump, 0);
 	if (in_air || wishdir.y)
 		air_movement(&wishdir, &vel, delta_time);
 	else
