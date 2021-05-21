@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/20 20:08:28 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/21 00:03:22 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,10 +26,14 @@
 # define MOVE_ACCEL 70	//	m/s^2
 # define RUN_SPEED 10	//	m/s
 # define WALK_SPEED 4	//	m/s
+# define CROUCH_SPEED 3	//	m/s
 # define GROUND_FRICTION 5.
 # define PLAYER_HEIGHT 1.75
+# define PLAYER_HEIGHT_MAGIC 1.3
+# define CROUCHED_HEIGHT 1
 # define WALL_CLIP_DIST 0.3
 # define REFLECTION_DEPTH 3
+# define WALKABLE_NORMAL_MIN_Y 0.75
 # define DOOR_ACTIVATION_DISTANCE 3.
 # define DOOR_LOCATION_INFO_COLOR 0x880088ff
 

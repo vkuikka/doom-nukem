@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/10 01:23:16 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/20 14:57:12 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/21 02:35:01 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ float				cast_all(t_ray vec, t_level *level, float *dist_u, float *dist_d, int *
 	return (res);
 }
 
-static void			player_input(t_level *level, t_vec3 *wishdir)
+static void			player_input(t_level *level, t_vec3 *wishdir, float *height)
 {
 	const Uint8		*keys = SDL_GetKeyboardState(NULL);
 
@@ -82,38 +82,49 @@ static void			player_input(t_level *level, t_vec3 *wishdir)
 		wishdir->y -= 1;
 	if (keys[SDL_SCANCODE_LSHIFT] && level->ui.noclip)
 		wishdir->y += 1;
-	if (keys[SDL_SCANCODE_LSHIFT] && !level->ui.noclip)
+	if (keys[SDL_SCANCODE_LCTRL] && !level->ui.noclip)
+	{
+		*height = CROUCHED_HEIGHT;
+		level->player.move_speed = CROUCH_SPEED;
+	}
+	else if (keys[SDL_SCANCODE_LSHIFT] && !level->ui.noclip)
 		level->player.move_speed = WALK_SPEED;
 	else if (!level->ui.noclip)
 		level->player.move_speed = RUN_SPEED;
 }
 
-static void	        player_collision(t_vec3 *vel, t_vec3 *pos, t_level *level)
+static int			player_collision(t_vec3 *vel, t_vec3 *pos, t_level *level, float height)
 {
 	t_ray			r;
 	float			dist = 0;
 	int				index;
 
-	r.pos.x = pos->x;
-	r.pos.y = pos->y;
-	r.pos.z = pos->z;
-	r.dir.x = vel->x;
-	r.dir.y = vel->y;
-	r.dir.z = vel->z;
+	r.pos = *pos;
+	r.dir.x = 0;
+	r.dir.y = 1;
+	r.dir.z = 0;
 	dist = cast_all(r, level, NULL, NULL, &index);
-	if (dist > 0 && dist <= vec_length(*vel) + WALL_CLIP_DIST)
-	{
-		t_vec3	normal;
-		vec_cross(&normal, level->all.tris[index].v0v1, level->all.tris[index].v0v2);
-		vec_normalize(&normal);
-		vec_mult(&normal, vec_dot(*vel, normal));
-		vec_sub(vel, *vel, normal);
-	}
+	if (dist != FLT_MAX && dist <= height)	//set height to ground
+		pos->y -= height - dist;
+	r.pos = *pos;
+	r.pos.y += height / PLAYER_HEIGHT_MAGIC;
+	r.dir = *vel;
+	dist = cast_all(r, level, NULL, NULL, &index);
+	if (dist != FLT_MAX && -level->all.tris[index].normal.y < WALKABLE_NORMAL_MIN_Y &&	//	is not floor
+		dist <= vec_length(*vel) + WALL_CLIP_DIST)	//	is in clip distance
+		{
+			t_vec3 normal = level->all.tris[index].normal;
+			vec_mult(&normal, vec_dot(*vel, normal));
+			vec_sub(vel, *vel, normal);
+			return (1);
+		}
+	return (0);
 }
 
-static int				is_player_in_air(t_level *level)
+static int				is_player_in_air(t_level *level, float height)
 {
 	float	dist;
+	int		index;
 	t_ray	r;
 
 	r.pos.x = level->cam.pos.x;
@@ -122,11 +133,9 @@ static int				is_player_in_air(t_level *level)
 	r.dir.x = 0;
 	r.dir.y = 1;
 	r.dir.z = 0;
-	dist = cast_all(r, level, NULL, NULL, NULL);
-	if (dist > 0 && dist < PLAYER_HEIGHT + .02 && !level->ui.noclip)
+	dist = cast_all(r, level, NULL, NULL, &index);
+	if (dist < height + .02 && -level->all.tris[index].normal.y > WALKABLE_NORMAL_MIN_Y && !level->ui.noclip)
 	{
-		if (dist < PLAYER_HEIGHT)
-			level->cam.pos.y -= PLAYER_HEIGHT - dist;
 		return (FALSE);
 	}
 	else
@@ -218,19 +227,21 @@ void		horizontal_movement(t_vec3 *wishdir, t_vec3 *vel, float delta_time, float 
 
 void		player_movement(t_level *level, t_game_state game_state)
 {
-	int				in_air;
+	t_vec3			vel;
 	t_vec3			wishdir;
+	int				in_air;
 	float			delta_time;
+	float			height = PLAYER_HEIGHT;
 
 	if (game_state != GAME_STATE_EDITOR)
 		level->ui.noclip = FALSE;
-	t_vec3	vel = level->player_vel;
+	vel = level->player_vel;
 	delta_time = level->ui.frametime / 1000.;
-	player_input(level, &wishdir);
+	player_input(level, &wishdir, &height);
 	rotate_wishdir(level, &wishdir, &vel);
 	if (level->ui.noclip)
 		return (noclip(level, &wishdir, &vel, delta_time));
-	in_air = is_player_in_air(level);
+	in_air = is_player_in_air(level, height);
 	vertical_movement(&wishdir, &vel, delta_time, in_air);
 	if (in_air || wishdir.y)
 		air_movement(&wishdir, &vel, delta_time);
@@ -239,10 +250,8 @@ void		player_movement(t_level *level, t_game_state game_state)
 	if (vel.x || vel.y || vel.z)
 	{
 		vec_mult(&vel, delta_time);
-		player_collision(&vel, &level->cam.pos, level);
-		level->cam.pos.x += vel.x;
-		level->cam.pos.y += vel.y;
-		level->cam.pos.z += vel.z;
+		while (player_collision(&vel, &level->cam.pos, level, height));
+		vec_add(&level->cam.pos, level->cam.pos, vel);
 		vec_div(&vel, delta_time);
 		level->ui.horizontal_velocity = sqrt(vel.x * vel.x + vel.z * vel.z);
 	}
