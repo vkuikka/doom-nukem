@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/21 00:03:22 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/21 15:38:41 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,6 +89,11 @@
 # define SERIALIZE_INITIAL_BUFFER_SIZE 666
 # define OCCLUSION_CULLING_FLOAT_ERROR_MAGIC_NUMBER 10
 
+# define AUDIO_MUSIC "Audio/Music/str4E.ogg"
+# define AUDIO_GUNSHOT "Audio/SoundEffect/gunshot.wav"
+# define AUDIO_JUMP "Audio/SoundEffects/jump.wav"
+# define AUDIO_VOLUME_INIT MIX_MAX_VOLUME / 10
+
 # include <math.h>
 # include <fcntl.h>
 # ifdef __APPLE__
@@ -105,12 +110,22 @@
 # endif
 # include "get_next_line.h"
 # include "SDL2/SDL.h"
-# include "SDL2/SDL_ttf.h"
+# include "SDL2_ttf/SDL_ttf.h"
+# include "SDL2_mixer/SDL_mixer.h"
 
 # include <sys/time.h>
 # include <stdlib.h>
 # include <stdio.h>
 # include <signal.h>
+
+typedef struct			s_audio
+{
+	float				music_volume;
+	float				sound_effect_volume;
+	Mix_Music			*music;
+	Mix_Chunk			*gunshot;
+	Mix_Chunk			*jump;
+}						t_audio;
 
 typedef struct			s_bmp
 {
@@ -409,6 +424,7 @@ typedef struct			s_level
 	unsigned			reload_start_time;
 	int					viewmodel_index;
 	struct s_bmp		viewmodel[VIEWMODEL_FRAMES];
+	struct s_audio		audio;
 }						t_level;
 
 typedef struct			s_rthread
@@ -527,6 +543,7 @@ void		rot_cam(t_vec3 *cam, const float lon, const float lat);
 void		init_enemy(t_tri *face);
 void		init_ui(t_window *window, t_level *level);
 void		init_player(t_enemy *player);
+void		init_audio(t_audio *audio);
 void		ui_render(t_level *level);
 void		ui_config(t_level *level);
 void		set_text_color(int color);
