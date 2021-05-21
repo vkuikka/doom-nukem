@@ -30,8 +30,19 @@ void	light_put_text(t_window *window, t_level *level)
 	}
 }
 
+void	add_light(t_level *level)
+{
+	level->light_amount++;
+    if (!(level->lights = (t_light*)realloc(level->lights, sizeof(t_light) * level->light_amount)))
+		ft_error("memory allocation failed\n");
+	vec_add(&level->lights[level->light_amount - 1].pos, level->cam.pos, level->cam.front);
+	level->lights[level->light_amount - 1].brightness = 1;
+	level->lights[level->light_amount - 1].radius = 10;
+}
+
 void	enable_light_editor(t_level *level)
 {
 	level->ui.state.ui_location = UI_LOCATION_LIGHT_EDITOR;
 	level->ui.vertex_select_mode = FALSE;
+	deselect_all_faces(level);
 }

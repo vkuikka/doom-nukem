@@ -356,6 +356,7 @@ void	ui_config(t_level *level)
 	t_editor_ui			*ui;
 
 	ui = &level->ui;
+	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
 	if (level->ui.state.ui_location == UI_LOCATION_FILE_SAVE || level->ui.state.ui_location == UI_LOCATION_FILE_OPEN)
 	{
 		ui_render_directory(level);
@@ -363,7 +364,6 @@ void	ui_config(t_level *level)
 	}
 	if (level->ui.state.ui_location == UI_LOCATION_UV_EDITOR)
 	{
-		set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
 		if (call("close uv editor", NULL, level))
 			level->ui.state.ui_location = UI_LOCATION_MAIN;
 		call("fix selected uv overlap", &fix_uv_overlap, level);
@@ -371,7 +371,6 @@ void	ui_config(t_level *level)
 	}
 	if (level->ui.state.ui_location == UI_LOCATION_DOOR_EDITOR)
 	{
-		set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
 		if (call("close door editor", NULL, level))
 			level->ui.state.ui_location = UI_LOCATION_MAIN;
 		find_selected_door_index(level);
@@ -399,7 +398,23 @@ void	ui_config(t_level *level)
 		}
 		return ;
 	}
-	set_text_color(UI_EDITOR_SETTINGS_TEXT_COLOR);
+	if (level->ui.state.ui_location == UI_LOCATION_LIGHT_EDITOR)
+	{
+		if (call("close light editor", NULL, level))
+			level->ui.state.ui_location = UI_LOCATION_MAIN;
+		float_slider(&ui->sun_contrast, "sun", 0, 1);
+		float_slider(&ui->direct_shadow_contrast, "shadow", 0, 1);
+		if (ui->sun_contrast > ui->direct_shadow_contrast)
+			ui->direct_shadow_contrast = ui->sun_contrast;
+		sprintf(buf, "sun dir: (%.2f, %.2f, %.2f)", ui->sun_dir.x, ui->sun_dir.y, ui->sun_dir.z);
+		text(buf);
+		float_slider(&ui->sun_dir.x, NULL, -1, 1);
+		float_slider(&ui->sun_dir.y, NULL, -1, 1);
+		float_slider(&ui->sun_dir.z, NULL, -1, 1);
+		vec_normalize(&ui->sun_dir);
+		call("add light", &add_light, level);
+		return ;
+	}
 	if (level->ui.state.ui_location == UI_LOCATION_SETTINGS)
 	{
 		sprintf(buf, "render scale: %d (%.0f%%)", ui->raycast_quality, 100.0 / (float)ui->raycast_quality);
@@ -434,6 +449,7 @@ void	ui_config(t_level *level)
 	call("edit doors", &enable_door_editor, level);
 	if (nothing_selected(level))
 	{
+		call("edit lights", &enable_light_editor, level);
 		text("level:");
 		file_browser("select level", ".doom-nukem", &open_level);
 		file_browser("select obj", ".obj", &set_obj);
@@ -468,17 +484,7 @@ void	ui_config(t_level *level)
 		button(&ui->distance_culling, "distance culling");
 		sprintf(buf, "render distance: %.1fm", ui->render_distance);
 		float_slider(&ui->render_distance, buf, 2, 50);
-		float_slider(&ui->sun_contrast, "sun", 0, 1);
-		float_slider(&ui->direct_shadow_contrast, "shadow", 0, 1);
-		if (ui->sun_contrast > ui->direct_shadow_contrast)
-			ui->direct_shadow_contrast = ui->sun_contrast;
-		sprintf(buf, "sun dir: (%.2f, %.2f, %.2f)", ui->sun_dir.x, ui->sun_dir.y, ui->sun_dir.z);
-		text(buf);
-		//vec3_slider
-		float_slider(&ui->sun_dir.x, NULL, -1, 1);
-		float_slider(&ui->sun_dir.y, NULL, -1, 1);
-		float_slider(&ui->sun_dir.z, NULL, -1, 1);
-		vec_normalize(&ui->sun_dir);
+
 		file_save("save level", ".doom-nukem", NULL);
 
 		set_text_color(UI_INFO_TEXT_COLOR);

@@ -648,5 +648,7 @@ void		lights(t_level *l, t_vec3 normal, t_cast_result *res);
 unsigned	brightness(unsigned color1, float brightness, unsigned alpha);
 int			nothing_selected(t_level *level);
 void		light_put_text(t_window *window, t_level *level);
+void		enable_light_editor(t_level *level);
+void		add_light(t_level *level);
 
 #endif
