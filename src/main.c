@@ -193,7 +193,7 @@ static void		keyboard_input(t_window *window, t_level *level, SDL_Event event, t
 		toggle_selection_all(level);
 	else if (event.key.keysym.scancode == SDL_SCANCODE_E)
 		door_activate(level);
-	else if (event.key.keysym.scancode == SDL_SCANCODE_Q)
+	else if (event.key.keysym.scancode == SDL_SCANCODE_Q && *game_state != GAME_STATE_MAIN_MENU)
 	{
 		level->ui.state.mouse_capture = FALSE;
 		SDL_SetRelativeMouseMode(SDL_FALSE);

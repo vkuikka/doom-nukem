@@ -399,6 +399,7 @@ typedef struct			s_level
 	int					player_health;
 	int					player_ammo;
 	struct s_player_pos	spawn_pos;
+	struct s_bmp		main_menu_title;
 	struct s_player_pos	main_menu_pos1;
 	struct s_player_pos	main_menu_pos2;
 	unsigned			main_menu_anim_time;

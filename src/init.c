@@ -59,6 +59,8 @@ void			init_level(t_level **res)
 	load_obj("embed/skybox.obj", &level->sky.visible);
 	level->sky.img = bmp_read("skybox.bmp");
 
+	level->main_menu_title = bmp_read("embed/title.bmp");
+
 	char viewmodel_name[] = "embed/viewmodel/m4_0.bmp";
 	for (int i = 0; i < VIEWMODEL_FRAMES; i++)
 	{

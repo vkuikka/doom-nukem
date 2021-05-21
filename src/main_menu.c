@@ -62,6 +62,14 @@ static void main_menu_text_background(t_rect rect, unsigned *pixels)
 				pixels[x + (y * RES_X)] = MAIN_MENU_FONT_BACKGROUND_COLOR;
 }
 
+static void main_menu_title(t_bmp *img, unsigned *pixels)
+{
+	for (int y = 0; y < RES_Y && y < img->height; y++)
+		for (int x = 0; x < RES_X; x++)
+			if (x >= 0 && y >= 0 && x < RES_X && y < RES_Y)
+				pixels[x + (y * RES_X)] = img->image[(int)(((float)x / RES_X) * img->width) + (y * img->width)];
+}
+
 static int		mouse_collision(t_rect rect, t_level *level)
 {
 	t_ivec2	mouse;
@@ -116,6 +124,7 @@ void			main_menu(t_level *level, t_window *window, t_game_state *game_state)
 	if (SDL_LockTexture(background_texture, NULL, (void**)&pixels, &width) != 0)
 		ft_error("failed to lock texture\n");
 	ft_memset(pixels, 0, RES_X * RES_Y * 4);
+	main_menu_title(&level->main_menu_title, pixels);
 	rect = main_menu_button_text("play level", window, texture, 0);
 	main_menu_text_background(rect, pixels);
 	int state_changed = FALSE;
