@@ -436,7 +436,7 @@ void	ui_config(t_level *level)
 		call("set menu position 1", &set_menu_pos_1, level);
 		call("set menu position 2", &set_menu_pos_2, level);
 		sprintf(buf, "main menu animation time %ds", level->main_menu_anim_time);
-		int_slider(&level->main_menu_anim_time, buf, 2, 50);
+		int_slider((int*)&level->main_menu_anim_time, buf, 2, 50);
 		button(&ui->fog, "fog");
 		// color(ui->color, "fog color");
 		// call(, "set spawn point");
