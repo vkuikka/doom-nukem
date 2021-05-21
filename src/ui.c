@@ -588,8 +588,8 @@ void	init_ui(t_window *window, t_level *level)
 	// ui->fog_color = 0xffffffff;//fog
 	// ui->fog_color = 0x000000ff;//night
 	// ui->fog_color = 0xff0000ff;
-	ui->fog_color = 0xb19a6aff;//sandstorm
-	// ui->fog_color = 0xddddddff;//smoke
+	// ui->fog_color = 0xb19a6aff;//sandstorm
+	ui->fog_color = 0xddddddff;//smoke
 
 	ui->fov = M_PI / 2;
 	ui->sun_contrast = 0;	//max 1

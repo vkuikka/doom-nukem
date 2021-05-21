@@ -409,6 +409,12 @@ void	ui_config(t_level *level)
 		button(&ui->blur, "blur");
 		button(&ui->smooth_pixels, "smooth pixel transition");
 		button(&ui->state.ssp_visual, "ssp visualize");
+		sprintf(buf, "music volume: %.0f%%", 100 * (level->audio.music_volume / MIX_MAX_VOLUME));
+		float_slider(&level->audio.music_volume, buf, 0, MIX_MAX_VOLUME);
+		Mix_VolumeMusic(level->audio.music_volume);
+		sprintf(buf, "sound effect volume: %.0f%%", 100 * (level->audio.sound_effect_volume / MIX_MAX_VOLUME));
+		float_slider(&level->audio.sound_effect_volume, buf, 0, MIX_MAX_VOLUME);
+		Mix_Volume(-1, level->audio.sound_effect_volume);
 		return ;
 	}
 	button(&ui->noclip, "noclip");

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   door_editor.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/06 23:29:24 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/05/06 23:29:24 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/05/21 17:16:09 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,6 +72,7 @@ void	door_activate(t_level *level)
 	}
 	if (nearest_index != -1 && nearest_len < DOOR_ACTIVATION_DISTANCE)
 	{
+		Mix_PlayChannel(AUDIO_DOOR_CHANNEL, level->audio.door, 0);
 		door = &level->doors.door[nearest_index];
 		door->transition_direction = door->transition_direction ? 0 : 1;
 		float time = (SDL_GetTicks() - door->transition_start_time) / (1000 * door->transition_time);

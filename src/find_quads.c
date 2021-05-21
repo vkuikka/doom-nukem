@@ -152,8 +152,9 @@ void	find_quads(t_obj *obj)
 					obj->tri_amount--;
 					for (int x = j; x < obj->tri_amount; x++) //move address of everythign left
 						obj->tris[x] = obj->tris[x + 1];
-					i = 0;
-					j = 0;
+					j--;
+					if (j < i)
+						i--;
 					quads++;
 				}
 			}
