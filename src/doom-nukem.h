@@ -36,6 +36,7 @@
 # define WALKABLE_NORMAL_MIN_Y 0.75
 # define DOOR_ACTIVATION_DISTANCE 3.
 # define DOOR_LOCATION_INFO_COLOR 0x880088ff
+# define LIGHT_LOCATION_INFO_COLOR 0xffdd00ff
 
 # define ENEMY_MOVABLE_HEIGHT_DIFF 1
 # define MAX_PROJECTILE_TRAVEL 100
@@ -311,7 +312,8 @@ typedef enum			e_ui_location
 	UI_LOCATION_FILE_SAVE,
 	UI_LOCATION_UV_EDITOR,
 	UI_LOCATION_SETTINGS,
-	UI_LOCATION_DOOR_EDITOR
+	UI_LOCATION_DOOR_EDITOR,
+	UI_LOCATION_LIGHT_EDITOR
 }						t_ui_location;
 
 struct					s_level;
@@ -616,5 +618,6 @@ void		find_selected_door_index(t_level *level);
 void		lights(t_level *l, t_vec3 normal, t_cast_result *res);
 unsigned	brightness(unsigned color1, float brightness, unsigned alpha);
 int			nothing_selected(t_level *level);
+void		light_put_text(t_window *window, t_level *level);
 
 #endif

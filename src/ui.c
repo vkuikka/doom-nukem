@@ -613,4 +613,5 @@ void	init_ui(t_window *window, t_level *level)
 	render_call_streaming(pixels, 0, NULL, 0);
 	ui_render_background(pixels, NULL, NULL, NULL);
 	render_text(NULL, NULL, NULL, text_texture);
+	ui_render(level);
  }

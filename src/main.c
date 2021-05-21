@@ -307,7 +307,11 @@ int			main(int argc, char **argv)
 		}
 		update_camera(level);
 		door_animate(level);
-		door_put_text(window, level);
+		if (game_state == GAME_STATE_EDITOR)
+		{
+			door_put_text(window, level);
+			light_put_text(window, level);
+		}
 		enemies_update_sprites(level);
 		cull = SDL_GetTicks();
 		culling(level);
