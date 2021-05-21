@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/10 01:23:16 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/21 15:04:09 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/21 17:04:13 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -246,7 +246,7 @@ void		player_movement(t_level *level, t_game_state game_state)
 		return (noclip(level, &wishdir, &vel, delta_time));
 	in_air = is_player_in_air(level, height);
 	if (vertical_movement(&wishdir, &vel, delta_time, in_air))
-		Mix_PlayChannel(-1, level->audio.jump, 0);
+		Mix_PlayChannel(AUDIO_JUMP_CHANNEL, level->audio.jump, 0);
 	if (in_air || wishdir.y)
 		air_movement(&wishdir, &vel, delta_time);
 	else

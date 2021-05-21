@@ -203,12 +203,13 @@ static void		keyboard_input(t_window *window, t_level *level, SDL_Event event, t
 		level->cam.look_side = level->main_menu_pos1.look_side;
 		level->cam.look_up = level->main_menu_pos1.look_up;
 		level->main_menu_anim_start_time = SDL_GetTicks();
-		if (Mix_PlayMusic(level->audio.music, -1) == -1)
-			ft_error("music not playing");
-			// nonfatal_error(level, "music not playing");
+		Mix_PlayMusic(level->audio.music, -1);
 	}
 	else if (event.key.keysym.scancode == SDL_SCANCODE_R)
+	{
+		Mix_PlayChannel(AUDIO_RELOAD_CHANNEL, level->audio.reload, 0);
 		level->reload_start_time = SDL_GetTicks();
+	}
 }
 
 static void		read_input(t_window *window, t_level *level, t_game_state *game_state)
@@ -249,12 +250,16 @@ void		game_logic(t_level *level, t_game_state *game_state)
 	{
 		if (level->player_ammo)
 		{
+			Mix_PlayChannel(AUDIO_GUNSHOT_CHANNEL, level->audio.gunshot, 0);
 			level->player_ammo--;
 			level->player.dir = level->cam.front;
 			create_projectile(level, level->cam.pos, level->cam.front, &level->player);
 		}
 		else
+		{
+			Mix_PlayChannel(AUDIO_RELOAD_CHANNEL, level->audio.reload, 0);
 			level->reload_start_time = SDL_GetTicks();
+		}
 	}
 	if (level->death_start_time)
 	{
@@ -270,6 +275,8 @@ void		game_logic(t_level *level, t_game_state *game_state)
 	}
 	else if (level->player_health <= 0)
 	{
+		Mix_HaltMusic();
+		Mix_PlayChannel(AUDIO_DEATH_CHANNEL, level->audio.death, 0);
 		level->reload_start_time = 0;
 		level->death_start_time = SDL_GetTicks();
 		*game_state = GAME_STATE_DEAD;
@@ -290,7 +297,7 @@ int			main(int argc, char **argv)
 	game_state = GAME_STATE_MAIN_MENU;
 	game_state = GAME_STATE_EDITOR;//remove
 	init_level(&level);
-	init_audio(&level->audio);
+	init_audio(level);
 	init_window(&window);
 	init_ui(window, level);
 	init_screen_space_partition(level);

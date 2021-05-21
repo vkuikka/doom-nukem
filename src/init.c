@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/08 14:38:45 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/21 15:18:20 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/21 17:15:10y vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,16 +132,24 @@ void			init_player(t_enemy *player)
 	player->projectile_uv[2].y = 1;
 }
 
-void	init_audio(t_audio *audio)
+void	init_audio(t_level *l)
 {
 	if (Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 8, 4096) < 0)
 		ft_error("Failed to initialize SDL_Mixer");
-	audio->music_volume = AUDIO_VOLUME_INIT;
-	audio->sound_effect_volume = AUDIO_VOLUME_INIT;
-	Mix_VolumeMusic(audio->music_volume);
-	Mix_Volume(-1, audio->sound_effect_volume);
-	if (!(audio->music = Mix_LoadMUS(AUDIO_MUSIC)))
-		ft_error("Failed load music");
-	if (!(audio->jump = Mix_LoadWAV(AUDIO_JUMP)))
-		ft_error("Failed load sound");
+	l->audio.music_volume = AUDIO_VOLUME_INIT;
+	l->audio.sound_effect_volume = AUDIO_VOLUME_INIT;
+	Mix_VolumeMusic(l->audio.music_volume);
+	Mix_Volume(-1, l->audio.sound_effect_volume);
+	if (!(l->audio.music = Mix_LoadMUS(AUDIO_MUSIC)))
+		ft_error(AUDIO_MUSIC);
+	if (!(l->audio.jump = Mix_LoadWAV(AUDIO_JUMP)))
+		ft_error(AUDIO_JUMP);
+	if (!(l->audio.gunshot = Mix_LoadWAV(AUDIO_GUNSHOT)))
+		ft_error(AUDIO_GUNSHOT);
+	if (!(l->audio.reload = Mix_LoadWAV(AUDIO_RELOAD)))
+		ft_error(AUDIO_RELOAD);
+	if (!(l->audio.death = Mix_LoadWAV(AUDIO_DEATH)))
+		ft_error(AUDIO_DEATH);
+	if (!(l->audio.door = Mix_LoadWAV(AUDIO_DOOR)))
+		ft_error(AUDIO_DOOR);
 }
