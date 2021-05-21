@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/08 14:38:45 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/20 16:18:36 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/21 15:18:20 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,4 +130,18 @@ void			init_player(t_enemy *player)
 	player->projectile_uv[1].y = 1;
 	player->projectile_uv[2].x = 1;
 	player->projectile_uv[2].y = 1;
+}
+
+void	init_audio(t_audio *audio)
+{
+	if (Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 8, 4096) < 0)
+		ft_error("Failed to initialize SDL_Mixer");
+	audio->music_volume = AUDIO_VOLUME_INIT;
+	audio->sound_effect_volume = AUDIO_VOLUME_INIT;
+	Mix_VolumeMusic(audio->music_volume);
+	Mix_Volume(-1, audio->sound_effect_volume);
+	if (!(audio->music = Mix_LoadMUS(AUDIO_MUSIC)))
+		ft_error("Failed load music");
+	if (!(audio->jump = Mix_LoadWAV(AUDIO_JUMP)))
+		ft_error("Failed load sound");
 }

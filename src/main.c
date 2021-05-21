@@ -203,6 +203,9 @@ static void		keyboard_input(t_window *window, t_level *level, SDL_Event event, t
 		level->cam.look_side = level->main_menu_pos1.look_side;
 		level->cam.look_up = level->main_menu_pos1.look_up;
 		level->main_menu_anim_start_time = SDL_GetTicks();
+		if (Mix_PlayMusic(level->audio.music, -1) == -1)
+			ft_error("music not playing");
+			// nonfatal_error(level, "music not playing");
 	}
 	else if (event.key.keysym.scancode == SDL_SCANCODE_R)
 		level->reload_start_time = SDL_GetTicks();
@@ -287,6 +290,7 @@ int			main(int argc, char **argv)
 	game_state = GAME_STATE_MAIN_MENU;
 	game_state = GAME_STATE_EDITOR;//remove
 	init_level(&level);
+	init_audio(&level->audio);
 	init_window(&window);
 	init_ui(window, level);
 	init_screen_space_partition(level);
