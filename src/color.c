@@ -28,6 +28,32 @@ unsigned		crossfade(unsigned color1, unsigned color2, unsigned fade, unsigned al
 	return ((newr << 8 * 3) + (newg << 8 * 2) + (newb << 8 * 1) + alpha);
 }
 
+unsigned		brightness(unsigned color1, float brightness, unsigned alpha)
+{
+	unsigned char	*rgb1;
+	unsigned int	newr;
+	unsigned int	newg;
+	unsigned int	newb;
+
+	rgb1 = (unsigned char*)&color1;
+	newr = rgb1[2] * brightness;
+	newg = rgb1[1] * brightness;
+	newb = rgb1[0] * brightness;
+	if (newr > 0xff)
+		newr = 0xff;
+	if (newg > 0xff)
+		newg = 0xff;
+	if (newb > 0xff)
+		newb = 0xff;
+	if (newr < 0)
+		newr = 0;
+	if (newg < 0)
+		newg = 0;
+	if (newb < 0)
+		newb = 0;
+	return ((newr << 8 * 3) + (newg << 8 * 2) + (newb << 8 * 1) + alpha);
+}
+
 int				skybox(t_bmp *img, t_obj *obj, t_ray r)
 {
 	t_cast_result	res;

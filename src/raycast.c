@@ -80,8 +80,7 @@ static void		raytrace(t_cast_result *res, t_obj *obj, t_ray r, t_level *l)
 		vec_add(&tmp, r.dir, r.pos);
 		res->color = wave_shader(tmp, &res->normal, 0x070C5A, 0x020540);
 	}
-	if (l->ui.sun_contrast || l->ui.direct_shadow_contrast)
-		shadow(l, res->normal, res);
+	lights(l, res->normal, res);
 	if (l->all.tris[res->face_index].reflectivity &&
 		res->reflection_depth < REFLECTION_DEPTH)
 	{

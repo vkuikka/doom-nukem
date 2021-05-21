@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/31 16:52:44 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/16 22:55:57 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/21 18:30:25 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,28 @@ void		shadow(t_level *l, t_vec3 normal, t_cast_result *res)
 	}
 	darkness = (1 - vec_dot(normal, l->ui.sun_dir)) * l->ui.sun_contrast;
 	res->color = crossfade((unsigned)res->color >> 8, l->shadow_color, darkness * 0xff, (unsigned)res->color << 24 >> 24);
+}
+
+void		lights(t_level *l, t_vec3 normal, t_cast_result *res)
+{
+	t_vec3	diff;
+	float	dist;
+	float	bright_value;
+	int		i;
+
+	i = 0;
+	// if (l->ui.sun_contrast || l->ui.direct_shadow_contrast)
+	// 	shadow(l, res->normal, res);
+	bright_value = 0;
+	while (i < l->light_amount)
+	{
+		vec_sub(&diff, res->ray.pos, l->lights[i].pos);
+		dist = vec_length(diff);
+		if (dist < l->lights[i].radius)
+			bright_value += (1.0 - dist / l->lights[i].radius) * l->lights[i].brightness;
+		i++;
+	}
+	res->color = brightness((unsigned)res->color >> 8, bright_value, (unsigned)res->color << 24 >> 24);
 }
 
 void		reflection(t_cast_result *res, t_level *l, t_obj *obj)

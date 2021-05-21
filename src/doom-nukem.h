@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/16 22:46:38 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/21 18:28:51 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -331,6 +331,13 @@ typedef struct			s_editor_ui
 	struct s_ui_state	state;
 }						t_editor_ui;
 
+typedef struct			s_light
+{
+	t_vec3				pos;
+	float				radius;
+	float				brightness;
+}						t_light;
+
 typedef struct			s_level
 {
 	// struct s_obj		*all_objs;	//(if want to add multiple objects) array of objects in the level
@@ -345,6 +352,8 @@ typedef struct			s_level
 	struct s_camera		cam;
 	struct s_editor_ui	ui;
 	struct s_all_doors	doors;
+	struct s_light		*lights;
+	int					light_amount;
 	int					shadow_color;
 	float				player_health;
 }						t_level;
@@ -528,5 +537,7 @@ void		set_door_pos_1(t_level *level);
 void		set_door_pos_2(t_level *level);
 void		enable_door_editor(t_level *level);
 void		find_selected_door_index(t_level *level);
+void		lights(t_level *l, t_vec3 normal, t_cast_result *res);
+unsigned	brightness(unsigned color1, float brightness, unsigned alpha);
 
 #endif
