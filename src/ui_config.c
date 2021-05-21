@@ -413,6 +413,13 @@ void	ui_config(t_level *level)
 		float_slider(&ui->sun_dir.z, NULL, -1, 1);
 		vec_normalize(&ui->sun_dir);
 		call("add light", &add_light, level);
+		if (level->selected_light_index)
+		{
+			sprintf(buf, "brightness %.2f", level->lights[level->selected_light_index - 1].brightness);
+			float_slider(&level->lights[level->selected_light_index - 1].brightness, buf, .1, 20);
+			sprintf(buf, "radius %.2f", level->lights[level->selected_light_index - 1].radius);
+			float_slider(&level->lights[level->selected_light_index - 1].radius, buf, .1, 20);
+		}
 		return ;
 	}
 	if (level->ui.state.ui_location == UI_LOCATION_SETTINGS)

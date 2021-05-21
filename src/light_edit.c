@@ -23,11 +23,51 @@ void	light_put_text(t_window *window, t_level *level)
 		camera_offset(&pos, &level->cam);
 		if (pos.z < 0)
 			continue ;
-		set_text_color(LIGHT_LOCATION_INFO_COLOR);
 		text_pos.x = pos.x;
 		text_pos.y = pos.y;
-		render_text("light", window, &text_pos, NULL);
+		if (level->selected_light_index && i + 1 == level->selected_light_index)
+		{
+			set_text_color(WF_SELECTED_COL);
+			render_text("-light-", window, &text_pos, NULL);
+		}
+		else
+		{
+			set_text_color(LIGHT_LOCATION_INFO_COLOR);
+			render_text("light", window, &text_pos, NULL);
+		}
 	}
+}
+
+void	select_light(t_level *level, int x, int y)
+{
+	float	nearest_len;
+	int		nearest_index;
+	float	len;
+	t_vec2	test;
+	t_vec3	vert;
+
+	level->selected_light_index = 0;
+	nearest_len = -1;
+	nearest_index = -1;
+	for (int i = 0; i < level->light_amount; i++)
+	{
+		vert = level->lights[i].pos;
+		camera_offset(&vert, &level->cam);
+		if (vert.z < 0 || vert.x < 0 || vert.x > RES_X || vert.y < 0 || vert.y > RES_Y)
+			continue ;
+		test.x = vert.x;
+		test.y = vert.y;
+		test.x -= x;
+		test.y -= y;
+		len = vec2_length(test);
+		if (len < nearest_len || nearest_len == -1)
+		{
+			nearest_len = len;
+			nearest_index = i;
+		}
+	}
+	if (nearest_index != -1)
+		level->selected_light_index = nearest_index + 1;
 }
 
 void	add_light(t_level *level)

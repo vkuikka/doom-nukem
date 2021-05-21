@@ -320,6 +320,7 @@ typedef enum			e_mouse_location
 	MOUSE_LOCATION_GIZMO_Y,
 	MOUSE_LOCATION_GIZMO_Z,
 	MOUSE_LOCATION_MAIN_MENU,
+	MOUSE_LOCATION_LIGHT_EDITOR,
 	MOUSE_LOCATION_SELECTION
 }						t_mouse_location;
 
@@ -435,6 +436,7 @@ typedef struct			s_level
 	struct s_all_doors	doors;
 	struct s_light		*lights;
 	int					light_amount;
+	int					selected_light_index;
 	struct s_enemy		player;
 	int					shadow_color;
 	int					player_health;
@@ -650,5 +652,6 @@ int			nothing_selected(t_level *level);
 void		light_put_text(t_window *window, t_level *level);
 void		enable_light_editor(t_level *level);
 void		add_light(t_level *level);
+void		select_light(t_level *level, int x, int y);
 
 #endif

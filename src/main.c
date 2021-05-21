@@ -138,9 +138,18 @@ static void		set_mouse_input_location(t_level *level, t_game_state game_state)
 		level->ui.state.mouse_location != MOUSE_LOCATION_GIZMO_Y &&
 		level->ui.state.mouse_location != MOUSE_LOCATION_GIZMO_Z)
 		{
-			level->ui.state.mouse_location = MOUSE_LOCATION_SELECTION;
+			if (level->ui.state.ui_location == UI_LOCATION_LIGHT_EDITOR)
+			{
+				level->ui.state.mouse_location = MOUSE_LOCATION_LIGHT_EDITOR;
+				if (level->ui.state.m1_click)
+					select_light(level, x, y);
+			}
+			else
+			{
+				level->ui.state.mouse_location = MOUSE_LOCATION_SELECTION;
+				select_face(&level->cam, level, x, y);
+			}
 			level->ui.state.m1_drag = FALSE;
-			select_face(&level->cam, level, x, y);
 		}
 	}
 	level->ui.state.m1_click = FALSE;
