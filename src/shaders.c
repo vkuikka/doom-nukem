@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/31 16:52:44 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/21 18:30:25 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/21 19:51:29by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,6 +76,7 @@ void		lights(t_level *l, t_vec3 normal, t_cast_result *res)
 			bright_value += (1.0 - dist / l->lights[i].radius) * l->lights[i].brightness;
 		i++;
 	}
+	bright_value += l->brightness;
 	res->color = brightness((unsigned)res->color >> 8, bright_value, (unsigned)res->color << 24 >> 24);
 }
 

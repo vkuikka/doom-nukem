@@ -36,9 +36,9 @@ unsigned		brightness(unsigned color1, float brightness, unsigned alpha)
 	unsigned int	newb;
 
 	rgb1 = (unsigned char*)&color1;
-	newr = rgb1[2] * brightness;
-	newg = rgb1[1] * brightness;
-	newb = rgb1[0] * brightness;
+	newr = rgb1[2] * sqrt(brightness);
+	newg = rgb1[1] * sqrt(brightness);
+	newb = rgb1[0] * sqrt(brightness);
 	if (newr > 0xff)
 		newr = 0xff;
 	if (newg > 0xff)

@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/05/20 16:10:07 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/21 20:52:57 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -422,6 +422,8 @@ void	ui_config(t_level *level)
 	}
 
 	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
+	sprintf(buf, "world brightness: %d%%", (int)(level->brightness * 100));
+	float_slider(&level->brightness, buf, 0, 1);
 	call("edit uv", &enable_uv_editor, level);
 	call("edit doors", &enable_door_editor, level);
 	if (nothing_selected(level))

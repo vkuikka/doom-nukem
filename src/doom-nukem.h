@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/21 00:03:22 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/21 20:46:23 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -424,6 +424,7 @@ typedef struct			s_level
 	unsigned			reload_start_time;
 	int					viewmodel_index;
 	struct s_bmp		viewmodel[VIEWMODEL_FRAMES];
+	float				brightness;
 }						t_level;
 
 typedef struct			s_rthread

@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/08 14:38:45 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/20 16:18:36 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/21 20:47:30 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@ void			init_level(t_level **res)
 	level->cam.look_up = 0;
 	level->shadow_color = 0;
 	level->main_menu_anim_time = 2;
+	level->brightness = 1;
 
 	// load_obj("level/two.obj", &level->all);
 	// load_obj("level/test.obj", &level->all);
