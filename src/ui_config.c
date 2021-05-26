@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/05/21 20:52:57 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/26 20:01:49 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -467,13 +467,13 @@ void	ui_config(t_level *level)
 		if (level->is_baked)
 		{
 			set_text_color(UI_LEVEL_BAKED_COLOR);
-			call("bake lighting", NULL, level);
+			call("bake lighting", bake, level);
 		}
 		else
 		{
 			set_text_color(UI_LEVEL_NOT_BAKED_COLOR);
 			// if (call("bake lighting", &bake_lighting, level))
-			if (call("bake lighting", NULL, level))
+			if (call("bake lighting", bake, level))
 				level->is_baked = TRUE;
 		}
 		set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);

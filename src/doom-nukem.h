@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/21 17:26:09 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/26 19:58:22 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -427,9 +427,10 @@ typedef struct			s_level
 	struct s_obj		visible;	//visible faces
 	struct s_obj		*ssp;		//screen space partition
 	struct s_bmp		texture;
-	int					is_baked;
-	struct s_bmp		baked;
 	struct s_bmp		normal_map;
+	struct s_bmp		spray;
+	struct s_bmp		baked;
+	int					is_baked;
 	struct s_skybox		sky;
 	struct s_camera		cam;
 	struct s_editor_ui	ui;
@@ -511,6 +512,7 @@ typedef struct			s_cast_result
 	struct s_ray		ray;
 	struct s_bmp		*normal_map;
 	struct s_bmp		*texture;
+	struct s_bmp		*baked;
 }						t_cast_result;
 
 typedef struct			s_buffer
@@ -646,7 +648,7 @@ void		set_door_pos_1(t_level *level);
 void		set_door_pos_2(t_level *level);
 void		enable_door_editor(t_level *level);
 void		find_selected_door_index(t_level *level);
-void		lights(t_level *l, t_vec3 normal, t_cast_result *res);
+void		lights(t_level *l, t_vec3 pos, unsigned *color);
 unsigned	brightness(unsigned color1, float brightness, unsigned alpha);
 int			nothing_selected(t_level *level);
 void		light_put_text(t_window *window, t_level *level);
@@ -654,5 +656,6 @@ void		enable_light_editor(t_level *level);
 void		add_light(t_level *level);
 void		select_light(t_level *level, int x, int y);
 void		delete_light(t_level *level);
+void		bake(t_level *l);
 
 #endif

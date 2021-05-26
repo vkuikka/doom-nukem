@@ -57,8 +57,9 @@ void		shadow(t_level *l, t_vec3 normal, t_cast_result *res)
 	res->color = crossfade((unsigned)res->color >> 8, l->shadow_color, darkness * 0xff, (unsigned)res->color << 24 >> 24);
 }
 
-void		lights(t_level *l, t_vec3 normal, t_cast_result *res)
+void			lights(t_level *l, t_vec3 pos, unsigned *color)
 {
+	t_ray	ray;
 	t_vec3	diff;
 	float	dist;
 	float	bright_value;
@@ -70,14 +71,17 @@ void		lights(t_level *l, t_vec3 normal, t_cast_result *res)
 	bright_value = 0;
 	while (i < l->light_amount)
 	{
-		vec_sub(&diff, res->ray.pos, l->lights[i].pos);
+		// vec_sub(&diff, l->lights[i].pos, pos);
+		vec_sub(&diff, pos, l->lights[i].pos);
 		dist = vec_length(diff);
-		if (dist < l->lights[i].radius)
+		ray.pos = l->lights[i].pos;
+		ray.dir = diff;
+		if (dist < l->lights[i].radius && cast_all(ray, l, NULL, NULL, NULL) >= vec_length(diff) - 0.01)
 			bright_value += (1.0 - dist / l->lights[i].radius) * l->lights[i].brightness;
 		i++;
 	}
 	bright_value += l->brightness;
-	res->color = brightness((unsigned)res->color >> 8, bright_value, (unsigned)res->color << 24 >> 24);
+	*color = brightness((unsigned)*color >> 8, bright_value, (unsigned)*color << 24 >> 24);
 }
 
 void		reflection(t_cast_result *res, t_level *l, t_obj *obj)

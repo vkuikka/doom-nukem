@@ -80,7 +80,7 @@ static void		raytrace(t_cast_result *res, t_obj *obj, t_ray r, t_level *l)
 		vec_add(&tmp, r.dir, r.pos);
 		res->color = wave_shader(tmp, &res->normal, 0x070C5A, 0x020540);
 	}
-	lights(l, res->normal, res);
+	lights(l, res->ray.pos, (unsigned *)&res->color);
 	if (l->all.tris[res->face_index].reflectivity &&
 		res->reflection_depth < REFLECTION_DEPTH)
 	{
@@ -127,7 +127,10 @@ void			cast_all_color(t_ray r, t_level *l, t_obj *obj, t_cast_result *res)
 	}
 	res->dist = dist;
 	if (new_hit == -1)
-		res->color = skybox(&l->sky.img, res->reflection_depth ? &l->sky.all : &l->sky.visible, r);
+	{
+		res->color = 0x333333ff;
+		// res->color = skybox(&l->sky.img, res->reflection_depth ? &l->sky.all : &l->sky.visible, r);
+	}
 	else
 	{
 		res->u = u;
@@ -178,6 +181,7 @@ int				raycast(void *data_pointer)
 				t_cast_result	res;
 				res.normal_map = &t->level->normal_map;
 				res.texture = &t->level->texture;
+				res.baked = &t->level->baked;
 				res.reflection_depth = 0;
 				res.face_index = -1;
 				cast_all_color(r, t->level, &t->level->ssp[get_ssp_index(x, y)], &res);
