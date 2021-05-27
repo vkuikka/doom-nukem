@@ -43,7 +43,6 @@ void			init_level(t_level **res)
 	level->brightness = 1;
 
 	load_obj("level/ship.obj", &level->all);
-	// load_obj("level/one.obj", &level->all);
 
 	level->texture = bmp_read("out.bmp");
 	level->baked = bmp_read("out.bmp");

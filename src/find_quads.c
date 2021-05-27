@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/21 16:54:13 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/05/04 23:25:05 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/27 14:08:07 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,6 +148,7 @@ void	find_quads(t_obj *obj)
 				{
 					set_mirror_dir(&obj->tris[i], not_shared_vertex_index);
 					set_fourth_vertex(&obj->tris[i]);
+					set_fourth_vertex_uv(&obj->tris[i]);
 					obj->tris[i].isquad = 1;
 					obj->tri_amount--;
 					for (int x = j; x < obj->tri_amount; x++) //move address of everythign left

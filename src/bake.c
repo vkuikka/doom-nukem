@@ -62,7 +62,10 @@ void		get_uv(t_vec3 *uvw, t_ivec2 ipoint, t_tri tri, t_bmp *txtr)
 
 	fp.x = (float)ipoint.x / txtr->width;
 	fp.y = 1-(float)ipoint.y / txtr->height;
-	v0 = tri.verts[0].txtr;
+	if (!point_in_tri(fp, tri.verts[0].txtr, tri.verts[1].txtr, tri.verts[2].txtr))
+		v0 = tri.verts[3].txtr;
+	else
+		v0 = tri.verts[0].txtr;
 	v1 = tri.verts[1].txtr;
 	v2 = tri.verts[2].txtr;
 	uvw->z = fabs((fp.x * (v1.y - v2.y) +
@@ -84,9 +87,15 @@ t_vec3		uv_to_3d(t_tri tri, t_bmp *txtr, t_ivec2 point)
 	t_vec3		av1;
 	t_vec3		av2;
 	t_vec3		res;
+	t_vec2		fp;
 
 	get_uv(&uvw, point, tri, txtr);
-	av0 = tri.verts[0].pos;
+	fp.x = (float)point.x / txtr->width;
+	fp.y = 1-(float)point.y / txtr->height;
+	if (!point_in_tri(fp, tri.verts[0].txtr, tri.verts[1].txtr, tri.verts[2].txtr))
+		av0 = tri.verts[3].pos;
+	else
+		av0 = tri.verts[0].pos;
 	av1 = tri.verts[1].pos;
 	av2 = tri.verts[2].pos;
 	vec_mult(&av0, uvw.z);
@@ -110,8 +119,9 @@ static void	wrap_coords(int *x, int *y, int max_x, int max_y)
 		*x = *x % max_x;
 }
 
-void		bake(t_level *l)
+int			bake(void *d)
 {
+	t_level		*l = d;
 	t_vec2		min;
 	t_vec2		max;
 	t_ivec2		i;
@@ -122,8 +132,6 @@ void		bake(t_level *l)
 	i.x = 0;
 	i.y = 0;
 	tri = 0;
-	t_vec3	pos;
-	pos = l->cam.pos;
 	while (tri < l->all.tri_amount)
 	{
 		texture_minmax(&min, &max, l->all.tris[tri]);
@@ -136,16 +144,19 @@ void		bake(t_level *l)
 				t_vec2 tmp;
 				tmp.x = (float)i.x / l->texture.width;
 				tmp.y = 1 - (float)i.y / l->texture.height;
-				if (point_in_tri(tmp, l->all.tris[tri].verts[0].txtr, l->all.tris[tri].verts[1].txtr, l->all.tris[tri].verts[2].txtr))
+				if ((l->all.tris[tri].isquad &&
+					point_in_tri(tmp, l->all.tris[tri].verts[3].txtr, l->all.tris[tri].verts[1].txtr, l->all.tris[tri].verts[2].txtr)) ||
+					point_in_tri(tmp, l->all.tris[tri].verts[0].txtr, l->all.tris[tri].verts[1].txtr, l->all.tris[tri].verts[2].txtr))
 				{
 					t_ivec2 wrapped;
 					wrapped = i;
 					wrap_coords(&wrapped.x, &wrapped.y, l->texture.width, l->texture.height);
 					color = l->texture.image[wrapped.x + wrapped.y * l->texture.width];
+					// color = 0xff;
 					pos3d = uv_to_3d(l->all.tris[tri], &l->texture, i);
 					lights(l, pos3d, &color);
-					l->cam.pos = pos3d;
 					l->baked.image[wrapped.x + wrapped.y * l->baked.width] = color;
+					l->texture.image[wrapped.x + wrapped.y * l->baked.width] = color;
 				}
 				i.y++;
 			}
@@ -154,5 +165,10 @@ void		bake(t_level *l)
 		tri++;
 		printf("%f%%\n", (float)tri / (float)l->all.tri_amount);
 	}
-	l->cam.pos = pos;
+	return (1);
+}
+
+void		start_bake(t_level *level)
+{
+	SDL_CreateThread(bake, "asd", (void*)level);
 }

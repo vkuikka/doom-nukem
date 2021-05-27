@@ -71,12 +71,11 @@ void			lights(t_level *l, t_vec3 pos, unsigned *color)
 	bright_value = 0;
 	while (i < l->light_amount)
 	{
-		// vec_sub(&diff, l->lights[i].pos, pos);
 		vec_sub(&diff, pos, l->lights[i].pos);
 		dist = vec_length(diff);
 		ray.pos = l->lights[i].pos;
 		ray.dir = diff;
-		if (dist < l->lights[i].radius && cast_all(ray, l, NULL, NULL, NULL) >= vec_length(diff) - 0.01)
+		if (dist < l->lights[i].radius && cast_all(ray, l, NULL, NULL, NULL) >= vec_length(diff) - 0.1)
 			bright_value += (1.0 - dist / l->lights[i].radius) * l->lights[i].brightness;
 		i++;
 	}

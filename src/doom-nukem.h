@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/26 19:58:22 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/27 15:18:22 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@
 # define SSP_MAX_X 20
 # define SSP_MAX_Y 20
 
-# define NOCLIP_SPEED 50.0
+# define NOCLIP_SPEED 10.0
 # define GRAVITY 12		//	m/s^2
 # define JUMP_SPEED 5	//	m/s
 # define AIR_ACCEL .3	//	m/s^2
@@ -656,6 +656,7 @@ void		enable_light_editor(t_level *level);
 void		add_light(t_level *level);
 void		select_light(t_level *level, int x, int y);
 void		delete_light(t_level *level);
-void		bake(t_level *l);
+void		set_fourth_vertex_uv(t_tri *a);
+void		start_bake(t_level *level);
 
 #endif

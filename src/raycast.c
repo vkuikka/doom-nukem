@@ -137,9 +137,9 @@ void			cast_all_color(t_ray r, t_level *l, t_obj *obj, t_cast_result *res)
 		res->v = v;
 		res->face_index = obj->tris[new_hit].index;
 		face_color(res->u, res->v, obj->tris[new_hit], res);
-		vec_mult(&r.dir, dist);
-		vec_add(&r.pos, r.pos, r.dir);
-		raytrace(res, obj, r, l);
+		// vec_mult(&r.dir, dist);
+		// vec_add(&r.pos, r.pos, r.dir);
+		// raytrace(res, obj, r, l);
 	}
 }
 
