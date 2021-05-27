@@ -408,20 +408,21 @@ void	ui_config(t_level *level)
 	}
 	if (level->ui.state.ui_location == UI_LOCATION_LIGHT_EDITOR)
 	{
-		if (call("close light editor", NULL, level))
-			level->ui.state.ui_location = UI_LOCATION_MAIN;
 		if (level->bake_status == BAKE_NOT_BAKED)
 		{
-			sprintf(buf, "bake lighting");
 			set_text_color(UI_LEVEL_NOT_BAKED_COLOR);
+			sprintf(buf, "bake lighting");
+			call(buf, start_bake, level);
 		}
-		else
+		else if (level->bake_status == BAKE_BAKED)
 		{
-			sprintf(buf, "lighting baked");
 			set_text_color(UI_LEVEL_BAKED_COLOR);
+			sprintf(buf, "lighting baked");
+			call(buf, start_bake, level);
 		}
-		call(buf, start_bake, level);
 		set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
+		if (call("close light editor", NULL, level))
+			level->ui.state.ui_location = UI_LOCATION_MAIN;
 		sprintf(buf, "world brightness: %d%%", (int)(level->brightness * 100));
 		float_slider(&level->brightness, buf, 0, 1);
 		float_slider(&ui->sun_contrast, "sun", 0, 1);
