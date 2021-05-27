@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/27 16:09:35 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/27 17:22:32 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@
 # define SSP_MAX_X 20
 # define SSP_MAX_Y 20
 
-# define NOCLIP_SPEED 10.0
+# define NOCLIP_SPEED 50.0
 # define GRAVITY 12		//	m/s^2
 # define JUMP_SPEED 5	//	m/s
 # define AIR_ACCEL .3	//	m/s^2
@@ -622,7 +622,7 @@ int			fog(int color, float dist, unsigned fog_color, t_level *level);
 int			skybox(t_bmp *img, t_obj *obj, t_ray r);
 
 void		opacity(t_cast_result *res, t_level *l, t_obj *obj, float opacity);
-void		shadow(t_level *l, t_vec3 normal, t_cast_result *res);
+void		shadow(t_level *l, t_vec3 normal, t_vec3 pos, int face_index);
 
 void		reflection(t_cast_result *res, t_level *l, t_obj *obj);
 

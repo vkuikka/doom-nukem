@@ -127,10 +127,7 @@ void			cast_all_color(t_ray r, t_level *l, t_obj *obj, t_cast_result *res)
 	}
 	res->dist = dist;
 	if (new_hit == -1)
-	{
-		res->color = 0x333333ff;
-		// res->color = skybox(&l->sky.img, res->reflection_depth ? &l->sky.all : &l->sky.visible, r);
-	}
+		res->color = skybox(&l->sky.img, res->reflection_depth ? &l->sky.all : &l->sky.visible, r);
 	else
 	{
 		res->u = u;

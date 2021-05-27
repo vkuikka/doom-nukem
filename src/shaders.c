@@ -26,35 +26,37 @@ void		opacity(t_cast_result *res, t_level *l, t_obj *obj, float opacity)
 	res->color = crossfade((unsigned)res->color >> 8, (unsigned)transparent.color >> 8, opacity * 0xff, opacity * 0xff);
 }
 
-void		shadow(t_level *l, t_vec3 normal, t_cast_result *res)
+void		shadow(t_level *l, t_vec3 normal, t_vec3 pos, int face_index)
 {
-	float	darkness;
-	int		i;
-	t_ray	r;
+	float		darkness;
+	unsigned	color;
+	int			i;
+	t_ray		r;
 
+	color = 0;
 	if (vec_dot(normal, l->ui.sun_dir) < 0)
 	{
 		darkness = l->ui.direct_shadow_contrast;
-		res->color = crossfade((unsigned)res->color >> 8, l->shadow_color, darkness * 0xff, (unsigned)res->color << 24 >> 24);
+		color = crossfade(color >> 8, l->shadow_color, darkness * 0xff, color << 24 >> 24);
 		return;
 	}
 	r.dir.x = l->ui.sun_dir.x;
 	r.dir.y = l->ui.sun_dir.y;
 	r.dir.z = l->ui.sun_dir.z;
-	r.pos = res->ray.pos;
+	r.pos = pos;
 	i = 0;
-	while (i < l->all.tris[res->face_index].shadow_faces->tri_amount)
+	while (i < l->all.tris[face_index].shadow_faces->tri_amount)
 	{
-		if (0 < cast_face(l->all.tris[res->face_index].shadow_faces->tris[i], r, NULL))
+		if (0 < cast_face(l->all.tris[face_index].shadow_faces->tris[i], r, NULL))
 		{
 			darkness = l->ui.direct_shadow_contrast;
-			res->color = crossfade((unsigned)res->color >> 8, l->shadow_color, darkness * 0xff, (unsigned)res->color << 24 >> 24);
+			color = crossfade(color >> 8, l->shadow_color, darkness * 0xff, color << 24 >> 24);
 			return;
 		}
 		i++;
 	}
 	darkness = (1 - vec_dot(normal, l->ui.sun_dir)) * l->ui.sun_contrast;
-	res->color = crossfade((unsigned)res->color >> 8, l->shadow_color, darkness * 0xff, (unsigned)res->color << 24 >> 24);
+	color = crossfade(color >> 8, l->shadow_color, darkness * 0xff, color << 24 >> 24);
 }
 
 void			lights(t_level *l, t_vec3 pos, unsigned *color, t_vec3 normal)
@@ -67,8 +69,6 @@ void			lights(t_level *l, t_vec3 pos, unsigned *color, t_vec3 normal)
 	int		i;
 
 	i = 0;
-	// if (l->ui.sun_contrast || l->ui.direct_shadow_contrast)
-	// 	shadow(l, res->normal, );
 	bright_value = 0;
 	while (i < l->light_amount)
 	{
