@@ -88,6 +88,7 @@ void	delete_light(t_level *level)
 			ft_error("memory allocation failed\n");
 	}
 	level->selected_light_index = 0;
+	level->bake_status = BAKE_NOT_BAKED;
 }
 
 void	add_light(t_level *level)
@@ -98,6 +99,7 @@ void	add_light(t_level *level)
 	vec_add(&level->lights[level->light_amount - 1].pos, level->cam.pos, level->cam.front);
 	level->lights[level->light_amount - 1].brightness = 1;
 	level->lights[level->light_amount - 1].radius = 10;
+	level->bake_status = BAKE_NOT_BAKED;
 }
 
 void	enable_light_editor(t_level *level)

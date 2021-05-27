@@ -46,6 +46,7 @@ void			init_level(t_level **res)
 
 	level->texture = bmp_read("out.bmp");
 	level->baked = bmp_read("out.bmp");
+	level->bake_status = BAKE_NOT_BAKED;
 
 	level->normal_map = bmp_read("normal.bmp");
 	load_obj("embed/skybox.obj", &level->sky.all);

@@ -141,6 +141,8 @@ int			bake(void *d)
 			i.y = min.y * l->texture.height;
 			while (i.y < max.y * l->texture.height)
 			{
+				if (l->bake_status != BAKE_BAKING)
+					return (-1);
 				t_vec2 tmp;
 				tmp.x = (float)i.x / l->texture.width;
 				tmp.y = 1 - (float)i.y / l->texture.height;
@@ -166,12 +168,18 @@ int			bake(void *d)
 			i.x++;
 		}
 		tri++;
-		printf("%f%%\n", (float)tri / (float)l->all.tri_amount);
+		l->bake_progress = 100 * (float)tri / (float)l->all.tri_amount;
 	}
+	l->bake_status = BAKE_BAKED;
 	return (1);
 }
 
 void		start_bake(t_level *level)
 {
-	SDL_CreateThread(bake, "asd", (void*)level);
+	if (level->bake_status == BAKE_NOT_BAKED)
+	{
+		level->bake_status = BAKE_BAKING;
+		level->bake_progress = 0;
+		SDL_CreateThread(bake, "asd", (void*)level);
+	}
 }

@@ -416,7 +416,7 @@ void	ui_config(t_level *level)
 		if (level->selected_light_index)
 		{
 			sprintf(buf, "brightness %.2f", level->lights[level->selected_light_index - 1].brightness);
-			float_slider(&level->lights[level->selected_light_index - 1].brightness, buf, .1, 20);
+			float_slider(&level->lights[level->selected_light_index - 1].brightness, buf, .01, 3);
 			sprintf(buf, "radius %.2f", level->lights[level->selected_light_index - 1].radius);
 			float_slider(&level->lights[level->selected_light_index - 1].radius, buf, .1, 20);
 			call("delete light", &delete_light, level);
@@ -465,18 +465,22 @@ void	ui_config(t_level *level)
 		file_browser("select texture", ".bmp", &set_texture);
 		file_browser("select skybox", ".bmp", &set_skybox);
 		call("add face", &add_face, level);
-		if (level->is_baked)
+		if (level->bake_status == BAKE_NOT_BAKED)
 		{
-			set_text_color(UI_LEVEL_BAKED_COLOR);
-			call("bake lighting", start_bake, level);
+			sprintf(buf, "bake lighting");
+			set_text_color(UI_LEVEL_NOT_BAKED_COLOR);
+		}
+		else if (level->bake_status == BAKE_BAKING)
+		{
+			sprintf(buf, "baking: %.3f%%", level->bake_progress);
+			set_text_color(UI_LEVEL_BAKING_COLOR);
 		}
 		else
 		{
-			set_text_color(UI_LEVEL_NOT_BAKED_COLOR);
-			// if (call("bake lighting", &bake_lighting, level))
-			if (call("bake lighting", start_bake, level))
-				level->is_baked = TRUE;
+			sprintf(buf, "lighting baked");
+			set_text_color(UI_LEVEL_BAKED_COLOR);
 		}
+		call(buf, start_bake, level);
 		set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
 		call("set spawn position", &set_spawn_pos, level);
 		call("set menu position 1", &set_menu_pos_1, level);

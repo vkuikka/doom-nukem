@@ -85,6 +85,7 @@
 # define UI_PADDING_4 4
 # define UV_EDITOR_Y_OFFSET UI_ELEMENT_HEIGHT + UI_PADDING * 2
 # define UI_LEVEL_BAKED_COLOR 0x33aa33ff
+# define UI_LEVEL_BAKING_COLOR 0xccaa33ff
 # define UI_LEVEL_NOT_BAKED_COLOR 0xcc3333ff
 
 # define UV_PADDING 3
@@ -324,6 +325,13 @@ typedef enum			e_mouse_location
 	MOUSE_LOCATION_SELECTION
 }						t_mouse_location;
 
+typedef enum			e_bake
+{
+	BAKE_BAKED = 0,
+	BAKE_BAKING,
+	BAKE_NOT_BAKED,
+}						t_bake;
+
 typedef enum			e_game_state
 {
 	GAME_STATE_MAIN_MENU = 0,
@@ -432,7 +440,8 @@ typedef struct			s_level
 	struct s_bmp		normal_map;
 	struct s_bmp		spray;
 	struct s_bmp		baked;
-	int					is_baked;
+	t_bake				bake_status;
+	float				bake_progress;
 	struct s_skybox		sky;
 	struct s_camera		cam;
 	struct s_editor_ui	ui;
