@@ -237,7 +237,6 @@ void			face_color(float u, float v, t_tri t, t_cast_result *res)
 
 	// res->color = res->texture->image[x + (y * res->texture->width)];
 	res->color = res->baked->image[x + (y * res->baked->width)];
-	return;
 
 	if (!res->normal_map)
 		return;

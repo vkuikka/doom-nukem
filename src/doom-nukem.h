@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/27 15:18:22 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/27 16:09:35 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -368,6 +368,8 @@ typedef struct			s_ui_state
 	int					text_input_enable;
 	int					ssp_visual;
 
+	int					raytracing;
+
 	char				*directory;
 	char				*extension;
 	void				(*open_file)(struct s_level*, char*);
@@ -505,6 +507,7 @@ typedef struct			s_cast_result
 	float				u;
 	float				v;
 	float				dist;
+	int					raytracing;
 	int					color;
 	int					face_index;
 	int					reflection_depth;
@@ -648,7 +651,7 @@ void		set_door_pos_1(t_level *level);
 void		set_door_pos_2(t_level *level);
 void		enable_door_editor(t_level *level);
 void		find_selected_door_index(t_level *level);
-void		lights(t_level *l, t_vec3 pos, unsigned *color);
+void		lights(t_level *l, t_vec3 pos, unsigned *color, t_vec3 normal);
 unsigned	brightness(unsigned color1, float brightness, unsigned alpha);
 int			nothing_selected(t_level *level);
 void		light_put_text(t_window *window, t_level *level);
@@ -658,5 +661,6 @@ void		select_light(t_level *level, int x, int y);
 void		delete_light(t_level *level);
 void		set_fourth_vertex_uv(t_tri *a);
 void		start_bake(t_level *level);
+t_vec3		get_normal(int vec);
 
 #endif

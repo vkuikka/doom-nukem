@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/05/27 15:15:17 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/27 16:11:38 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -440,6 +440,7 @@ void	ui_config(t_level *level)
 		Mix_Volume(-1, level->audio.sound_effect_volume);
 		return ;
 	}
+	button(&ui->state.raytracing, "raytracing");
 	button(&ui->noclip, "noclip");
 	button(&ui->vertex_select_mode, "vertex select mode");
 	button(&ui->wireframe, "wireframe");

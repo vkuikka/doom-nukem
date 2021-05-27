@@ -57,17 +57,18 @@ void		shadow(t_level *l, t_vec3 normal, t_cast_result *res)
 	res->color = crossfade((unsigned)res->color >> 8, l->shadow_color, darkness * 0xff, (unsigned)res->color << 24 >> 24);
 }
 
-void			lights(t_level *l, t_vec3 pos, unsigned *color)
+void			lights(t_level *l, t_vec3 pos, unsigned *color, t_vec3 normal)
 {
 	t_ray	ray;
 	t_vec3	diff;
 	float	dist;
 	float	bright_value;
+	float	tmp;
 	int		i;
 
 	i = 0;
 	// if (l->ui.sun_contrast || l->ui.direct_shadow_contrast)
-	// 	shadow(l, res->normal, res);
+	// 	shadow(l, res->normal, );
 	bright_value = 0;
 	while (i < l->light_amount)
 	{
@@ -76,7 +77,10 @@ void			lights(t_level *l, t_vec3 pos, unsigned *color)
 		ray.pos = l->lights[i].pos;
 		ray.dir = diff;
 		if (dist < l->lights[i].radius && cast_all(ray, l, NULL, NULL, NULL) >= vec_length(diff) - 0.1)
-			bright_value += (1.0 - dist / l->lights[i].radius) * l->lights[i].brightness;
+		{
+			vec_normalize(&diff);
+			bright_value += (1.0 - dist / l->lights[i].radius) * l->lights[i].brightness * -(vec_dot(normal, diff));
+		}
 		i++;
 	}
 	bright_value += l->brightness;

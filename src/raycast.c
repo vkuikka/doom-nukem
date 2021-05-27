@@ -80,7 +80,7 @@ static void		raytrace(t_cast_result *res, t_obj *obj, t_ray r, t_level *l)
 		vec_add(&tmp, r.dir, r.pos);
 		res->color = wave_shader(tmp, &res->normal, 0x070C5A, 0x020540);
 	}
-	lights(l, res->ray.pos, (unsigned *)&res->color);
+	lights(l, res->ray.pos, (unsigned *)&res->color, res->normal);
 	if (l->all.tris[res->face_index].reflectivity &&
 		res->reflection_depth < REFLECTION_DEPTH)
 	{
@@ -137,9 +137,12 @@ void			cast_all_color(t_ray r, t_level *l, t_obj *obj, t_cast_result *res)
 		res->v = v;
 		res->face_index = obj->tris[new_hit].index;
 		face_color(res->u, res->v, obj->tris[new_hit], res);
-		// vec_mult(&r.dir, dist);
-		// vec_add(&r.pos, r.pos, r.dir);
-		// raytrace(res, obj, r, l);
+		if (res->raytracing)
+		{
+			vec_mult(&r.dir, dist);
+			vec_add(&r.pos, r.pos, r.dir);
+			raytrace(res, obj, r, l);
+		}
 	}
 }
 
@@ -179,6 +182,7 @@ int				raycast(void *data_pointer)
 				r.dir.z = cam->front.z + cam->up.z * ym + cam->side.z * xm;
 
 				t_cast_result	res;
+				res.raytracing = t->level->ui.state.raytracing;
 				res.normal_map = &t->level->normal_map;
 				res.texture = &t->level->texture;
 				res.baked = &t->level->baked;
