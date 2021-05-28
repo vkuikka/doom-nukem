@@ -59,7 +59,7 @@ void		shadow(t_level *l, t_vec3 normal, t_vec3 pos, int face_index)
 	color = crossfade(color >> 8, l->shadow_color, darkness * 0xff, color << 24 >> 24);
 }
 
-t_color		lights(t_level *l, t_vec3 pos, t_vec3 normal)
+t_color		lights(t_level *l, t_vec3 pos, t_vec3 normal, int raytrace)
 {
 	t_ray	ray;
 	t_vec3	diff;
@@ -77,12 +77,22 @@ t_color		lights(t_level *l, t_vec3 pos, t_vec3 normal)
 		dist = vec_length(diff);
 		ray.pos = l->lights[i].pos;
 		ray.dir = diff;
-		if (dist < l->lights[i].radius && cast_all(ray, l, NULL, NULL, NULL) >= vec_length(diff) - 0.1 && vec_dot(diff, normal) < 0)
+		if (dist < l->lights[i].radius && vec_dot(diff, normal) < 0)
 		{
-			vec_normalize(&diff);
-			result.r += (1.0 - dist / l->lights[i].radius) * l->lights[i].color.r * -vec_dot(diff, normal);
-			result.g += (1.0 - dist / l->lights[i].radius) * l->lights[i].color.g * -vec_dot(diff, normal);
-			result.b += (1.0 - dist / l->lights[i].radius) * l->lights[i].color.b * -vec_dot(diff, normal);
+			if (!raytrace)
+			{
+				vec_normalize(&diff);
+				result.r += (1.0 - dist / l->lights[i].radius) * l->lights[i].color.r * -vec_dot(diff, normal);
+				result.g += (1.0 - dist / l->lights[i].radius) * l->lights[i].color.g * -vec_dot(diff, normal);
+				result.b += (1.0 - dist / l->lights[i].radius) * l->lights[i].color.b * -vec_dot(diff, normal);
+			}
+			else if (cast_all(ray, l, NULL, NULL, NULL) >= vec_length(diff) - 0.1)
+			{
+				vec_normalize(&diff);
+				result.r += (1.0 - dist / l->lights[i].radius) * l->lights[i].color.r * -vec_dot(diff, normal);
+				result.g += (1.0 - dist / l->lights[i].radius) * l->lights[i].color.g * -vec_dot(diff, normal);
+				result.b += (1.0 - dist / l->lights[i].radius) * l->lights[i].color.b * -vec_dot(diff, normal);
+			}
 		}
 		i++;
 	}

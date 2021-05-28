@@ -155,7 +155,7 @@ int			bake(void *d)
 					pos3d = uv_to_3d(l->all.tris[tri], &l->texture, i);
 					t_vec3 normal = get_normal(l->normal_map.image[wrapped.x + (wrapped.y * l->normal_map.width)]);
 					vec_normalize(&normal);
-					l->baked[wrapped.x + wrapped.y * l->texture.width] = lights(l, pos3d, normal);
+					l->baked[wrapped.x + wrapped.y * l->texture.width] = lights(l, pos3d, normal, 1);
 				}
 				i.y++;
 			}

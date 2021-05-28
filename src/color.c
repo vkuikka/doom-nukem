@@ -54,10 +54,14 @@ unsigned		brightness(unsigned color1, t_color new)
 	return ((newr << 8 * 3) + (newg << 8 * 2) + (newb << 8 * 1));
 }
 
-int				skybox(t_bmp *img, t_obj *obj, t_ray r)
+int				skybox(t_bmp *img, t_obj *obj, t_ray r, float world_brightness)
 {
 	t_cast_result	res;
+	t_color			tmp;
 
+	tmp.r = world_brightness;
+	tmp.g = world_brightness;
+	tmp.b = world_brightness;
 	res.color = 0;
 	r.pos.x = 0;
 	r.pos.y = 0;
@@ -70,6 +74,7 @@ int				skybox(t_bmp *img, t_obj *obj, t_ray r)
 		if (0 < cast_face(obj->tris[i], r, &res))
 		{
 			face_color(res.u, res.v, obj->tris[i], &res);
+			res.color = brightness(res.color >> 8, tmp) + 0xff;
 			return (res.color);
 		}
 	return (res.color);

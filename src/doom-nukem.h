@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/28 19:06:37 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/28 19:50:36 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -472,6 +472,7 @@ typedef struct			s_level
 	int					viewmodel_index;
 	struct s_bmp		viewmodel[VIEWMODEL_FRAMES];
 	float				brightness;
+	float				skybox_brightness;
 	struct s_audio		audio;
 }						t_level;
 
@@ -626,7 +627,7 @@ void		enemies_update_physics(t_level *level);
 void		enemies_update_sprites(t_level *level);
 
 int			fog(int color, float dist, unsigned fog_color, t_level *level);
-int			skybox(t_bmp *img, t_obj *obj, t_ray r);
+int			skybox(t_bmp *img, t_obj *obj, t_ray r, float world_brightness);
 
 void		opacity(t_cast_result *res, t_level *l, t_obj *obj, float opacity);
 void		shadow(t_level *l, t_vec3 normal, t_vec3 pos, int face_index);
@@ -667,7 +668,7 @@ void		set_door_pos_1(t_level *level);
 void		set_door_pos_2(t_level *level);
 void		enable_door_editor(t_level *level);
 void		find_selected_door_index(t_level *level);
-t_color		lights(t_level *l, t_vec3 pos, t_vec3 normal);
+t_color		lights(t_level *l, t_vec3 pos, t_vec3 normal, int raytrace);
 unsigned	brightness(unsigned color1, t_color new);
 int			nothing_selected(t_level *level);
 void		light_put_text(t_window *window, t_level *level);

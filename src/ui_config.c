@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/05/28 19:11:00 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/28 19:59:15 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -425,6 +425,8 @@ void	ui_config(t_level *level)
 			level->ui.state.ui_location = UI_LOCATION_MAIN;
 		sprintf(buf, "world brightness: %d%%", (int)(level->brightness * 100));
 		float_slider(&level->brightness, buf, 0, 1);
+		sprintf(buf, "skybox brightness: %d%% (0 = sync)", (int)(level->skybox_brightness * 100));
+		float_slider(&level->skybox_brightness, buf, 0, 1);
 		float_slider(&ui->sun_contrast, "sun", 0, 1);
 		float_slider(&ui->direct_shadow_contrast, "shadow", 0, 1);
 		if (ui->sun_contrast > ui->direct_shadow_contrast)
@@ -438,13 +440,13 @@ void	ui_config(t_level *level)
 		call("add light", &add_light, level);
 		if (level->selected_light_index)
 		{
-			sprintf(buf, "radius %.2f", level->lights[level->selected_light_index - 1].radius);
+			sprintf(buf, "radius: %.2f", level->lights[level->selected_light_index - 1].radius);
 			float_slider(&level->lights[level->selected_light_index - 1].radius, buf, .1, 20);
-			sprintf(buf, "red %.2f", level->lights[level->selected_light_index - 1].color.r);
+			sprintf(buf, "red: %.2f", level->lights[level->selected_light_index - 1].color.r);
 			float_slider(&level->lights[level->selected_light_index - 1].color.r, buf, 0, 5);
-			sprintf(buf, "green %.2f", level->lights[level->selected_light_index - 1].color.g);
+			sprintf(buf, "green: %.2f", level->lights[level->selected_light_index - 1].color.g);
 			float_slider(&level->lights[level->selected_light_index - 1].color.g, buf, 0, 5);
-			sprintf(buf, "blue %.2f", level->lights[level->selected_light_index - 1].color.b);
+			sprintf(buf, "blue: %.2f", level->lights[level->selected_light_index - 1].color.b);
 			float_slider(&level->lights[level->selected_light_index - 1].color.b, buf, 0, 5);
 			call("delete light", &delete_light, level);
 		}
@@ -469,7 +471,7 @@ void	ui_config(t_level *level)
 	}
 	button(&ui->noclip, "noclip");
 	button(&ui->wireframe, "wireframe");
-	button(&ui->state.raytracing, "raytracing");
+	button(&ui->state.raytracing, "raytrace lights");
 
 	button(&ui->vertex_select_mode, "vertex select mode");
 	if (ui->wireframe)

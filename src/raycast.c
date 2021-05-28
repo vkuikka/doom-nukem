@@ -80,7 +80,7 @@ static void		raytrace(t_cast_result *res, t_obj *obj, t_ray r, t_level *l)
 		vec_add(&tmp, r.dir, r.pos);
 		res->color = wave_shader(tmp, &res->normal, 0x070C5A, 0x020540);
 	}
-	res->color = brightness((unsigned)res->color >> 8, lights(l, res->ray.pos, res->normal)) + 0xff;
+	res->color = brightness((unsigned)res->color >> 8, lights(l, res->ray.pos, res->normal, res->raytracing)) + 0xff;
 	if (l->all.tris[res->face_index].reflectivity &&
 		res->reflection_depth < REFLECTION_DEPTH)
 	{
@@ -127,19 +127,21 @@ void			cast_all_color(t_ray r, t_level *l, t_obj *obj, t_cast_result *res)
 	}
 	res->dist = dist;
 	if (new_hit == -1)
-		res->color = skybox(&l->sky.img, res->reflection_depth ? &l->sky.all : &l->sky.visible, r);
+	{
+		if (l->skybox_brightness == 0)
+			res->color = skybox(&l->sky.img, res->reflection_depth ? &l->sky.all : &l->sky.visible, r, l->brightness);
+		else
+			res->color = skybox(&l->sky.img, res->reflection_depth ? &l->sky.all : &l->sky.visible, r, l->skybox_brightness);
+	}
 	else
 	{
 		res->u = u;
 		res->v = v;
 		res->face_index = obj->tris[new_hit].index;
 		face_color(res->u, res->v, obj->tris[new_hit], res);
-		if (res->raytracing)
-		{
-			vec_mult(&r.dir, dist);
-			vec_add(&r.pos, r.pos, r.dir);
-			raytrace(res, obj, r, l);
-		}
+		vec_mult(&r.dir, dist);
+		vec_add(&r.pos, r.pos, r.dir);
+		raytrace(res, obj, r, l);
 	}
 }
 
