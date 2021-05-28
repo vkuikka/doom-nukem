@@ -244,7 +244,7 @@ void			face_color(float u, float v, t_tri t, t_cast_result *res)
 	if (res->baked && !res->raytracing)
 	{
 		res->color = res->texture->image[x + (y * res->texture->width)];
-		res->color = brightness(res->color >> 8, res->baked[x + (y * res->texture->width)]) + 0xff;
+		res->color = brightness(res->color >> 8, res->baked[x + (y * res->texture->width)]) + (res->color << 24 >> 24);
 	}
 	else
 		res->color = res->texture->image[x + (y * res->texture->width)];

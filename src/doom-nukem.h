@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/28 19:50:36 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/28 22:06:48 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -383,8 +383,6 @@ typedef struct			s_ui_state
 	int					text_input_enable;
 	int					ssp_visual;
 
-	int					raytracing;
-
 	char				*directory;
 	char				*extension;
 	void				(*open_file)(struct s_level*, char*);
@@ -409,6 +407,7 @@ typedef struct			s_editor_ui
 	int					distance_culling;
 	float				render_distance;
 	float				fov;
+	int					raytracing;
 
 	float				sun_contrast;
 	float				direct_shadow_contrast;;
@@ -525,7 +524,7 @@ typedef struct			s_cast_result
 	float				v;
 	float				dist;
 	int					raytracing;
-	int					color;
+	unsigned			color;
 	int					face_index;
 	int					reflection_depth;
 	struct s_vec3		normal;

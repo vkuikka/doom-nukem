@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/05/28 19:59:15 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/28 21:34:35 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -471,7 +471,7 @@ void	ui_config(t_level *level)
 	}
 	button(&ui->noclip, "noclip");
 	button(&ui->wireframe, "wireframe");
-	button(&ui->state.raytracing, "raytrace lights");
+	button(&ui->raytracing, "raytrace lights");
 
 	button(&ui->vertex_select_mode, "vertex select mode");
 	if (ui->wireframe)
