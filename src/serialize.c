@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/06 14:13:02 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/05/18 20:50:43 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/29 00:55:24 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,6 +96,20 @@ void	serialize_vec3(t_vec3 vec, t_buffer *buf)
 	serialize_float(vec.x, buf);
 	serialize_float(vec.y, buf);
 	serialize_float(vec.z, buf);
+}
+
+void	deserialize_color(t_color *color, t_buffer *buf)
+{
+	deserialize_float(&color->r, buf);
+	deserialize_float(&color->g, buf);
+	deserialize_float(&color->b, buf);
+}
+
+void	serialize_color(t_color color, t_buffer *buf)
+{
+	serialize_float(color.r, buf);
+	serialize_float(color.g, buf);
+	serialize_float(color.b, buf);
 }
 
 void	deserialize_settings(t_level *level, t_buffer *buf)
@@ -370,6 +384,31 @@ void	serialize_doors(t_level *level, t_buffer *buf)
 		serialize_door(&level->doors.door[i], buf);
 }
 
+void	deserialize_lights(t_level *level, t_buffer *buf)
+{
+	deserialize_int(&level->light_amount, buf);
+	// free(level->lights);
+	if (!(level->lights = (t_light*)malloc(sizeof(t_light) * level->light_amount)))
+		ft_error("memory allocation failed\n");
+	for (int i = 0; i < level->light_amount; i++)
+	{
+		deserialize_vec3(&level->lights[i].pos, buf);
+		deserialize_color(&level->lights[i].color, buf);
+		deserialize_float(&level->lights[i].radius, buf);
+	}
+}
+
+void	serialize_lights(t_level *level, t_buffer *buf)
+{
+	serialize_int(level->light_amount, buf);
+	for (int i = 0; i < level->light_amount; i++)
+	{
+		serialize_vec3(level->lights[i].pos, buf);
+		serialize_color(level->lights[i].color, buf);
+		serialize_float(level->lights[i].radius, buf);
+	}
+}
+
 void	deserialize_level(t_level *level, t_buffer *buf)
 {
 	char	*str;
@@ -398,6 +437,9 @@ void	deserialize_level(t_level *level, t_buffer *buf)
 	free(level->visible.tris);
 	deserialize_obj(&level->all, buf);
 	deserialize_doors(level, buf);
+	deserialize_lights(level, buf);
+	deserialize_float(&level->brightness, buf);
+	deserialize_float(&level->skybox_brightness, buf);
 	if (!(level->visible.tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount)))
 		ft_error("memory allocation failed\n");
 	init_screen_space_partition(level);
@@ -413,6 +455,9 @@ void	serialize_level(t_level *level, t_buffer *buf)
 	serialize_bmp(&level->sky.img, buf);
 	serialize_obj(&level->all, buf);
 	serialize_doors(level, buf);
+	serialize_lights(level, buf);
+	serialize_float(level->brightness, buf);
+	serialize_float(level->skybox_brightness, buf);
 }
 
 #ifdef _WIN32
