@@ -59,32 +59,37 @@ void		shadow(t_level *l, t_vec3 normal, t_vec3 pos, int face_index)
 	color = crossfade(color >> 8, l->shadow_color, darkness * 0xff, color << 24 >> 24);
 }
 
-void			lights(t_level *l, t_vec3 pos, unsigned *color, t_vec3 normal)
+t_color		lights(t_level *l, t_vec3 pos, t_vec3 normal)
 {
 	t_ray	ray;
 	t_vec3	diff;
 	float	dist;
-	float	bright_value;
-	float	tmp;
+	t_color	result;
 	int		i;
 
 	i = 0;
-	bright_value = 0;
+	result.r = 0;
+	result.g = 0;
+	result.b = 0;
 	while (i < l->light_amount)
 	{
 		vec_sub(&diff, pos, l->lights[i].pos);
 		dist = vec_length(diff);
 		ray.pos = l->lights[i].pos;
 		ray.dir = diff;
-		if (dist < l->lights[i].radius && cast_all(ray, l, NULL, NULL, NULL) >= vec_length(diff) - 0.1)
+		if (dist < l->lights[i].radius && cast_all(ray, l, NULL, NULL, NULL) >= vec_length(diff) - 0.1 && vec_dot(diff, normal) < 0)
 		{
 			vec_normalize(&diff);
-			bright_value += (1.0 - dist / l->lights[i].radius) * l->lights[i].brightness * -(vec_dot(normal, diff));
+			result.r += (1.0 - dist / l->lights[i].radius) * l->lights[i].color.r * -vec_dot(diff, normal);
+			result.g += (1.0 - dist / l->lights[i].radius) * l->lights[i].color.g * -vec_dot(diff, normal);
+			result.b += (1.0 - dist / l->lights[i].radius) * l->lights[i].color.b * -vec_dot(diff, normal);
 		}
 		i++;
 	}
-	bright_value += l->brightness;
-	*color = brightness((unsigned)*color >> 8, bright_value, (unsigned)*color << 24 >> 24);
+	result.r += l->brightness;
+	result.g += l->brightness;
+	result.b += l->brightness;
+	return (result);
 }
 
 void		reflection(t_cast_result *res, t_level *l, t_obj *obj)

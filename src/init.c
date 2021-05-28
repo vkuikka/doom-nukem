@@ -45,7 +45,8 @@ void			init_level(t_level **res)
 	load_obj("level/ship.obj", &level->all);
 
 	level->texture = bmp_read("out.bmp");
-	level->baked = bmp_read("out.bmp");
+	if (!(level->baked = (t_color *)malloc(sizeof(t_color) * (level->texture.width * level->texture.height))))
+		ft_error("memory allocation failed\n");
 	level->bake_status = BAKE_NOT_BAKED;
 
 	level->normal_map = bmp_read("normal.bmp");

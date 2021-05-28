@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/27 17:22:32 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/28 19:06:37 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -178,6 +178,13 @@ typedef struct			s_ivec2
 	int					x;
 	int					y;
 }						t_ivec2;
+
+typedef struct			s_color
+{
+	float				r;
+	float				g;
+	float				b;
+}						t_color;
 
 typedef struct			s_vec3
 {
@@ -419,8 +426,8 @@ typedef struct			s_editor_ui
 typedef struct			s_light
 {
 	t_vec3				pos;
+	t_color				color;
 	float				radius;
-	float				brightness;
 }						t_light;
 
 typedef struct			s_player_pos
@@ -439,7 +446,7 @@ typedef struct			s_level
 	struct s_bmp		texture;
 	struct s_bmp		normal_map;
 	struct s_bmp		spray;
-	struct s_bmp		baked;
+	t_color				*baked;
 	t_bake				bake_status;
 	float				bake_progress;
 	struct s_skybox		sky;
@@ -524,7 +531,7 @@ typedef struct			s_cast_result
 	struct s_ray		ray;
 	struct s_bmp		*normal_map;
 	struct s_bmp		*texture;
-	struct s_bmp		*baked;
+	t_color				*baked;
 }						t_cast_result;
 
 typedef struct			s_buffer
@@ -660,8 +667,8 @@ void		set_door_pos_1(t_level *level);
 void		set_door_pos_2(t_level *level);
 void		enable_door_editor(t_level *level);
 void		find_selected_door_index(t_level *level);
-void		lights(t_level *l, t_vec3 pos, unsigned *color, t_vec3 normal);
-unsigned	brightness(unsigned color1, float brightness, unsigned alpha);
+t_color		lights(t_level *l, t_vec3 pos, t_vec3 normal);
+unsigned	brightness(unsigned color1, t_color new);
 int			nothing_selected(t_level *level);
 void		light_put_text(t_window *window, t_level *level);
 void		enable_light_editor(t_level *level);

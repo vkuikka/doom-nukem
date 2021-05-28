@@ -127,7 +127,6 @@ int			bake(void *d)
 	t_ivec2		i;
 	t_vec3		pos3d;
 	int			tri;
-	unsigned	color;
 
 	i.x = 0;
 	i.y = 0;
@@ -153,15 +152,10 @@ int			bake(void *d)
 					t_ivec2 wrapped;
 					wrapped = i;
 					wrap_coords(&wrapped.x, &wrapped.y, l->texture.width, l->texture.height);
-					color = l->texture.image[wrapped.x + wrapped.y * l->texture.width];
-					// color = 0xff;
 					pos3d = uv_to_3d(l->all.tris[tri], &l->texture, i);
-
 					t_vec3 normal = get_normal(l->normal_map.image[wrapped.x + (wrapped.y * l->normal_map.width)]);
 					vec_normalize(&normal);
-					lights(l, pos3d, &color, normal);
-					l->baked.image[wrapped.x + wrapped.y * l->baked.width] = color;
-					l->texture.image[wrapped.x + wrapped.y * l->baked.width] = color;
+					l->baked[wrapped.x + wrapped.y * l->texture.width] = lights(l, pos3d, normal);
 				}
 				i.y++;
 			}

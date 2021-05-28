@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/05/27 16:11:38 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/28 19:11:00 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -438,10 +438,14 @@ void	ui_config(t_level *level)
 		call("add light", &add_light, level);
 		if (level->selected_light_index)
 		{
-			sprintf(buf, "brightness %.2f", level->lights[level->selected_light_index - 1].brightness);
-			float_slider(&level->lights[level->selected_light_index - 1].brightness, buf, .01, 3);
 			sprintf(buf, "radius %.2f", level->lights[level->selected_light_index - 1].radius);
 			float_slider(&level->lights[level->selected_light_index - 1].radius, buf, .1, 20);
+			sprintf(buf, "red %.2f", level->lights[level->selected_light_index - 1].color.r);
+			float_slider(&level->lights[level->selected_light_index - 1].color.r, buf, 0, 5);
+			sprintf(buf, "green %.2f", level->lights[level->selected_light_index - 1].color.g);
+			float_slider(&level->lights[level->selected_light_index - 1].color.g, buf, 0, 5);
+			sprintf(buf, "blue %.2f", level->lights[level->selected_light_index - 1].color.b);
+			float_slider(&level->lights[level->selected_light_index - 1].color.b, buf, 0, 5);
 			call("delete light", &delete_light, level);
 		}
 		return ;

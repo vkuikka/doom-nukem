@@ -28,17 +28,17 @@ unsigned		crossfade(unsigned color1, unsigned color2, unsigned fade, unsigned al
 	return ((newr << 8 * 3) + (newg << 8 * 2) + (newb << 8 * 1) + alpha);
 }
 
-unsigned		brightness(unsigned color1, float brightness, unsigned alpha)
+unsigned		brightness(unsigned color1, t_color new)
 {
-	unsigned char	*rgb1;
+	unsigned char	*rgb;
 	unsigned int	newr;
 	unsigned int	newg;
 	unsigned int	newb;
 
-	rgb1 = (unsigned char*)&color1;
-	newr = rgb1[2] * sqrt(brightness);
-	newg = rgb1[1] * sqrt(brightness);
-	newb = rgb1[0] * sqrt(brightness);
+	rgb = (unsigned char*)&color1;
+	newr = rgb[2] * sqrt(new.r);
+	newg = rgb[1] * sqrt(new.g);
+	newb = rgb[0] * sqrt(new.b);
 	if (newr > 0xff)
 		newr = 0xff;
 	if (newg > 0xff)
@@ -51,7 +51,7 @@ unsigned		brightness(unsigned color1, float brightness, unsigned alpha)
 		newg = 0;
 	if (newb < 0)
 		newb = 0;
-	return ((newr << 8 * 3) + (newg << 8 * 2) + (newb << 8 * 1) + alpha);
+	return ((newr << 8 * 3) + (newg << 8 * 2) + (newb << 8 * 1));
 }
 
 int				skybox(t_bmp *img, t_obj *obj, t_ray r)
@@ -65,6 +65,7 @@ int				skybox(t_bmp *img, t_obj *obj, t_ray r)
 	res.texture = img;
 	res.normal_map = NULL;
 	res.baked = NULL;
+	res.raytracing = 0;
 	for (int i = 0; i < obj->tri_amount; i++)
 		if (0 < cast_face(obj->tris[i], r, &res))
 		{
@@ -235,10 +236,14 @@ void			face_color(float u, float v, t_tri t, t_cast_result *res)
 			t.verts[1].txtr.y * res->texture->height * v +
 			t.verts[2].txtr.y * res->texture->height * u) / (float)(u + v + w));
 	wrap_coords(&x, &y, res->texture->width, res->texture->height);
-	if (res->baked)
-		res->color = res->baked->image[x + (y * res->baked->width)];
+	if (res->baked && !res->raytracing)
+	{
+		res->color = res->texture->image[x + (y * res->texture->width)];
+		res->color = brightness(res->color >> 8, res->baked[x + (y * res->texture->width)]) + 0xff;
+	}
 	else
 		res->color = res->texture->image[x + (y * res->texture->width)];
+
 	if (!res->normal_map)
 		return;
 	x =	((t.verts[0].txtr.x * res->normal_map->width * w +
