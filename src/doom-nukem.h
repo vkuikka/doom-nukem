@@ -367,6 +367,7 @@ typedef struct			s_ui_state
 	char				*save_filename;
 	int					text_input_enable;
 	int					ssp_visual;
+	struct s_vec3		gizmo_pos;
 
 	char				*directory;
 	char				*extension;
@@ -596,7 +597,8 @@ void		create_projectile(t_level *level, t_vec3 pos, t_vec3 dir, t_enemy *enemy);
 
 void		uv_editor(t_level *level, t_window *window);
 void		enable_uv_editor(t_level *level);
-void		obj_editor(t_level *level, t_window *window);
+void		gizmo_render(t_level *level, t_window *window);
+t_vec3		gizmo(t_level *level, t_vec3 avg);
 void		obj_editor_input(t_level *level);
 
 void		player_movement(t_level *level, t_game_state game_state);

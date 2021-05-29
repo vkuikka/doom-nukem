@@ -70,8 +70,7 @@ void		render(t_window *window, t_level *level, t_game_state *game_state)
 		main_menu(level, window, game_state);
 	else
 	{
-		if (level->ui.state.ui_location != UI_LOCATION_SETTINGS)
-			obj_editor(level, window);
+		gizmo_render(level, window);
 		if (level->ui.state.ui_location == UI_LOCATION_UV_EDITOR)
 			uv_editor(level, window);
 		ui_render(level);
