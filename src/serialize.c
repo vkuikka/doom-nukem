@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/06 14:13:02 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/05/29 00:55:24 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/29 13:30:18 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -194,6 +194,20 @@ void	serialize_projectile(t_projectile *projectile, t_buffer *buf)
 	serialize_float(projectile->speed, buf);
 	serialize_float(projectile->dist, buf);
 	serialize_float(projectile->damage, buf);
+}
+
+void	deserialize_player_pos(t_player_pos *pos, t_buffer *buf)
+{
+	deserialize_vec3(&pos->pos, buf);
+	deserialize_float(&pos->look_side, buf);
+	deserialize_float(&pos->look_up, buf);
+}
+
+void	serialize_player_pos(t_player_pos *pos, t_buffer *buf)
+{
+	serialize_vec3(pos->pos, buf);
+	serialize_float(pos->look_side, buf);
+	serialize_float(pos->look_up, buf);
 }
 
 void	deserialize_tri(t_tri *tri, t_buffer *buf)
@@ -387,7 +401,6 @@ void	serialize_doors(t_level *level, t_buffer *buf)
 void	deserialize_lights(t_level *level, t_buffer *buf)
 {
 	deserialize_int(&level->light_amount, buf);
-	// free(level->lights);
 	if (!(level->lights = (t_light*)malloc(sizeof(t_light) * level->light_amount)))
 		ft_error("memory allocation failed\n");
 	for (int i = 0; i < level->light_amount; i++)
@@ -440,6 +453,11 @@ void	deserialize_level(t_level *level, t_buffer *buf)
 	deserialize_lights(level, buf);
 	deserialize_float(&level->brightness, buf);
 	deserialize_float(&level->skybox_brightness, buf);
+	deserialize_player_pos(&level->spawn_pos, buf);
+	deserialize_player_pos(&level->main_menu_pos1, buf);
+	deserialize_player_pos(&level->main_menu_pos2, buf);
+	deserialize_int((int*)&level->main_menu_anim_time, buf);
+	deserialize_int((int*)&level->main_menu_anim_start_time, buf);
 	if (!(level->visible.tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount)))
 		ft_error("memory allocation failed\n");
 	init_screen_space_partition(level);
@@ -458,6 +476,11 @@ void	serialize_level(t_level *level, t_buffer *buf)
 	serialize_lights(level, buf);
 	serialize_float(level->brightness, buf);
 	serialize_float(level->skybox_brightness, buf);
+	serialize_player_pos(&level->spawn_pos, buf);
+	serialize_player_pos(&level->main_menu_pos1, buf);
+	serialize_player_pos(&level->main_menu_pos2, buf);
+	serialize_int(level->main_menu_anim_time, buf);
+	serialize_int(level->main_menu_anim_start_time, buf);
 }
 
 #ifdef _WIN32
