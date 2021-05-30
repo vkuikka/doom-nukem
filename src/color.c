@@ -250,13 +250,9 @@ void			face_color(float u, float v, t_tri t, t_cast_result *res)
 			t.verts[1].txtr.y * res->texture->height * v +
 			t.verts[2].txtr.y * res->texture->height * u) / (float)(u + v + w));
 	wrap_coords(&x, &y, res->texture->width, res->texture->height);
+	res->color = res->texture->image[x + (y * res->texture->width)];
 	if (res->baked && !res->raytracing)
-	{
-		res->color = res->texture->image[x + (y * res->texture->width)];
-		res->color = brightness(res->color >> 8, res->baked[x + (y * res->texture->width)]) + (res->color << 24 >> 24);
-	}
-	else
-		res->color = res->texture->image[x + (y * res->texture->width)];
+		res->color = brightness(res->color >> 8, res->baked[x + y * res->texture->width]) + (res->color << 24 >> 24);
 
 	if (!res->normal_map)
 		return;

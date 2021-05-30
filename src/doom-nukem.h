@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/30 19:46:00 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/31 00:40:58 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -635,7 +635,7 @@ int			skybox(t_level *l, t_obj *obj, t_ray r);
 void		opacity(t_cast_result *res, t_level *l, t_obj *obj, float opacity);
 void		reflection(t_cast_result *res, t_level *l, t_obj *obj);
 unsigned	wave_shader(t_vec3 mod, t_vec3 *normal, unsigned col1, unsigned col2);
-void		sunlight(t_level *l, t_cast_result *res, t_color *liht);
+t_color		sunlight(t_level *l, t_cast_result *res, t_color light);
 
 void		select_face(t_camera *cam, t_level *level, int x, int y);
 void		deselect_all_faces(t_level *level);
@@ -670,7 +670,7 @@ void		set_door_pos_2(t_level *level);
 void		enable_door_editor(t_level *level);
 void		find_selected_door_index(t_level *level);
 void		door_activation_move(t_level *level, t_vec3 move_amount);
-t_color		lights(t_level *l, t_vec3 pos, t_vec3 normal, int raytrace);
+t_color		lights(t_level *l, t_cast_result *res, t_vec3 normal);
 unsigned	brightness(unsigned color1, t_color new);
 int			nothing_selected(t_level *level);
 void		light_put_text(t_window *window, t_level *level);

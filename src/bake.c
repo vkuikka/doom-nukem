@@ -121,19 +121,23 @@ static void	wrap_coords(int *x, int *y, int max_x, int max_y)
 
 int			bake(void *d)
 {
-	t_level		*l = d;
-	t_vec2		min;
-	t_vec2		max;
-	t_ivec2		i;
-	t_vec3		pos3d;
-	int			tri;
+	t_level			*l = d;
+	t_vec2			min;
+	t_vec2			max;
+	t_vec2			tmp;
+	t_cast_result	res;
+	t_ivec2			wrapped;
+	t_ivec2			i;
+	int				tri;
 
 	i.x = 0;
 	i.y = 0;
 	tri = 0;
+	res.raytracing = TRUE;
 	while (tri < l->all.tri_amount)
 	{
 		texture_minmax(&min, &max, l->all.tris[tri]);
+		res.face_index = tri;
 		i.x = min.x * l->texture.width;
 		while (i.x < max.x * l->texture.width)
 		{
@@ -142,8 +146,6 @@ int			bake(void *d)
 			{
 				if (l->bake_status != BAKE_BAKING)
 					return (-1);
-				t_vec2 tmp;
-				t_ivec2 wrapped;
 				wrapped = i;
 				wrap_coords(&wrapped.x, &wrapped.y, l->texture.width, l->texture.height);
 				tmp.x = (float)i.x / l->texture.width;
@@ -152,13 +154,11 @@ int			bake(void *d)
 					point_in_tri(tmp, l->all.tris[tri].verts[3].txtr, l->all.tris[tri].verts[1].txtr, l->all.tris[tri].verts[2].txtr)) ||
 					point_in_tri(tmp, l->all.tris[tri].verts[0].txtr, l->all.tris[tri].verts[1].txtr, l->all.tris[tri].verts[2].txtr))
 				{
-					t_vec3 normal;
-
 					wrap_coords(&wrapped.x, &wrapped.y, l->texture.width, l->texture.height);
-					pos3d = uv_to_3d(l->all.tris[tri], &l->texture, i);
-					normal = get_normal(l->normal_map.image[wrapped.x + (wrapped.y * l->normal_map.width)]);
-					vec_normalize(&normal);
-					l->baked[wrapped.x + wrapped.y * l->texture.width] = lights(l, pos3d, normal, 1);
+					res.ray.pos = uv_to_3d(l->all.tris[tri], &l->texture, i);
+					res.normal = get_normal(l->normal_map.image[wrapped.x + (wrapped.y * l->normal_map.width)]);
+					vec_normalize(&res.normal);
+					l->baked[wrapped.x + wrapped.y * l->texture.width] = sunlight(l, &res, lights(l, &res, l->all.tris[tri].normal));
 
 					wrapped.y -= 1;
 					wrap_coords(&wrapped.x, &wrapped.y, l->texture.width, l->texture.height);
@@ -166,10 +166,10 @@ int			bake(void *d)
 						!(l->baked[wrapped.x + wrapped.y * l->texture.width].g) &&
 						!(l->baked[wrapped.x + wrapped.y * l->texture.width].b))
 					{
-						pos3d = uv_to_3d(l->all.tris[tri], &l->texture, i);
-						normal = get_normal(l->normal_map.image[wrapped.x + (wrapped.y * l->normal_map.width)]);
-						vec_normalize(&normal);
-						l->baked[wrapped.x + wrapped.y * l->texture.width] = lights(l, pos3d, normal, 1);
+						res.ray.pos = uv_to_3d(l->all.tris[tri], &l->texture, i);
+						res.normal = get_normal(l->normal_map.image[wrapped.x + (wrapped.y * l->normal_map.width)]);
+						vec_normalize(&res.normal);
+						l->baked[wrapped.x + wrapped.y * l->texture.width] = sunlight(l, &res, lights(l, &res, l->all.tris[tri].normal));
 					}
 
 					wrapped.x -= 1;
@@ -178,10 +178,10 @@ int			bake(void *d)
 						!(l->baked[wrapped.x + wrapped.y * l->texture.width].g) &&
 						!(l->baked[wrapped.x + wrapped.y * l->texture.width].b))
 					{
-						pos3d = uv_to_3d(l->all.tris[tri], &l->texture, i);
-						normal = get_normal(l->normal_map.image[wrapped.x + (wrapped.y * l->normal_map.width)]);
-						vec_normalize(&normal);
-						l->baked[wrapped.x + wrapped.y * l->texture.width] = lights(l, pos3d, normal, 1);
+						res.ray.pos = uv_to_3d(l->all.tris[tri], &l->texture, i);
+						res.normal = get_normal(l->normal_map.image[wrapped.x + (wrapped.y * l->normal_map.width)]);
+						vec_normalize(&res.normal);
+						l->baked[wrapped.x + wrapped.y * l->texture.width] = sunlight(l, &res, lights(l, &res, l->all.tris[tri].normal));
 					}
 
 					wrapped.y += 1;
@@ -190,10 +190,10 @@ int			bake(void *d)
 						!(l->baked[wrapped.x + wrapped.y * l->texture.width].g) &&
 						!(l->baked[wrapped.x + wrapped.y * l->texture.width].b))
 					{
-						pos3d = uv_to_3d(l->all.tris[tri], &l->texture, i);
-						normal = get_normal(l->normal_map.image[wrapped.x + (wrapped.y * l->normal_map.width)]);
-						vec_normalize(&normal);
-						l->baked[wrapped.x + wrapped.y * l->texture.width] = lights(l, pos3d, normal, 1);
+						res.ray.pos = uv_to_3d(l->all.tris[tri], &l->texture, i);
+						res.normal = get_normal(l->normal_map.image[wrapped.x + (wrapped.y * l->normal_map.width)]);
+						vec_normalize(&res.normal);
+						l->baked[wrapped.x + wrapped.y * l->texture.width] = sunlight(l, &res, lights(l, &res, l->all.tris[tri].normal));
 					}
 				}
 				i.y++;

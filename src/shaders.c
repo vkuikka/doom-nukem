@@ -26,7 +26,7 @@ void		opacity(t_cast_result *res, t_level *l, t_obj *obj, float opacity)
 	res->color = crossfade((unsigned)res->color >> 8, (unsigned)transparent.color >> 8, opacity * 0xff, opacity * 0xff);
 }
 
-void		sunlight(t_level *l, t_cast_result *res, t_color *light)
+t_color		sunlight(t_level *l, t_cast_result *res, t_color light)
 {
 	unsigned	color;
 	float		res_brightness;
@@ -35,7 +35,7 @@ void		sunlight(t_level *l, t_cast_result *res, t_color *light)
 
 	color = 0;
 	if (vec_dot(res->normal, l->ui.sun_dir) < 0)
-		return;
+		return (light);
 	r.dir.x = l->ui.sun_dir.x;
 	r.dir.y = l->ui.sun_dir.y;
 	r.dir.z = l->ui.sun_dir.z;
@@ -44,17 +44,17 @@ void		sunlight(t_level *l, t_cast_result *res, t_color *light)
 	while (i < l->all.tris[res->face_index].shadow_faces->tri_amount)
 	{
 		if (0 < cast_face(l->all.tris[res->face_index].shadow_faces->tris[i], r, NULL))
-			return;
+			return (light);
 		i++;
 	}
 	res_brightness = vec_dot(res->normal, l->ui.sun_dir);
-	light->r += res_brightness * l->ui.sun_color.r;
-	light->g += res_brightness * l->ui.sun_color.g;
-	light->b += res_brightness * l->ui.sun_color.b;
-	// return (1 - vec_dot(normal, l->ui.sun_dir));
+	light.r += res_brightness * l->ui.sun_color.r;
+	light.g += res_brightness * l->ui.sun_color.g;
+	light.b += res_brightness * l->ui.sun_color.b;
+	return (light);
 }
 
-t_color		lights(t_level *l, t_vec3 pos, t_vec3 normal, int raytrace)
+t_color		lights(t_level *l, t_cast_result *res, t_vec3 normal)
 {
 	t_ray	ray;
 	t_vec3	diff;
@@ -68,25 +68,25 @@ t_color		lights(t_level *l, t_vec3 pos, t_vec3 normal, int raytrace)
 	result.b = 0;
 	while (i < l->light_amount)
 	{
-		vec_sub(&diff, pos, l->lights[i].pos);
+		vec_sub(&diff, res->ray.pos, l->lights[i].pos);
 		dist = vec_length(diff);
 		ray.pos = l->lights[i].pos;
 		ray.dir = diff;
-		if (dist < l->lights[i].radius && vec_dot(diff, normal) < 0)
+		if (dist < l->lights[i].radius && vec_dot(diff, res->normal) < 0 && vec_dot(diff, normal) < 0)
 		{
-			if (!raytrace)
+			if (!res->raytracing)
 			{
 				vec_normalize(&diff);
-				result.r += (1.0 - dist / l->lights[i].radius) * l->lights[i].color.r * -vec_dot(diff, normal);
-				result.g += (1.0 - dist / l->lights[i].radius) * l->lights[i].color.g * -vec_dot(diff, normal);
-				result.b += (1.0 - dist / l->lights[i].radius) * l->lights[i].color.b * -vec_dot(diff, normal);
+				result.r += (1.0 - dist / l->lights[i].radius) * l->lights[i].color.r * -vec_dot(diff, res->normal);
+				result.g += (1.0 - dist / l->lights[i].radius) * l->lights[i].color.g * -vec_dot(diff, res->normal);
+				result.b += (1.0 - dist / l->lights[i].radius) * l->lights[i].color.b * -vec_dot(diff, res->normal);
 			}
 			else if (cast_all(ray, l, NULL, NULL, NULL) >= vec_length(diff) - 0.1)
 			{
 				vec_normalize(&diff);
-				result.r += (1.0 - dist / l->lights[i].radius) * l->lights[i].color.r * -vec_dot(diff, normal);
-				result.g += (1.0 - dist / l->lights[i].radius) * l->lights[i].color.g * -vec_dot(diff, normal);
-				result.b += (1.0 - dist / l->lights[i].radius) * l->lights[i].color.b * -vec_dot(diff, normal);
+				result.r += (1.0 - dist / l->lights[i].radius) * l->lights[i].color.r * -vec_dot(diff, res->normal);
+				result.g += (1.0 - dist / l->lights[i].radius) * l->lights[i].color.g * -vec_dot(diff, res->normal);
+				result.b += (1.0 - dist / l->lights[i].radius) * l->lights[i].color.b * -vec_dot(diff, res->normal);
 			}
 		}
 		i++;
