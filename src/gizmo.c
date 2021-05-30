@@ -119,7 +119,7 @@ int				is_near(int a, int b, int range)
 	return (-range <= diff && diff <= range);
 }
 
-static t_vec3	calc_move_screen_space(int index, int amount, t_vec3 ss_gizmo)
+static t_vec3	calc_move_screen_space(int index, int amount)
 {
 	int		get_dir[3] = {0, 0, 0};
 	t_vec3	dir;
@@ -128,18 +128,17 @@ static t_vec3	calc_move_screen_space(int index, int amount, t_vec3 ss_gizmo)
 	dir.x = get_dir[0];
 	dir.y = get_dir[1];
 	dir.z = get_dir[2];
-	t_vec3 vert;
-	ss_gizmo.z = 0;
 	vec_mult(&dir, amount / 100.);
 	return (dir);
 }
 
-t_vec3				gizmo(t_level *level, t_vec3 avg)
+void			gizmo(t_level *level)
 {
 	t_vec3	x = {-1, 0, 0};
 	t_vec3	y = {0, -1, 0};
 	t_vec3	z = {0, 0, -1};
 
+	t_vec3 avg = level->ui.state.gizmo_pos;
 	float dist_from_screen = scale_translation_gizmo(&x, &y, &z, vec_sub_return(avg, level->cam.pos));
 	vec_add(&x, x, avg);
 	vec_add(&y, y, avg);
@@ -181,16 +180,17 @@ t_vec3				gizmo(t_level *level, t_vec3 avg)
 	t_vec3 res = {0, 0, 0};
 	if (deltax || deltay)
 	{
-		if (level->ui.state.mouse_location == MOUSE_LOCATION_GIZMO_X)
-			res = calc_move_screen_space(level->ui.state.mouse_location - 3, deltax * dist_from_screen * drag_direction, x);
-		else if (level->ui.state.mouse_location == MOUSE_LOCATION_GIZMO_Y)
-			res = calc_move_screen_space(level->ui.state.mouse_location - 3, deltay * dist_from_screen * drag_direction, y);
-		else if (level->ui.state.mouse_location == MOUSE_LOCATION_GIZMO_Z)
-			res = calc_move_screen_space(level->ui.state.mouse_location - 3, deltax * dist_from_screen * drag_direction, z);
+		res = calc_move_screen_space(level->ui.state.mouse_location - 3, deltax * dist_from_screen * drag_direction);
 	}
+
+	if (level->ui.state.ui_location == UI_LOCATION_DOOR_ACTIVATION_BUTTON)
+		;//door_activation_move();
+	else if (level->ui.state.ui_location == UI_LOCATION_LIGHT_EDITOR)
+		;//move_light();
+	else
+		obj_editor_input(level, res);
 	prevx = mx;
 	prevy = my;
-	return (res);
 }
 
 void			gizmo_render(t_level *level, t_window *window)

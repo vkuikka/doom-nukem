@@ -60,7 +60,7 @@ void			move_selected(t_level *level, t_vec3 dir)
 	}
 }
 
-void				obj_editor_input(t_level *level)
+void				obj_editor_input(t_level *level, t_vec3 move_amount)
 {
 	t_vec3	avg = {0, 0, 0};
 	int		selected_vert_amount;
@@ -75,7 +75,7 @@ void				obj_editor_input(t_level *level)
 			}
 	vec_div(&avg, selected_vert_amount);
 	level->ui.state.gizmo_pos = avg;
-	move_selected(level, gizmo(level, avg));
+	move_selected(level, move_amount);
 }
 
 void			set_new_face_pos(t_obj *obj, int i, t_vec3 avg, float scale)

@@ -340,6 +340,7 @@ typedef enum			e_ui_location
 	UI_LOCATION_UV_EDITOR,
 	UI_LOCATION_SETTINGS,
 	UI_LOCATION_DOOR_EDITOR,
+	UI_LOCATION_DOOR_ACTIVATION_BUTTON,
 	UI_LOCATION_LIGHT_EDITOR
 }						t_ui_location;
 
@@ -598,8 +599,8 @@ void		create_projectile(t_level *level, t_vec3 pos, t_vec3 dir, t_enemy *enemy);
 void		uv_editor(t_level *level, t_window *window);
 void		enable_uv_editor(t_level *level);
 void		gizmo_render(t_level *level, t_window *window);
-t_vec3		gizmo(t_level *level, t_vec3 avg);
-void		obj_editor_input(t_level *level);
+void		gizmo(t_level *level);
+void		obj_editor_input(t_level *level, t_vec3 move_amount);
 
 void		player_movement(t_level *level, t_game_state game_state);
 
