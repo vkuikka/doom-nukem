@@ -54,19 +54,28 @@ unsigned		brightness(unsigned color1, t_color new)
 	return ((newr << 8 * 3) + (newg << 8 * 2) + (newb << 8 * 1));
 }
 
-int				skybox(t_bmp *img, t_obj *obj, t_ray r, float world_brightness)
+int				skybox(t_level *l, t_obj *obj, t_ray r)
 {
 	t_cast_result	res;
 	t_color			tmp;
 
-	tmp.r = world_brightness;
-	tmp.g = world_brightness;
-	tmp.b = world_brightness;
+	if (l->skybox_brightness != 0)
+	{
+		tmp.r = l->skybox_brightness;
+		tmp.g = l->skybox_brightness;
+		tmp.b = l->skybox_brightness;
+	}
+	else
+	{
+		tmp.r = l->ui.sun_color.r + l->world_brightness;
+		tmp.g = l->ui.sun_color.g + l->world_brightness;
+		tmp.b = l->ui.sun_color.b + l->world_brightness;
+	}
 	res.color = 0;
 	r.pos.x = 0;
 	r.pos.y = 0;
 	r.pos.z = 0;
-	res.texture = img;
+	res.texture = &l->sky.img;
 	res.normal_map = NULL;
 	res.baked = NULL;
 	res.raytracing = 0;

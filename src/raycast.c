@@ -71,6 +71,7 @@ void			rot_cam(t_vec3 *cam, const float lon, const float lat)
 static void		raytrace(t_cast_result *res, t_obj *obj, t_ray r, t_level *l)
 {
 	float		opacity_value;
+	t_color		light;
 
 	vec_normalize(&res->normal);
 	res->ray = r;
@@ -81,7 +82,11 @@ static void		raytrace(t_cast_result *res, t_obj *obj, t_ray r, t_level *l)
 		res->color = wave_shader(tmp, &res->normal, 0x070C5A, 0x020540);
 	}
 	if (!res->baked || res->raytracing)
-		res->color = brightness(res->color >> 8, lights(l, res->ray.pos, res->normal, res->raytracing)) + (res->color << 24 >> 24);
+	{
+		light = lights(l, res->ray.pos, res->normal, res->raytracing);
+		sunlight(l, res, &light);
+		res->color = brightness(res->color >> 8, light) + (res->color << 24 >> 24);
+	}
 	if (l->all.tris[res->face_index].reflectivity &&
 		res->reflection_depth < REFLECTION_DEPTH)
 	{
@@ -128,12 +133,7 @@ void			cast_all_color(t_ray r, t_level *l, t_obj *obj, t_cast_result *res)
 	}
 	res->dist = dist;
 	if (new_hit == -1)
-	{
-		if (l->skybox_brightness == 0)
-			res->color = skybox(&l->sky.img, res->reflection_depth ? &l->sky.all : &l->sky.visible, r, l->brightness);
-		else
-			res->color = skybox(&l->sky.img, res->reflection_depth ? &l->sky.all : &l->sky.visible, r, l->skybox_brightness);
-	}
+		res->color = skybox(l, res->reflection_depth ? &l->sky.all : &l->sky.visible, r);
 	else
 	{
 		res->u = u;

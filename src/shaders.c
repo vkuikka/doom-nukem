@@ -26,37 +26,32 @@ void		opacity(t_cast_result *res, t_level *l, t_obj *obj, float opacity)
 	res->color = crossfade((unsigned)res->color >> 8, (unsigned)transparent.color >> 8, opacity * 0xff, opacity * 0xff);
 }
 
-void		shadow(t_level *l, t_vec3 normal, t_vec3 pos, int face_index)
+void		sunlight(t_level *l, t_cast_result *res, t_color *light)
 {
-	float		darkness;
 	unsigned	color;
+	float		res_brightness;
 	int			i;
 	t_ray		r;
 
 	color = 0;
-	if (vec_dot(normal, l->ui.sun_dir) < 0)
-	{
-		darkness = l->ui.direct_shadow_contrast;
-		color = crossfade(color >> 8, l->shadow_color, darkness * 0xff, color << 24 >> 24);
+	if (vec_dot(res->normal, l->ui.sun_dir) < 0)
 		return;
-	}
 	r.dir.x = l->ui.sun_dir.x;
 	r.dir.y = l->ui.sun_dir.y;
 	r.dir.z = l->ui.sun_dir.z;
-	r.pos = pos;
+	r.pos = res->ray.pos;
 	i = 0;
-	while (i < l->all.tris[face_index].shadow_faces->tri_amount)
+	while (i < l->all.tris[res->face_index].shadow_faces->tri_amount)
 	{
-		if (0 < cast_face(l->all.tris[face_index].shadow_faces->tris[i], r, NULL))
-		{
-			darkness = l->ui.direct_shadow_contrast;
-			color = crossfade(color >> 8, l->shadow_color, darkness * 0xff, color << 24 >> 24);
+		if (0 < cast_face(l->all.tris[res->face_index].shadow_faces->tris[i], r, NULL))
 			return;
-		}
 		i++;
 	}
-	darkness = (1 - vec_dot(normal, l->ui.sun_dir)) * l->ui.sun_contrast;
-	color = crossfade(color >> 8, l->shadow_color, darkness * 0xff, color << 24 >> 24);
+	res_brightness = vec_dot(res->normal, l->ui.sun_dir);
+	light->r += res_brightness * l->ui.sun_color.r;
+	light->g += res_brightness * l->ui.sun_color.g;
+	light->b += res_brightness * l->ui.sun_color.b;
+	// return (1 - vec_dot(normal, l->ui.sun_dir));
 }
 
 t_color		lights(t_level *l, t_vec3 pos, t_vec3 normal, int raytrace)
@@ -96,9 +91,9 @@ t_color		lights(t_level *l, t_vec3 pos, t_vec3 normal, int raytrace)
 		}
 		i++;
 	}
-	result.r += l->brightness;
-	result.g += l->brightness;
-	result.b += l->brightness;
+	result.r += l->world_brightness;
+	result.g += l->world_brightness;
+	result.b += l->world_brightness;
 	return (result);
 }
 

@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/06 14:13:02 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/05/29 13:30:18 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/30 19:53:40 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,8 +119,7 @@ void	deserialize_settings(t_level *level, t_buffer *buf)
 	deserialize_int(&level->ui.backface_culling, buf);
 	deserialize_int(&level->ui.distance_culling, buf);
 	deserialize_float(&level->ui.render_distance, buf);
-	deserialize_float(&level->ui.sun_contrast, buf);
-	deserialize_float(&level->ui.direct_shadow_contrast, buf);
+	deserialize_color(&level->ui.sun_color, buf);
 	deserialize_vec3(&level->ui.sun_dir, buf);
 }
 
@@ -131,8 +130,7 @@ void	serialize_settings(t_level *level, t_buffer *buf)
 	serialize_int(level->ui.backface_culling, buf);
 	serialize_int(level->ui.distance_culling, buf);
 	serialize_float(level->ui.render_distance, buf);
-	serialize_float(level->ui.sun_contrast, buf);
-	serialize_float(level->ui.direct_shadow_contrast, buf);
+	serialize_color(level->ui.sun_color, buf);
 	serialize_vec3(level->ui.sun_dir, buf);
 }
 
@@ -451,7 +449,7 @@ void	deserialize_level(t_level *level, t_buffer *buf)
 	deserialize_obj(&level->all, buf);
 	deserialize_doors(level, buf);
 	deserialize_lights(level, buf);
-	deserialize_float(&level->brightness, buf);
+	deserialize_float(&level->world_brightness, buf);
 	deserialize_float(&level->skybox_brightness, buf);
 	deserialize_player_pos(&level->spawn_pos, buf);
 	deserialize_player_pos(&level->main_menu_pos1, buf);
@@ -474,7 +472,7 @@ void	serialize_level(t_level *level, t_buffer *buf)
 	serialize_obj(&level->all, buf);
 	serialize_doors(level, buf);
 	serialize_lights(level, buf);
-	serialize_float(level->brightness, buf);
+	serialize_float(level->world_brightness, buf);
 	serialize_float(level->skybox_brightness, buf);
 	serialize_player_pos(&level->spawn_pos, buf);
 	serialize_player_pos(&level->main_menu_pos1, buf);
