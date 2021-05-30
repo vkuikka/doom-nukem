@@ -70,6 +70,16 @@ void	select_light(t_level *level, int x, int y)
 		level->selected_light_index = nearest_index + 1;
 }
 
+void	move_light(t_level *level, t_vec3 move_amount)
+{
+	if (level->selected_light_index)
+	{
+		vec_add(&level->lights[level->selected_light_index - 1].pos,
+			level->lights[level->selected_light_index - 1].pos, move_amount);
+		level->ui.state.gizmo_pos = level->lights[level->selected_light_index - 1].pos;
+	}
+}
+
 void	delete_light(t_level *level)
 {
 	if (level->light_amount < 1)

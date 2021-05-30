@@ -36,6 +36,7 @@
 # define WALKABLE_NORMAL_MIN_Y 0.75
 # define DOOR_ACTIVATION_DISTANCE 3.
 # define DOOR_LOCATION_INFO_COLOR 0x880088ff
+# define DOOR_ACTIVATION_LOCATION_INFO_COLOR 0xcc2288ff
 # define LIGHT_LOCATION_INFO_COLOR 0xffdd00ff
 
 # define ENEMY_MOVABLE_HEIGHT_DIFF 1
@@ -307,6 +308,8 @@ typedef struct			s_door
 	int					*isquad;
 	t_vec3				**pos1;
 	t_vec3				**pos2;
+	int					is_activation_pos_active;
+	t_vec3				activation_pos;
 	float				transition_time;
 	unsigned			transition_start_time;
 	int					transition_direction;
@@ -355,6 +358,7 @@ typedef enum			e_ui_location
 	UI_LOCATION_UV_EDITOR,
 	UI_LOCATION_SETTINGS,
 	UI_LOCATION_DOOR_EDITOR,
+	UI_LOCATION_DOOR_ACTIVATION_BUTTON,
 	UI_LOCATION_LIGHT_EDITOR
 }						t_ui_location;
 
@@ -382,6 +386,7 @@ typedef struct			s_ui_state
 	char				*save_filename;
 	int					text_input_enable;
 	int					ssp_visual;
+	struct s_vec3		gizmo_pos;
 
 	char				*directory;
 	char				*extension;
@@ -615,8 +620,9 @@ void		create_projectile(t_level *level, t_vec3 pos, t_vec3 dir, t_enemy *enemy);
 
 void		uv_editor(t_level *level, t_window *window);
 void		enable_uv_editor(t_level *level);
-void		obj_editor(t_level *level, t_window *window);
-void		obj_editor_input(t_level *level);
+void		gizmo_render(t_level *level, t_window *window);
+void		gizmo(t_level *level);
+void		obj_editor_input(t_level *level, t_vec3 move_amount);
 
 void		player_movement(t_level *level, t_game_state game_state);
 
@@ -663,12 +669,14 @@ void		set_door_pos_1(t_level *level);
 void		set_door_pos_2(t_level *level);
 void		enable_door_editor(t_level *level);
 void		find_selected_door_index(t_level *level);
+void		door_activation_move(t_level *level, t_vec3 move_amount);
 t_color		lights(t_level *l, t_vec3 pos, t_vec3 normal, int raytrace);
 unsigned	brightness(unsigned color1, t_color new);
 int			nothing_selected(t_level *level);
 void		light_put_text(t_window *window, t_level *level);
 void		enable_light_editor(t_level *level);
 void		add_light(t_level *level);
+void		move_light(t_level *level, t_vec3 move_amount);
 void		select_light(t_level *level, int x, int y);
 void		delete_light(t_level *level);
 void		set_fourth_vertex_uv(t_tri *a);
