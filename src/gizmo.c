@@ -14,8 +14,6 @@
 
 static void		gizmo_pixel_put(int x, int y, int color, unsigned *texture)
 {
-	int oppacity;
-
 	if (x >= 0 && y >= 0 && x < RES_X && y < RES_Y)
         texture[x + (y * RES_X)] = color;
 }
