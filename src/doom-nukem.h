@@ -659,6 +659,7 @@ int			nothing_selected(t_level *level);
 void		light_put_text(t_window *window, t_level *level);
 void		enable_light_editor(t_level *level);
 void		add_light(t_level *level);
+void		move_light(t_level *level, t_vec3 move_amount);
 void		select_light(t_level *level, int x, int y);
 void		delete_light(t_level *level);
 

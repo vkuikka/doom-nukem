@@ -189,7 +189,7 @@ void			gizmo(t_level *level)
 	if (level->ui.state.ui_location == UI_LOCATION_DOOR_ACTIVATION_BUTTON)
 		door_activation_move(level, res);
 	else if (level->ui.state.ui_location == UI_LOCATION_LIGHT_EDITOR)
-		;//move_light();
+		move_light(level, res);
 	else
 		obj_editor_input(level, res);
 	prevx = mx;
