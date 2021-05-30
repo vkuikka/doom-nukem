@@ -36,6 +36,7 @@
 # define WALKABLE_NORMAL_MIN_Y 0.75
 # define DOOR_ACTIVATION_DISTANCE 3.
 # define DOOR_LOCATION_INFO_COLOR 0x880088ff
+# define DOOR_ACTIVATION_LOCATION_INFO_COLOR 0xcc2288ff
 # define LIGHT_LOCATION_INFO_COLOR 0xffdd00ff
 
 # define ENEMY_MOVABLE_HEIGHT_DIFF 1
@@ -299,6 +300,8 @@ typedef struct			s_door
 	int					*isquad;
 	t_vec3				**pos1;
 	t_vec3				**pos2;
+	int					is_activation_pos_active;
+	t_vec3				activation_pos;
 	float				transition_time;
 	unsigned			transition_start_time;
 	int					transition_direction;
@@ -649,6 +652,7 @@ void		set_door_pos_1(t_level *level);
 void		set_door_pos_2(t_level *level);
 void		enable_door_editor(t_level *level);
 void		find_selected_door_index(t_level *level);
+void		door_activation_move(t_level *level, t_vec3 move_amount);
 void		lights(t_level *l, t_vec3 normal, t_cast_result *res);
 unsigned	brightness(unsigned color1, float brightness, unsigned alpha);
 int			nothing_selected(t_level *level);

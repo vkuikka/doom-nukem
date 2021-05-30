@@ -379,6 +379,15 @@ void	ui_config(t_level *level)
 			call("delete selected door", &delete_door, level);
 			call("set door start position", &set_door_pos_1, level);
 			call("set door stop position", &set_door_pos_2, level);
+			if (button(&level->doors.door[level->doors.selected_index - 1].is_activation_pos_active, "has activation button"))
+			{
+				level->doors.door[level->doors.selected_index - 1].activation_pos = level->cam.pos;
+				vec_add(&level->doors.door[level->doors.selected_index - 1].activation_pos,
+				level->doors.door[level->doors.selected_index - 1].activation_pos, level->cam.front);
+			}
+			if (level->doors.door[level->doors.selected_index - 1].is_activation_pos_active)
+				if (call("move door activation button", NULL, level))
+					level->ui.state.ui_location = UI_LOCATION_DOOR_ACTIVATION_BUTTON;
 			sprintf(buf, "door transition time: %fs", level->doors.door[level->doors.selected_index - 1].transition_time);
 			float_slider(&level->doors.door[level->doors.selected_index - 1].transition_time, buf, .2, 7);
 			// button(hinge, "has hinge");
@@ -396,6 +405,12 @@ void	ui_config(t_level *level)
 			else
 				text("Select faces to create door from");
 		}
+		return ;
+	}
+	if (level->ui.state.ui_location == UI_LOCATION_DOOR_ACTIVATION_BUTTON)
+	{
+		if (call("return to door editor", NULL, level))
+			level->ui.state.ui_location = UI_LOCATION_DOOR_EDITOR;
 		return ;
 	}
 	if (level->ui.state.ui_location == UI_LOCATION_LIGHT_EDITOR)

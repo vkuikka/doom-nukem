@@ -151,6 +151,7 @@ static void		set_mouse_input_location(t_level *level, t_game_state game_state)
 			level->ui.state.m1_drag = FALSE;
 		}
 	}
+	gizmo(level);
 	level->ui.state.m1_click = FALSE;
 }
 

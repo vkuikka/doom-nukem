@@ -180,11 +180,14 @@ void			gizmo(t_level *level)
 	t_vec3 res = {0, 0, 0};
 	if (deltax || deltay)
 	{
-		res = calc_move_screen_space(level->ui.state.mouse_location - 3, deltax * dist_from_screen * drag_direction);
+		if (level->ui.state.mouse_location == MOUSE_LOCATION_GIZMO_Y)
+			res = calc_move_screen_space(level->ui.state.mouse_location - 3, deltay * dist_from_screen * drag_direction);
+		else
+			res = calc_move_screen_space(level->ui.state.mouse_location - 3, deltax * dist_from_screen * drag_direction);
 	}
 
 	if (level->ui.state.ui_location == UI_LOCATION_DOOR_ACTIVATION_BUTTON)
-		;//door_activation_move();
+		door_activation_move(level, res);
 	else if (level->ui.state.ui_location == UI_LOCATION_LIGHT_EDITOR)
 		;//move_light();
 	else
