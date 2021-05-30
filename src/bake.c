@@ -143,19 +143,58 @@ int			bake(void *d)
 				if (l->bake_status != BAKE_BAKING)
 					return (-1);
 				t_vec2 tmp;
+				t_ivec2 wrapped;
+				wrapped = i;
+				wrap_coords(&wrapped.x, &wrapped.y, l->texture.width, l->texture.height);
 				tmp.x = (float)i.x / l->texture.width;
 				tmp.y = 1 - (float)i.y / l->texture.height;
 				if ((l->all.tris[tri].isquad &&
 					point_in_tri(tmp, l->all.tris[tri].verts[3].txtr, l->all.tris[tri].verts[1].txtr, l->all.tris[tri].verts[2].txtr)) ||
 					point_in_tri(tmp, l->all.tris[tri].verts[0].txtr, l->all.tris[tri].verts[1].txtr, l->all.tris[tri].verts[2].txtr))
 				{
-					t_ivec2 wrapped;
-					wrapped = i;
+					t_vec3 normal;
+
 					wrap_coords(&wrapped.x, &wrapped.y, l->texture.width, l->texture.height);
 					pos3d = uv_to_3d(l->all.tris[tri], &l->texture, i);
-					t_vec3 normal = get_normal(l->normal_map.image[wrapped.x + (wrapped.y * l->normal_map.width)]);
+					normal = get_normal(l->normal_map.image[wrapped.x + (wrapped.y * l->normal_map.width)]);
 					vec_normalize(&normal);
 					l->baked[wrapped.x + wrapped.y * l->texture.width] = lights(l, pos3d, normal, 1);
+
+					wrapped.y -= 1;
+					wrap_coords(&wrapped.x, &wrapped.y, l->texture.width, l->texture.height);
+					if (!(l->baked[wrapped.x + wrapped.y * l->texture.width].r) &&
+						!(l->baked[wrapped.x + wrapped.y * l->texture.width].g) &&
+						!(l->baked[wrapped.x + wrapped.y * l->texture.width].b))
+					{
+						pos3d = uv_to_3d(l->all.tris[tri], &l->texture, i);
+						normal = get_normal(l->normal_map.image[wrapped.x + (wrapped.y * l->normal_map.width)]);
+						vec_normalize(&normal);
+						l->baked[wrapped.x + wrapped.y * l->texture.width] = lights(l, pos3d, normal, 1);
+					}
+
+					wrapped.x -= 1;
+					wrap_coords(&wrapped.x, &wrapped.y, l->texture.width, l->texture.height);
+					if (!(l->baked[wrapped.x + wrapped.y * l->texture.width].r) &&
+						!(l->baked[wrapped.x + wrapped.y * l->texture.width].g) &&
+						!(l->baked[wrapped.x + wrapped.y * l->texture.width].b))
+					{
+						pos3d = uv_to_3d(l->all.tris[tri], &l->texture, i);
+						normal = get_normal(l->normal_map.image[wrapped.x + (wrapped.y * l->normal_map.width)]);
+						vec_normalize(&normal);
+						l->baked[wrapped.x + wrapped.y * l->texture.width] = lights(l, pos3d, normal, 1);
+					}
+
+					wrapped.y += 1;
+					wrap_coords(&wrapped.x, &wrapped.y, l->texture.width, l->texture.height);
+					if (!(l->baked[wrapped.x + wrapped.y * l->texture.width].r) &&
+						!(l->baked[wrapped.x + wrapped.y * l->texture.width].g) &&
+						!(l->baked[wrapped.x + wrapped.y * l->texture.width].b))
+					{
+						pos3d = uv_to_3d(l->all.tris[tri], &l->texture, i);
+						normal = get_normal(l->normal_map.image[wrapped.x + (wrapped.y * l->normal_map.width)]);
+						vec_normalize(&normal);
+						l->baked[wrapped.x + wrapped.y * l->texture.width] = lights(l, pos3d, normal, 1);
+					}
 				}
 				i.y++;
 			}
@@ -168,10 +207,31 @@ int			bake(void *d)
 	return (1);
 }
 
+void		clear_bake(t_level *level)
+{
+	int		x;
+	int		y;
+
+	x = 0;
+	while (x < level->texture.width)
+	{
+		y = 0;
+		while (y < level->texture.height)
+		{
+			level->baked[x + y * level->texture.width].r = 0;
+			level->baked[x + y * level->texture.width].g = 0;
+			level->baked[x + y * level->texture.width].b = 0;
+			y++;
+		}
+		x++;
+	}
+}
+
 void		start_bake(t_level *level)
 {
 	if (level->bake_status == BAKE_NOT_BAKED)
 	{
+		clear_bake(level);
 		level->bake_status = BAKE_BAKING;
 		level->bake_progress = 0;
 		SDL_CreateThread(bake, "asd", (void*)level);
