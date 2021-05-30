@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/05/21 20:52:57 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/28 21:34:35 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -357,6 +357,14 @@ void	ui_config(t_level *level)
 
 	ui = &level->ui;
 	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
+	if (level->bake_status == BAKE_BAKING)
+	{
+		sprintf(buf, "baking: %.3f%%", level->bake_progress);
+		set_text_color(UI_LEVEL_BAKING_COLOR);
+		if (call(buf, start_bake, level))
+			level->bake_status = BAKE_NOT_BAKED;
+		set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
+	}
 	if (level->ui.state.ui_location == UI_LOCATION_FILE_SAVE || level->ui.state.ui_location == UI_LOCATION_FILE_OPEN)
 	{
 		ui_render_directory(level);
@@ -415,8 +423,25 @@ void	ui_config(t_level *level)
 	}
 	if (level->ui.state.ui_location == UI_LOCATION_LIGHT_EDITOR)
 	{
+		if (level->bake_status == BAKE_NOT_BAKED)
+		{
+			set_text_color(UI_LEVEL_NOT_BAKED_COLOR);
+			sprintf(buf, "bake lighting");
+			call(buf, start_bake, level);
+		}
+		else if (level->bake_status == BAKE_BAKED)
+		{
+			set_text_color(UI_LEVEL_BAKED_COLOR);
+			sprintf(buf, "lighting baked");
+			call(buf, start_bake, level);
+		}
+		set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
 		if (call("close light editor", NULL, level))
 			level->ui.state.ui_location = UI_LOCATION_MAIN;
+		sprintf(buf, "world brightness: %d%%", (int)(level->brightness * 100));
+		float_slider(&level->brightness, buf, 0, 1);
+		sprintf(buf, "skybox brightness: %d%% (0 = sync)", (int)(level->skybox_brightness * 100));
+		float_slider(&level->skybox_brightness, buf, 0, 1);
 		float_slider(&ui->sun_contrast, "sun", 0, 1);
 		float_slider(&ui->direct_shadow_contrast, "shadow", 0, 1);
 		if (ui->sun_contrast > ui->direct_shadow_contrast)
@@ -430,10 +455,14 @@ void	ui_config(t_level *level)
 		call("add light", &add_light, level);
 		if (level->selected_light_index)
 		{
-			sprintf(buf, "brightness %.2f", level->lights[level->selected_light_index - 1].brightness);
-			float_slider(&level->lights[level->selected_light_index - 1].brightness, buf, .1, 20);
-			sprintf(buf, "radius %.2f", level->lights[level->selected_light_index - 1].radius);
+			sprintf(buf, "radius: %.2f", level->lights[level->selected_light_index - 1].radius);
 			float_slider(&level->lights[level->selected_light_index - 1].radius, buf, .1, 20);
+			sprintf(buf, "red: %.2f", level->lights[level->selected_light_index - 1].color.r);
+			float_slider(&level->lights[level->selected_light_index - 1].color.r, buf, 0, 5);
+			sprintf(buf, "green: %.2f", level->lights[level->selected_light_index - 1].color.g);
+			float_slider(&level->lights[level->selected_light_index - 1].color.g, buf, 0, 5);
+			sprintf(buf, "blue: %.2f", level->lights[level->selected_light_index - 1].color.b);
+			float_slider(&level->lights[level->selected_light_index - 1].color.b, buf, 0, 5);
 			call("delete light", &delete_light, level);
 		}
 		return ;
@@ -456,8 +485,10 @@ void	ui_config(t_level *level)
 		return ;
 	}
 	button(&ui->noclip, "noclip");
-	button(&ui->vertex_select_mode, "vertex select mode");
 	button(&ui->wireframe, "wireframe");
+	button(&ui->raytracing, "raytrace lights");
+
+	button(&ui->vertex_select_mode, "vertex select mode");
 	if (ui->wireframe)
 	{
 		button(&ui->wireframe_on_top, "wireframe on top");
@@ -466,8 +497,6 @@ void	ui_config(t_level *level)
 	}
 
 	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
-	sprintf(buf, "world brightness: %d%%", (int)(level->brightness * 100));
-	float_slider(&level->brightness, buf, 0, 1);
 	call("edit uv", &enable_uv_editor, level);
 	call("edit doors", &enable_door_editor, level);
 	if (nothing_selected(level))
@@ -479,18 +508,6 @@ void	ui_config(t_level *level)
 		file_browser("select texture", ".bmp", &set_texture);
 		file_browser("select skybox", ".bmp", &set_skybox);
 		call("add face", &add_face, level);
-		if (level->is_baked)
-		{
-			set_text_color(UI_LEVEL_BAKED_COLOR);
-			call("bake lighting", NULL, level);
-		}
-		else
-		{
-			set_text_color(UI_LEVEL_NOT_BAKED_COLOR);
-			// if (call("bake lighting", &bake_lighting, level))
-			if (call("bake lighting", NULL, level))
-				level->is_baked = TRUE;
-		}
 		set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
 		call("set spawn position", &set_spawn_pos, level);
 		call("set menu position 1", &set_menu_pos_1, level);
@@ -523,7 +540,7 @@ void	ui_config(t_level *level)
 		text(buf);
 		sprintf(buf, "faces:           %d / %d", level->all.tri_amount, level->visible.tri_amount);
 		text(buf);
-		sprintf(buf, "xz velocity:  %.2fms", level->ui.horizontal_velocity);
+		sprintf(buf, "xz velocity:  %.2fm/s", level->ui.horizontal_velocity);
 		text(buf);
 	}
 

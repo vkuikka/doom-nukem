@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   light_edit.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/21 20:19:04 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/05/21 20:19:04 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/05/28 17:46:23 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,6 +98,7 @@ void	delete_light(t_level *level)
 			ft_error("memory allocation failed\n");
 	}
 	level->selected_light_index = 0;
+	level->bake_status = BAKE_NOT_BAKED;
 }
 
 void	add_light(t_level *level)
@@ -106,8 +107,11 @@ void	add_light(t_level *level)
     if (!(level->lights = (t_light*)realloc(level->lights, sizeof(t_light) * level->light_amount)))
 		ft_error("memory allocation failed\n");
 	vec_add(&level->lights[level->light_amount - 1].pos, level->cam.pos, level->cam.front);
-	level->lights[level->light_amount - 1].brightness = 1;
+	level->lights[level->light_amount - 1].color.r = 1;
+	level->lights[level->light_amount - 1].color.g = 1;
+	level->lights[level->light_amount - 1].color.b = 1;
 	level->lights[level->light_amount - 1].radius = 10;
+	level->bake_status = BAKE_NOT_BAKED;
 }
 
 void	enable_light_editor(t_level *level)

@@ -26,58 +26,80 @@ void		opacity(t_cast_result *res, t_level *l, t_obj *obj, float opacity)
 	res->color = crossfade((unsigned)res->color >> 8, (unsigned)transparent.color >> 8, opacity * 0xff, opacity * 0xff);
 }
 
-void		shadow(t_level *l, t_vec3 normal, t_cast_result *res)
+void		shadow(t_level *l, t_vec3 normal, t_vec3 pos, int face_index)
 {
-	float	darkness;
-	int		i;
-	t_ray	r;
+	float		darkness;
+	unsigned	color;
+	int			i;
+	t_ray		r;
 
+	color = 0;
 	if (vec_dot(normal, l->ui.sun_dir) < 0)
 	{
 		darkness = l->ui.direct_shadow_contrast;
-		res->color = crossfade((unsigned)res->color >> 8, l->shadow_color, darkness * 0xff, (unsigned)res->color << 24 >> 24);
+		color = crossfade(color >> 8, l->shadow_color, darkness * 0xff, color << 24 >> 24);
 		return;
 	}
 	r.dir.x = l->ui.sun_dir.x;
 	r.dir.y = l->ui.sun_dir.y;
 	r.dir.z = l->ui.sun_dir.z;
-	r.pos = res->ray.pos;
+	r.pos = pos;
 	i = 0;
-	while (i < l->all.tris[res->face_index].shadow_faces->tri_amount)
+	while (i < l->all.tris[face_index].shadow_faces->tri_amount)
 	{
-		if (0 < cast_face(l->all.tris[res->face_index].shadow_faces->tris[i], r, NULL))
+		if (0 < cast_face(l->all.tris[face_index].shadow_faces->tris[i], r, NULL))
 		{
 			darkness = l->ui.direct_shadow_contrast;
-			res->color = crossfade((unsigned)res->color >> 8, l->shadow_color, darkness * 0xff, (unsigned)res->color << 24 >> 24);
+			color = crossfade(color >> 8, l->shadow_color, darkness * 0xff, color << 24 >> 24);
 			return;
 		}
 		i++;
 	}
 	darkness = (1 - vec_dot(normal, l->ui.sun_dir)) * l->ui.sun_contrast;
-	res->color = crossfade((unsigned)res->color >> 8, l->shadow_color, darkness * 0xff, (unsigned)res->color << 24 >> 24);
+	color = crossfade(color >> 8, l->shadow_color, darkness * 0xff, color << 24 >> 24);
 }
 
-void		lights(t_level *l, t_vec3 normal, t_cast_result *res)
+t_color		lights(t_level *l, t_vec3 pos, t_vec3 normal, int raytrace)
 {
+	t_ray	ray;
 	t_vec3	diff;
 	float	dist;
-	float	bright_value;
+	t_color	result;
 	int		i;
 
 	i = 0;
-	// if (l->ui.sun_contrast || l->ui.direct_shadow_contrast)
-	// 	shadow(l, res->normal, res);
-	bright_value = 0;
+	result.r = 0;
+	result.g = 0;
+	result.b = 0;
 	while (i < l->light_amount)
 	{
-		vec_sub(&diff, res->ray.pos, l->lights[i].pos);
+		vec_sub(&diff, pos, l->lights[i].pos);
 		dist = vec_length(diff);
-		if (dist < l->lights[i].radius)
-			bright_value += (1.0 - dist / l->lights[i].radius) * l->lights[i].brightness;
+		ray.pos = l->lights[i].pos;
+		ray.dir = diff;
+		if (dist < l->lights[i].radius && vec_dot(diff, normal) < 0)
+		{
+			if (!raytrace)
+			{
+				vec_normalize(&diff);
+				result.r += (1.0 - dist / l->lights[i].radius) * l->lights[i].color.r * -vec_dot(diff, normal);
+				result.g += (1.0 - dist / l->lights[i].radius) * l->lights[i].color.g * -vec_dot(diff, normal);
+				result.b += (1.0 - dist / l->lights[i].radius) * l->lights[i].color.b * -vec_dot(diff, normal);
+			}
+			else if (cast_all(ray, l, NULL, NULL, NULL) >= vec_length(diff) - 0.1)
+			{
+				vec_normalize(&diff);
+				result.r += (1.0 - dist / l->lights[i].radius) * l->lights[i].color.r * -vec_dot(diff, normal);
+				result.g += (1.0 - dist / l->lights[i].radius) * l->lights[i].color.g * -vec_dot(diff, normal);
+				result.b += (1.0 - dist / l->lights[i].radius) * l->lights[i].color.b * -vec_dot(diff, normal);
+			}
+		}
 		i++;
 	}
-	bright_value += l->brightness;
-	res->color = brightness((unsigned)res->color >> 8, bright_value, (unsigned)res->color << 24 >> 24);
+	result.r += l->brightness;
+	result.g += l->brightness;
+	result.b += l->brightness;
+	return (result);
 }
 
 void		reflection(t_cast_result *res, t_level *l, t_obj *obj)
