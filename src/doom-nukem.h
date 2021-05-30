@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/28 22:06:48 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/30 19:46:00 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -414,8 +414,7 @@ typedef struct			s_editor_ui
 	float				fov;
 	int					raytracing;
 
-	float				sun_contrast;
-	float				direct_shadow_contrast;;
+	t_color				sun_color;
 	struct s_vec3		sun_dir;
 	float				horizontal_velocity;
 
@@ -461,7 +460,6 @@ typedef struct			s_level
 	int					light_amount;
 	int					selected_light_index;
 	struct s_enemy		player;
-	int					shadow_color;
 	int					player_health;
 	int					player_ammo;
 	struct s_player_pos	spawn_pos;
@@ -475,7 +473,7 @@ typedef struct			s_level
 	unsigned			reload_start_time;
 	int					viewmodel_index;
 	struct s_bmp		viewmodel[VIEWMODEL_FRAMES];
-	float				brightness;
+	float				world_brightness;
 	float				skybox_brightness;
 	struct s_audio		audio;
 }						t_level;
@@ -632,14 +630,12 @@ void		enemies_update_physics(t_level *level);
 void		enemies_update_sprites(t_level *level);
 
 int			fog(int color, float dist, unsigned fog_color, t_level *level);
-int			skybox(t_bmp *img, t_obj *obj, t_ray r, float world_brightness);
+int			skybox(t_level *l, t_obj *obj, t_ray r);
 
 void		opacity(t_cast_result *res, t_level *l, t_obj *obj, float opacity);
-void		shadow(t_level *l, t_vec3 normal, t_vec3 pos, int face_index);
-
 void		reflection(t_cast_result *res, t_level *l, t_obj *obj);
-
 unsigned	wave_shader(t_vec3 mod, t_vec3 *normal, unsigned col1, unsigned col2);
+void		sunlight(t_level *l, t_cast_result *res, t_color *liht);
 
 void		select_face(t_camera *cam, t_level *level, int x, int y);
 void		deselect_all_faces(t_level *level);

@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/05/28 21:34:35 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/30 19:46:35 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -438,14 +438,16 @@ void	ui_config(t_level *level)
 		set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
 		if (call("close light editor", NULL, level))
 			level->ui.state.ui_location = UI_LOCATION_MAIN;
-		sprintf(buf, "world brightness: %d%%", (int)(level->brightness * 100));
-		float_slider(&level->brightness, buf, 0, 1);
-		sprintf(buf, "skybox brightness: %d%% (0 = sync)", (int)(level->skybox_brightness * 100));
+		sprintf(buf, "world brightness: %.2f", level->world_brightness);
+		float_slider(&level->world_brightness, buf, 0, 1);
+		sprintf(buf, "skybox brightness: %.2f (0 = sync)", level->skybox_brightness);
 		float_slider(&level->skybox_brightness, buf, 0, 1);
-		float_slider(&ui->sun_contrast, "sun", 0, 1);
-		float_slider(&ui->direct_shadow_contrast, "shadow", 0, 1);
-		if (ui->sun_contrast > ui->direct_shadow_contrast)
-			ui->direct_shadow_contrast = ui->sun_contrast;
+		sprintf(buf, "sun red: %.2f", level->ui.sun_color.r);
+		float_slider(&level->ui.sun_color.r, buf, 0, 1);
+		sprintf(buf, "sun green: %.2f", level->ui.sun_color.g);
+		float_slider(&level->ui.sun_color.g, buf, 0, 1);
+		sprintf(buf, "sun blue: %.2f", level->ui.sun_color.b);
+		float_slider(&level->ui.sun_color.b, buf, 0, 1);
 		sprintf(buf, "sun dir: (%.2f, %.2f, %.2f)", ui->sun_dir.x, ui->sun_dir.y, ui->sun_dir.z);
 		text(buf);
 		float_slider(&ui->sun_dir.x, NULL, -1, 1);

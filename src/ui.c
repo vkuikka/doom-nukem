@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/06 08:50:56 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/05/16 22:51:45 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/30 19:56:57 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -592,8 +592,10 @@ void	init_ui(t_window *window, t_level *level)
 	ui->fog_color = 0xddddddff;//smoke
 
 	ui->fov = M_PI / 2;
-	ui->sun_contrast = 0;	//max 1
-	ui->direct_shadow_contrast = 0;	//max 1
+	ui->sun_color.r = 1;
+	ui->sun_color.g = 1;
+	ui->sun_color.b = 1;
+
 	ui->sun_dir.x = 1;
 	ui->sun_dir.y = -1;
 	ui->sun_dir.z = 1;
