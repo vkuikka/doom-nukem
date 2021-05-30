@@ -350,6 +350,8 @@ void	deserialize_door(t_door *door, t_buffer *buf)
 			deserialize_vec3(&door->pos2[i][k], buf);
 		}
 	}
+	deserialize_int(&door->is_activation_pos_active, buf);
+	deserialize_vec3(&door->activation_pos, buf);
 	deserialize_float(&door->transition_time, buf);
 }
 
@@ -366,6 +368,8 @@ void	serialize_door(t_door *door, t_buffer *buf)
 			serialize_vec3(door->pos2[i][k], buf);
 		}
 	}
+	serialize_int(door->is_activation_pos_active, buf);
+	serialize_vec3(door->activation_pos, buf);
 	serialize_float(door->transition_time, buf);
 }
 
