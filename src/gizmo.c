@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/26 19:56:07 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/05/26 19:56:07 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/05/30 22:22:56 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -182,7 +182,7 @@ void			gizmo(t_level *level)
 	{
 		if (level->ui.state.mouse_location == MOUSE_LOCATION_GIZMO_Y)
 			res = calc_move_screen_space(level->ui.state.mouse_location - 3, deltay * dist_from_screen * drag_direction);
-		else
+		else if (level->ui.state.mouse_location == MOUSE_LOCATION_GIZMO_X || level->ui.state.mouse_location == MOUSE_LOCATION_GIZMO_Z)
 			res = calc_move_screen_space(level->ui.state.mouse_location - 3, deltax * dist_from_screen * drag_direction);
 	}
 
