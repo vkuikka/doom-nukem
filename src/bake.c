@@ -33,23 +33,7 @@ void		texture_minmax(t_vec2 *min, t_vec2 *max, t_tri tri)
 
 void		normalize_data(t_vec3 *uvw, t_tri tri)
 {
-	float	a;
-
-	a = uvw->x + uvw->y + uvw->z;
-	while (a < 1)
-	{
-		uvw->x *= 1.001;
-		uvw->y *= 1.001;
-		uvw->z *= 1.001;
-		a = uvw->x + uvw->y + uvw->z;
-	}
-	while (a > 1)
-	{
-		uvw->x /= 1.001;
-		uvw->y /= 1.001;
-		uvw->z /= 1.001;
-		a = uvw->x + uvw->y + uvw->z;
-	}
+	vec_div(uvw, uvw->x + uvw->y + uvw->z);
 }
 
 void		get_uv(t_vec3 *uvw, t_ivec2 ipoint, t_tri tri, t_bmp *txtr)
