@@ -108,6 +108,8 @@ void	deserialize_settings(t_level *level, t_buffer *buf)
 	deserialize_float(&level->ui.sun_contrast, buf);
 	deserialize_float(&level->ui.direct_shadow_contrast, buf);
 	deserialize_vec3(&level->ui.sun_dir, buf);
+	deserialize_vec3(&level->win_pos, buf);
+	deserialize_float(&level->win_dist, buf);
 }
 
 void	serialize_settings(t_level *level, t_buffer *buf)
@@ -120,6 +122,8 @@ void	serialize_settings(t_level *level, t_buffer *buf)
 	serialize_float(level->ui.sun_contrast, buf);
 	serialize_float(level->ui.direct_shadow_contrast, buf);
 	serialize_vec3(level->ui.sun_dir, buf);
+	serialize_vec3(level->win_pos, buf);
+	serialize_float(level->win_dist, buf);
 }
 
 void	deserialize_vert(t_vert *vert, t_buffer *buf)
