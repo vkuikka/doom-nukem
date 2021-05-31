@@ -39,22 +39,16 @@ void			init_level(t_level **res)
 	level->cam.pos.z = 0;
 	level->cam.look_side = 0;
 	level->cam.look_up = 0;
-	level->shadow_color = 0;
 	level->main_menu_anim_time = 2;
+	level->world_brightness = 0.15;
 
-	// load_obj("level/two.obj", &level->all);
-	// load_obj("level/test.obj", &level->all);
-	// load_obj("level/cube.obj", &level->all);
-	// load_obj("level/island.obj", &level->all);
-	// load_obj("level/cache.obj", &level->all);
 	load_obj("level/ship.obj", &level->all);
-	// load_obj("level/one_tri.obj", &level->all);
-	// load_obj("level/tri_test.obj", &level->all);
-	// load_obj("level/torus.obj", &level->all);
-	// load_obj("level/monkey.obj", &level->all);
-	// load_obj("level/teapot_decimated.obj", &level->all);
 
 	level->texture = bmp_read("out.bmp");
+	if (!(level->baked = (t_color *)malloc(sizeof(t_color) * (level->texture.width * level->texture.height))))
+		ft_error("memory allocation failed\n");
+	level->bake_status = BAKE_NOT_BAKED;
+
 	level->normal_map = bmp_read("normal.bmp");
 	load_obj("embed/skybox.obj", &level->sky.all);
 	load_obj("embed/skybox.obj", &level->sky.visible);

@@ -118,7 +118,7 @@ static void		update_uv_closest_vertex(t_level *level, float image_scale, t_ivec2
 	}
 }
 
-static void	set_fourth_vertex_uv(t_tri *a)
+void			set_fourth_vertex_uv(t_tri *a)
 {
 	t_vec2 shared1;
 	t_vec2 shared2;

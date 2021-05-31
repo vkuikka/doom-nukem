@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/31 16:52:44 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/16 22:55:57 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/21 19:51:29by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,18 +26,16 @@ void		opacity(t_cast_result *res, t_level *l, t_obj *obj, float opacity)
 	res->color = crossfade((unsigned)res->color >> 8, (unsigned)transparent.color >> 8, opacity * 0xff, opacity * 0xff);
 }
 
-void		shadow(t_level *l, t_vec3 normal, t_cast_result *res)
+t_color		sunlight(t_level *l, t_cast_result *res, t_color light)
 {
-	float	darkness;
-	int		i;
-	t_ray	r;
+	unsigned	color;
+	float		res_brightness;
+	int			i;
+	t_ray		r;
 
-	if (vec_dot(normal, l->ui.sun_dir) < 0)
-	{
-		darkness = l->ui.direct_shadow_contrast;
-		res->color = crossfade((unsigned)res->color >> 8, l->shadow_color, darkness * 0xff, (unsigned)res->color << 24 >> 24);
-		return;
-	}
+	color = 0;
+	if (vec_dot(res->normal, l->ui.sun_dir) < 0)
+		return (light);
 	r.dir.x = l->ui.sun_dir.x;
 	r.dir.y = l->ui.sun_dir.y;
 	r.dir.z = l->ui.sun_dir.z;
@@ -46,15 +44,57 @@ void		shadow(t_level *l, t_vec3 normal, t_cast_result *res)
 	while (i < l->all.tris[res->face_index].shadow_faces->tri_amount)
 	{
 		if (0 < cast_face(l->all.tris[res->face_index].shadow_faces->tris[i], r, NULL))
+			return (light);
+		i++;
+	}
+	res_brightness = vec_dot(res->normal, l->ui.sun_dir);
+	light.r += res_brightness * l->ui.sun_color.r;
+	light.g += res_brightness * l->ui.sun_color.g;
+	light.b += res_brightness * l->ui.sun_color.b;
+	return (light);
+}
+
+t_color		lights(t_level *l, t_cast_result *res, t_vec3 normal)
+{
+	t_ray	ray;
+	t_vec3	diff;
+	float	dist;
+	t_color	result;
+	int		i;
+
+	i = 0;
+	result.r = 0;
+	result.g = 0;
+	result.b = 0;
+	while (i < l->light_amount)
+	{
+		vec_sub(&diff, res->ray.pos, l->lights[i].pos);
+		dist = vec_length(diff);
+		ray.pos = l->lights[i].pos;
+		ray.dir = diff;
+		if (dist < l->lights[i].radius && vec_dot(diff, res->normal) < 0 && vec_dot(diff, normal) < 0)
 		{
-			darkness = l->ui.direct_shadow_contrast;
-			res->color = crossfade((unsigned)res->color >> 8, l->shadow_color, darkness * 0xff, (unsigned)res->color << 24 >> 24);
-			return;
+			if (!res->raytracing)
+			{
+				vec_normalize(&diff);
+				result.r += (1.0 - dist / l->lights[i].radius) * l->lights[i].color.r * -vec_dot(diff, res->normal);
+				result.g += (1.0 - dist / l->lights[i].radius) * l->lights[i].color.g * -vec_dot(diff, res->normal);
+				result.b += (1.0 - dist / l->lights[i].radius) * l->lights[i].color.b * -vec_dot(diff, res->normal);
+			}
+			else if (cast_all(ray, l, NULL, NULL, NULL) >= vec_length(diff) - 0.1)
+			{
+				vec_normalize(&diff);
+				result.r += (1.0 - dist / l->lights[i].radius) * l->lights[i].color.r * -vec_dot(diff, res->normal);
+				result.g += (1.0 - dist / l->lights[i].radius) * l->lights[i].color.g * -vec_dot(diff, res->normal);
+				result.b += (1.0 - dist / l->lights[i].radius) * l->lights[i].color.b * -vec_dot(diff, res->normal);
+			}
 		}
 		i++;
 	}
-	darkness = (1 - vec_dot(normal, l->ui.sun_dir)) * l->ui.sun_contrast;
-	res->color = crossfade((unsigned)res->color >> 8, l->shadow_color, darkness * 0xff, (unsigned)res->color << 24 >> 24);
+	result.r += l->world_brightness;
+	result.g += l->world_brightness;
+	result.b += l->world_brightness;
+	return (result);
 }
 
 void		reflection(t_cast_result *res, t_level *l, t_obj *obj)

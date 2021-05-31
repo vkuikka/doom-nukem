@@ -52,16 +52,21 @@ void	door_activate(t_level *level)
 	{
 		t_vec3 avg = {0, 0, 0};
 		door = &level->doors.door[i];
-		int amount = 0;
-		for (int j = 0; j < door->indice_amount; j++)
+		if (door->is_activation_pos_active)
+			avg = door->activation_pos;
+		else
 		{
-			for (int k = 0; k < 3 + door->isquad[j]; k++)
+			int amount = 0;
+			for (int j = 0; j < door->indice_amount; j++)
 			{
-				vec_add(&avg, avg, level->all.tris[door->indices[j]].verts[k].pos);
-				amount++;
+				for (int k = 0; k < 3 + door->isquad[j]; k++)
+				{
+					vec_add(&avg, avg, level->all.tris[door->indices[j]].verts[k].pos);
+					amount++;
+				}
 			}
+			vec_div(&avg, amount);
 		}
-		vec_div(&avg, amount);
 		vec_sub(&avg, avg, level->cam.pos);
 		len = vec_length(avg);
 		if (len < nearest_len)
@@ -104,6 +109,7 @@ void	door_put_text(t_window *window, t_level *level)
 	t_door*	door;
 	int		avg_amount;
 	t_ivec2	text_pos;
+	char	buf[100];
 
 	for (int a = 0; a < level->doors.door_amount; a++)
 	{
@@ -124,14 +130,36 @@ void	door_put_text(t_window *window, t_level *level)
 		{
 			vec_div(&avg, avg_amount);
 			camera_offset(&avg, &level->cam);
-			if (avg.z < 0)
-				return ;
-			set_text_color(DOOR_LOCATION_INFO_COLOR);
-			text_pos.x = avg.x;
-			text_pos.y = avg.y;
-			render_text("door", window, &text_pos, NULL);
+			if (avg.z > 0)
+			{
+				set_text_color(DOOR_LOCATION_INFO_COLOR);
+				text_pos.x = avg.x;
+				text_pos.y = avg.y;
+				sprintf(buf, "door %d", a + 1);
+				render_text(buf, window, &text_pos, NULL);
+			}
+		}
+		if (door->is_activation_pos_active)
+		{
+			avg = door->activation_pos;
+			camera_offset(&avg, &level->cam);
+			if (avg.z > 0)
+			{
+				set_text_color(DOOR_ACTIVATION_LOCATION_INFO_COLOR);
+				text_pos.x = avg.x;
+				text_pos.y = avg.y;
+				sprintf(buf, "door %d activation", a + 1);
+				render_text(buf, window, &text_pos, NULL);
+			}
 		}
 	}
+}
+
+void		door_activation_move(t_level *level, t_vec3 move_amount)
+{
+	vec_add(&level->doors.door[level->doors.selected_index - 1].activation_pos,
+			level->doors.door[level->doors.selected_index - 1].activation_pos, move_amount);
+	level->ui.state.gizmo_pos = level->doors.door[level->doors.selected_index - 1].activation_pos;
 }
 
 void	door_animate(t_level *level)

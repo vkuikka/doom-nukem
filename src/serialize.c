@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/06 14:13:02 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/05/18 20:50:43 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/30 19:53:40 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,6 +98,20 @@ void	serialize_vec3(t_vec3 vec, t_buffer *buf)
 	serialize_float(vec.z, buf);
 }
 
+void	deserialize_color(t_color *color, t_buffer *buf)
+{
+	deserialize_float(&color->r, buf);
+	deserialize_float(&color->g, buf);
+	deserialize_float(&color->b, buf);
+}
+
+void	serialize_color(t_color color, t_buffer *buf)
+{
+	serialize_float(color.r, buf);
+	serialize_float(color.g, buf);
+	serialize_float(color.b, buf);
+}
+
 void	deserialize_settings(t_level *level, t_buffer *buf)
 {
 	deserialize_int(&level->ui.fog, buf);
@@ -105,8 +119,7 @@ void	deserialize_settings(t_level *level, t_buffer *buf)
 	deserialize_int(&level->ui.backface_culling, buf);
 	deserialize_int(&level->ui.distance_culling, buf);
 	deserialize_float(&level->ui.render_distance, buf);
-	deserialize_float(&level->ui.sun_contrast, buf);
-	deserialize_float(&level->ui.direct_shadow_contrast, buf);
+	deserialize_color(&level->ui.sun_color, buf);
 	deserialize_vec3(&level->ui.sun_dir, buf);
 	deserialize_vec3(&level->win_pos, buf);
 	deserialize_float(&level->win_dist, buf);
@@ -119,8 +132,7 @@ void	serialize_settings(t_level *level, t_buffer *buf)
 	serialize_int(level->ui.backface_culling, buf);
 	serialize_int(level->ui.distance_culling, buf);
 	serialize_float(level->ui.render_distance, buf);
-	serialize_float(level->ui.sun_contrast, buf);
-	serialize_float(level->ui.direct_shadow_contrast, buf);
+	serialize_color(level->ui.sun_color, buf);
 	serialize_vec3(level->ui.sun_dir, buf);
 	serialize_vec3(level->win_pos, buf);
 	serialize_float(level->win_dist, buf);
@@ -184,6 +196,20 @@ void	serialize_projectile(t_projectile *projectile, t_buffer *buf)
 	serialize_float(projectile->speed, buf);
 	serialize_float(projectile->dist, buf);
 	serialize_float(projectile->damage, buf);
+}
+
+void	deserialize_player_pos(t_player_pos *pos, t_buffer *buf)
+{
+	deserialize_vec3(&pos->pos, buf);
+	deserialize_float(&pos->look_side, buf);
+	deserialize_float(&pos->look_up, buf);
+}
+
+void	serialize_player_pos(t_player_pos *pos, t_buffer *buf)
+{
+	serialize_vec3(pos->pos, buf);
+	serialize_float(pos->look_side, buf);
+	serialize_float(pos->look_up, buf);
 }
 
 void	deserialize_tri(t_tri *tri, t_buffer *buf)
@@ -326,6 +352,8 @@ void	deserialize_door(t_door *door, t_buffer *buf)
 			deserialize_vec3(&door->pos2[i][k], buf);
 		}
 	}
+	deserialize_int(&door->is_activation_pos_active, buf);
+	deserialize_vec3(&door->activation_pos, buf);
 	deserialize_float(&door->transition_time, buf);
 }
 
@@ -342,6 +370,8 @@ void	serialize_door(t_door *door, t_buffer *buf)
 			serialize_vec3(door->pos2[i][k], buf);
 		}
 	}
+	serialize_int(door->is_activation_pos_active, buf);
+	serialize_vec3(door->activation_pos, buf);
 	serialize_float(door->transition_time, buf);
 }
 
@@ -374,6 +404,30 @@ void	serialize_doors(t_level *level, t_buffer *buf)
 		serialize_door(&level->doors.door[i], buf);
 }
 
+void	deserialize_lights(t_level *level, t_buffer *buf)
+{
+	deserialize_int(&level->light_amount, buf);
+	if (!(level->lights = (t_light*)malloc(sizeof(t_light) * level->light_amount)))
+		ft_error("memory allocation failed\n");
+	for (int i = 0; i < level->light_amount; i++)
+	{
+		deserialize_vec3(&level->lights[i].pos, buf);
+		deserialize_color(&level->lights[i].color, buf);
+		deserialize_float(&level->lights[i].radius, buf);
+	}
+}
+
+void	serialize_lights(t_level *level, t_buffer *buf)
+{
+	serialize_int(level->light_amount, buf);
+	for (int i = 0; i < level->light_amount; i++)
+	{
+		serialize_vec3(level->lights[i].pos, buf);
+		serialize_color(level->lights[i].color, buf);
+		serialize_float(level->lights[i].radius, buf);
+	}
+}
+
 void	deserialize_level(t_level *level, t_buffer *buf)
 {
 	char	*str;
@@ -402,6 +456,14 @@ void	deserialize_level(t_level *level, t_buffer *buf)
 	free(level->visible.tris);
 	deserialize_obj(&level->all, buf);
 	deserialize_doors(level, buf);
+	deserialize_lights(level, buf);
+	deserialize_float(&level->world_brightness, buf);
+	deserialize_float(&level->skybox_brightness, buf);
+	deserialize_player_pos(&level->spawn_pos, buf);
+	deserialize_player_pos(&level->main_menu_pos1, buf);
+	deserialize_player_pos(&level->main_menu_pos2, buf);
+	deserialize_int((int*)&level->main_menu_anim_time, buf);
+	deserialize_int((int*)&level->main_menu_anim_start_time, buf);
 	if (!(level->visible.tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount)))
 		ft_error("memory allocation failed\n");
 	init_screen_space_partition(level);
@@ -417,6 +479,14 @@ void	serialize_level(t_level *level, t_buffer *buf)
 	serialize_bmp(&level->sky.img, buf);
 	serialize_obj(&level->all, buf);
 	serialize_doors(level, buf);
+	serialize_lights(level, buf);
+	serialize_float(level->world_brightness, buf);
+	serialize_float(level->skybox_brightness, buf);
+	serialize_player_pos(&level->spawn_pos, buf);
+	serialize_player_pos(&level->main_menu_pos1, buf);
+	serialize_player_pos(&level->main_menu_pos2, buf);
+	serialize_int(level->main_menu_anim_time, buf);
+	serialize_int(level->main_menu_anim_start_time, buf);
 }
 
 #ifdef _WIN32

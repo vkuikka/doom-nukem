@@ -28,20 +28,62 @@ unsigned		crossfade(unsigned color1, unsigned color2, unsigned fade, unsigned al
 	return ((newr << 8 * 3) + (newg << 8 * 2) + (newb << 8 * 1) + alpha);
 }
 
-int				skybox(t_bmp *img, t_obj *obj, t_ray r)
+unsigned		brightness(unsigned color1, t_color new)
+{
+	unsigned char	*rgb;
+	unsigned int	newr;
+	unsigned int	newg;
+	unsigned int	newb;
+
+	rgb = (unsigned char*)&color1;
+	newr = rgb[2] * sqrt(new.r);
+	newg = rgb[1] * sqrt(new.g);
+	newb = rgb[0] * sqrt(new.b);
+	if (newr > 0xff)
+		newr = 0xff;
+	if (newg > 0xff)
+		newg = 0xff;
+	if (newb > 0xff)
+		newb = 0xff;
+	if (newr < 0)
+		newr = 0;
+	if (newg < 0)
+		newg = 0;
+	if (newb < 0)
+		newb = 0;
+	return ((newr << 8 * 3) + (newg << 8 * 2) + (newb << 8 * 1));
+}
+
+int				skybox(t_level *l, t_obj *obj, t_ray r)
 {
 	t_cast_result	res;
+	t_color			tmp;
 
+	if (l->skybox_brightness != 0)
+	{
+		tmp.r = l->skybox_brightness;
+		tmp.g = l->skybox_brightness;
+		tmp.b = l->skybox_brightness;
+	}
+	else
+	{
+		tmp.r = l->ui.sun_color.r + l->world_brightness;
+		tmp.g = l->ui.sun_color.g + l->world_brightness;
+		tmp.b = l->ui.sun_color.b + l->world_brightness;
+	}
 	res.color = 0;
 	r.pos.x = 0;
 	r.pos.y = 0;
 	r.pos.z = 0;
-	res.texture = img;
+	res.texture = &l->sky.img;
 	res.normal_map = NULL;
+	res.baked = NULL;
+	res.raytracing = 0;
 	for (int i = 0; i < obj->tri_amount; i++)
 		if (0 < cast_face(obj->tris[i], r, &res))
 		{
 			face_color(res.u, res.v, obj->tris[i], &res);
+			res.color = brightness(res.color >> 8, tmp) + 0xff;
 			return (res.color);
 		}
 	return (res.color);
@@ -181,6 +223,19 @@ t_vec3			get_normal(int vec)
 	return (dir);
 }
 
+static void		wrap_coords(int *x, int *y, int max_x, int max_y)
+{
+	while (*y < 0)
+		*y += max_y;
+	if (*y >= max_y)
+		*y = *y % max_y;
+	*y = max_y - *y - 1;
+	while (*x < 0)
+		*x += max_x;
+	if (*x >= max_x)
+		*x = *x % max_x;
+}
+
 void			face_color(float u, float v, t_tri t, t_cast_result *res)
 {
 	int		x;
@@ -194,33 +249,19 @@ void			face_color(float u, float v, t_tri t, t_cast_result *res)
 	y =	((t.verts[0].txtr.y * res->texture->height * w +
 			t.verts[1].txtr.y * res->texture->height * v +
 			t.verts[2].txtr.y * res->texture->height * u) / (float)(u + v + w));
-	if (y >= res->texture->height)
-		y = y % res->texture->height;
-	else if (y < 0)
-		y = -y % res->texture->height;
-	y = res->texture->height - y - 1;
-	if (x >= res->texture->width)
-		x = x % res->texture->width;
-	else if (x < 0)
-		x = -x % res->texture->width;
+	wrap_coords(&x, &y, res->texture->width, res->texture->height);
 	res->color = res->texture->image[x + (y * res->texture->width)];
+	if (res->baked && !res->raytracing)
+		res->color = brightness(res->color >> 8, res->baked[x + y * res->texture->width]) + (res->color << 24 >> 24);
+
 	if (!res->normal_map)
 		return;
-
 	x =	((t.verts[0].txtr.x * res->normal_map->width * w +
 			t.verts[1].txtr.x * res->normal_map->width * v +
 			t.verts[2].txtr.x * res->normal_map->width * u) / (float)(u + v + w));
 	y =	((t.verts[0].txtr.y * res->normal_map->height * w +
 			t.verts[1].txtr.y * res->normal_map->height * v +
 			t.verts[2].txtr.y * res->normal_map->height * u) / (float)(u + v + w));
-	if (y >= res->normal_map->height)
-		y = y % res->normal_map->height;
-	else if (y < 0)
-		y = -y % res->normal_map->height;
-	y = res->normal_map->height - y - 1;
-	if (x >= res->normal_map->width)
-		x = x % res->normal_map->width;
-	else if (x < 0)
-		x = -x % res->normal_map->width;
+	wrap_coords(&x, &y, res->normal_map->width, res->normal_map->height);
 	res->normal = get_normal(res->normal_map->image[x + (y * res->normal_map->width)]);
 }

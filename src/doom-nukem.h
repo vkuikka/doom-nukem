@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/21 17:26:09 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/31 00:40:58 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,8 @@
 # define WALKABLE_NORMAL_MIN_Y 0.75
 # define DOOR_ACTIVATION_DISTANCE 3.
 # define DOOR_LOCATION_INFO_COLOR 0x880088ff
+# define DOOR_ACTIVATION_LOCATION_INFO_COLOR 0xcc2288ff
+# define LIGHT_LOCATION_INFO_COLOR 0xffdd00ff
 
 # define ENEMY_MOVABLE_HEIGHT_DIFF 1
 # define MAX_PROJECTILE_TRAVEL 100
@@ -88,6 +90,9 @@
 # define UI_PADDING 2
 # define UI_PADDING_4 4
 # define UV_EDITOR_Y_OFFSET UI_ELEMENT_HEIGHT + UI_PADDING * 2
+# define UI_LEVEL_BAKED_COLOR 0x33aa33ff
+# define UI_LEVEL_BAKING_COLOR 0xccaa33ff
+# define UI_LEVEL_NOT_BAKED_COLOR 0xcc3333ff
 
 # define UV_PADDING 3
 
@@ -179,6 +184,13 @@ typedef struct			s_ivec2
 	int					x;
 	int					y;
 }						t_ivec2;
+
+typedef struct			s_color
+{
+	float				r;
+	float				g;
+	float				b;
+}						t_color;
 
 typedef struct			s_vec3
 {
@@ -301,6 +313,8 @@ typedef struct			s_door
 	int					*isquad;
 	t_vec3				**pos1;
 	t_vec3				**pos2;
+	int					is_activation_pos_active;
+	t_vec3				activation_pos;
 	float				transition_time;
 	unsigned			transition_start_time;
 	int					transition_direction;
@@ -322,8 +336,16 @@ typedef enum			e_mouse_location
 	MOUSE_LOCATION_GIZMO_Y,
 	MOUSE_LOCATION_GIZMO_Z,
 	MOUSE_LOCATION_MAIN_MENU,
+	MOUSE_LOCATION_LIGHT_EDITOR,
 	MOUSE_LOCATION_SELECTION
 }						t_mouse_location;
+
+typedef enum			e_bake
+{
+	BAKE_BAKED = 0,
+	BAKE_BAKING,
+	BAKE_NOT_BAKED,
+}						t_bake;
 
 typedef enum			e_game_state
 {
@@ -341,7 +363,9 @@ typedef enum			e_ui_location
 	UI_LOCATION_FILE_SAVE,
 	UI_LOCATION_UV_EDITOR,
 	UI_LOCATION_SETTINGS,
-	UI_LOCATION_DOOR_EDITOR
+	UI_LOCATION_DOOR_EDITOR,
+	UI_LOCATION_DOOR_ACTIVATION_BUTTON,
+	UI_LOCATION_LIGHT_EDITOR
 }						t_ui_location;
 
 struct					s_level;
@@ -368,6 +392,7 @@ typedef struct			s_ui_state
 	char				*save_filename;
 	int					text_input_enable;
 	int					ssp_visual;
+	struct s_vec3		gizmo_pos;
 
 	char				*directory;
 	char				*extension;
@@ -393,9 +418,9 @@ typedef struct			s_editor_ui
 	int					distance_culling;
 	float				render_distance;
 	float				fov;
+	int					raytracing;
 
-	float				sun_contrast;
-	float				direct_shadow_contrast;;
+	t_color				sun_color;
 	struct s_vec3		sun_dir;
 	float				horizontal_velocity;
 
@@ -406,6 +431,13 @@ typedef struct			s_editor_ui
 	unsigned			frametime;
 	struct s_ui_state	state;
 }						t_editor_ui;
+
+typedef struct			s_light
+{
+	t_vec3				pos;
+	t_color				color;
+	float				radius;
+}						t_light;
 
 typedef struct			s_player_pos
 {
@@ -422,12 +454,18 @@ typedef struct			s_level
 	struct s_obj		*ssp;		//screen space partition
 	struct s_bmp		texture;
 	struct s_bmp		normal_map;
+	struct s_bmp		spray;
+	t_color				*baked;
+	t_bake				bake_status;
+	float				bake_progress;
 	struct s_skybox		sky;
 	struct s_camera		cam;
 	struct s_editor_ui	ui;
 	struct s_all_doors	doors;
+	struct s_light		*lights;
+	int					light_amount;
+	int					selected_light_index;
 	struct s_enemy		player;
-	int					shadow_color;
 	int					player_health;
 	int					player_ammo;
 	struct s_player_pos	spawn_pos;
@@ -444,6 +482,8 @@ typedef struct			s_level
 	unsigned			reload_start_time;
 	int					viewmodel_index;
 	struct s_bmp		viewmodel[VIEWMODEL_FRAMES];
+	float				world_brightness;
+	float				skybox_brightness;
 	struct s_audio		audio;
 }						t_level;
 
@@ -495,13 +535,15 @@ typedef struct			s_cast_result
 	float				u;
 	float				v;
 	float				dist;
-	int					color;
+	int					raytracing;
+	unsigned			color;
 	int					face_index;
 	int					reflection_depth;
 	struct s_vec3		normal;
 	struct s_ray		ray;
 	struct s_bmp		*normal_map;
 	struct s_bmp		*texture;
+	t_color				*baked;
 }						t_cast_result;
 
 typedef struct			s_buffer
@@ -587,8 +629,9 @@ void		create_projectile(t_level *level, t_vec3 pos, t_vec3 dir, t_enemy *enemy);
 
 void		uv_editor(t_level *level, t_window *window);
 void		enable_uv_editor(t_level *level);
-void		obj_editor(t_level *level, t_window *window);
-void		obj_editor_input(t_level *level);
+void		gizmo_render(t_level *level, t_window *window);
+void		gizmo(t_level *level);
+void		obj_editor_input(t_level *level, t_vec3 move_amount);
 
 void		player_movement(t_level *level, t_game_state game_state);
 
@@ -596,14 +639,12 @@ void		enemies_update_physics(t_level *level);
 void		enemies_update_sprites(t_level *level);
 
 int			fog(int color, float dist, unsigned fog_color, t_level *level);
-int			skybox(t_bmp *img, t_obj *obj, t_ray r);
+int			skybox(t_level *l, t_obj *obj, t_ray r);
 
 void		opacity(t_cast_result *res, t_level *l, t_obj *obj, float opacity);
-void		shadow(t_level *l, t_vec3 normal, t_cast_result *res);
-
 void		reflection(t_cast_result *res, t_level *l, t_obj *obj);
-
 unsigned	wave_shader(t_vec3 mod, t_vec3 *normal, unsigned col1, unsigned col2);
+t_color		sunlight(t_level *l, t_cast_result *res, t_color light);
 
 void		select_face(t_camera *cam, t_level *level, int x, int y);
 void		deselect_all_faces(t_level *level);
@@ -637,6 +678,18 @@ void		set_door_pos_1(t_level *level);
 void		set_door_pos_2(t_level *level);
 void		enable_door_editor(t_level *level);
 void		find_selected_door_index(t_level *level);
+void		door_activation_move(t_level *level, t_vec3 move_amount);
+t_color		lights(t_level *l, t_cast_result *res, t_vec3 normal);
+unsigned	brightness(unsigned color1, t_color new);
 int			nothing_selected(t_level *level);
+void		light_put_text(t_window *window, t_level *level);
+void		enable_light_editor(t_level *level);
+void		add_light(t_level *level);
+void		move_light(t_level *level, t_vec3 move_amount);
+void		select_light(t_level *level, int x, int y);
+void		delete_light(t_level *level);
+void		set_fourth_vertex_uv(t_tri *a);
+void		start_bake(t_level *level);
+t_vec3		get_normal(int vec);
 
 #endif
