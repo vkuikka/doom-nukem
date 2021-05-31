@@ -33,6 +33,7 @@ void			init_level(t_level **res)
 	ft_bzero(level, sizeof(t_level));
 	level->player_health = PLAYER_HEALTH_MAX;
 	level->player_ammo = PLAYER_AMMO_MAX;
+	level->win_dist = INITIAL_LEVEL_WIN_DIST;
 	level->cam.pos.x = 0;
 	level->cam.pos.y = -5;
 	level->cam.pos.z = 0;
