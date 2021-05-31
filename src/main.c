@@ -37,6 +37,7 @@ void		render(t_window *window, t_level *level, t_game_state *game_state)
 		i = 0;
 		if (!(thread_data = (t_rthread**)malloc(sizeof(t_rthread*) * THREAD_AMOUNT)))
 			ft_error("memory allocation failed\n");
+		ft_memset(window->frame_buffer, 0, RES_X * RES_Y * 4);
 		while (i < THREAD_AMOUNT)
 		{
 			if (!(thread_data[i] = (t_rthread*)malloc(sizeof(t_rthread))))
@@ -44,7 +45,8 @@ void		render(t_window *window, t_level *level, t_game_state *game_state)
 			thread_data[i]->id = i;
 			thread_data[i]->level = level;
 			thread_data[i]->window = window;
-			threads[i] = SDL_CreateThread(raycast, "asd", (void*)thread_data[i]);
+			// threads[i] = SDL_CreateThread(raycast, "asd", (void*)thread_data[i]);
+			threads[i] = SDL_CreateThread(raster, "asd", (void*)thread_data[i]);
 			i++;
 		}
 		i = 0;

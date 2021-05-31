@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/31 00:40:58 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/06/01 02:06:40 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -570,6 +570,7 @@ void		init_screen_space_partition(t_level *level);
 int			get_ssp_index(int x, int y);
 int			get_ssp_coordinate(int coord, int horizontal);
 
+int			raster(void *data_pointer);
 int			raycast(void *t);
 float		cast_face(t_tri t, t_ray ray, t_cast_result *res);
 float		cast_all(t_ray vec, t_level *level, float *dist_u, float *dist_d, int *index);
@@ -684,5 +685,6 @@ void		delete_light(t_level *level);
 void		set_fourth_vertex_uv(t_tri *a);
 void		start_bake(t_level *level);
 t_vec3		get_normal(int vec);
+void		normalize_data(t_vec3 *uvw, t_tri tri);
 
 #endif
