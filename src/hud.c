@@ -12,7 +12,23 @@
 
 #include "doom-nukem.h"
 
-t_ivec2			put_text_hud_game_event(char *text, t_window *window, SDL_Texture *texture)
+unsigned		cycle_rgb(unsigned time)
+{
+	unsigned red;
+	unsigned grn;
+	unsigned blu;
+
+	red = 0xff * ((sin((time / (CYCLE_RGB_LOOP_FPS * 1000.0)) + (M_PI / 1.5 * 0)) + 1) / 2);
+	grn = 0xff * ((sin((time / (CYCLE_RGB_LOOP_FPS * 1000.0)) + (M_PI / 1.5 * 1)) + 1) / 2);
+	blu = 0xff * ((sin((time / (CYCLE_RGB_LOOP_FPS * 1000.0)) + (M_PI / 1.5 * 2)) + 1) / 2);
+
+	red = red << 8 * 3;
+	grn = grn << 8 * 2;
+	blu = blu << 8 * 1;
+	return (red + grn + blu + 0x70);
+}
+
+t_ivec2			put_text_hud_game_event(char *text, t_window *window, SDL_Texture *texture, unsigned color)
 {
 	static TTF_Font*	font = NULL;
 
@@ -25,7 +41,7 @@ t_ivec2			put_text_hud_game_event(char *text, t_window *window, SDL_Texture *tex
 			ft_error("font open fail");
 		}
 	}
-	SDL_Surface* surfaceMessage = TTF_RenderText_Blended(font, text, get_sdl_color(HUD_GAME_EVENT_TEXT_COLOR));
+	SDL_Surface* surfaceMessage = TTF_RenderText_Blended(font, text, get_sdl_color(color));
 	SDL_Texture* Message = SDL_CreateTextureFromSurface(window->SDLrenderer, surfaceMessage);
 	SDL_Rect text_rect;
 	text_rect.w = 0;
@@ -145,11 +161,11 @@ void		hud(t_level *level, t_window *window, t_game_state game_state)
 	if (game_state == GAME_STATE_DEAD)
 	{
 		death_overlay(pixels);
-		put_text_hud_game_event("DEAD", window, texture);
+		put_text_hud_game_event("DEAD", window, texture, HUD_GAME_EVENT_TEXT_COLOR);
 	}
 	else if (game_state == GAME_STATE_WIN)
 	{
-		put_text_hud_game_event("YOU WIN", window, texture);
+		put_text_hud_game_event("YOU WIN", window, texture, cycle_rgb(SDL_GetTicks()));
 	}
 	else
 	{
