@@ -293,6 +293,33 @@ void		game_logic(t_level *level, t_game_state *game_state)
 	}
 }
 
+void		update_screen_space_vertices(t_level *level)
+{
+	t_vec3 start;
+	t_vec3 stop;
+
+	for (int i = 0; i < level->visible.tri_amount; i++)
+	{
+		int amount = level->visible.tris[i].isquad ? 4 : 3;
+		for (int k = 0; k < amount; k++)
+		{
+			int		next;
+			if (amount == 4)
+				next = (int[4]){1, 3, 0, 2}[k];
+			else
+				next = (k + 1) % 3;
+			start = level->visible.tris[i].verts[k].pos;
+			stop = level->visible.tris[i].verts[next].pos;
+			camera_offset(&start, &level->cam);
+			camera_offset(&stop, &level->cam);
+			if (start.z < 0)
+				start = move2z(&stop, &start);
+			level->visible.tris[i].ss_verts[k].x = start.x;
+			level->visible.tris[i].ss_verts[k].y = start.y;
+		}
+	}
+}
+
 int			main(int argc, char **argv)
 {
 	t_window	*window;
@@ -335,6 +362,7 @@ int			main(int argc, char **argv)
 		enemies_update_sprites(level);
 		cull = SDL_GetTicks();
 		culling(level);
+		update_screen_space_vertices(level);
 		level->ui.cull = SDL_GetTicks() - cull;
 		ssp = SDL_GetTicks();
 		screen_space_partition(level);

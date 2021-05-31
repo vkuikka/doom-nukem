@@ -247,6 +247,7 @@ typedef struct			s_enemy
 
 typedef struct			s_tri
 {
+	struct s_vec2		ss_verts[4];
 	int					index;
 	struct s_vert		verts[4];	//vertex coordinates of 3d triangle
 	struct s_vec3		v0v1;		//vector between vertices 1 and 0
@@ -577,6 +578,7 @@ unsigned	crossfade(unsigned color1, unsigned color2, unsigned fade, unsigned alp
 void		face_color(float u, float v, t_tri t, t_cast_result *res);
 void		wireframe(t_window *window, t_level *level);
 void		camera_offset(t_vec3 *vertex, t_camera *cam);
+t_vec3		move2z(t_vec3 *p1, t_vec3 *p2);
 SDL_Color	get_sdl_color(unsigned color);
 
 void		load_obj(char *filename, t_obj *obj);
