@@ -83,16 +83,15 @@ int				raster(void *data_pointer)
 	t_tri			tri;
 	int				i;
 
-	i = t->id;
+	i = 0;
 	res.texture = &t->level->texture;
 	res.baked = NULL;
 	res.normal_map = NULL;
-
 	while (i < t->level->visible.tri_amount)
 	{
 		tri = t->level->visible.tris[i];
 		ss_minmax(&min, &max, tri);
-		screen.x = min.x;
+		screen.x = min.x + t->id;
 		while (screen.x < max.x)
 		{
 			screen.y = min.y;
@@ -112,9 +111,9 @@ int				raster(void *data_pointer)
 				}
 				screen.y++;
 			}
-			screen.x++;
+			screen.x += THREAD_AMOUNT;
 		}
-		i += THREAD_AMOUNT;
+		i += 1;
 	}
 	return (0);
 }
