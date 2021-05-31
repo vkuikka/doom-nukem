@@ -68,9 +68,10 @@ void			rot_cam(t_vec3 *cam, const float lon, const float lat)
 	cam->z = radius * sin(phi) * sin(theta);
 }
 
-static void		raytrace(t_cast_result *res, t_obj *obj, t_ray r, t_level *l)
+static void		raytrace(t_cast_result *res, t_vec3 face_normal, t_ray r, t_level *l)
 {
 	float		opacity_value;
+	t_color		light;
 
 	vec_normalize(&res->normal);
 	res->ray = r;
@@ -80,8 +81,11 @@ static void		raytrace(t_cast_result *res, t_obj *obj, t_ray r, t_level *l)
 		vec_add(&tmp, r.dir, r.pos);
 		res->color = wave_shader(tmp, &res->normal, 0x070C5A, 0x020540);
 	}
-	if (l->ui.sun_contrast || l->ui.direct_shadow_contrast)
-		shadow(l, res->normal, res);
+	if (!res->baked || res->raytracing)
+	{
+		light = sunlight(l, res, lights(l, res, face_normal));
+		res->color = brightness(res->color >> 8, light) + (res->color << 24 >> 24);
+	}
 	if (l->all.tris[res->face_index].reflectivity &&
 		res->reflection_depth < REFLECTION_DEPTH)
 	{
@@ -91,7 +95,7 @@ static void		raytrace(t_cast_result *res, t_obj *obj, t_ray r, t_level *l)
 		else
 			reflection(res, l, l->all.tris[res->face_index].reflection_obj_all);
 	}
-	opacity_value = 1.0 - ((unsigned)res->color << 24 >> 24) / (float)0xff;
+	opacity_value = 1.0 - (res->color << 24 >> 24) / (float)0xff;
 	if (!opacity_value)
 		opacity_value = l->all.tris[res->face_index].opacity;
 	if (opacity_value)
@@ -128,7 +132,7 @@ void			cast_all_color(t_ray r, t_level *l, t_obj *obj, t_cast_result *res)
 	}
 	res->dist = dist;
 	if (new_hit == -1)
-		res->color = skybox(&l->sky.img, res->reflection_depth ? &l->sky.all : &l->sky.visible, r);
+		res->color = skybox(l, res->reflection_depth ? &l->sky.all : &l->sky.visible, r);
 	else
 	{
 		res->u = u;
@@ -137,7 +141,7 @@ void			cast_all_color(t_ray r, t_level *l, t_obj *obj, t_cast_result *res)
 		face_color(res->u, res->v, obj->tris[new_hit], res);
 		vec_mult(&r.dir, dist);
 		vec_add(&r.pos, r.pos, r.dir);
-		raytrace(res, obj, r, l);
+		raytrace(res, obj->tris[new_hit].normal, r, l);
 	}
 }
 
@@ -177,8 +181,13 @@ int				raycast(void *data_pointer)
 				r.dir.z = cam->front.z + cam->up.z * ym + cam->side.z * xm;
 
 				t_cast_result	res;
+				res.raytracing = t->level->ui.raytracing;
 				res.normal_map = &t->level->normal_map;
 				res.texture = &t->level->texture;
+				if (t->level->bake_status != BAKE_NOT_BAKED)
+					res.baked = t->level->baked;
+				else
+					res.baked = NULL;
 				res.reflection_depth = 0;
 				res.face_index = -1;
 				cast_all_color(r, t->level, &t->level->ssp[get_ssp_index(x, y)], &res);
