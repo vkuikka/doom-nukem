@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/31 00:40:58 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/06/04 19:59:15 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -449,6 +449,7 @@ typedef struct			s_level
 	struct s_bmp		texture;
 	struct s_bmp		normal_map;
 	struct s_bmp		spray;
+	unsigned			*spray_overlay;
 	t_color				*baked;
 	t_bake				bake_status;
 	float				bake_progress;
@@ -535,6 +536,7 @@ typedef struct			s_cast_result
 	struct s_bmp		*normal_map;
 	struct s_bmp		*texture;
 	t_color				*baked;
+	unsigned			*spray_overlay;
 }						t_cast_result;
 
 typedef struct			s_buffer
@@ -560,6 +562,7 @@ float		vec2_length(t_vec2 vec);
 void		vec2_avg(t_vec2 *res, t_vec2 ve1, t_vec2 ve2);
 void		vec2_sub(t_vec2 *res, t_vec2 ve1, t_vec2 ve2);
 void		vec2_add(t_vec2 *res, t_vec2 ve1, t_vec2 ve2);
+void		vec2_mult(t_vec2 *res, float mult);
 
 void		init_window(t_window **window);
 void		init_level(t_level **level);
@@ -682,5 +685,7 @@ void		delete_light(t_level *level);
 void		set_fourth_vertex_uv(t_tri *a);
 void		start_bake(t_level *level);
 t_vec3		get_normal(int vec);
+
+void		spray(t_camera *cam, t_level *level);
 
 #endif

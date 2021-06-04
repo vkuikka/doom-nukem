@@ -184,6 +184,7 @@ int				raycast(void *data_pointer)
 				res.raytracing = t->level->ui.raytracing;
 				res.normal_map = &t->level->normal_map;
 				res.texture = &t->level->texture;
+				res.spray_overlay = t->level->spray_overlay;
 				if (t->level->bake_status != BAKE_NOT_BAKED)
 					res.baked = t->level->baked;
 				else

@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/05/30 19:46:35 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/06/04 16:31:07 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -173,6 +173,12 @@ void	set_skybox(t_level *level, char *filename)
 {
 	free(level->sky.img.image);
 	level->sky.img = bmp_read(filename);
+}
+
+void	set_spray(t_level *level, char *filename)
+{
+	free(level->spray.image);
+	level->spray = bmp_read(filename);
 }
 
 void	set_spawn_pos(t_level *level)
@@ -471,6 +477,7 @@ void	ui_config(t_level *level)
 	}
 	if (level->ui.state.ui_location == UI_LOCATION_SETTINGS)
 	{
+		file_browser("select spray", ".bmp", &set_spray);
 		sprintf(buf, "render scale: %d (%.0f%%)", ui->raycast_quality, 100.0 / (float)ui->raycast_quality);
 		int_slider(&ui->raycast_quality, buf, 1, 20);
 		sprintf(buf, "fov: %d", (int)((float)(ui->fov + 0.01) * (180.0 / M_PI)));
