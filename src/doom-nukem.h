@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   doom-nukem.h                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: alcohen <alcohen@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/31 00:40:58 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/06/09 23:23:28 by alcohen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,7 +138,9 @@ typedef struct			s_audio
 	Mix_Music			*music;
 	Mix_Chunk			*gunshot;
 	Mix_Chunk			*jump;
+	int					played_jump_sound;
 	Mix_Chunk			*reload;
+	int					played_reload_sound;
 	Mix_Chunk			*death;
 	Mix_Chunk			*door;
 }						t_audio;
@@ -682,5 +684,8 @@ void		delete_light(t_level *level);
 void		set_fourth_vertex_uv(t_tri *a);
 void		start_bake(t_level *level);
 t_vec3		get_normal(int vec);
+
+void        handle_audio(t_level *level, t_game_state *game_state);
+int			is_player_in_air(t_level *level, float height);
 
 #endif
