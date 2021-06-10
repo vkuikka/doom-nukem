@@ -6,30 +6,31 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/01 18:48:35 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/06/10 20:03:25 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/06/10 20:40:26 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom-nukem.h"
 
-void		draw_line(t_level *l, t_vec2 l1, t_vec2 l2, float y_percent)
+static void		draw_line(t_level *l, t_vec2 line[2], t_tri *tri, float y_percent)
 {
 	t_vec2	increment;
 	t_vec2	texture;
+	int		spray_coord;
 	int		steps;
 	int		i;
 
 	i = 0;
-	texture.x = l1.x;
-	texture.y = l1.y;
+	texture.x = line[0].x;
+	texture.y = line[0].y;
 	if (texture.x < 0 || texture.y < 0)
 		return;
-	steps = ft_abs(l2.x - l1.x) > ft_abs(l2.y - l1.y) ?
-			ft_abs(l2.x - l1.x) : ft_abs(l2.y - l1.y);
+	steps = ft_abs(line[1].x - line[0].x) > ft_abs(line[1].y - line[0].y) ?
+			ft_abs(line[1].x - line[0].x) : ft_abs(line[1].y - line[0].y);
 	if (!steps)
 		return ;
-	increment.x = (l2.x - l1.x) / (float)steps;
-	increment.y = (l2.y - l1.y) / (float)steps;
+	increment.x = (line[1].x - line[0].x) / (float)steps;
+	increment.y = (line[1].y - line[0].y) / (float)steps;
 
 	increment.x /= SPRAY_LINE_PRECISION;
 	increment.y /= SPRAY_LINE_PRECISION;
@@ -39,10 +40,16 @@ void		draw_line(t_level *l, t_vec2 l1, t_vec2 l2, float y_percent)
 		int		texture_coord = (int)texture.x + (int)texture.y * l->texture.width;
 		if (texture_coord < l->texture.width * l->texture.height && texture_coord >= 0)
 		{
-			float	x_percent = (float)i / steps;
-			int		spray_coord = (int)(l->spray.width * x_percent) + (int)(l->spray.height * y_percent) * l->spray.width;
+			spray_coord = (int)(l->spray.width * (float)i / steps) + (int)(l->spray.height * y_percent) * l->spray.width;
 			if (spray_coord < l->spray.width * l->spray.height && spray_coord >= 0)
-				l->spray_overlay[texture_coord] = l->spray.image[spray_coord];
+			{
+				t_vec2 point;
+				point.x = texture.x / l->texture.width;
+				point.y = 1 - texture.y / l->texture.height;
+				if (point_in_tri(point, tri->verts[0].txtr, tri->verts[1].txtr, tri->verts[2].txtr) ||
+					point_in_tri(point, tri->verts[3].txtr, tri->verts[1].txtr, tri->verts[2].txtr))
+					l->spray_overlay[texture_coord] = l->spray.image[spray_coord];
+			}
 		}
 		texture.x += increment.x;
 		texture.y += increment.y;
@@ -50,10 +57,9 @@ void		draw_line(t_level *l, t_vec2 l1, t_vec2 l2, float y_percent)
 	}
 }
 
-void		draw_square(t_level *l, t_vec2 square[4])
+static void		draw_square(t_level *l, t_vec2 square[4], t_tri *tri)
 {
-	t_vec2	l1;
-	t_vec2	l2;
+	t_vec2	line[2];
 	int		left_steps;
 	int		right_steps;
 	int		steps;
@@ -73,13 +79,13 @@ void		draw_square(t_level *l, t_vec2 square[4])
 	steps *= SPRAY_LINE_PRECISION;
 	while (i <= steps && i < 99999)
 	{
-		l1 = square[1];
-		l2 = square[3];
-		vec2_mult(&l1, -(float)i / steps);
-		vec2_mult(&l2, -(float)i / steps);
-		vec2_add(&l1, square[0], l1);
-		vec2_add(&l2, square[2], l2);
-		draw_line(l, l1, l2, (float)i / steps);
+		line[0] = square[1];
+		line[1] = square[3];
+		vec2_mult(&line[0], -(float)i / steps);
+		vec2_mult(&line[1], -(float)i / steps);
+		vec2_add(&line[0], square[0], line[0]);
+		vec2_add(&line[1], square[2], line[1]);
+		draw_line(l, line, tri, (float)i / steps);
 		i++;
 	}
 }
@@ -221,7 +227,7 @@ void		spray(t_camera *cam, t_level *level)
 	}
 	vec2_sub(&corner[1], corner[0], corner[1]);
 	vec2_sub(&corner[3], corner[2], corner[3]);
-	draw_square(level, corner);
+	draw_square(level, corner, &level->all.tris[hit]);
 
 	// float fov_x = level->ui.fov * ((float)RES_X / RES_Y);
 	// for (int x = 0; x < RES_X; x++)
