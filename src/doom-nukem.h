@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/06/04 19:59:15 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/06/10 18:53:03 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,7 @@
 
 # define ENEMY_MOVABLE_HEIGHT_DIFF 1
 # define MAX_PROJECTILE_TRAVEL 100
+# define SPRAY_LINE_PRECISION 4
 
 # define TRUE 1
 # define FALSE 0
