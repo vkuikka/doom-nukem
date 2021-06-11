@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/01 18:48:35 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/06/10 20:40:26 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/06/12 00:18:01 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,31 +17,26 @@ static void		draw_line(t_level *l, t_vec2 line[2], t_tri *tri, float y_percent)
 	t_vec2	increment;
 	t_vec2	texture;
 	int		spray_coord;
+	int		texture_coord;
 	int		steps;
 	int		i;
 
 	i = 0;
 	texture.x = line[0].x;
 	texture.y = line[0].y;
-	if (texture.x < 0 || texture.y < 0)
-		return;
-	steps = ft_abs(line[1].x - line[0].x) > ft_abs(line[1].y - line[0].y) ?
-			ft_abs(line[1].x - line[0].x) : ft_abs(line[1].y - line[0].y);
+	steps = fmax(ft_abs(line[1].x - line[0].x), ft_abs(line[1].y - line[0].y)) * SPRAY_LINE_PRECISION;
 	if (!steps)
 		return ;
 	increment.x = (line[1].x - line[0].x) / (float)steps;
 	increment.y = (line[1].y - line[0].y) / (float)steps;
-
-	increment.x /= SPRAY_LINE_PRECISION;
-	increment.y /= SPRAY_LINE_PRECISION;
-	steps *= SPRAY_LINE_PRECISION;
 	while (i <= steps && i < 99999)
 	{
-		int		texture_coord = (int)texture.x + (int)texture.y * l->texture.width;
+		texture_coord = (int)texture.x + (int)texture.y * l->texture.width;
 		if (texture_coord < l->texture.width * l->texture.height && texture_coord >= 0)
 		{
 			spray_coord = (int)(l->spray.width * (float)i / steps) + (int)(l->spray.height * y_percent) * l->spray.width;
-			if (spray_coord < l->spray.width * l->spray.height && spray_coord >= 0)
+			if (spray_coord < l->spray.width * l->spray.height && spray_coord >= 0 &&
+				l->spray.image[spray_coord] << 8 * 3 && l->texture.image[texture_coord] << 8 * 3)
 			{
 				t_vec2 point;
 				point.x = texture.x / l->texture.width;
