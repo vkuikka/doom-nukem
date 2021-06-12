@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/01 18:48:35 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/06/12 17:08:13 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/06/12 18:18:50 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,19 +31,23 @@ static void		draw_line(t_level *l, t_vec2 line[2], t_tri *tri, float y_percent)
 	increment.y = (line[1].y - line[0].y) / (float)steps;
 	while (i <= steps && i < 99999)
 	{
-		texture_coord = (int)texture.x + (int)texture.y * l->texture.width;
-		if (texture_coord < l->texture.width * l->texture.height && texture_coord >= 0)
+		if (texture.x < l->texture.width && texture.x > 0 &&
+			texture.y < l->texture.height && texture.y > 0)
 		{
-			spray_coord = (int)(l->spray.width * (float)i / steps) + (int)(l->spray.height * y_percent) * l->spray.width;
-			if (spray_coord < l->spray.width * l->spray.height && spray_coord >= 0 &&
-				l->spray.image[spray_coord] << 8 * 3 && l->texture.image[texture_coord] << 8 * 3)
+			texture_coord = (int)texture.x + (int)texture.y * l->texture.width;
+			if (texture_coord < l->texture.width * l->texture.height && texture_coord >= 0)
 			{
-				t_vec2 point;
-				point.x = texture.x / l->texture.width;
-				point.y = 1 - texture.y / l->texture.height;
-				if (point_in_tri(point, tri->verts[0].txtr, tri->verts[1].txtr, tri->verts[2].txtr) ||
-					point_in_tri(point, tri->verts[3].txtr, tri->verts[1].txtr, tri->verts[2].txtr))
-					l->spray_overlay[texture_coord] = l->spray.image[spray_coord];
+				spray_coord = (int)(l->spray.width * (float)i / steps) + (int)(l->spray.height * y_percent) * l->spray.width;
+				if (spray_coord < l->spray.width * l->spray.height && spray_coord >= 0 &&
+					l->spray.image[spray_coord] << 8 * 3 && l->texture.image[texture_coord] << 8 * 3)
+				{
+					t_vec2 point;
+					point.x = texture.x / l->texture.width;
+					point.y = 1 - texture.y / l->texture.height;
+					if (point_in_tri(point, tri->verts[0].txtr, tri->verts[1].txtr, tri->verts[2].txtr) ||
+						point_in_tri(point, tri->verts[3].txtr, tri->verts[1].txtr, tri->verts[2].txtr))
+						l->spray_overlay[texture_coord] = l->spray.image[spray_coord];
+				}
 			}
 		}
 		texture.x += increment.x;
@@ -107,7 +111,7 @@ t_vec2		uv_to_2d(t_tri tri, t_bmp *txtr, t_vec2 uv, int isquad)
 	return (res);
 }
 
-static void		cast_uv(t_tri t, t_ray ray, t_vec2 *uv)
+static int		cast_uv(t_tri t, t_ray ray, t_vec2 *uv)
 {
 	t_vec3	pvec;
 	vec_cross(&pvec, ray.dir, t.v0v2);
@@ -121,8 +125,12 @@ static void		cast_uv(t_tri t, t_ray ray, t_vec2 *uv)
 	vec_cross(&qvec, tvec, t.v0v1);
 	float v = vec_dot(ray.dir, qvec) * invdet;
 
+	float dist = vec_dot(qvec, t.v0v2) * invdet;
+	if (dist > SPRAY_MAX_DIST || dist < 0)
+		return (0);
 	uv->x = u;
 	uv->y = v;
+	return (1);
 }
 
 static int		raycast_face_pos(t_ray *r, t_level *l, t_obj *object, t_camera *cam)
@@ -157,7 +165,7 @@ t_vec2		corner_cam_diff(int corner, t_camera *cam)
 	int		diff;
 	t_vec2	cam_diff;
 
-	diff = fmin(RES_Y, RES_X) * SPRAY_FROM_VIEW_SIZE;
+	diff = fmin(RES_Y, RES_X) * (SPRAY_FROM_VIEW_SIZE / 2);
 	if (corner == 0)
 	{
 		cam_diff.y = cam->fov_y / RES_Y * (RES_Y / 2 - diff) - cam->fov_y / 2;
@@ -235,7 +243,8 @@ void		spray(t_camera cam, t_level *level)
 		r.dir.x += cam.up.x * cam_diff.y + cam.side.x * cam_diff.x;
 		r.dir.y += cam.up.y * cam_diff.y + cam.side.y * cam_diff.x;
 		r.dir.z += cam.up.z * cam_diff.y + cam.side.z * cam_diff.x;
-		cast_uv(level->all.tris[hit], r, &uv);
+		if (!cast_uv(level->all.tris[hit], r, &uv))
+			return;
 		uv = uv_to_2d(level->all.tris[hit], &level->texture, uv, 0);
 		corner[i].x = uv.x;
 		corner[i].y = 1.0 - uv.y;
