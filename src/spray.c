@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/01 18:48:35 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/06/12 18:18:50 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/06/12 19:02:44 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,7 @@ static void		draw_line(t_level *l, t_vec2 line[2], t_tri *tri, float y_percent)
 					t_vec2 point;
 					point.x = texture.x / l->texture.width;
 					point.y = 1 - texture.y / l->texture.height;
+					l->spray.image[spray_coord] = (l->spray.image[spray_coord] >> 8 << 8) + 0xff;
 					if (point_in_tri(point, tri->verts[0].txtr, tri->verts[1].txtr, tri->verts[2].txtr) ||
 						point_in_tri(point, tri->verts[3].txtr, tri->verts[1].txtr, tri->verts[2].txtr))
 						l->spray_overlay[texture_coord] = l->spray.image[spray_coord];
