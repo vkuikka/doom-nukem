@@ -175,6 +175,11 @@ void	set_skybox(t_level *level, char *filename)
 	level->sky.img = bmp_read(filename);
 }
 
+void	set_win_pos(t_level *level)
+{
+	level->win_pos = level->cam.pos;
+}
+
 void	set_spawn_pos(t_level *level)
 {
 	level->spawn_pos.pos = level->cam.pos;
@@ -510,6 +515,9 @@ void	ui_config(t_level *level)
 		file_browser("select texture", ".bmp", &set_texture);
 		file_browser("select skybox", ".bmp", &set_skybox);
 		call("add face", &add_face, level);
+		call("set win position", &set_win_pos, level);
+		sprintf(buf, "win distance: %.2fm", level->win_dist);
+		float_slider(&level->win_dist, buf, 1, 40);
 		set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
 		call("set spawn position", &set_spawn_pos, level);
 		call("set menu position 1", &set_menu_pos_1, level);

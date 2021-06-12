@@ -12,6 +12,54 @@
 
 #include "doom-nukem.h"
 
+unsigned		cycle_rgb(unsigned time)
+{
+	unsigned red;
+	unsigned grn;
+	unsigned blu;
+
+	red = 0xff * ((sin((time / (CYCLE_RGB_LOOP_FPS * 1000.0)) + (M_PI / 1.5 * 0)) + 1) / 2);
+	grn = 0xff * ((sin((time / (CYCLE_RGB_LOOP_FPS * 1000.0)) + (M_PI / 1.5 * 1)) + 1) / 2);
+	blu = 0xff * ((sin((time / (CYCLE_RGB_LOOP_FPS * 1000.0)) + (M_PI / 1.5 * 2)) + 1) / 2);
+
+	red = red << 8 * 3;
+	grn = grn << 8 * 2;
+	blu = blu << 8 * 1;
+	return (red + grn + blu + 0x70);
+}
+
+t_ivec2			put_text_hud_game_event(char *text, t_window *window, SDL_Texture *texture, unsigned color)
+{
+	static TTF_Font*	font = NULL;
+
+	if (!font)
+	{
+		font = TTF_OpenFont("embed/Roboto-Medium.ttf", HUD_GAME_EVENT_FONT_SIZE);
+		if (!font)
+		{
+			printf("TTF_OpenFont: %s\n", TTF_GetError());
+			ft_error("font open fail");
+		}
+	}
+	SDL_Surface* surfaceMessage = TTF_RenderText_Blended(font, text, get_sdl_color(color));
+	SDL_Texture* Message = SDL_CreateTextureFromSurface(window->SDLrenderer, surfaceMessage);
+	SDL_Rect text_rect;
+	text_rect.w = 0;
+	text_rect.h = 0;
+	TTF_SizeText(font, text, &text_rect.w, &text_rect.h);
+	text_rect.x = RES_X / 2 - (text_rect.w / 2);
+	text_rect.y = RES_Y / 3 - (text_rect.h / 2);
+	SDL_SetRenderTarget(window->SDLrenderer, texture);
+	SDL_RenderCopy(window->SDLrenderer, Message, NULL, &text_rect);
+	SDL_SetRenderTarget(window->SDLrenderer, NULL);
+	SDL_FreeSurface(surfaceMessage);
+	SDL_DestroyTexture(Message);
+	t_ivec2 size;
+	size.x = text_rect.w;
+	size.y = text_rect.h;
+	return (size);
+}
+
 t_ivec2			put_text_hud(char *text, t_window *window, SDL_Texture *texture, t_ivec2 pos)
 {
 	static TTF_Font*	font = NULL;
@@ -111,7 +159,14 @@ void		hud(t_level *level, t_window *window, t_game_state game_state)
 	ft_memset(pixels, 0, RES_X * RES_Y * 4);
 	viewmodel(pixels, level->viewmodel[level->viewmodel_index]);
 	if (game_state == GAME_STATE_DEAD)
+	{
 		death_overlay(pixels);
+		put_text_hud_game_event("DEAD", window, texture, HUD_GAME_EVENT_TEXT_COLOR);
+	}
+	else if (game_state == GAME_STATE_WIN)
+	{
+		put_text_hud_game_event("YOU WIN", window, texture, cycle_rgb(SDL_GetTicks()));
+	}
 	else
 	{
 		crosshair(pixels);
