@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/06/10 18:53:03 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/06/12 16:54:09 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@
 # define ENEMY_MOVABLE_HEIGHT_DIFF 1
 # define MAX_PROJECTILE_TRAVEL 100
 # define SPRAY_LINE_PRECISION 4
+# define SPRAY_FROM_VIEW_SIZE 0.25
 
 # define TRUE 1
 # define FALSE 0
@@ -414,6 +415,8 @@ typedef struct			s_editor_ui
 	float				render_distance;
 	float				fov;
 	int					raytracing;
+	int					spray_from_view;
+	float				spray_size;
 
 	t_color				sun_color;
 	struct s_vec3		sun_dir;
@@ -687,6 +690,6 @@ void		set_fourth_vertex_uv(t_tri *a);
 void		start_bake(t_level *level);
 t_vec3		get_normal(int vec);
 
-void		spray(t_camera *cam, t_level *level);
+void		spray(t_camera cam, t_level *level);
 
 #endif

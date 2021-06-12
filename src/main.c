@@ -220,7 +220,7 @@ static void		keyboard_input(t_window *window, t_level *level, SDL_Event event, t
 		level->reload_start_time = SDL_GetTicks();
 	}
 	else if (event.key.keysym.scancode == SDL_SCANCODE_T)
-		spray(&level->cam, level);
+		spray(level->cam, level);
 	else if (event.key.keysym.scancode == SDL_SCANCODE_Y)
 		ft_bzero(level->spray_overlay, level->texture.width * level->texture.height * 4);
 }

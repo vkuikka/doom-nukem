@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/01 18:48:35 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/06/12 00:18:01 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/06/12 17:08:13 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,7 +125,7 @@ static void		cast_uv(t_tri t, t_ray ray, t_vec2 *uv)
 	uv->y = v;
 }
 
-static int		raycast_face_pos(t_ray r, t_level *l, t_obj *object, t_vec2 *uv)
+static int		raycast_face_pos(t_ray *r, t_level *l, t_obj *object, t_camera *cam)
 {
 	t_cast_result	res;
 	float			dist;
@@ -138,11 +138,9 @@ static int		raycast_face_pos(t_ray r, t_level *l, t_obj *object, t_vec2 *uv)
 	new_hit = -1;
 	while (i < object->tri_amount)
 	{
-		tmp = cast_face(object->tris[i], r, &res);
+		tmp = cast_face(object->tris[i], *r, &res);
 		if (tmp > 0 && tmp < dist)
 		{
-			uv->x = res.u;
-			uv->y = res.v;
 			dist = tmp;
 			new_hit = object->tris[i].index;
 		}
@@ -150,15 +148,16 @@ static int		raycast_face_pos(t_ray r, t_level *l, t_obj *object, t_vec2 *uv)
 	}
 	if (new_hit == -1)
 		return (-1);
-	*uv = uv_to_2d(l->all.tris[new_hit], &l->texture, *uv, 0);
+	vec_mult(&r->dir, dist);
 	return (new_hit);
 }
 
 t_vec2		corner_cam_diff(int corner, t_camera *cam)
 {
-	int		diff = RES_Y / 2 / 2;
+	int		diff;
 	t_vec2	cam_diff;
 
+	diff = fmin(RES_Y, RES_X) * SPRAY_FROM_VIEW_SIZE;
 	if (corner == 0)
 	{
 		cam_diff.y = cam->fov_y / RES_Y * (RES_Y / 2 - diff) - cam->fov_y / 2;
@@ -182,7 +181,26 @@ t_vec2		corner_cam_diff(int corner, t_camera *cam)
 	return (cam_diff);
 }
 
-void		spray(t_camera *cam, t_level *level)
+void		move_cam(t_level *l, t_camera *cam, int hit, t_ray r)
+{
+	t_vec3	tmp;
+
+	vec_add(&cam->pos, r.pos, r.dir);
+	tmp = l->all.tris[hit].normal;
+	vec_mult(&tmp, l->ui.spray_size);
+	vec_add(&cam->pos, cam->pos, tmp);
+	cam->front = l->all.tris[hit].normal;
+	vec_mult(&cam->front, -1);
+	tmp.x = 0;
+	tmp.y = -1;
+	tmp.z = 0;
+	vec_cross(&cam->side, cam->front, tmp);
+	vec_normalize(&cam->side);
+	vec_cross(&cam->up, cam->front, cam->side);
+	vec_normalize(&cam->up);
+}
+
+void		spray(t_camera cam, t_level *level)
 {
 	t_vec3	point;
 	t_vec2	uv;
@@ -192,27 +210,31 @@ void		spray(t_camera *cam, t_level *level)
 	t_vec2	cam_diff;
 	int		hit;
 
-	r.dir = cam->front;
-	r.pos = cam->pos;
-	cam_diff.y = cam->fov_y / RES_Y * (RES_Y / 2) - cam->fov_y / 2;
-	cam_diff.x = cam->fov_x / RES_X * (RES_X / 2) - cam->fov_x / 2;
-	r.dir.x += cam->up.x * cam_diff.y + cam->side.x * cam_diff.x;
-	r.dir.y += cam->up.y * cam_diff.y + cam->side.y * cam_diff.x;
-	r.dir.z += cam->up.z * cam_diff.y + cam->side.z * cam_diff.x;
-	hit = raycast_face_pos(r, level, &level->all, &uv);
-	if (hit == -1)
+	r.dir = cam.front;
+	r.pos = cam.pos;
+	if (!level->ui.spray_from_view)
 	{
-		printf("miss\n");
-		return;
+		cam.fov_y = M_PI / 2;
+		cam.fov_x = M_PI / 2 * ((float)RES_X / RES_Y);
 	}
+	cam_diff.y = cam.fov_y / RES_Y * (RES_Y / 2) - cam.fov_y / 2;
+	cam_diff.x = cam.fov_x / RES_X * (RES_X / 2) - cam.fov_x / 2;
+	r.dir.x += cam.up.x * cam_diff.y + cam.side.x * cam_diff.x;
+	r.dir.y += cam.up.y * cam_diff.y + cam.side.y * cam_diff.x;
+	r.dir.z += cam.up.z * cam_diff.y + cam.side.z * cam_diff.x;
+	hit = raycast_face_pos(&r, level, &level->all, &cam);
+	if (hit == -1)
+		return;
+	if (!level->ui.spray_from_view)
+		move_cam(level, &cam, hit, r);
 	for (int i = 0; i < 4; i++)
 	{
-		r.dir = cam->front;
-		r.pos = cam->pos;
-		cam_diff = corner_cam_diff(i, &level->cam);
-		r.dir.x += cam->up.x * cam_diff.y + cam->side.x * cam_diff.x;
-		r.dir.y += cam->up.y * cam_diff.y + cam->side.y * cam_diff.x;
-		r.dir.z += cam->up.z * cam_diff.y + cam->side.z * cam_diff.x;
+		r.dir = cam.front;
+		r.pos = cam.pos;
+		cam_diff = corner_cam_diff(i, &cam);
+		r.dir.x += cam.up.x * cam_diff.y + cam.side.x * cam_diff.x;
+		r.dir.y += cam.up.y * cam_diff.y + cam.side.y * cam_diff.x;
+		r.dir.z += cam.up.z * cam_diff.y + cam.side.z * cam_diff.x;
 		cast_uv(level->all.tris[hit], r, &uv);
 		uv = uv_to_2d(level->all.tris[hit], &level->texture, uv, 0);
 		corner[i].x = uv.x;
@@ -223,34 +245,4 @@ void		spray(t_camera *cam, t_level *level)
 	vec2_sub(&corner[1], corner[0], corner[1]);
 	vec2_sub(&corner[3], corner[2], corner[3]);
 	draw_square(level, corner, &level->all.tris[hit]);
-
-	// float fov_x = level->ui.fov * ((float)RES_X / RES_Y);
-	// for (int x = 0; x < RES_X; x++)
-	// {
-	// 	for (int y = 0; y < RES_Y; y++)
-	// 	{
-	// 		float ym = level->ui.fov / RES_Y * y - level->ui.fov / 2;
-	// 		float xm = fov_x / RES_X * x - fov_x / 2;
-
-	// 		r.dir.x = cam->front.x + cam->up.x * ym + cam->side.x * xm;
-	// 		r.dir.y = cam->front.y + cam->up.y * ym + cam->side.y * xm;
-	// 		r.dir.z = cam->front.z + cam->up.z * ym + cam->side.z * xm;
-	// 		// printf("%d %d\n", x, y);
-	// 		hit = raycast_face_pos(r, level, &level->ssp[get_ssp_index(x, y)], &uv, x == RES_X/2 && y == RES_Y/2);
-	// 		if (hit != -1)
-	// 		{
-	// 			pos.x = uv.x;
-	// 			pos.y = 1 - uv.y;
-	// 			// printf("%f %f -> ", pos.x, pos.y);
-	// 			pos.x *= level->texture.width;
-	// 			pos.y *= level->texture.height;
-	// 			if ((int)pos.x < level->texture.width && (int)pos.y < level->texture.height)
-	// 			{
-	// 				// level->texture.image[(int)pos.x + (int)pos.y * level->texture.width] = 0xff0000ff;
-	// 				level->spray_overlay[(int)pos.x + (int)pos.y * level->texture.width] = 0xff0000ff;
-	// 			}
-	// 		}
-	// 	}
-	// }
-
 }
