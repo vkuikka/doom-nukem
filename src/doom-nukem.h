@@ -61,12 +61,17 @@
 
 # define HUD_TEXT_COLOR 0xff6666bb
 # define HUD_FONT_SIZE 42
+# define HUD_GAME_EVENT_FONT_SIZE 130
+# define HUD_GAME_EVENT_TEXT_COLOR 0xffffffff
+# define CYCLE_RGB_LOOP_FPS 0.4
 # define MAIN_MENU_FONT_SIZE 30
 # define MAIN_MENU_BUTTON_AMOUNT 4
 # define MAIN_MENU_FONT_BACKGROUND_COLOR 0xffffff55
 # define MAIN_MENU_FONT_COLOR 0x000000ff
 # define MAIN_MENU_FONT_PADDING_MULTIPLIER 1.5
 # define CROSSHAIR_COLOR 0xff0000ff
+# define INITIAL_LEVEL_WIN_DIST 3
+# define WIN_LENGTH_SEC 15
 # define PLAYER_HEALTH_MAX 100
 # define PLAYER_AMMO_MAX 30
 # define DEATH_LENGTH_SEC 5
@@ -350,7 +355,8 @@ typedef enum			e_game_state
 	GAME_STATE_MAIN_MENU = 0,
 	GAME_STATE_EDITOR,
 	GAME_STATE_INGAME,
-	GAME_STATE_DEAD
+	GAME_STATE_DEAD,
+	GAME_STATE_WIN
 }						t_game_state;
 
 typedef enum			e_ui_location
@@ -472,6 +478,9 @@ typedef struct			s_level
 	struct s_bmp		main_menu_title;
 	struct s_player_pos	main_menu_pos1;
 	struct s_player_pos	main_menu_pos2;
+	struct s_vec3		win_pos;
+	float				win_dist;
+	unsigned			win_start_time;
 	unsigned			main_menu_anim_time;
 	unsigned			main_menu_anim_start_time;
 	unsigned			death_start_time;
