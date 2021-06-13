@@ -79,9 +79,15 @@ static void		raytrace(t_cast_result *res, t_vec3 face_normal, t_ray r, t_level *
 	{
 		t_vec3 tmp;
 		vec_add(&tmp, r.dir, r.pos);
-		res->color = wave_shader(tmp, &res->normal, 0x070C5A, 0x020540);
+		res->color = shader_wave(tmp, &res->normal, 0x070C5A, 0x020540);
 	}
-	if (!res->baked || res->raytracing)
+	if (l->all.tris[res->face_index].shader == 2)
+	{
+		t_vec3 tmp;
+		vec_add(&tmp, r.dir, r.pos);
+		res->color = shader_rule30(tmp);
+	}
+	else if (!res->baked || res->raytracing)
 	{
 		light = sunlight(l, res, lights(l, res, face_normal));
 		res->color = brightness(res->color >> 8, light) + (res->color << 24 >> 24);

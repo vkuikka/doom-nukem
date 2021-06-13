@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/06/12 17:15:15 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/06/13 12:40:26 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,7 +112,7 @@ void	ui_config_selected_faces(t_level *level)
 				if (button(&level->all.tris[i].isquad, "quad"))
 					set_fourth_vertex(&level->all.tris[i]);
 				button(&level->all.tris[i].isgrid, "grid");
-				button(&level->all.tris[i].shader, "water");
+				int_slider(&level->all.tris[i].shader, "shader", 0, 2);
 				button(&level->all.tris[i].isenemy, "enemy");
 				if (level->all.tris[i].isenemy)
 				{
