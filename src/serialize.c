@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/06 14:13:02 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/05/30 19:53:40 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/06/12 19:23:20 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -451,6 +451,13 @@ void	deserialize_level(t_level *level, t_buffer *buf)
 	free(level->sky.img.image);
 	deserialize_bmp(&level->sky.img, buf);
 
+	free(level->spray.image);
+	deserialize_bmp(&level->spray, buf);
+	if (!(level->spray_overlay = (unsigned*)malloc(sizeof(unsigned) * level->texture.width * level->texture.height)))
+		ft_error("failed to allocate memory for file");
+	for (int y = 0; y < level->texture.height; y++)
+		for (int x = 0; x < level->texture.width; x++)
+			deserialize_int((int*)&level->spray_overlay[level->texture.width * y + x], buf);
 	free_culling(level);
 	free(level->all.tris);
 	free(level->visible.tris);
@@ -477,6 +484,10 @@ void	serialize_level(t_level *level, t_buffer *buf)
 	serialize_bmp(&level->texture, buf);
 	serialize_bmp(&level->normal_map, buf);
 	serialize_bmp(&level->sky.img, buf);
+	serialize_bmp(&level->spray, buf);
+	for (int y = 0; y < level->texture.height; y++)
+		for (int x = 0; x < level->texture.width; x++)
+			serialize_int(level->spray_overlay[level->texture.width * y + x], buf);
 	serialize_obj(&level->all, buf);
 	serialize_doors(level, buf);
 	serialize_lights(level, buf);

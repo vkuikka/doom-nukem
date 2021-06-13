@@ -221,6 +221,10 @@ static void		keyboard_input(t_window *window, t_level *level, SDL_Event event, t
 		Mix_PlayChannel(AUDIO_RELOAD_CHANNEL, level->audio.reload, 0);
 		level->reload_start_time = SDL_GetTicks();
 	}
+	else if (event.key.keysym.scancode == SDL_SCANCODE_T)
+		spray(level->cam, level);
+	else if (event.key.keysym.scancode == SDL_SCANCODE_Y)
+		ft_bzero(level->spray_overlay, level->texture.width * level->texture.height * 4);
 }
 
 static void		read_input(t_window *window, t_level *level, t_game_state *game_state)

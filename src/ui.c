@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/06 08:50:56 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/05/30 19:56:57 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/06/12 16:49:03 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -600,6 +600,9 @@ void	init_ui(t_window *window, t_level *level)
 	ui->sun_dir.y = -1;
 	ui->sun_dir.z = 1;
 	vec_normalize(&ui->sun_dir);
+
+	ui->spray_from_view = 1;
+	ui->spray_size = 3;
 
 	init_ui_state(level);
 	TTF_Init();
