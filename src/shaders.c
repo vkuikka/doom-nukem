@@ -18,11 +18,16 @@ void		opacity(t_cast_result *res, t_level *l, t_obj *obj, float opacity)
 	t_ray			normal;
 
 	transparent = *res;
-	normal.pos = res->ray.pos;
-	normal.dir = res->normal;
-	vec_mult(&normal.dir, vec_dot(transparent.ray.dir, normal.dir) * l->all.tris[res->face_index].refractivity);
-	vec_add(&transparent.ray.dir, transparent.ray.dir, normal.dir);
-	cast_all_color(transparent.ray, l, obj, &transparent);
+	if (l->all.tris[res->face_index].refractivity == 0)
+		cast_all_color(transparent.ray, l, obj, &transparent);
+	else
+	{
+		normal.pos = res->ray.pos;
+		normal.dir = res->normal;
+		vec_mult(&normal.dir, vec_dot(transparent.ray.dir, normal.dir) * l->all.tris[res->face_index].refractivity);
+		vec_add(&transparent.ray.dir, transparent.ray.dir, normal.dir);
+		cast_all_color(transparent.ray, l, l->all.tris[res->face_index].opacity_obj_all, &transparent);
+	}
 	res->color = crossfade((unsigned)res->color >> 8, (unsigned)transparent.color >> 8, opacity * 0xff, opacity * 0xff);
 }
 

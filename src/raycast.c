@@ -68,11 +68,13 @@ void			rot_cam(t_vec3 *cam, const float lon, const float lat)
 	cam->z = radius * sin(phi) * sin(theta);
 }
 
-static void		raytrace(t_cast_result *res, t_vec3 face_normal, t_ray r, t_level *l)
+static void		raytrace(t_cast_result *res, t_obj *obj, t_ray r, t_level *l)
 {
 	float		opacity_value;
+	t_vec3		face_normal;
 	t_color		light;
 
+	face_normal = l->all.tris[res->face_index].normal;
 	vec_normalize(&res->normal);
 	res->ray = r;
 	if (l->all.tris[res->face_index].shader == 1)
@@ -107,7 +109,7 @@ static void		raytrace(t_cast_result *res, t_vec3 face_normal, t_ray r, t_level *
 	if (opacity_value)
 	{
 		res->reflection_depth++;
-		opacity(res, l, l->all.tris[res->face_index].opacity_obj_all, opacity_value);
+		opacity(res, l, obj, opacity_value);
 	}
 }
 
@@ -147,7 +149,7 @@ void			cast_all_color(t_ray r, t_level *l, t_obj *obj, t_cast_result *res)
 		face_color(res->u, res->v, obj->tris[new_hit], res);
 		vec_mult(&r.dir, dist);
 		vec_add(&r.pos, r.pos, r.dir);
-		raytrace(res, obj->tris[new_hit].normal, r, l);
+		raytrace(res, obj, r, l);
 	}
 }
 
