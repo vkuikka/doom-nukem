@@ -170,22 +170,25 @@ void		move_uv(t_tri *t1, int t1_index, t_level *l)
 			t1->verts[2].txtr.y < 0 ||
 			(t1->isquad && t1->verts[3].txtr.y < 0))
 		{
-			int		*new_img;
-			int		*new_normal;
-			if (!(new_img = (int *)malloc(sizeof(int) * (2 * l->texture.width * l->texture.height))))
+			if (!(l->texture.image = (int *)ft_realloc(l->texture.image,
+					sizeof(int) * (l->texture.width * l->texture.height),
+					sizeof(int) * (2 * l->texture.width * l->texture.height))))
 				ft_error("memory allocation failed");
-			if (!(new_normal = (int *)malloc(sizeof(int) * (2 * l->normal_map.width * l->normal_map.height))))
+			if (!(l->normal_map.image = (int *)ft_realloc(l->normal_map.image,
+					sizeof(int) * (l->normal_map.width * l->normal_map.height),
+					sizeof(int) * (2 * l->normal_map.width * l->normal_map.height))))
 				ft_error("memory allocation failed");
-			ft_bzero(new_img, sizeof(int) * 2 * l->texture.width * l->texture.height);
-			ft_bzero(new_normal, sizeof(int) * 2 * l->normal_map.width * l->normal_map.height);
-			ft_memcpy(new_img, l->texture.image, sizeof(int) * l->texture.width * l->texture.height);
-			ft_memcpy(new_normal, l->normal_map.image, sizeof(int) * l->normal_map.width * l->normal_map.height);
-			free(l->texture.image);
-			free(l->normal_map.image);
-			l->texture.image = new_img;
-			l->normal_map.image = new_normal;
+			if (!(l->spray_overlay = (unsigned *)ft_realloc(l->spray_overlay,
+					sizeof(unsigned) * (l->texture.width * l->texture.height),
+					sizeof(unsigned) * (2 * l->texture.width * l->texture.height))))
+				ft_error("memory allocation failed");
+			if (!(l->baked = (t_color *)ft_realloc(l->baked,
+					sizeof(t_color) * (l->texture.width * l->texture.height),
+					sizeof(t_color) * (2 * l->texture.width * l->texture.height))))
+				ft_error("memory allocation failed");
 			l->texture.height *= 2;
 			l->normal_map.height *= 2;
+			l->spray.height *= 2;
 			div_every_uv(l);
 			diff.y /= 2.0;
 		}
