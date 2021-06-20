@@ -6,40 +6,11 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/10 01:23:16 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/21 17:04:13 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/06/20 12:36:06 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom-nukem.h"
-
-float				cast_all(t_ray vec, t_level *level, float *dist_u, float *dist_d, int *index)
-{
-	float	res = FLT_MAX;
-
-	vec_normalize(&vec.dir);
-	for (int i = 0; i < level->all.tri_amount; i++)
-	{
-		if (!level->all.tris[i].isprojectile && !level->all.tris[i].isenemy)
-		{
-			float tmp;
-			tmp = cast_face(level->all.tris[i], vec, NULL);
-			if (dist_u != NULL)
-			{
-				if (tmp > 0 && tmp < *dist_d)
-					*dist_d = tmp;
-				else if (tmp < 0 && tmp > *dist_u)
-					*dist_u = tmp;
-			}
-			else if (tmp > 0 && tmp < res)
-			{
-				res = tmp;
-				if (index)
-					*index = i;
-			}
-		}
-	}
-	return (res);
-}
 
 static void			player_input(t_level *level, t_vec3 *wishdir, float *height)
 {

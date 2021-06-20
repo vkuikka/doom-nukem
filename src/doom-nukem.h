@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/06/13 13:28:05 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/06/20 12:50:56 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -538,8 +538,7 @@ typedef struct __attribute__((__packed__))	s_bmp_pixel_24 {
 
 typedef struct			s_cast_result
 {
-	float				u;
-	float				v;
+	t_vec2				uv;
 	float				dist;
 	int					raytracing;
 	unsigned			color;
