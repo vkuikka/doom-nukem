@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/06 23:29:24 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/06/20 11:09:08 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/06/20 12:02:39 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -217,15 +217,11 @@ void	delete_door(t_level *level)
 	level->doors.door_amount--;
 	if (!(level->doors.door = (t_door*)ft_realloc(level->doors.door, sizeof(t_door) * level->doors.door_amount - 1, sizeof(t_door) * level->doors.door_amount)))
 		ft_error("memory allocation failed\n");
-	if (!(level->doors.door = (t_door*)ft_realloc(level->doors.door, sizeof(t_door) * level->doors.door_amount - 1, sizeof(t_door) * level->doors.door_amount)))
-		ft_error("memory allocation failed\n");
 }
 
 void	add_new_door(t_level *level)
 {
 	level->doors.door_amount++;
-	if (!(level->doors.door = (t_door*)ft_realloc(level->doors.door, sizeof(t_door) * level->doors.door_amount - 1, sizeof(t_door) * level->doors.door_amount)))
-		ft_error("memory allocation failed\n");
 	if (!(level->doors.door = (t_door*)ft_realloc(level->doors.door, sizeof(t_door) * level->doors.door_amount - 1, sizeof(t_door) * level->doors.door_amount)))
 		ft_error("memory allocation failed\n");
 	t_door *door = &level->doors.door[level->doors.door_amount - 1];
