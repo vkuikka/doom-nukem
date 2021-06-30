@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/06/20 12:50:56 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/06/30 17:10:57 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -578,7 +578,7 @@ void		vec2_add(t_vec2 *res, t_vec2 ve1, t_vec2 ve2);
 void		vec2_mult(t_vec2 *res, float mult);
 
 void		init_window(t_window **window);
-void		init_level(t_level **level);
+t_level		*init_level(void);
 
 void		screen_space_partition(t_level *level);
 void		init_screen_space_partition(t_level *level);

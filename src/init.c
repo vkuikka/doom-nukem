@@ -24,7 +24,7 @@ SDL_Texture		*empty_texture(SDL_Renderer *renderer)
 	return (texture);
 }
 
-void			init_level(t_level **res)
+t_level			*init_level(void)
 {
 	t_level		*level;
 
@@ -35,15 +35,12 @@ void			init_level(t_level **res)
 	level->player_ammo = PLAYER_AMMO_MAX;
 	level->win_dist = INITIAL_LEVEL_WIN_DIST;
 	level->cam.pos.x = 0;
-	level->cam.pos.y = -5;
+	level->cam.pos.y = -PLAYER_HEIGHT;
 	level->cam.pos.z = 0;
 	level->cam.look_side = 0;
 	level->cam.look_up = 0;
 	level->main_menu_anim_time = 2;
 	level->world_brightness = 0.15;
-
-	load_obj("level/ship.obj", &level->all);
-
 	level->texture = bmp_read("out.bmp");
 	if (!(level->baked = (t_color *)malloc(sizeof(t_color) * (level->texture.width * level->texture.height))))
 		ft_error("memory allocation failed\n");
@@ -69,7 +66,7 @@ void			init_level(t_level **res)
 
 	if (!(level->visible.tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount)))
 		ft_error("memory allocation failed\n");
-	*res = level;
+	return (level);
 }
 
 void			init_window(t_window **window)
