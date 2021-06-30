@@ -341,7 +341,7 @@ int			main(int argc, char **argv)
 	init_player(&level->player);
 
 	open_level(level, "level/demo.doom-nukem");
-	// start_bake(level);
+	start_bake(level);
 	while (1)
 	{
 		frametime = SDL_GetTicks();
