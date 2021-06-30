@@ -118,9 +118,9 @@ void			add_face(t_level *level)
 {
 	free_culling(level);
 	level->all.tri_amount++;
-	if (!(level->all.tris = (t_tri*)realloc(level->all.tris, sizeof(t_tri) * level->all.tri_amount)))
+	if (!(level->all.tris = (t_tri*)ft_realloc(level->all.tris, sizeof(t_tri) * level->all.tri_amount - 1, sizeof(t_tri) * level->all.tri_amount)))
 		ft_error("memory allocation failed");
-	if (!(level->visible.tris = (t_tri*)realloc(level->visible.tris, sizeof(t_tri) * level->all.tri_amount)))
+	if (!(level->visible.tris = (t_tri*)ft_realloc(level->visible.tris, sizeof(t_tri) * level->all.tri_amount - 1, sizeof(t_tri) * level->all.tri_amount)))
 		ft_error("memory allocation failed");
 	set_new_face(level, level->cam.pos, level->cam.front, 1);
 	init_screen_space_partition(level);
@@ -130,9 +130,11 @@ void			add_face(t_level *level)
 void			remove_faces(t_level *level)
 {
 	int	amount;
+	int	original_amount;
 
 	free_culling(level);
 	amount = level->all.tri_amount;
+	original_amount = level->all.tri_amount;
 	for (int i = 0; i < level->all.tri_amount; i++)
 	{
 		if (level->all.tris[i].selected)
@@ -150,9 +152,9 @@ void			remove_faces(t_level *level)
 		}
 	}
 	level->all.tri_amount = amount;
-	if (!(level->all.tris = (t_tri*)realloc(level->all.tris, sizeof(t_tri) * amount)))
+	if (!(level->all.tris = (t_tri*)ft_realloc(level->all.tris, sizeof(t_tri) * original_amount, sizeof(t_tri) * amount)))
 		ft_error("memory allocation failed");
-	if (!(level->visible.tris = (t_tri*)realloc(level->visible.tris, sizeof(t_tri) * amount)))
+	if (!(level->visible.tris = (t_tri*)ft_realloc(level->visible.tris, sizeof(t_tri) * original_amount, sizeof(t_tri) * amount)))
 		ft_error("memory allocation failed");
 	init_screen_space_partition(level);
 	init_culling(level);
