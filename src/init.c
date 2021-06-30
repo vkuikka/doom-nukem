@@ -60,7 +60,7 @@ void			init_level(t_level **res)
 
 	level->main_menu_title = bmp_read("embed/title.bmp");
 
-	char viewmodel_name[] = "embed/viewmodel/m4_0.bmp";
+	char viewmodel_name[] = "embed/viewmodel/ak_0.bmp";
 	for (int i = 0; i < VIEWMODEL_FRAMES; i++)
 	{
 		viewmodel_name[19] = '0' + i;
