@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/07 18:13:00 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/10 20:57:54 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/06/04 19:58:58 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,6 +92,12 @@ void		vec2_add(t_vec2 *res, t_vec2 ve1, t_vec2 ve2)
 {
 	res->x = ve1.x + ve2.x;
 	res->y = ve1.y + ve2.y;
+}
+
+void		vec2_mult(t_vec2 *res, float mult)
+{
+	res->x *= mult;
+	res->y *= mult;
 }
 
 void		vec_add(t_vec3 *res, t_vec3 ve1, t_vec3 ve2)

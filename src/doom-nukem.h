@@ -6,7 +6,7 @@
 /*   By: alcohen <alcohen@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/06/09 23:23:28 by alcohen          ###   ########.fr       */
+/*   Updated: 2021/06/13 13:28:05 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,9 @@
 
 # define ENEMY_MOVABLE_HEIGHT_DIFF 1
 # define MAX_PROJECTILE_TRAVEL 100
+# define SPRAY_LINE_PRECISION 2
+# define SPRAY_MAX_DIST 15
+# define SPRAY_FROM_VIEW_SIZE 0.5
 
 # define TRUE 1
 # define FALSE 0
@@ -58,12 +61,17 @@
 
 # define HUD_TEXT_COLOR 0xff6666bb
 # define HUD_FONT_SIZE 42
+# define HUD_GAME_EVENT_FONT_SIZE 130
+# define HUD_GAME_EVENT_TEXT_COLOR 0xffffffff
+# define CYCLE_RGB_LOOP_FPS 0.4
 # define MAIN_MENU_FONT_SIZE 30
 # define MAIN_MENU_BUTTON_AMOUNT 4
 # define MAIN_MENU_FONT_BACKGROUND_COLOR 0xffffff55
 # define MAIN_MENU_FONT_COLOR 0x000000ff
 # define MAIN_MENU_FONT_PADDING_MULTIPLIER 1.5
 # define CROSSHAIR_COLOR 0xff0000ff
+# define INITIAL_LEVEL_WIN_DIST 3
+# define WIN_LENGTH_SEC 15
 # define PLAYER_HEALTH_MAX 100
 # define PLAYER_AMMO_MAX 30
 # define DEATH_LENGTH_SEC 5
@@ -349,7 +357,8 @@ typedef enum			e_game_state
 	GAME_STATE_MAIN_MENU = 0,
 	GAME_STATE_EDITOR,
 	GAME_STATE_INGAME,
-	GAME_STATE_DEAD
+	GAME_STATE_DEAD,
+	GAME_STATE_WIN
 }						t_game_state;
 
 typedef enum			e_ui_location
@@ -415,6 +424,8 @@ typedef struct			s_editor_ui
 	float				render_distance;
 	float				fov;
 	int					raytracing;
+	int					spray_from_view;
+	float				spray_size;
 
 	t_color				sun_color;
 	struct s_vec3		sun_dir;
@@ -451,6 +462,7 @@ typedef struct			s_level
 	struct s_bmp		texture;
 	struct s_bmp		normal_map;
 	struct s_bmp		spray;
+	unsigned			*spray_overlay;
 	t_color				*baked;
 	t_bake				bake_status;
 	float				bake_progress;
@@ -468,6 +480,9 @@ typedef struct			s_level
 	struct s_bmp		main_menu_title;
 	struct s_player_pos	main_menu_pos1;
 	struct s_player_pos	main_menu_pos2;
+	struct s_vec3		win_pos;
+	float				win_dist;
+	unsigned			win_start_time;
 	unsigned			main_menu_anim_time;
 	unsigned			main_menu_anim_start_time;
 	unsigned			death_start_time;
@@ -537,6 +552,7 @@ typedef struct			s_cast_result
 	struct s_bmp		*normal_map;
 	struct s_bmp		*texture;
 	t_color				*baked;
+	unsigned			*spray_overlay;
 }						t_cast_result;
 
 typedef struct			s_buffer
@@ -562,6 +578,7 @@ float		vec2_length(t_vec2 vec);
 void		vec2_avg(t_vec2 *res, t_vec2 ve1, t_vec2 ve2);
 void		vec2_sub(t_vec2 *res, t_vec2 ve1, t_vec2 ve2);
 void		vec2_add(t_vec2 *res, t_vec2 ve1, t_vec2 ve2);
+void		vec2_mult(t_vec2 *res, float mult);
 
 void		init_window(t_window **window);
 void		init_level(t_level **level);
@@ -636,7 +653,8 @@ int			skybox(t_level *l, t_obj *obj, t_ray r);
 
 void		opacity(t_cast_result *res, t_level *l, t_obj *obj, float opacity);
 void		reflection(t_cast_result *res, t_level *l, t_obj *obj);
-unsigned	wave_shader(t_vec3 mod, t_vec3 *normal, unsigned col1, unsigned col2);
+unsigned	shader_wave(t_vec3 mod, t_vec3 *normal, unsigned col1, unsigned col2);
+unsigned	shader_rule30(t_vec3 pos);
 t_color		sunlight(t_level *l, t_cast_result *res, t_color light);
 
 void		select_face(t_camera *cam, t_level *level, int x, int y);
@@ -684,8 +702,8 @@ void		delete_light(t_level *level);
 void		set_fourth_vertex_uv(t_tri *a);
 void		start_bake(t_level *level);
 t_vec3		get_normal(int vec);
-
-void        handle_audio(t_level *level, t_game_state *game_state);
+void		handle_audio(t_level *level, t_game_state *game_state);
 int			is_player_in_air(t_level *level, float height);
+void		spray(t_camera cam, t_level *level);
 
 #endif

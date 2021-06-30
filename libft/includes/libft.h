@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/17 14:44:12 by vkuikka           #+#    #+#             */
-/*   Updated: 2020/08/15 21:06:01 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/06/20 11:02:02 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ typedef struct		s_list
 	struct s_list	*next;
 }					t_list;
 
+void				*ft_realloc(void *ptr, size_t size, size_t new_size);
 char				**ft_add_str(char *str, char **arr, unsigned arrlen);
 void				ft_error(char *message);
 int					*ft_arrdup(const int *src, const int len);

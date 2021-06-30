@@ -6,13 +6,13 @@
 #    By: alcohen <alcohen@student.hive.fi>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/12/08 13:46:11 by vkuikka           #+#    #+#              #
-#    Updated: 2021/06/09 22:05:55 by alcohen          ###   ########.fr        #
+#    Updated: 2021/06/04 16:22:35 by vkuikka          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = dnukem
 SRCDIR = src/
-SRC = main.c color.c culling.c culling_occlusion.c vectors.c init.c raycast.c obj_read.c bmp_read.c find_quads.c wireframe.c ui.c ui_config.c physics.c enemies.c shaders.c select.c serialize.c screen_space_partition.c uv_editor.c uv_overlap.c 2d_intersect.c obj_editor.c door_editor.c main_menu.c hud.c light_edit.c bake.c gizmo.c audio.c
+SRC = main.c color.c culling.c culling_occlusion.c vectors.c init.c raycast.c obj_read.c bmp_read.c find_quads.c wireframe.c ui.c ui_config.c physics.c enemies.c shaders.c select.c serialize.c screen_space_partition.c uv_editor.c uv_overl
 LIB = libft/libft.a -L x86_64-w64-mingw32/lib/
 INCLUDE = libft/includes -I x86_64-w64-mingw32/include/ -I x86_64-w64-mingw32/include/SDL2
 SDL_FRAMEWORKS = -framework SDL2 -framework SDL2_ttf -framework SDL2_mixer

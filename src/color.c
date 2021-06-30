@@ -78,6 +78,7 @@ int				skybox(t_level *l, t_obj *obj, t_ray r)
 	res.texture = &l->sky.img;
 	res.normal_map = NULL;
 	res.baked = NULL;
+	res.spray_overlay = NULL;
 	res.raytracing = 0;
 	for (int i = 0; i < obj->tri_amount; i++)
 		if (0 < cast_face(obj->tris[i], r, &res))
@@ -251,6 +252,8 @@ void			face_color(float u, float v, t_tri t, t_cast_result *res)
 			t.verts[2].txtr.y * res->texture->height * u) / (float)(u + v + w));
 	wrap_coords(&x, &y, res->texture->width, res->texture->height);
 	res->color = res->texture->image[x + (y * res->texture->width)];
+	if (res->spray_overlay && res->spray_overlay[x + y * res->texture->width])
+		res->color = res->spray_overlay[x + y * res->texture->width];
 	if (res->baked && !res->raytracing)
 		res->color = brightness(res->color >> 8, res->baked[x + y * res->texture->width]) + (res->color << 24 >> 24);
 

@@ -18,11 +18,16 @@ void		opacity(t_cast_result *res, t_level *l, t_obj *obj, float opacity)
 	t_ray			normal;
 
 	transparent = *res;
-	normal.pos = res->ray.pos;
-	normal.dir = res->normal;
-	vec_mult(&normal.dir, vec_dot(transparent.ray.dir, normal.dir) * l->all.tris[res->face_index].refractivity);
-	vec_add(&transparent.ray.dir, transparent.ray.dir, normal.dir);
-	cast_all_color(transparent.ray, l, obj, &transparent);
+	if (l->all.tris[res->face_index].refractivity == 0)
+		cast_all_color(transparent.ray, l, obj, &transparent);
+	else
+	{
+		normal.pos = res->ray.pos;
+		normal.dir = res->normal;
+		vec_mult(&normal.dir, vec_dot(transparent.ray.dir, normal.dir) * l->all.tris[res->face_index].refractivity);
+		vec_add(&transparent.ray.dir, transparent.ray.dir, normal.dir);
+		cast_all_color(transparent.ray, l, l->all.tris[res->face_index].opacity_obj_all, &transparent);
+	}
 	res->color = crossfade((unsigned)res->color >> 8, (unsigned)transparent.color >> 8, opacity * 0xff, opacity * 0xff);
 }
 
@@ -111,7 +116,7 @@ void		reflection(t_cast_result *res, t_level *l, t_obj *obj)
 	res->color = crossfade((unsigned)res->color >> 8, reflection.color >> 8, l->all.tris[res->face_index].reflectivity * 0xff, (unsigned)res->color << 24 >> 24);
 }
 
-unsigned		wave_shader(t_vec3 mod, t_vec3 *normal, unsigned col1, unsigned col2)
+unsigned		shader_wave(t_vec3 mod, t_vec3 *normal, unsigned col1, unsigned col2)
 {
 	float			time;
 	float			oscillation;
@@ -128,4 +133,67 @@ unsigned		wave_shader(t_vec3 mod, t_vec3 *normal, unsigned col1, unsigned col2)
 	vec_normalize(normal);
 	col1 = crossfade(col1, col2, res * 0xff, 0xff);
 	return (col1);
+}
+
+unsigned		shader_rule30(t_vec3 pos)
+{
+	static char		**cells = NULL;
+	static int		allocated = 0;
+	static int		started = 0;
+	int				size = 10000;
+	int				res;
+
+	if (!started)
+	{
+		started = 1;
+		if (!(cells = (char **)malloc(sizeof(char*) * size)))
+			ft_error("memory allocation failed");
+		for (int i = 0; i < size; i++)
+		{
+			if (!(cells[i] = (char *)malloc(sizeof(char) * size)))
+				ft_error("memory allocation failed");
+			ft_bzero(cells[i], size);
+		}
+		cells[0][size / 2] = 1;
+		for (int y = 0; y < size - 1; y++)
+		{
+			for (int x = 1; x < size - 1; x++)
+			{
+				if (cells[y][x - 1] == 1 && cells[y][x] == 1 && cells[y][x + 1] == 1)
+					cells[y + 1][x] = 0;
+				else if (cells[y][x - 1] == 1 && cells[y][x] == 1 && cells[y][x + 1] == 0)
+					cells[y + 1][x] = 0;
+				else if (cells[y][x - 1] == 1 && cells[y][x] == 0 && cells[y][x + 1] == 1)
+					cells[y + 1][x] = 0;
+				else if (cells[y][x - 1] == 1 && cells[y][x] == 0 && cells[y][x + 1] == 0)
+					cells[y + 1][x] = 1;
+				else if (cells[y][x - 1] == 0 && cells[y][x] == 1 && cells[y][x + 1] == 1)
+					cells[y + 1][x] = 1;
+				else if (cells[y][x - 1] == 0 && cells[y][x] == 1 && cells[y][x + 1] == 0)
+					cells[y + 1][x] = 1;
+				else if (cells[y][x - 1] == 0 && cells[y][x] == 0 && cells[y][x + 1] == 1)
+					cells[y + 1][x] = 1;
+				else if (cells[y][x - 1] == 0 && cells[y][x] == 0 && cells[y][x + 1] == 0)
+					cells[y + 1][x] = 0;
+				else
+					cells[y + 1][x] = 0;
+			}
+		}
+		allocated = 1;
+		return (0xff00ffff);
+	}
+	res = 0x000000ff;
+	if (allocated)
+	{
+		int x;
+		int y;
+		x = (int)pos.x + size / 2;
+		y = (int)pos.z;
+		if (x > 0 && x < size - 1 && y > 0 && y < size - 1)
+		{
+			if (cells[y][x])
+				res = 0xffffffff;
+		}
+	}
+	return (res);
 }

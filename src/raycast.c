@@ -68,20 +68,28 @@ void			rot_cam(t_vec3 *cam, const float lon, const float lat)
 	cam->z = radius * sin(phi) * sin(theta);
 }
 
-static void		raytrace(t_cast_result *res, t_vec3 face_normal, t_ray r, t_level *l)
+static void		raytrace(t_cast_result *res, t_obj *obj, t_ray r, t_level *l)
 {
 	float		opacity_value;
+	t_vec3		face_normal;
 	t_color		light;
 
+	face_normal = l->all.tris[res->face_index].normal;
 	vec_normalize(&res->normal);
 	res->ray = r;
 	if (l->all.tris[res->face_index].shader == 1)
 	{
 		t_vec3 tmp;
 		vec_add(&tmp, r.dir, r.pos);
-		res->color = wave_shader(tmp, &res->normal, 0x070C5A, 0x020540);
+		res->color = shader_wave(tmp, &res->normal, 0x070C5A, 0x020540);
 	}
-	if (!res->baked || res->raytracing)
+	if (l->all.tris[res->face_index].shader == 2)
+	{
+		t_vec3 tmp;
+		vec_add(&tmp, r.dir, r.pos);
+		res->color = shader_rule30(tmp);
+	}
+	else if (!res->baked || res->raytracing)
 	{
 		light = sunlight(l, res, lights(l, res, face_normal));
 		res->color = brightness(res->color >> 8, light) + (res->color << 24 >> 24);
@@ -101,7 +109,7 @@ static void		raytrace(t_cast_result *res, t_vec3 face_normal, t_ray r, t_level *
 	if (opacity_value)
 	{
 		res->reflection_depth++;
-		opacity(res, l, l->all.tris[res->face_index].opacity_obj_all, opacity_value);
+		opacity(res, l, obj, opacity_value);
 	}
 }
 
@@ -141,7 +149,7 @@ void			cast_all_color(t_ray r, t_level *l, t_obj *obj, t_cast_result *res)
 		face_color(res->u, res->v, obj->tris[new_hit], res);
 		vec_mult(&r.dir, dist);
 		vec_add(&r.pos, r.pos, r.dir);
-		raytrace(res, obj->tris[new_hit].normal, r, l);
+		raytrace(res, obj, r, l);
 	}
 }
 
@@ -184,6 +192,7 @@ int				raycast(void *data_pointer)
 				res.raytracing = t->level->ui.raytracing;
 				res.normal_map = &t->level->normal_map;
 				res.texture = &t->level->texture;
+				res.spray_overlay = t->level->spray_overlay;
 				if (t->level->bake_status != BAKE_NOT_BAKED)
 					res.baked = t->level->baked;
 				else

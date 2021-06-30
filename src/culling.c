@@ -446,7 +446,8 @@ void			culling(t_level *level)
 			if (level->visible.tris[i].isgrid || occlusion_culling(level->visible.tris[i], level))
 			{
 				reflection_culling_first_bounce(level, level->visible.tris[i].index);
-				shadow_face_culling(level, level->visible.tris[i].index);
+				if (level->baked != BAKE_BAKED)
+					shadow_face_culling(level, level->visible.tris[i].index);
 				opacity_culling(level, level->visible.tris[i].index);
 				level->visible.tris[visible_amount] = level->visible.tris[i];
 				visible_amount++;

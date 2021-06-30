@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/05/30 19:46:35 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/06/13 12:40:26 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,7 +112,7 @@ void	ui_config_selected_faces(t_level *level)
 				if (button(&level->all.tris[i].isquad, "quad"))
 					set_fourth_vertex(&level->all.tris[i]);
 				button(&level->all.tris[i].isgrid, "grid");
-				button(&level->all.tris[i].shader, "water");
+				int_slider(&level->all.tris[i].shader, "shader", 0, 2);
 				button(&level->all.tris[i].isenemy, "enemy");
 				if (level->all.tris[i].isenemy)
 				{
@@ -173,6 +173,18 @@ void	set_skybox(t_level *level, char *filename)
 {
 	free(level->sky.img.image);
 	level->sky.img = bmp_read(filename);
+}
+
+
+void	set_spray(t_level *level, char *filename)
+{
+	free(level->spray.image);
+	level->spray = bmp_read(filename);
+}
+
+void	set_win_pos(t_level *level)
+{
+	level->win_pos = level->cam.pos;
 }
 
 void	set_spawn_pos(t_level *level)
@@ -471,6 +483,13 @@ void	ui_config(t_level *level)
 	}
 	if (level->ui.state.ui_location == UI_LOCATION_SETTINGS)
 	{
+		file_browser("select spray", ".bmp", &set_spray);
+		button(&ui->spray_from_view, "spray from view");
+		if (!ui->spray_from_view)
+		{
+			sprintf(buf, "spray size: %.1f", ui->spray_size);
+			float_slider(&ui->spray_size, buf, 0.1, 5);
+		}
 		sprintf(buf, "render scale: %d (%.0f%%)", ui->raycast_quality, 100.0 / (float)ui->raycast_quality);
 		int_slider(&ui->raycast_quality, buf, 1, 20);
 		sprintf(buf, "fov: %d", (int)((float)(ui->fov + 0.01) * (180.0 / M_PI)));
@@ -510,6 +529,9 @@ void	ui_config(t_level *level)
 		file_browser("select texture", ".bmp", &set_texture);
 		file_browser("select skybox", ".bmp", &set_skybox);
 		call("add face", &add_face, level);
+		call("set win position", &set_win_pos, level);
+		sprintf(buf, "win distance: %.2fm", level->win_dist);
+		float_slider(&level->win_dist, buf, 1, 40);
 		set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
 		call("set spawn position", &set_spawn_pos, level);
 		call("set menu position 1", &set_menu_pos_1, level);

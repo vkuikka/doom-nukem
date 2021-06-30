@@ -19,9 +19,9 @@ void			create_projectile(t_level *level, t_vec3 pos, t_vec3 dir, t_enemy *enemy)
 	index = level->all.tri_amount;
 	free_culling(level);
 	level->all.tri_amount++;
-	if (!(level->all.tris = (t_tri*)realloc(level->all.tris, sizeof(t_tri) * level->all.tri_amount)))
+	if (!(level->all.tris = (t_tri*)ft_realloc(level->all.tris, sizeof(t_tri) * (level->all.tri_amount - 1), sizeof(t_tri) * level->all.tri_amount)))
 		ft_error("memory allocation failed");
-	if (!(level->visible.tris = (t_tri*)realloc(level->visible.tris, sizeof(t_tri) * level->all.tri_amount)))
+	if (!(level->visible.tris = (t_tri*)ft_realloc(level->visible.tris, sizeof(t_tri) * (level->all.tri_amount - 1), sizeof(t_tri) * level->all.tri_amount)))
 		ft_error("memory allocation failed");
 	set_new_face(level, pos, dir, enemy->projectile_scale);
 	init_screen_space_partition(level);
@@ -48,7 +48,7 @@ static void		remove_projectile(t_level *level, int remove)
 	level->all.tri_amount--;
 	if (!(new_tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount)))
 		ft_error("memory allocation failed");
-	if (!(level->visible.tris = (t_tri*)realloc(level->visible.tris, sizeof(t_tri) * level->all.tri_amount)))
+	if (!(level->visible.tris = (t_tri*)ft_realloc(level->visible.tris, sizeof(t_tri) * level->all.tri_amount - 1, sizeof(t_tri) * level->all.tri_amount)))
 		ft_error("memory allocation failed");
 	free(level->all.tris[remove].projectile);
 	for (int i = 0; i < level->all.tri_amount; i++)
