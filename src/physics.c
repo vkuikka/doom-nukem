@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   physics.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: alcohen <alcohen@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/10 01:23:16 by vkuikka           #+#    #+#             */
 /*   Updated: 2021/06/20 12:36:06 by vkuikka          ###   ########.fr       */
@@ -92,7 +92,7 @@ static int			player_collision(t_vec3 *vel, t_vec3 *pos, t_level *level, float he
 	return (0);
 }
 
-static int				is_player_in_air(t_level *level, float height)
+int				is_player_in_air(t_level *level, float height)
 {
 	float	dist;
 	int		index;
@@ -216,8 +216,7 @@ void		player_movement(t_level *level, t_game_state game_state)
 	if (level->ui.noclip)
 		return (noclip(level, &wishdir, &vel, delta_time));
 	in_air = is_player_in_air(level, height);
-	if (vertical_movement(&wishdir, &vel, delta_time, in_air))
-		Mix_PlayChannel(AUDIO_JUMP_CHANNEL, level->audio.jump, 0);
+	vertical_movement(&wishdir, &vel, delta_time, in_air);
 	if (in_air || wishdir.y)
 		air_movement(&wishdir, &vel, delta_time);
 	else
