@@ -328,13 +328,16 @@ int			main(int argc, char **argv)
 
 	game_state = GAME_STATE_MAIN_MENU;
 	game_state = GAME_STATE_EDITOR;//remove
-	init_level(&level);
+	level = init_level();
 	init_audio(level);
 	init_window(&window);
 	init_ui(window, level);
 	init_screen_space_partition(level);
 	init_culling(level);
 	init_player(&level->player);
+
+	open_level(level, "level/demo.doom-nukem");
+	start_bake(level);
 	while (1)
 	{
 		frametime = SDL_GetTicks();
