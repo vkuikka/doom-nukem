@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   hud.c                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: lsjoberg <lsjoberg@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/19 18:48:10 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/05/19 18:48:10 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/07/16 16:33:00 by lsjoberg         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,11 +133,11 @@ static void	crosshair(unsigned *pixels)
 
 static void	viewmodel(unsigned *pixels, t_bmp img)
 {
-	for (int x = 0; x < img.width; x++)
+	for (int x = 25; x <= img.width; x++)
 	{
 		for (int y = 0; y < img.height; y++)
 		{
-			pixel_put_hud(RES_X - img.width + x - 40, RES_Y - img.height + y, img.image[x + (y * img.width)], pixels);
+			pixel_put_hud(RES_X - img.width + x, RES_Y - img.height + y, img.image[x + (y * img.width)], pixels);
 		}
 	}
 }
