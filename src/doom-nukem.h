@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   doom-nukem.h                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alcohen <alcohen@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: lsjoberg <lsjoberg@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/06/30 17:10:57 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/07/23 15:50:57 by lsjoberg         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -667,6 +667,7 @@ int			cull_behind(t_vec3 dir, t_vec3 pos, t_tri tri);
 int			cull_ahead(t_vec3 dir, t_vec3 pos, t_tri tri);
 
 void		fix_uv_overlap(t_level *level);
+int			line_intersect(t_vec2 p1, t_vec2 q1, t_vec2 p2, t_vec2 q2);
 int			tri_uv_intersect(t_tri t1, t_tri t2);
 int			point_in_tri(t_vec2 pt, t_vec2 v1, t_vec2 v2, t_vec2 v3);
 void		toggle_selection_all(t_level *level);
