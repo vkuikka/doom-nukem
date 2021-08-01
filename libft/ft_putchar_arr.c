@@ -12,10 +12,10 @@
 
 #include "libft.h"
 
-void	ft_putchar_arr(char **array, unsigned arr_len, unsigned str_len)
+void	ft_putchar_arr(char **array, unsigned int arr_len, unsigned int str_len)
 {
-	unsigned	x;
-	unsigned	y;
+	unsigned int	x;
+	unsigned int	y;
 
 	x = 0;
 	y = 0;

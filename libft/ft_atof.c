@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_atof.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/01/18 42:42:42 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/01/18 42:42:42 by rpehkone         ###   ########.fr       */
+/*   Created: 2021/01/01 01:01:01 by rpehkone          #+#    #+#             */
+/*   Updated: 2021/08/01 18:10:45 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ static void	check_sign(const char **s, int *negptr)
 	}
 }
 
-double		ft_atof(const char *str)
+double	ft_atof(const char *str)
 {
 	double	nbr;
 	int		negative;
@@ -42,13 +42,11 @@ double		ft_atof(const char *str)
 	init_vars(&nbr, &negative, &digits, &decimals);
 	check_sign(&str, &negative);
 	while (ft_isdigit(*str) || (digits++))
-	{
 		nbr = nbr * 10.0 + (*(str++) - '0');
-	}
 	if (*str == '.')
 	{
 		str++;
-		while (ft_isdigit(*str) && (digits += 1) && (decimals += 1))
+		while (ft_isdigit(*str) && (++digits) && (++decimals))
 		{
 			nbr = nbr * 10.0 + (*str - '0');
 			str++;
@@ -56,5 +54,7 @@ double		ft_atof(const char *str)
 	}
 	while (decimals--)
 		nbr /= 10.0;
-	return (negative ? -nbr : nbr);
+	if (negative)
+		return (-nbr);
+	return (nbr);
 }

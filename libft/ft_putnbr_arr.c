@@ -14,8 +14,8 @@
 
 void	ft_putnbr_arr(int **array, unsigned arr_len, unsigned str_len)
 {
-	unsigned	x;
-	unsigned	y;
+	unsigned int	x;
+	unsigned int	y;
 
 	x = 0;
 	y = 0;

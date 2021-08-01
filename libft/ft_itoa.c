@@ -6,11 +6,25 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/20 22:37:27 by vkuikka           #+#    #+#             */
-/*   Updated: 2019/12/06 20:02:38 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/08/01 17:26:30 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
+
+int	ft_first_char(char *str, long *num, int chars)
+{
+	if (!str)
+		return (0);
+	str[chars--] = '\0';
+	if (*num < 0)
+		str[0] = '-';
+	else
+		str[0] = '0';
+	if (*num < 0)
+		*num *= -1;
+	return (1);
+}
 
 char	*ft_itoa(int n)
 {
@@ -21,15 +35,15 @@ char	*ft_itoa(int n)
 
 	num = n;
 	div = 10;
-	chars = (num < 0 ? 2 : 1);
+	chars = 1;
+	if (num < 0)
+		chars++;
 	while (num / div && chars++ > 0)
 		div *= 10;
-	if (!(str = (char *)malloc(sizeof(char) * (chars + 1))))
+	str = (char *)malloc(sizeof(char) * (chars + 1));
+	if (!ft_first_char(str, &num, chars))
 		return (NULL);
-	str[chars--] = '\0';
-	str[0] = num < 0 ? '-' : '0';
-	num *= num < 0 ? -1 : 1;
-	while (chars >= (str[0] == '-' ? 1 : 0))
+	while (chars >= (str[0] == '-'))
 	{
 		str[chars] = num % 10 + '0';
 		num /= 10;

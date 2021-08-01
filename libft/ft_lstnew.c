@@ -16,11 +16,13 @@ t_list	*ft_lstnew(void const *content, size_t content_size)
 {
 	t_list	*ls;
 
-	if (!(ls = (t_list *)malloc(sizeof(t_list))))
+	ls = (t_list *)malloc(sizeof(t_list));
+	if (!ls)
 		return (NULL);
 	if (content && content_size)
 	{
-		if (!(ls->content = (void *)malloc(content_size)))
+		ls->content = (void *)malloc(content_size);
+		if (!ls->content)
 			return (NULL);
 		ls->content = ft_memcpy(ls->content, content, content_size);
 		ls->content_size = content_size;
