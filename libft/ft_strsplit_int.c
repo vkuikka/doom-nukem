@@ -6,19 +6,20 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/08 13:25:36 by vkuikka           #+#    #+#             */
-/*   Updated: 2020/01/08 15:32:20 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/08/01 18:26:49 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-int			*ft_strsplit_int(char *s, char c)
+int	*ft_strsplit_int(char *s, char c)
 {
 	int		i;
 	int		*ret;
 
 	i = 0;
-	if (!(ret = (int *)malloc(sizeof(int) * ft_word_count(s, c))))
+	ret = (int *)malloc(sizeof(int) * ft_word_count(s, c));
+	if (!ret)
 		return (NULL);
 	while (*s)
 	{

@@ -37,7 +37,7 @@ int					ft_abs(int num);
 void				ft_swap(int *value1, int *value2);
 int					**ft_permutations(int a[], int size, int n);
 int					**ft_new_int_arr(unsigned str_len, unsigned arr_len);
-char				**ft_new_char_arr(unsigned str_len, unsigned arr_len);
+char				**ft_new_char_arr(size_t str_len, size_t arr_len);
 int					ft_factorial(int num);
 void				ft_putnbr_arr(int **array,
 						unsigned int arr_len, unsigned int str_len);
