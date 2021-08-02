@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/21 20:19:04 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/05/28 17:46:23 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/06/20 11:15:02 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,7 +94,7 @@ void	delete_light(t_level *level)
 	}
 	else
 	{
-		if (!(level->lights = (t_light*)realloc(level->lights, sizeof(t_light) * level->light_amount)))
+		if (!(level->lights = (t_light*)ft_realloc(level->lights, sizeof(t_light) * level->light_amount + 1, sizeof(t_light) * level->light_amount)))
 			ft_error("memory allocation failed\n");
 	}
 	level->selected_light_index = 0;
@@ -104,7 +104,7 @@ void	delete_light(t_level *level)
 void	add_light(t_level *level)
 {
 	level->light_amount++;
-    if (!(level->lights = (t_light*)realloc(level->lights, sizeof(t_light) * level->light_amount)))
+    if (!(level->lights = (t_light*)ft_realloc(level->lights, sizeof(t_light) * level->light_amount - 1, sizeof(t_light) * level->light_amount)))
 		ft_error("memory allocation failed\n");
 	vec_add(&level->lights[level->light_amount - 1].pos, level->cam.pos, level->cam.front);
 	level->lights[level->light_amount - 1].color.r = 1;

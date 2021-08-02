@@ -146,7 +146,9 @@ typedef struct			s_audio
 	Mix_Music			*music;
 	Mix_Chunk			*gunshot;
 	Mix_Chunk			*jump;
+	int					played_jump_sound;
 	Mix_Chunk			*reload;
+	int					played_reload_sound;
 	Mix_Chunk			*death;
 	Mix_Chunk			*door;
 }						t_audio;
@@ -538,8 +540,7 @@ typedef struct __attribute__((__packed__))	s_bmp_pixel_24 {
 
 typedef struct			s_cast_result
 {
-	float				u;
-	float				v;
+	t_vec2				uv;
 	float				dist;
 	int					raytracing;
 	unsigned			color;
@@ -579,7 +580,7 @@ void		vec2_add(t_vec2 *res, t_vec2 ve1, t_vec2 ve2);
 void		vec2_mult(t_vec2 *res, float mult);
 
 void		init_window(t_window **window);
-void		init_level(t_level **level);
+t_level		*init_level(void);
 
 void		screen_space_partition(t_level *level);
 void		init_screen_space_partition(t_level *level);
@@ -700,7 +701,8 @@ void		delete_light(t_level *level);
 void		set_fourth_vertex_uv(t_tri *a);
 void		start_bake(t_level *level);
 t_vec3		get_normal(int vec);
-
+void		handle_audio(t_level *level, t_game_state *game_state);
+int			is_player_in_air(t_level *level, float height);
 void		spray(t_camera cam, t_level *level);
 
 #endif

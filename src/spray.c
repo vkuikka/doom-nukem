@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/01 18:48:35 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/06/12 19:02:44 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/06/20 12:53:53 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,7 +136,6 @@ static int		cast_uv(t_tri t, t_ray ray, t_vec2 *uv)
 
 static int		raycast_face_pos(t_ray *r, t_level *l, t_obj *object, t_camera *cam)
 {
-	t_cast_result	res;
 	float			dist;
 	float			tmp;
 	int				i;
@@ -147,7 +146,7 @@ static int		raycast_face_pos(t_ray *r, t_level *l, t_obj *object, t_camera *cam)
 	new_hit = -1;
 	while (i < object->tri_amount)
 	{
-		tmp = cast_face(object->tris[i], *r, &res);
+		tmp = cast_face(object->tris[i], *r, NULL);
 		if (tmp > 0 && tmp < dist)
 		{
 			dist = tmp;

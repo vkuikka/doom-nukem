@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/21 16:54:13 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/05/27 14:08:07 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/06/20 11:13:52 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,7 +136,9 @@ int		is_mirror(t_tri a, t_tri b, int *not_shared_vertex_index)
 void	find_quads(t_obj *obj)
 {
 	int quads = 0;
+	int	tris;
 
+	tris = obj->tri_amount;
 	for (int i = 0; i < obj->tri_amount; i++)
 	{
 		for (int j = 0; j < obj->tri_amount; j++)
@@ -161,7 +163,7 @@ void	find_quads(t_obj *obj)
 			}
 		}
 	}
-	if (!(obj->tris = (t_tri*)realloc(obj->tris, sizeof(t_tri) * obj->tri_amount)))
+	if (!(obj->tris = (t_tri*)ft_realloc(obj->tris, sizeof(t_tri) * tris, sizeof(t_tri) * obj->tri_amount)))
 		ft_error("memory allocation failed\n");
 	printf("quads = %d\n", quads);
 }

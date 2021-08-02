@@ -218,7 +218,6 @@ static void		keyboard_input(t_window *window, t_level *level, SDL_Event event, t
 	}
 	else if (event.key.keysym.scancode == SDL_SCANCODE_R)
 	{
-		Mix_PlayChannel(AUDIO_RELOAD_CHANNEL, level->audio.reload, 0);
 		level->reload_start_time = SDL_GetTicks();
 	}
 	else if (event.key.keysym.scancode == SDL_SCANCODE_T)
@@ -259,20 +258,19 @@ static void	player_reload(t_level *level)
 
 void		game_logic(t_level *level, t_game_state *game_state)
 {
+	handle_audio(level, game_state);
 	if (level->reload_start_time && *game_state != GAME_STATE_DEAD)
 		player_reload(level);
 	if (level->ui.state.m1_click && level->ui.state.mouse_capture && *game_state != GAME_STATE_DEAD)
 	{
 		if (level->player_ammo)
 		{
-			Mix_PlayChannel(AUDIO_GUNSHOT_CHANNEL, level->audio.gunshot, 0);
 			level->player_ammo--;
 			level->player.dir = level->cam.front;
 			create_projectile(level, level->cam.pos, level->cam.front, &level->player);
 		}
 		else
 		{
-			Mix_PlayChannel(AUDIO_RELOAD_CHANNEL, level->audio.reload, 0);
 			level->reload_start_time = SDL_GetTicks();
 		}
 	}
@@ -301,8 +299,6 @@ void		game_logic(t_level *level, t_game_state *game_state)
 	}
 	else if (level->player_health <= 0)
 	{
-		Mix_HaltMusic();
-		Mix_PlayChannel(AUDIO_DEATH_CHANNEL, level->audio.death, 0);
 		level->reload_start_time = 0;
 		level->death_start_time = SDL_GetTicks();
 		*game_state = GAME_STATE_DEAD;
@@ -332,13 +328,16 @@ int			main(int argc, char **argv)
 
 	game_state = GAME_STATE_MAIN_MENU;
 	game_state = GAME_STATE_EDITOR;//remove
-	init_level(&level);
+	level = init_level();
 	init_audio(level);
 	init_window(&window);
 	init_ui(window, level);
 	init_screen_space_partition(level);
 	init_culling(level);
 	init_player(&level->player);
+
+	open_level(level, "level/demo.doom-nukem");
+	start_bake(level);
 	while (1)
 	{
 		frametime = SDL_GetTicks();

@@ -83,7 +83,7 @@ int				skybox(t_level *l, t_obj *obj, t_ray r)
 	for (int i = 0; i < obj->tri_amount; i++)
 		if (0 < cast_face(obj->tris[i], r, &res))
 		{
-			face_color(res.u, res.v, obj->tris[i], &res);
+			face_color(res.uv.x, res.uv.y, obj->tris[i], &res);
 			res.color = brightness(res.color >> 8, tmp) + 0xff;
 			return (res.color);
 		}
