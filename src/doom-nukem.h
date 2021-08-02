@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   doom-nukem.h                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alcohen <alcohen@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: lsjoberg <lsjoberg@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/06/30 17:10:57 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/06/30 17:30:24 by lsjoberg         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,7 +76,7 @@
 # define PLAYER_AMMO_MAX 30
 # define DEATH_LENGTH_SEC 5
 # define DEATH_OVERLAY_COLOR 0xff000088
-# define VIEWMODEL_FRAMES 6
+# define VIEWMODEL_FRAMES 10
 # define VIEWMODEL_ANIM_FPS 2.0
 
 # define NONFATAL_ERROR_LIFETIME_SECONDS 7.42
