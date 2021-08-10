@@ -15,7 +15,7 @@
 /*
 **	Returns false if whole face is ahead
 */
-int				cull_ahead(t_vec3 dir, t_vec3 pos, t_tri tri)
+int	cull_ahead(t_vec3 dir, t_vec3 pos, t_tri tri)
 {
 	t_vec3	vert;
 	int		i;
@@ -34,7 +34,7 @@ int				cull_ahead(t_vec3 dir, t_vec3 pos, t_tri tri)
 /*
 **	Returns false if whole face is behind
 */
-int				cull_behind(t_vec3 dir, t_vec3 pos, t_tri tri)
+int	cull_behind(t_vec3 dir, t_vec3 pos, t_tri tri)
 {
 	t_vec3	vert;
 	int		i;
@@ -50,7 +50,7 @@ int				cull_behind(t_vec3 dir, t_vec3 pos, t_tri tri)
 	return (FALSE);
 }
 
-static int		fov_culling(t_vec3 side_normal[4], t_vec3 pos, t_tri tri)
+static int	fov_culling(t_vec3 side_normal[4], t_vec3 pos, t_tri tri)
 {
 	t_vec3	end;
 	int		out[4][4];
@@ -82,14 +82,21 @@ static int		fov_culling(t_vec3 side_normal[4], t_vec3 pos, t_tri tri)
 	return (1);
 }
 
-static int		distance_culling(t_tri tri, t_vec3 player, float render_distance)
+static int	distance_culling(t_tri tri, t_vec3 player, float render_distance)
 {
 	t_vec3	v;
-	float	min = FLT_MAX;
-	float	max = 0;
+	float	min;
+	float	max;
 	float	len;
+	t_vec3	v1v2;
+	t_vec3	v0v3;
+	t_vec3	v1v3;
+	int		i;
 
-	for (int i = 0; i < 3 + tri.isquad; i++)
+	min = FLT_MAX;
+	max = 0;
+	i = 0;
+	while (i < 3 + tri.isquad)
 	{
 		vec_sub(&v, tri.verts[i].pos, player);
 		len = vec_length(v);
@@ -97,10 +104,10 @@ static int		distance_culling(t_tri tri, t_vec3 player, float render_distance)
 			min = len;
 		if (len > max)
 			max = len;
+		i++;
 	}
 	if (min < render_distance)
 		return (1);
-	t_vec3	v1v2;
 	vec_sub(&v1v2, tri.verts[2].pos, tri.verts[1].pos);
 	min = vec_length(v1v2);
 	len = vec_length(tri.v0v1);
@@ -111,12 +118,8 @@ static int		distance_culling(t_tri tri, t_vec3 player, float render_distance)
 		len = min;
 	if (tri.isquad)
 	{
-		t_vec3	v0v3;
-		t_vec3	v1v3;
-		t_vec3	v2v3;
 		vec_sub(&v0v3, tri.verts[3].pos, tri.verts[0].pos);
 		vec_sub(&v1v3, tri.verts[3].pos, tri.verts[1].pos);
-		vec_sub(&v2v3, tri.verts[3].pos, tri.verts[2].pos);
 		min = vec_length(v0v3);
 		if (len < min)
 			len = min;
@@ -130,7 +133,7 @@ static int		distance_culling(t_tri tri, t_vec3 player, float render_distance)
 	return (max < len);
 }
 
-static int		backface_culling(t_vec3 pos, t_tri tri)
+static int	backface_culling(t_vec3 pos, t_tri tri)
 {
 	t_vec3	normal;
 	t_vec3	diff;
@@ -156,7 +159,7 @@ static int		backface_culling(t_vec3 pos, t_tri tri)
 
 static int	reflection_backface(t_tri t1, t_tri t2)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	while (i < 3 + t2.isquad)
@@ -168,26 +171,27 @@ static int	reflection_backface(t_tri t1, t_tri t2)
 	return (0);
 }
 
-static void		calculate_side_normals(t_vec3 normal[4], t_vec3 corner[4])
+static void	calculate_side_normals(t_vec3 normal[4], t_vec3 corner[4])
 {
-	vec_cross(&normal[0], corner[2], corner[0]);	//left
-	vec_cross(&normal[1], corner[1], corner[3]);	//right
-	vec_cross(&normal[2], corner[0], corner[1]);	//top
-	vec_cross(&normal[3], corner[3], corner[2]);	//bot
+	vec_cross(&normal[0], corner[2], corner[0]); // left
+	vec_cross(&normal[1], corner[1], corner[3]); // right
+	vec_cross(&normal[2], corner[0], corner[1]); // top
+	vec_cross(&normal[3], corner[3], corner[2]); // bot
 }
 
-void			shadow_face_culling(t_level *level, int i)
+void	shadow_face_culling(t_level *level, int i)
 {
-	t_tri		target;
-	t_vec3		avg = {0, 0, 0};
-	t_vec3		tmp[2];
-	t_vec3		v[4];
+	t_tri	target;
+	t_vec3	avg;
+	t_vec3	tmp[2];
+	t_vec3	v[4];
+	int		amount;
 
+	ft_memset(&avg, 0, sizeof(t_vec3));
 	target = level->all.tris[i];
 	for (int o = 0; o < 3 + target.isquad; o++)
 		vec_add(&avg, avg, target.verts[o].pos);
 	vec_div(&avg, 3 + target.isquad);
-
 	tmp[0] = level->ui.sun_dir;
 	vec_sub(&tmp[1], target.verts[0].pos, target.verts[1].pos);
 	vec_cross(&v[0], tmp[1], tmp[0]);
@@ -195,10 +199,8 @@ void			shadow_face_culling(t_level *level, int i)
 	{
 		vec_sub(&tmp[1], target.verts[1].pos, target.verts[3].pos);
 		vec_cross(&v[1], tmp[1], tmp[0]);
-
 		vec_sub(&tmp[1], target.verts[3].pos, target.verts[2].pos);
 		vec_cross(&v[3], tmp[1], tmp[0]);
-
 		vec_sub(&tmp[1], target.verts[2].pos, target.verts[0].pos);
 		vec_cross(&v[2], tmp[1], tmp[0]);
 	}
@@ -211,18 +213,19 @@ void			shadow_face_culling(t_level *level, int i)
 		v[3] = v[0];
 		target.verts[3].pos = target.verts[0].pos;
 	}
-	int amount = 0;
+	amount = 0;
 	for (int k = 0; k < level->all.tri_amount; k++)
 	{
 		if (k != i && cull_behind(level->all.tris[i].normal, avg, level->all.tris[k]))
 		{
-			if (level->all.tris[k].isgrid || target.isgrid ||
-				(cull_behind(v[0], target.verts[0].pos, level->all.tris[k]) &&
-				cull_behind(v[1], target.verts[1].pos, level->all.tris[k]) &&
-				cull_behind(v[2], target.verts[2].pos, level->all.tris[k]) &&
-				cull_behind(v[3], target.verts[3].pos, level->all.tris[k])))
+			if (level->all.tris[k].isgrid || target.isgrid
+				|| (cull_behind(v[0], target.verts[0].pos, level->all.tris[k])
+				&& cull_behind(v[1], target.verts[1].pos, level->all.tris[k])
+				&& cull_behind(v[2], target.verts[2].pos, level->all.tris[k])
+				&& cull_behind(v[3], target.verts[3].pos, level->all.tris[k])))
 			{
-				level->all.tris[i].shadow_faces->tris[amount] = level->all.tris[k];
+				level->all.tris[i].shadow_faces->tris[amount] =
+					level->all.tris[k];
 				amount++;
 			}
 		}
@@ -230,23 +233,23 @@ void			shadow_face_culling(t_level *level, int i)
 	level->all.tris[i].shadow_faces->tri_amount = amount;
 }
 
-void			reflection_culling_first_bounce(t_level *level, int i)
+void	reflection_culling_first_bounce(t_level *level, int i)
 {
-	t_vec3		avg_dir = {0, 0, 0};
-	t_vec3		pos;
-	t_vec3		normal;
-	t_vec3		corner[4];
-	t_vec3		side_normals[4];
+	t_vec3	avg_dir;
+	t_vec3	pos;
+	t_vec3	normal;
+	t_vec3	corner[4];
+	t_vec3	side_normals[4];
+	int		amount;
 
+	ft_memset(&avg_dir, 0, sizeof(t_vec3));
 	if (level->all.tris[i].reflectivity)
 	{
 		level->all.tris[i].reflection_obj_first_bounce->tri_amount = 0;
-
 		for (int o = 0; o < 3 + level->all.tris[i].isquad; o++)
 			vec_add(&avg_dir, avg_dir, level->all.tris[i].verts[o].pos);
 		vec_div(&avg_dir, 3 + level->all.tris[i].isquad);
 		vec_sub(&avg_dir, avg_dir, level->cam.pos);
-
 		normal = level->all.tris[i].normal;
 		vec_mult(&normal, vec_dot(avg_dir, normal));
 		pos = level->cam.pos;
@@ -256,7 +259,6 @@ void			reflection_culling_first_bounce(t_level *level, int i)
 		normal = level->all.tris[i].normal;
 		vec_mult(&normal, vec_dot(avg_dir, normal) * -2);
 		vec_add(&avg_dir, avg_dir, normal);
-
 		corner[0] = level->all.tris[i].verts[0].pos;
 		corner[1] = level->all.tris[i].verts[1].pos;
 		corner[2] = level->all.tris[i].verts[2].pos;
@@ -272,14 +274,19 @@ void			reflection_culling_first_bounce(t_level *level, int i)
 		calculate_side_normals(side_normals, corner);
 		if (!level->all.tris[i].isquad)
 			side_normals[3] = side_normals[0];
-
-		int amount = 0;
+		amount = 0;
 		for (int k = 0; k < level->all.tris[i].reflection_obj_all->tri_amount; k++)
 		{
-			if ((level->all.tris[i].reflection_obj_all->tris[k].isgrid || cull_behind(avg_dir, pos, level->all.tris[i].reflection_obj_all->tris[k])) &&
-				fov_culling(side_normals, pos, level->all.tris[i].reflection_obj_all->tris[k]))
+			if ((level->all.tris[i].reflection_obj_all->tris[k].isgrid ||
+					cull_behind(avg_dir,
+								pos,
+								level->all.tris[i].reflection_obj_all->tris[k])) &&
+				fov_culling(side_normals,
+							pos,
+							level->all.tris[i].reflection_obj_all->tris[k]))
 			{
-				level->all.tris[i].reflection_obj_first_bounce->tris[amount] = level->all.tris[i].reflection_obj_all->tris[k];
+				level->all.tris[i].reflection_obj_first_bounce->tris[amount] =
+					level->all.tris[i].reflection_obj_all->tris[k];
 				amount++;
 			}
 		}
@@ -287,23 +294,27 @@ void			reflection_culling_first_bounce(t_level *level, int i)
 	}
 }
 
-void		reflection_culling(t_level *level, int i)
+void	reflection_culling(t_level *level, int i)
 {
+	t_vec3	avg;
+	int		amount;
+
 	if (level->all.tris[i].reflectivity)
 	{
 		level->all.tris[i].reflection_obj_all->tri_amount = 0;
-		t_vec3 avg = {0, 0, 0};
+		ft_memset(&avg, 0, sizeof(t_vec3));
 		for (int o = 0; o < 3 + level->all.tris[i].isquad; o++)
 			vec_add(&avg, avg, level->all.tris[i].verts[o].pos);
 		vec_div(&avg, 3 + level->all.tris[i].isquad);
-		int amount = 0;
+		amount = 0;
 		for (int k = 0; k < level->all.tri_amount; k++)
 		{
 			if ((level->all.tris[k].isenemy || level->all.tris[k].isgrid ||
 					cull_behind(level->all.tris[i].normal, avg, level->all.tris[k])) &&
-					reflection_backface(level->all.tris[k], level->all.tris[i]))
+				reflection_backface(level->all.tris[k], level->all.tris[i]))
 			{
-				level->all.tris[i].reflection_obj_all->tris[amount] = level->all.tris[k];
+				level->all.tris[i].reflection_obj_all->tris[amount]
+					= level->all.tris[k];
 				amount++;
 			}
 		}
@@ -311,28 +322,35 @@ void		reflection_culling(t_level *level, int i)
 	}
 }
 
-void		opacity_culling(t_level *level, int i)
+void	opacity_culling(t_level *level, int i)
 {
+	t_vec3	avg;
+	int		amount;
+	int		k;
+
 	level->all.tris[i].opacity_obj_all->tri_amount = 0;
-	t_vec3 avg = {0, 0, 0};
-	for (int o = 0; o < 3 + level->all.tris[i].isquad; o++)
-		vec_add(&avg, avg, level->all.tris[i].verts[o].pos);
+	ft_memset(&avg, 0, sizeof(t_vec3));
+	k = -1;
+	while (++k < 3 + level->all.tris[i].isquad)
+		vec_add(&avg, avg, level->all.tris[i].verts[k].pos);
 	vec_div(&avg, 3 + level->all.tris[i].isquad);
-	int amount = 0;
-	for (int k = 0; k < level->all.tri_amount; k++)
+	amount = 0;
+	k = 0;
+	while (k < level->all.tri_amount)
 	{
-		if ((level->all.tris[k].isenemy || level->all.tris[k].isgrid ||
-				cull_ahead(level->all.tris[i].normal, avg, level->all.tris[k])) &&
-				backface_culling(level->cam.pos, level->all.tris[k]))
+		if ((level->all.tris[k].isenemy || level->all.tris[k].isgrid
+			|| cull_ahead(level->all.tris[i].normal, avg, level->all.tris[k]))
+			&& backface_culling(level->cam.pos, level->all.tris[k]))
 		{
 			level->all.tris[i].opacity_obj_all->tris[amount] = level->all.tris[k];
 			amount++;
 		}
+		k++;
 	}
 	level->all.tris[i].opacity_obj_all->tri_amount = amount;
 }
 
-void		free_culling(t_level *level)
+void	free_culling(t_level *level)
 {
 	for (int i = 0; i < level->all.tri_amount; i++)
 	{
@@ -347,35 +365,45 @@ void		free_culling(t_level *level)
 	}
 }
 
-void		init_culling(t_level *level)
+void	init_culling(t_level *level)
 {
-	for (int i = 0; i < level->all.tri_amount; i++)
+	int	i;
+
+	i = -1;
+	while (++i < level->all.tri_amount)
 	{
+		//check malloc return values
 		level->all.tris[i].index = i;
-		level->all.tris[i].reflection_obj_all = (t_obj*)malloc(sizeof(t_obj));
-		level->all.tris[i].reflection_obj_all->tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount);
+		level->all.tris[i].reflection_obj_all = (t_obj *)malloc(sizeof(t_obj));
+		level->all.tris[i].reflection_obj_all->tris =
+			(t_tri *)malloc(sizeof(t_tri) * level->all.tri_amount);
 		level->all.tris[i].reflection_obj_all->tri_amount = 0;
-		level->all.tris[i].reflection_obj_first_bounce = (t_obj*)malloc(sizeof(t_obj));
-		level->all.tris[i].reflection_obj_first_bounce->tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount);
+		level->all.tris[i].reflection_obj_first_bounce =
+			(t_obj *)malloc(sizeof(t_obj));
+		level->all.tris[i].reflection_obj_first_bounce->tris =
+			(t_tri *)malloc(sizeof(t_tri) * level->all.tri_amount);
 		level->all.tris[i].reflection_obj_first_bounce->tri_amount = 0;
-		level->all.tris[i].opacity_obj_all = (t_obj*)malloc(sizeof(t_obj));
-		level->all.tris[i].opacity_obj_all->tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount);
+		level->all.tris[i].opacity_obj_all = (t_obj *)malloc(sizeof(t_obj));
+		level->all.tris[i].opacity_obj_all->tris =
+			(t_tri *)malloc(sizeof(t_tri) * level->all.tri_amount);
 		level->all.tris[i].opacity_obj_all->tri_amount = 0;
-		level->all.tris[i].shadow_faces = (t_obj*)malloc(sizeof(t_obj));
-		level->all.tris[i].shadow_faces->tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount);
+		level->all.tris[i].shadow_faces = (t_obj *)malloc(sizeof(t_obj));
+		level->all.tris[i].shadow_faces->tris =
+			(t_tri *)malloc(sizeof(t_tri) * level->all.tri_amount);
 		level->all.tris[i].shadow_faces->tri_amount = 0;
 	}
-	for (int i = 0; i < level->all.tri_amount; i++)
+	i = -1;
+	while (++i < level->all.tri_amount)
 	{
 		reflection_culling(level, i);
 		opacity_culling(level, i);
 	}
 }
 
-static void		calculate_corner_vectors(t_vec3 corner[4], t_camera *cam)
+static void	calculate_corner_vectors(t_vec3 corner[4], t_camera *cam)
 {
-	float ym;
-	float xm;
+	float	ym;
+	float	xm;
 
 	ym = -cam->fov_y / 2;
 	xm = -cam->fov_x / 2;
@@ -399,14 +427,15 @@ static void		calculate_corner_vectors(t_vec3 corner[4], t_camera *cam)
 	corner[3].z = cam->front.z + cam->up.z * ym + cam->side.z * xm;
 }
 
-static void		skybox_culling(t_level *level, t_camera *cam, t_vec3 side_normals[4])
+static void	skybox_culling(t_level *level, t_camera *cam, t_vec3 side_normals[4])
 {
-	int visible_amount;
+	int	visible_amount;
 
 	visible_amount = 0;
 	for (int i = 0; i < level->sky.all.tri_amount; i++)
 	{
-		if (cull_behind(cam->front, (t_vec3){0, 0, 0}, level->sky.all.tris[i]) && fov_culling(side_normals, (t_vec3){0, 0, 0}, level->sky.all.tris[i]))
+		if (cull_behind(cam->front, (t_vec3){0, 0, 0}, level->sky.all.tris[i]) &&
+			fov_culling(side_normals, (t_vec3){0, 0, 0}, level->sky.all.tris[i]))
 		{
 			level->sky.visible.tris[visible_amount] = level->sky.all.tris[i];
 			visible_amount++;
@@ -415,23 +444,30 @@ static void		skybox_culling(t_level *level, t_camera *cam, t_vec3 side_normals[4
 	level->sky.visible.tri_amount = visible_amount;
 }
 
-void			culling(t_level *level)
+void	culling(t_level *level)
 {
 	t_vec3		corner[4];
 	t_vec3		side_normals[4];
 	t_camera	*cam;
+	int			visible_amount;
 
 	cam = &level->cam;
 	calculate_corner_vectors(corner, cam);
 	calculate_side_normals(side_normals, corner);
 	skybox_culling(level, cam, side_normals);
-	int visible_amount = 0;
+	visible_amount = 0;
 	for (int i = 0; i < level->all.tri_amount; i++)
 	{
 		if (level->all.tris[i].isgrid ||
-			(cull_behind(cam->front, cam->pos, level->all.tris[i]) && fov_culling(side_normals, cam->pos, level->all.tris[i]) &&
-			(!level->ui.distance_culling || level->all.tris[i].disable_distance_culling || distance_culling(level->all.tris[i], cam->pos, level->ui.render_distance)) &&
-			(!level->ui.backface_culling || level->all.tris[i].disable_backface_culling || backface_culling(cam->pos, level->all.tris[i]))))
+			(cull_behind(cam->front, cam->pos, level->all.tris[i]) &&
+				fov_culling(side_normals, cam->pos, level->all.tris[i]) &&
+				(!level->ui.distance_culling ||
+				level->all.tris[i].disable_distance_culling ||
+				distance_culling(
+					level->all.tris[i], cam->pos, level->ui.render_distance)) &&
+				(!level->ui.backface_culling ||
+				level->all.tris[i].disable_backface_culling ||
+				backface_culling(cam->pos, level->all.tris[i]))))
 		{
 			level->visible.tris[visible_amount] = level->all.tris[i];
 			visible_amount++;
@@ -443,7 +479,8 @@ void			culling(t_level *level)
 		visible_amount = 0;
 		for (int i = 0; i < level->visible.tri_amount; i++)
 		{
-			if (level->visible.tris[i].isgrid || occlusion_culling(level->visible.tris[i], level))
+			if (level->visible.tris[i].isgrid
+				|| occlusion_culling(level->visible.tris[i], level))
 			{
 				reflection_culling_first_bounce(level, level->visible.tris[i].index);
 				if (level->baked != BAKE_BAKED)
