@@ -52,7 +52,7 @@ t_level	*init_level(void)
 			* (level->texture.width * level->texture.height));
 	if (!level->baked)
 		ft_error("memory allocation failed\n");
-	level->spray_overlay = (unsigned *)malloc(sizeof(unsigned)
+	level->spray_overlay = (unsigned int *)malloc(sizeof(unsigned int)
 			* (level->texture.width * level->texture.height));
 	if (!level->spray_overlay)
 		ft_error("memory allocation failed\n");
