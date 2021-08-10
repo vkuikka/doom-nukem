@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/11 01:37:41 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/11 02:05:24 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,17 +111,17 @@ void	cast_all_color(t_ray r, t_level *l, t_obj *obj, t_cast_result *res)
 
 int	raycast(void *data_pointer)
 {
+	int				rand_amount;
+	int				pixel_gap;
+	float			fov_x;
+	t_camera		*cam;
+	t_cast_result	res;
 	t_rthread		*t;
 	t_ray			r;
-	t_camera		*cam;
-	int				pixel_gap;
-	int				rand_amount;
-	float			fov_x;
 	float			xm;
-	t_cast_result	res;
+	float			ym;
 	int				x;
 	int				y;
-	int				ym;
 
 	t = data_pointer;
 	cam = &t->level->cam;
