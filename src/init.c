@@ -12,10 +12,13 @@
 
 #include "doom-nukem.h"
 
-SDL_Texture		*empty_texture(SDL_Renderer *renderer)
+SDL_Texture	*empty_texture(SDL_Renderer *renderer)
 {
-	SDL_Texture *texture = NULL;
-	texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, RES_X, RES_Y);
+	SDL_Texture	*texture;
+
+	texture = NULL;
+	texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888,
+			SDL_TEXTUREACCESS_STREAMING, RES_X, RES_Y);
 	SDL_SetRenderTarget(renderer, texture);
 	SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
@@ -24,11 +27,14 @@ SDL_Texture		*empty_texture(SDL_Renderer *renderer)
 	return (texture);
 }
 
-t_level			*init_level(void)
+t_level	*init_level(void)
 {
-	t_level		*level;
+	t_level	*level;
+	int		i;
+	char	viewmodel_name[] = "embed/viewmodel/ak_0.bmp";
 
-	if (!(level = (t_level *)malloc(sizeof(t_level))))
+	level = (t_level *)malloc(sizeof(t_level));
+	if (!level)
 		ft_error("memory allocation failed\n");
 	ft_bzero(level, sizeof(t_level));
 	level->player_health = PLAYER_HEALTH_MAX;
@@ -42,54 +48,66 @@ t_level			*init_level(void)
 	level->main_menu_anim_time = 2;
 	level->world_brightness = 0.15;
 	level->texture = bmp_read("out.bmp");
-	if (!(level->baked = (t_color *)malloc(sizeof(t_color) * (level->texture.width * level->texture.height))))
+	level->baked = (t_color *)malloc(sizeof(t_color)
+			* (level->texture.width * level->texture.height));
+	if (!level->baked)
 		ft_error("memory allocation failed\n");
-	if (!(level->spray_overlay = (unsigned *)malloc(sizeof(unsigned) * (level->texture.width * level->texture.height))))
+	level->spray_overlay = (unsigned *)malloc(sizeof(unsigned)
+			* (level->texture.width * level->texture.height));
+	if (!level->spray_overlay)
 		ft_error("memory allocation failed\n");
-	ft_bzero(level->spray_overlay, level->texture.width * level->texture.height * 4);
+	ft_bzero(level->spray_overlay,
+		level->texture.width * level->texture.height * 4);
 	level->bake_status = BAKE_NOT_BAKED;
-
 	level->normal_map = bmp_read("normal.bmp");
 	load_obj("embed/skybox.obj", &level->sky.all);
 	load_obj("embed/skybox.obj", &level->sky.visible);
 	level->sky.img = bmp_read("skybox.bmp");
 	level->spray = bmp_read("spray.bmp");
-
 	level->main_menu_title = bmp_read("embed/title.bmp");
-
-	char viewmodel_name[] = "embed/viewmodel/ak_0.bmp";
-	for (int i = 0; i < VIEWMODEL_FRAMES; i++)
+	i = 0;
+	while (i < VIEWMODEL_FRAMES)
 	{
 		viewmodel_name[19] = '0' + i;
 		level->viewmodel[i] = bmp_read(viewmodel_name);
+		i++;
 	}
-
-	if (!(level->visible.tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount)))
+	level->visible.tris = (t_tri *)malloc(sizeof(t_tri)
+			* level->all.tri_amount);
+	if (!level->visible.tris)
 		ft_error("memory allocation failed\n");
 	return (level);
 }
 
-void			init_window(t_window **window)
+void	init_window(t_window **window)
 {
-	if (SDL_Init(SDL_INIT_EVERYTHING))// || !IMG_Init(IMG_INIT_PNG))
+	if (SDL_Init(SDL_INIT_EVERYTHING))
 		ft_error("could not initialize SDL\n");
-	if (!(*window = (t_window *)malloc(sizeof(t_window))))
+	*window = (t_window *)malloc(sizeof(t_window));
+	if (!*window)
 		ft_error("memory allocation failed\n");
-	if (!(window[0]->SDLwindow = SDL_CreateWindow("DOOM NUKEM", SDL_WINDOWPOS_CENTERED,
-							SDL_WINDOWPOS_CENTERED, RES_X, RES_Y, 0)))
+	window[0]->SDLwindow = SDL_CreateWindow("DOOM NUKEM",
+			SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+			RES_X, RES_Y, 0);
+	if (!window[0]->SDLwindow)
 		ft_error("could not create window");
-	if (!(window[0]->SDLrenderer = SDL_CreateRenderer(window[0]->SDLwindow, -1, 0)))
+	window[0]->SDLrenderer
+		= SDL_CreateRenderer(window[0]->SDLwindow, -1, 0);
+	if (!window[0]->SDLrenderer)
 		ft_error("could not create renderer");
 	window[0]->texture = empty_texture(window[0]->SDLrenderer);
 	window[0]->frame_buffer = NULL;
-	if (!(window[0]->depth_buffer = (float *)malloc(sizeof(float) * (RES_X * RES_Y))))
+	window[0]->depth_buffer
+		= (float *)malloc(sizeof(float) * (RES_X * RES_Y));
+	if (!window[0]->depth_buffer)
 		ft_error("memory allocation failed\n");
 }
 
-void			init_enemy(t_tri *face)
+void	init_enemy(t_tri *face)
 {
 	face->isenemy = 1;
-	if (!(face->enemy = (t_enemy*)malloc(sizeof(t_enemy))))
+	face->enemy = (t_enemy *)malloc(sizeof(t_enemy));
+	if (!face->enemy)
 		ft_error("memory allocation failed");
 	ft_bzero(face->enemy, sizeof(t_enemy));
 	face->enemy->move_speed = 2;
@@ -110,7 +128,7 @@ void			init_enemy(t_tri *face)
 	face->enemy->projectile_uv[2].y = 1;
 }
 
-void			init_player(t_enemy *player)
+void	init_player(t_enemy *player)
 {
 	player->move_speed = RUN_SPEED;
 	player->initial_health = 100;
@@ -136,16 +154,22 @@ void	init_audio(t_level *l)
 	l->audio.sound_effect_volume = AUDIO_VOLUME_INIT;
 	Mix_VolumeMusic(l->audio.music_volume);
 	Mix_Volume(-1, l->audio.sound_effect_volume);
-	if (!(l->audio.music = Mix_LoadMUS(AUDIO_MUSIC)))
+	l->audio.music = Mix_LoadMUS(AUDIO_MUSIC);
+	if (!l->audio.music)
 		ft_error(AUDIO_MUSIC);
-	if (!(l->audio.jump = Mix_LoadWAV(AUDIO_JUMP)))
+	l->audio.jump = Mix_LoadWAV(AUDIO_JUMP);
+	if (!l->audio.jump)
 		ft_error(AUDIO_JUMP);
-	if (!(l->audio.gunshot = Mix_LoadWAV(AUDIO_GUNSHOT)))
+	l->audio.gunshot = Mix_LoadWAV(AUDIO_GUNSHOT);
+	if (!l->audio.gunshot)
 		ft_error(AUDIO_GUNSHOT);
-	if (!(l->audio.reload = Mix_LoadWAV(AUDIO_RELOAD)))
+	l->audio.reload = Mix_LoadWAV(AUDIO_RELOAD);
+	if (!l->audio.reload)
 		ft_error(AUDIO_RELOAD);
-	if (!(l->audio.death = Mix_LoadWAV(AUDIO_DEATH)))
+	l->audio.death = Mix_LoadWAV(AUDIO_DEATH);
+	if (!l->audio.death)
 		ft_error(AUDIO_DEATH);
-	if (!(l->audio.door = Mix_LoadWAV(AUDIO_DOOR)))
+	l->audio.door = Mix_LoadWAV(AUDIO_DOOR);
+	if (!l->audio.door)
 		ft_error(AUDIO_DOOR);
 }
