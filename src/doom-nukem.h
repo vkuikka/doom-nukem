@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   doom-nukem.h                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lsjoberg <lsjoberg@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/06/30 17:30:24 by lsjoberg         ###   ########.fr       */
+/*   Updated: 2021/08/10 19:45:38 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -573,6 +573,8 @@ void		vec_avg(t_vec3 *res, t_vec3 ve1, t_vec3 ve2);
 float		vec_angle(t_vec3 v1, t_vec3 v2);
 void		vec_mult(t_vec3 *res, float mult);
 void		vec_div(t_vec3 *res, float div);
+t_vec3		vec_interpolate(t_vec3 a, t_vec3 b, float f);
+float		lerp(float a, float b, float f);
 float		vec2_length(t_vec2 vec);
 void		vec2_avg(t_vec2 *res, t_vec2 ve1, t_vec2 ve2);
 void		vec2_sub(t_vec2 *res, t_vec2 ve1, t_vec2 ve2);
@@ -675,9 +677,6 @@ void		remove_faces(t_level *level);
 void		nonfatal_error(t_level *level, char *message);
 t_ivec2		put_text(char *text, t_window *window, SDL_Texture *texture, t_ivec2 pos);
 void		set_new_face(t_level *level, t_vec3 pos, t_vec3 dir, float scale);
-
-t_vec3		vec_interpolate(t_vec3 a, t_vec3 b, float f);
-float		lerp(float a, float b, float f);
 
 void		door_animate(t_level *level);
 void		door_put_text(t_window *window, t_level *level);

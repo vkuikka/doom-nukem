@@ -3,14 +3,29 @@
 /*                                                        :::      ::::::::   */
 /*   vectors.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/07 18:13:00 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/06/04 19:58:58 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/08/10 19:43:34 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom-nukem.h"
+
+float	lerp(float a, float b, float f)
+{
+	return (a + f * (b - a));
+}
+
+t_vec3	vec_interpolate(t_vec3 a, t_vec3 b, float f)
+{
+	t_vec3	res;
+
+	res.x = lerp(a.x, b.x, f);
+	res.y = lerp(a.y, b.y, f);
+	res.z = lerp(a.z, b.z, f);
+	return (res);
+}
 
 float		Q_rsqrt(float number)
 {
