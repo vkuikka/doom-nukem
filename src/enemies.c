@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/14 17:08:49 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/10 20:20:18 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/10 20:56:26 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -240,11 +240,10 @@ static void	move_projectile(t_tri *face, t_level *level, float time)
 
 void	enemies_update_sprites(t_level *level)
 {
-	static int	time;
+	static int	time = 0;
 	int			delta_time;
 	int			face;
 
-	time = 0;
 	face = 0;
 	delta_time = SDL_GetTicks() - time;
 	while (face < level->all.tri_amount)
