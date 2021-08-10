@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/10 22:43:11 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/10 22:48:09 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -591,6 +591,7 @@ int			get_ssp_coordinate(int coord, int horizontal);
 
 void		read_input(t_window *window, t_level *level,
 									t_game_state *game_state);
+void		game_logic(t_level *level, t_game_state *game_state);
 int			raycast(void *t);
 float		cast_face(t_tri t, t_ray ray, t_cast_result *res);
 float		cast_all(t_ray vec, t_level *level, float *dist_u, float *dist_d, int *index);
