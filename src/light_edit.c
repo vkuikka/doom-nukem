@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   light_edit.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/21 20:19:04 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/06/20 11:15:02 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/08/10 22:04:38 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,10 @@ void	light_put_text(t_window *window, t_level *level)
 {
 	t_ivec2	text_pos;
 	t_vec3	pos;
+	int		i;
 
-	for (int i = 0; i < level->light_amount; i++)
+	i = -1;
+	while (++i < level->light_amount)
 	{
 		pos = level->lights[i].pos;
 		camera_offset(&pos, &level->cam);
@@ -45,15 +47,18 @@ void	select_light(t_level *level, int x, int y)
 	float	len;
 	t_vec2	test;
 	t_vec3	vert;
+	int		i;
 
 	level->selected_light_index = 0;
 	nearest_len = -1;
 	nearest_index = -1;
-	for (int i = 0; i < level->light_amount; i++)
+	i = -1;
+	while (++i < level->light_amount)
 	{
 		vert = level->lights[i].pos;
 		camera_offset(&vert, &level->cam);
-		if (vert.z < 0 || vert.x < 0 || vert.x > RES_X || vert.y < 0 || vert.y > RES_Y)
+		if (vert.z < 0 || vert.x < 0 || vert.x > RES_X || vert.y < 0
+			|| vert.y > RES_Y)
 			continue ;
 		test.x = vert.x;
 		test.y = vert.y;
@@ -75,16 +80,21 @@ void	move_light(t_level *level, t_vec3 move_amount)
 	if (level->selected_light_index)
 	{
 		vec_add(&level->lights[level->selected_light_index - 1].pos,
-			level->lights[level->selected_light_index - 1].pos, move_amount);
-		level->ui.state.gizmo_pos = level->lights[level->selected_light_index - 1].pos;
+			level->lights[level->selected_light_index - 1].pos,
+			move_amount);
+		level->ui.state.gizmo_pos
+			= level->lights[level->selected_light_index - 1].pos;
 	}
 }
 
 void	delete_light(t_level *level)
 {
+	int	i;
+
 	if (level->light_amount < 1)
 		return ;
-	for (int i = level->selected_light_index - 1; i < level->light_amount - 1; i++)
+	i = level->selected_light_index - 2;
+	while (++i < level->light_amount - 1)
 		level->lights[i] = level->lights[i + 1];
 	level->light_amount--;
 	if (level->light_amount < 1)
@@ -94,7 +104,10 @@ void	delete_light(t_level *level)
 	}
 	else
 	{
-		if (!(level->lights = (t_light*)ft_realloc(level->lights, sizeof(t_light) * level->light_amount + 1, sizeof(t_light) * level->light_amount)))
+		level->lights = (t_light *)ft_realloc(level->lights,
+				sizeof(t_light) * level->light_amount + 1,
+				sizeof(t_light) * level->light_amount);
+		if (!level->lights)
 			ft_error("memory allocation failed\n");
 	}
 	level->selected_light_index = 0;
@@ -104,9 +117,14 @@ void	delete_light(t_level *level)
 void	add_light(t_level *level)
 {
 	level->light_amount++;
-    if (!(level->lights = (t_light*)ft_realloc(level->lights, sizeof(t_light) * level->light_amount - 1, sizeof(t_light) * level->light_amount)))
+	level->lights = (t_light *)ft_realloc(level->lights,
+			sizeof(t_light) * level->light_amount - 1,
+			sizeof(t_light) * level->light_amount);
+	if (!level->lights)
 		ft_error("memory allocation failed\n");
-	vec_add(&level->lights[level->light_amount - 1].pos, level->cam.pos, level->cam.front);
+	vec_add(&level->lights[level->light_amount - 1].pos,
+		level->cam.pos,
+		level->cam.front);
 	level->lights[level->light_amount - 1].color.r = 1;
 	level->lights[level->light_amount - 1].color.g = 1;
 	level->lights[level->light_amount - 1].color.b = 1;
