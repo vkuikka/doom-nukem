@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main_menu.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/19 18:51:47 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/05/19 18:51:47 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/09 17:24:37 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,7 +128,7 @@ void			main_menu(t_level *level, t_window *window, t_game_state *game_state)
 	rect = main_menu_button_text("play level", window, texture, 0);
 	main_menu_text_background(rect, pixels);
 	int state_changed = FALSE;
-	if (mouse_collision(rect, level))
+	if (mouse_collision(rect, level) && level->bake_status != BAKE_BAKING)
 	{
 		*game_state = GAME_STATE_INGAME;
 		state_changed = TRUE;
