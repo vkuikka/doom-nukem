@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   shaders.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/31 16:52:44 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/21 19:51:29by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/08/11 19:32:10 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -154,17 +154,14 @@ unsigned int	shader_wave(t_vec3 mod, t_vec3 *normal,
 
 unsigned int	shader_rule30(t_vec3 pos)
 {
-	static char	**cells;
-	static int	allocated;
-	static int	started;
+	static char	**cells = NULL;
+	static int	allocated = 0;
+	static int	started = 0;
 	int			size;
 	int			res;
 	int			x;
 	int			y;
 
-	cells = NULL;
-	allocated = 0;
-	started = 0;
 	size = 10000;
 	if (!started)
 	{
