@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/10 22:48:09 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/11 15:59:22 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -706,5 +706,13 @@ t_vec3		get_normal(int vec);
 void		handle_audio(t_level *level, t_game_state *game_state);
 int			is_player_in_air(t_level *level, float height);
 void		spray(t_camera cam, t_level *level);
+void		set_obj(t_level *level, char *filename);
+void		set_texture(t_level *level, char *filename);
+void		set_skybox(t_level *level, char *filename);
+void		set_spray(t_level *level, char *filename);
+void		set_win_pos(t_level *level);
+void		set_spawn_pos(t_level *level);
+void		set_menu_pos_1(t_level *level);
+void		set_menu_pos_2(t_level *level);
 
 #endif
