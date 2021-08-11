@@ -184,7 +184,7 @@ void	render_wireframe(t_window *window, t_level *level, t_obj *obj,
 	int		j;
 
 	i = -1;
-	while (++i < amount)
+	while (++i < obj->tri_amount)
 	{
 		if (!level->ui.wireframe && (is_visible || !obj->tris[i].selected))
 			continue ;
