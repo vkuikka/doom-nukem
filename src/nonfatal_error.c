@@ -6,53 +6,45 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/11 16:04:11 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/11 16:04:49 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/11 16:36:07 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom-nukem.h"
 
-void		nonfatal_error(t_level *level, char *message)
+void	nonfatal_error(t_level *level, char *message)
 {
-	int i;
+	int	i;
 
 	level->ui.state.error_amount++;
 	i = level->ui.state.error_amount;
-	if (!(level->ui.state.error_start_time = (unsigned*)realloc(level->ui.state.error_start_time, sizeof(unsigned) * (i))))
+	level->ui.state.error_start_time = (unsigned int *)realloc(
+			level->ui.state.error_start_time, sizeof(unsigned int) * (i));
+	if (!level->ui.state.error_start_time)
 		ft_error("memory allocation failed\n");
 	level->ui.state.error_start_time[i - 1] = SDL_GetTicks();
-	if (!(level->ui.state.error_message = (char**)realloc(level->ui.state.error_message, sizeof(char*) * (i))))
+	level->ui.state.error_message = (char **)realloc(
+			level->ui.state.error_message, sizeof(char *) * (i));
+	if (!level->ui.state.error_message)
 		ft_error("memory allocation failed\n");
-	if (!(level->ui.state.error_message[i - 1] = (char*)malloc(sizeof(char) * ft_strlen(message) + 1)))
+	level->ui.state.error_message[i - 1]
+		= (char *)malloc(sizeof(char) * ft_strlen(message) + 1);
+	if (!level->ui.state.error_message[i - 1])
 		ft_error("memory allocation failed\n");
 	ft_strcpy(level->ui.state.error_message[i - 1], message);
 }
 
-static void	ui_remove_expired_nonfatal_errors(t_level *level)
+static void	ui_remove_expired_nonfatal_start_times(t_level *level)
 {
-	int i;
+	int	i;
 
-	i = 0;
-	while (i < level->ui.state.error_amount)
-	{
-		if (level->ui.state.error_start_time[i] + 1000 * NONFATAL_ERROR_LIFETIME_SECONDS < SDL_GetTicks())
-		{
-			free(level->ui.state.error_message[i]);
-			for (int k = i; k < level->ui.state.error_amount - 1; k++)
-			{
-				level->ui.state.error_message[k] = level->ui.state.error_message[k + 1];
-				level->ui.state.error_start_time[k] = level->ui.state.error_start_time[k + 1];
-			}
-			level->ui.state.error_amount--;
-			i = -1;
-		}
-		i++;
-	}
 	i = level->ui.state.error_amount;
 	if (i)
 	{
-		level->ui.state.error_start_time = (unsigned*)realloc(level->ui.state.error_start_time, sizeof(unsigned) * i);
-		level->ui.state.error_message = (char**)realloc(level->ui.state.error_message, sizeof(char*) * i);
+		level->ui.state.error_start_time = (unsigned int *)realloc(
+				level->ui.state.error_start_time, sizeof(unsigned int) * i);
+		level->ui.state.error_message = (char **)realloc(
+				level->ui.state.error_message, sizeof(char *) * i);
 	}
 	else
 	{
@@ -63,17 +55,48 @@ static void	ui_remove_expired_nonfatal_errors(t_level *level)
 	}
 }
 
-static int ui_nonfatal_get_fade(t_level *level, int i)
+static void	ui_remove_expired_nonfatal_errors(t_level *level)
 {
-	unsigned time;
+	int	i;
+	int	k;
 
-	time = level->ui.state.error_start_time[i] + 1000 * NONFATAL_ERROR_LIFETIME_SECONDS - SDL_GetTicks();
+	i = -1;
+	while (++i < level->ui.state.error_amount)
+	{
+		if (level->ui.state.error_start_time[i]
+			+ 1000 * NONFATAL_ERROR_LIFETIME_SECONDS
+			< SDL_GetTicks())
+		{
+			free(level->ui.state.error_message[i]);
+			k = i;
+			while (k < level->ui.state.error_amount - 1)
+			{
+				level->ui.state.error_message[k]
+					= level->ui.state.error_message[k + 1];
+				level->ui.state.error_start_time[k]
+					= level->ui.state.error_start_time[k + 1];
+				k++;
+			}
+			level->ui.state.error_amount--;
+			i = -1;
+		}
+	}
+	ui_remove_expired_nonfatal_start_times(level);
+}
+
+static int	ui_nonfatal_get_fade(t_level *level, int i)
+{
+	unsigned int	time;
+
+	time = level->ui.state.error_start_time[i]
+		+ 1000 * NONFATAL_ERROR_LIFETIME_SECONDS - SDL_GetTicks();
 	if (time < NONFATAL_ERROR_FADEOUT_TIME_MS)
 		return (0xff * (time / (float)NONFATAL_ERROR_FADEOUT_TIME_MS));
 	return (0xff);
 }
 
-void	ui_render_nonfatal_errors(SDL_Texture *texture, t_window *window, t_level *level)
+void	ui_render_nonfatal_errors(SDL_Texture *texture, t_window *window,
+															t_level *level)
 {
 	t_ivec2	rect;
 	int		i;
