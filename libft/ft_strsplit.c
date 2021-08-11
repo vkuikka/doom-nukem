@@ -19,6 +19,8 @@ static int	ft_words(const char *s, char c)
 
 	w = 0;
 	i = 0;
+	if (!s || !c)
+		return (0);
 	while (s[i])
 	{
 		while (s[i] != c && s[i])
@@ -44,7 +46,8 @@ static int	ft_size(const char *s, char c, int word)
 	len = 0;
 	i = 0;
 	size_i = 0;
-	if (!(size = (int *)malloc(sizeof(int) * ft_words(s, c))))
+	size = (int *)malloc(sizeof(int) * ft_words(s, c));
+	if (!size)
 		return ('\0');
 	while (s[i])
 	{
@@ -87,15 +90,14 @@ static void	fill_array(char const *s, char c, char **ar)
 	}
 }
 
-char		**ft_strsplit(char const *s, char c)
+char	**ft_strsplit(char const *s, char c)
 {
 	int		word;
 	char	**ar;
 
 	word = 0;
-	if (!s || !c)
-		return (NULL);
-	if (!(ar = (char **)malloc(sizeof(char *) * (ft_words(s, c) + 1))))
+	ar = (char **)malloc(sizeof(char *) * (ft_words(s, c) + 1));
+	if (!ar || !s || !c)
 		return (NULL);
 	if (!*s)
 	{
@@ -105,7 +107,8 @@ char		**ft_strsplit(char const *s, char c)
 	ar[ft_words(s, c)] = NULL;
 	while (word < ft_words(s, c))
 	{
-		if (!(ar[word] = (char *)malloc(ft_size(s, c, word) + 1)))
+		ar[word] = (char *)malloc(ft_size(s, c, word) + 1);
+		if (!ar[word])
 			return (NULL);
 		word++;
 	}

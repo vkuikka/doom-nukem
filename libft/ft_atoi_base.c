@@ -12,7 +12,7 @@
 
 #include "libft.h"
 
-int		ft_iswhitespace(char const c)
+int	ft_iswhitespace(char const c)
 {
 	if (c == ' ' || c == '\n' || c == '\t' || c == '\v'
 		|| c == '\r' || c == '\f')
@@ -20,7 +20,7 @@ int		ft_iswhitespace(char const c)
 	return (0);
 }
 
-int		base(int c, int base)
+int	base(int c, int base)
 {
 	char	*str;
 	char	*str2;
@@ -38,7 +38,7 @@ int		base(int c, int base)
 	return (-1);
 }
 
-int		ft_atoi_base(const char *str, int str_base)
+int	ft_atoi_base(const char *str, int str_base)
 {
 	int	nb;
 	int	ne;
@@ -60,5 +60,7 @@ int		ft_atoi_base(const char *str, int str_base)
 		nb = nb + base(str[i], str_base);
 		i++;
 	}
-	return (ne ? -nb : nb);
+	if (ne)
+		return (-nb);
+	return (nb);
 }
