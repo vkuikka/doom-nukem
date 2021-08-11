@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/31 18:32:46 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/11 02:26:31 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/11 12:17:36 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ void	deselect_all_faces(t_level *level)
 void	find_closest_mouse(t_vec3 *vert, int *i, int *k)
 {
 	static float	nearest_len = -1;
-	static int		nearest_tri_index = -;
+	static int		nearest_tri_index = -1;
 	static int		nearest_vert_index = -1;
 	float			len;
 	t_vec2			test;
