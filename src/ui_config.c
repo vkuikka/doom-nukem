@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   ui_config.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/06/13 12:40:26 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/08/11 15:47:59 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom-nukem.h"
 
-int		    get_fps(void)
+int	get_fps(void)
 {
 	struct timeval	time;
 	static long		s;
@@ -30,7 +30,7 @@ int		    get_fps(void)
 	return (fps);
 }
 
-int		get_selected_amount(t_level *level)
+int	get_selected_amount(t_level *level)
 {
 	int	selected_amount;
 	int	i;
@@ -72,16 +72,19 @@ void	copy_tri_settings(t_tri *a, t_tri *b)
 
 void	ui_config_selected_faces(t_level *level)
 {
-	char buf[100];
-	int	selected_amount;
-	int selected_index;
+	char	buf[100];
+	int		selected_amount;
+	int		selected_index;
+	int		i;
 
 	selected_index = 0;
 	selected_amount = get_selected_amount(level);
+	i = -1;
 	if (selected_amount)
-		for (int i = 0; i < level->all.tri_amount; i++)
+		while (++i < level->all.tri_amount)
 			reflection_culling(level, i);
-	for (int i = 0; i < level->all.tri_amount; i++)
+	i = -1;
+	while (++i < level->all.tri_amount)
 	{
 		if (level->all.tris[i].selected)
 		{
@@ -95,18 +98,25 @@ void	ui_config_selected_faces(t_level *level)
 					text(buf);
 				}
 				if (call("remove faces", &remove_faces, level))
-					return;
+					return ;
 				if (!level->all.tris[i].reflectivity || selected_amount != 1)
-					sprintf(buf, "reflectivity: %.0f%%", 100 * level->all.tris[i].reflectivity);
+					sprintf(buf, "reflectivity: %.0f%%",
+						100 * level->all.tris[i].reflectivity);
 				else
-					sprintf(buf, "reflectivity: %.0f%% (%d mirror %d first bounce)", 100 * level->all.tris[i].reflectivity,
-						level->all.tris[i].reflection_obj_all->tri_amount, level->all.tris[i].reflection_obj_first_bounce->tri_amount);
+					sprintf(buf,
+						"reflectivity: %.0f%% (%d mirror %d first bounce)",
+						100 * level->all.tris[i].reflectivity,
+						level->all.tris[i].reflection_obj_all->tri_amount,
+						level->all.tris[i]
+						.reflection_obj_first_bounce->tri_amount);
 				float_slider(&level->all.tris[i].reflectivity, buf, 0, 1);
-				sprintf(buf, "opacity: %.0f%%", 100 * level->all.tris[i].opacity);
+				sprintf(buf, "opacity: %.0f%%",
+					100 * level->all.tris[i].opacity);
 				float_slider(&level->all.tris[i].opacity, buf, 0, 1);
 				if (level->all.tris[i].opacity)
 				{
-					sprintf(buf, "refractive index: %.2f", level->all.tris[i].refractivity);
+					sprintf(buf, "refractive index: %.2f",
+						level->all.tris[i].refractivity);
 					float_slider(&level->all.tris[i].refractivity, buf, -1, 3);
 				}
 				if (button(&level->all.tris[i].isquad, "quad"))
@@ -118,34 +128,45 @@ void	ui_config_selected_faces(t_level *level)
 				{
 					if (!level->all.tris[i].enemy)
 						init_enemy(&level->all.tris[i]);
-					sprintf(buf, "distance limit: %.1fm", level->all.tris[i].enemy->dist_limit);
-					float_slider(&level->all.tris[i].enemy->dist_limit, buf, 1, 10);
-					sprintf(buf, "move speed: %.1fm/s", level->all.tris[i].enemy->move_speed);
-					float_slider(&level->all.tris[i].enemy->move_speed, buf, 0, 10);
-					sprintf(buf, "attack frequency: %.2f seconds per attack", level->all.tris[i].enemy->attack_frequency);
-					float_slider(&level->all.tris[i].enemy->attack_frequency, buf, 0, 5);
-					sprintf(buf, "attack damage: %.1f", level->all.tris[i].enemy->attack_damage);
-					float_slider(&level->all.tris[i].enemy->attack_damage, buf, 0, 50);
-					sprintf(buf, "attack range: %.1fm", level->all.tris[i].enemy->attack_range);
-					float_slider(&level->all.tris[i].enemy->attack_range, buf, 0, 10);
-					sprintf(buf, "projectile speed: %.1fm/s (0 = no projectile)", level->all.tris[i].enemy->projectile_speed);
-					float_slider(&level->all.tris[i].enemy->projectile_speed, buf, 0, 50);
-					sprintf(buf, "projectile scale: %.2f", level->all.tris[i].enemy->projectile_scale);
-					float_slider(&level->all.tris[i].enemy->projectile_scale, buf, 0.1, 5);
+					sprintf(buf, "distance limit: %.1fm",
+						level->all.tris[i].enemy->dist_limit);
+					float_slider(
+						&level->all.tris[i].enemy->dist_limit, buf, 1, 10);
+					sprintf(buf, "move speed: %.1fm/s",
+						level->all.tris[i].enemy->move_speed);
+					float_slider(
+						&level->all.tris[i].enemy->move_speed, buf, 0, 10);
+					sprintf(buf, "attack frequency: %.2f seconds per attack",
+						level->all.tris[i].enemy->attack_frequency);
+					float_slider(
+						&level->all.tris[i].enemy->attack_frequency, buf, 0, 5);
+					sprintf(buf, "attack damage: %.1f",
+						level->all.tris[i].enemy->attack_damage);
+					float_slider(
+						&level->all.tris[i].enemy->attack_damage, buf, 0, 50);
+					sprintf(buf, "attack range: %.1fm",
+						level->all.tris[i].enemy->attack_range);
+					float_slider(
+						&level->all.tris[i].enemy->attack_range, buf, 0, 10);
+					sprintf(buf,
+						"projectile speed: %.1fm/s (0 = no projectile)",
+						level->all.tris[i].enemy->projectile_speed);
+					float_slider(&level->all.tris[i].enemy->projectile_speed,
+						buf, 0, 50);
+					sprintf(buf, "projectile scale: %.2f",
+						level->all.tris[i].enemy->projectile_scale);
+					float_slider(&level->all.tris[i].enemy->projectile_scale,
+						buf, 0.1, 5);
 				}
-				// call("flip normal");
-				// call("set animation start");
-				// call("set animation stop");
-				// slider("animation length", 0, 60);
-				// button("\tforce disable culling");
-				// button("\breakable");
 				selected_index = i + 1;
 			}
 			else
 			{
-				if (level->all.tris[selected_index - 1].isenemy && !level->all.tris[i].enemy)
+				if (level->all.tris[selected_index - 1].isenemy
+					&& !level->all.tris[i].enemy)
 					init_enemy(&level->all.tris[i]);
-				copy_tri_settings(&level->all.tris[i], &level->all.tris[selected_index - 1]);
+				copy_tri_settings(&level->all.tris[i],
+						&level->all.tris[selected_index - 1]);
 			}
 		}
 	}
@@ -157,7 +178,9 @@ void	set_obj(t_level *level, char *filename)
 	free(level->all.tris);
 	free(level->visible.tris);
 	load_obj(filename, &level->all);
-	if (!(level->visible.tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount)))
+	level->visible.tris
+		= (t_tri *)malloc(sizeof(t_tri) * level->all.tri_amount);
+	if (!level->visible.tris)
 		ft_error("memory allocation failed\n");
 	init_screen_space_partition(level);
 	init_culling(level);
@@ -174,7 +197,6 @@ void	set_skybox(t_level *level, char *filename)
 	free(level->sky.img.image);
 	level->sky.img = bmp_read(filename);
 }
-
 
 void	set_spray(t_level *level, char *filename)
 {
@@ -210,8 +232,8 @@ void	set_menu_pos_2(t_level *level)
 
 void	go_in_dir(char *path, char *folder)
 {
-	int i;
-	int j;
+	int	i;
+	int	j;
 
 	i = 0;
 	j = 0;
@@ -234,7 +256,7 @@ void	go_in_dir(char *path, char *folder)
 
 void	make_fileopen_call(t_level *level, char *file)
 {
-	char absolute_filename[PATH_MAX + NAME_MAX];
+	char	absolute_filename[PATH_MAX + NAME_MAX];
 
 	ft_strcpy(absolute_filename, level->ui.state.directory);
 	go_in_dir(absolute_filename, file);
@@ -243,7 +265,7 @@ void	make_fileopen_call(t_level *level, char *file)
 
 void	path_up_dir(char *path)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	while (path[i])
@@ -259,36 +281,48 @@ void	path_up_dir(char *path)
 }
 
 #ifdef __APPLE__
-void	ui_render_directory_loopdir(t_level *level, int find_dir, char *extension, int find)
+void	ui_render_directory_loopdir(t_level *level, int find_dir,
+											char *extension, int find)
 {
-	DIR *dir = opendir(level->ui.state.directory);
+	DIR				*dir;
+	struct dirent	*ent;
+	int				type;
 
+	dir = opendir(level->ui.state.directory);
 	if (!dir)
 		ft_error("Cannot open directory\n");
-	struct dirent *ent;
-	int type = find_dir ? DT_DIR : DT_REG;
-	while ((ent = readdir(dir)) != NULL)
+	type = DT_REG;
+	if (find_dir)
+		type = DT_DIR;
+	ent = readdir(dir);
+	while (ent != NULL)
 	{
 		if (ent->d_type == type && ent->d_name[0] != '.')
-			if (type == DT_DIR ||
-			(!find && ft_strlen(ent->d_name) > ft_strlen(extension) &&
-			ft_strcmp(extension, &ent->d_name[ft_strlen(ent->d_name) - ft_strlen(extension)])) ||
-			(find && ft_strlen(ent->d_name) > ft_strlen(extension) &&
-			!ft_strcmp(extension, &ent->d_name[ft_strlen(ent->d_name) - ft_strlen(extension)])))
+			if (type == DT_DIR
+				|| (!find && ft_strlen(ent->d_name) > ft_strlen(extension)
+					&& ft_strcmp(extension,
+						&ent->d_name[ft_strlen(ent->d_name)
+							- ft_strlen(extension)]))
+				|| (find && ft_strlen(ent->d_name) > ft_strlen(extension)
+					&& !ft_strcmp(extension,
+						&ent->d_name[ft_strlen(ent->d_name)
+							- ft_strlen(extension)])))
 			{
 				if (type == DT_REG && call(ent->d_name, NULL, level))
 					make_fileopen_call(level, ent->d_name);
 				else if (type == DT_DIR && call(ent->d_name, NULL, level))
 					go_in_dir(level->ui.state.directory, ent->d_name);
 			}
+		ent = readdir(dir);
 	}
 	closedir(dir);
 }
 
 #elif _WIN32
-void	ui_render_directory_loopdir(t_level *level, int find_dir, char *extension, int find_ext)
+void	ui_render_directory_loopdir(t_level *level, int find_dir,
+										char *extension, int find_ext)
 {
-	WIN32_FIND_DATA data;
+	WIN32_FIND_DATA	data;
 	HANDLE			dir;
 	char			*dirname;
 
@@ -299,23 +333,35 @@ void	ui_render_directory_loopdir(t_level *level, int find_dir, char *extension, 
 	while (FindNextFile(dir, &data))
 	{
 		if (data.cFileName[0] != '.')
-			if (find_dir && data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY && call(data.cFileName, NULL, level))
+		{
+			if (find_dir && data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY
+				&& call(data.cFileName, NULL, level))
+			{
 				go_in_dir(level->ui.state.directory, data.cFileName);
+			}
 			else if (!find_dir)
-				if (find_ext && ft_strlen(data.cFileName) > ft_strlen(extension) &&
-				!ft_strcmp(extension, &data.cFileName[ft_strlen(data.cFileName) - ft_strlen(extension)]) &&
-				call(data.cFileName, NULL, level))
+			{
+				if (find_ext && ft_strlen(data.cFileName) > ft_strlen(extension)
+					&& !ft_strcmp(extension,
+						&data.cFileName[ft_strlen(data.cFileName)
+							- ft_strlen(extension)])
+					&& call(data.cFileName, NULL, level))
 				{
 					if (level->ui.state.ui_location == UI_LOCATION_FILE_OPEN)
 						make_fileopen_call(level, data.cFileName);
 				}
-				else if (!find_ext && ft_strlen(data.cFileName) > ft_strlen(extension) &&
-				ft_strcmp(extension, &data.cFileName[ft_strlen(data.cFileName) - ft_strlen(extension)]) &&
-				call(data.cFileName, NULL, level))
+				else if (!find_ext
+					&& ft_strlen(data.cFileName) > ft_strlen(extension)
+					&& ft_strcmp(extension,
+						&data.cFileName[ft_strlen(data.cFileName)
+							- ft_strlen(extension)])
+					&& call(data.cFileName, NULL, level))
 				{
 					if (level->ui.state.ui_location == UI_LOCATION_FILE_OPEN)
 						make_fileopen_call(level, data.cFileName);
 				}
+			}
+		}
 	}
 	FindClose(dir);
 	free(dirname);
@@ -348,9 +394,9 @@ void	ui_render_directory(t_level *level)
 	}
 }
 
-int		nothing_selected(t_level *level)
+int	nothing_selected(t_level *level)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	while (i < level->all.tri_amount)
@@ -364,8 +410,10 @@ int		nothing_selected(t_level *level)
 
 void	ui_config(t_level *level)
 {
-	char				 buf[100];
-	t_editor_ui			*ui;
+	char		buf[100];
+	t_editor_ui	*ui;
+	int			selected;
+	int			i;
 
 	ui = &level->ui;
 	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
@@ -377,7 +425,8 @@ void	ui_config(t_level *level)
 			level->bake_status = BAKE_NOT_BAKED;
 		set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
 	}
-	if (level->ui.state.ui_location == UI_LOCATION_FILE_SAVE || level->ui.state.ui_location == UI_LOCATION_FILE_OPEN)
+	if (level->ui.state.ui_location == UI_LOCATION_FILE_SAVE
+		|| level->ui.state.ui_location == UI_LOCATION_FILE_OPEN)
 	{
 		ui_render_directory(level);
 		return ;
@@ -399,25 +448,36 @@ void	ui_config(t_level *level)
 			call("delete selected door", &delete_door, level);
 			call("set door start position", &set_door_pos_1, level);
 			call("set door stop position", &set_door_pos_2, level);
-			if (button(&level->doors.door[level->doors.selected_index - 1].is_activation_pos_active, "has activation button"))
+			if (button(&level->doors.door[level->doors.selected_index - 1]
+					.is_activation_pos_active, "has activation button"))
 			{
-				level->doors.door[level->doors.selected_index - 1].activation_pos = level->cam.pos;
-				vec_add(&level->doors.door[level->doors.selected_index - 1].activation_pos,
-				level->doors.door[level->doors.selected_index - 1].activation_pos, level->cam.front);
+				level->doors.door[level->doors.selected_index - 1]
+					.activation_pos = level->cam.pos;
+				vec_add(
+					&level->doors.door[level->doors.selected_index - 1]
+					.activation_pos,
+					level->doors.door[level->doors.selected_index - 1]
+					.activation_pos,
+					level->cam.front);
 			}
-			if (level->doors.door[level->doors.selected_index - 1].is_activation_pos_active)
+			if (level->doors.door[level->doors.selected_index - 1]
+				.is_activation_pos_active)
 				if (call("move door activation button", NULL, level))
-					level->ui.state.ui_location = UI_LOCATION_DOOR_ACTIVATION_BUTTON;
-			sprintf(buf, "door transition time: %fs", level->doors.door[level->doors.selected_index - 1].transition_time);
-			float_slider(&level->doors.door[level->doors.selected_index - 1].transition_time, buf, .2, 7);
-			// button(hinge, "has hinge");
-			//if has hinge
-			//	int_slider("hinge axis", 0, 2);
+					level->ui.state.ui_location
+						= UI_LOCATION_DOOR_ACTIVATION_BUTTON;
+			sprintf(buf, "door transition time: %fs",
+				level->doors.door[level->doors.selected_index - 1]
+				.transition_time);
+			float_slider(
+				&level->doors.door[level->doors.selected_index - 1]
+				.transition_time,
+				buf, .2, 7);
 		}
 		else
 		{
-			int selected = 0;
-			for (int i = 0; i < level->all.tri_amount; i++)
+			selected = 0;
+			i = -1;
+			while (++i < level->all.tri_amount)
 				if (level->all.tris[i].selected)
 					selected++;
 			if (selected)
@@ -452,7 +512,8 @@ void	ui_config(t_level *level)
 			level->ui.state.ui_location = UI_LOCATION_MAIN;
 		sprintf(buf, "world brightness: %.2f", level->world_brightness);
 		float_slider(&level->world_brightness, buf, 0, 1);
-		sprintf(buf, "skybox brightness: %.2f (0 = sync)", level->skybox_brightness);
+		sprintf(buf, "skybox brightness: %.2f (0 = sync)",
+			level->skybox_brightness);
 		float_slider(&level->skybox_brightness, buf, 0, 1);
 		sprintf(buf, "sun red: %.2f", level->ui.sun_color.r);
 		float_slider(&level->ui.sun_color.r, buf, 0, 1);
@@ -460,7 +521,8 @@ void	ui_config(t_level *level)
 		float_slider(&level->ui.sun_color.g, buf, 0, 1);
 		sprintf(buf, "sun blue: %.2f", level->ui.sun_color.b);
 		float_slider(&level->ui.sun_color.b, buf, 0, 1);
-		sprintf(buf, "sun dir: (%.2f, %.2f, %.2f)", ui->sun_dir.x, ui->sun_dir.y, ui->sun_dir.z);
+		sprintf(buf, "sun dir: (%.2f, %.2f, %.2f)",
+			ui->sun_dir.x, ui->sun_dir.y, ui->sun_dir.z);
 		text(buf);
 		float_slider(&ui->sun_dir.x, NULL, -1, 1);
 		float_slider(&ui->sun_dir.y, NULL, -1, 1);
@@ -469,14 +531,25 @@ void	ui_config(t_level *level)
 		call("add light", &add_light, level);
 		if (level->selected_light_index)
 		{
-			sprintf(buf, "radius: %.2f", level->lights[level->selected_light_index - 1].radius);
-			float_slider(&level->lights[level->selected_light_index - 1].radius, buf, .1, 20);
-			sprintf(buf, "red: %.2f", level->lights[level->selected_light_index - 1].color.r);
-			float_slider(&level->lights[level->selected_light_index - 1].color.r, buf, 0, 5);
-			sprintf(buf, "green: %.2f", level->lights[level->selected_light_index - 1].color.g);
-			float_slider(&level->lights[level->selected_light_index - 1].color.g, buf, 0, 5);
-			sprintf(buf, "blue: %.2f", level->lights[level->selected_light_index - 1].color.b);
-			float_slider(&level->lights[level->selected_light_index - 1].color.b, buf, 0, 5);
+			sprintf(buf, "radius: %.2f",
+				level->lights[level->selected_light_index - 1].radius);
+			float_slider(&level->lights[level->selected_light_index - 1].radius,
+				buf, .1, 20);
+			sprintf(buf, "red: %.2f",
+				level->lights[level->selected_light_index - 1].color.r);
+			float_slider(
+				&level->lights[level->selected_light_index - 1].color.r,
+				buf, 0, 5);
+			sprintf(buf, "green: %.2f",
+				level->lights[level->selected_light_index - 1].color.g);
+			float_slider(
+				&level->lights[level->selected_light_index - 1].color.g,
+				buf, 0, 5);
+			sprintf(buf, "blue: %.2f",
+				level->lights[level->selected_light_index - 1].color.b);
+			float_slider(
+				&level->lights[level->selected_light_index - 1].color.b,
+				buf, 0, 5);
 			call("delete light", &delete_light, level);
 		}
 		return ;
@@ -490,17 +563,21 @@ void	ui_config(t_level *level)
 			sprintf(buf, "spray size: %.1f", ui->spray_size);
 			float_slider(&ui->spray_size, buf, 0.1, 5);
 		}
-		sprintf(buf, "render scale: %d (%.0f%%)", ui->raycast_quality, 100.0 / (float)ui->raycast_quality);
+		sprintf(buf, "render scale: %d (%.0f%%)", ui->raycast_quality,
+			100.0 / (float)ui->raycast_quality);
 		int_slider(&ui->raycast_quality, buf, 1, 20);
-		sprintf(buf, "fov: %d", (int)((float)(ui->fov + 0.01) * (180.0 / M_PI)));
+		sprintf(buf, "fov: %d",
+			(int)((float)(ui->fov + 0.01) * (180.0 / M_PI)));
 		float_slider(&ui->fov, buf, M_PI / 6, M_PI);
 		button(&ui->blur, "blur");
 		button(&ui->smooth_pixels, "smooth pixel transition");
 		button(&ui->state.ssp_visual, "ssp visualize");
-		sprintf(buf, "music volume: %.0f%%", 100 * (level->audio.music_volume / MIX_MAX_VOLUME));
+		sprintf(buf, "music volume: %.0f%%",
+			100 * (level->audio.music_volume / MIX_MAX_VOLUME));
 		float_slider(&level->audio.music_volume, buf, 0, MIX_MAX_VOLUME);
 		Mix_VolumeMusic(level->audio.music_volume);
-		sprintf(buf, "sound effect volume: %.0f%%", 100 * (level->audio.sound_effect_volume / MIX_MAX_VOLUME));
+		sprintf(buf, "sound effect volume: %.0f%%",
+			100 * (level->audio.sound_effect_volume / MIX_MAX_VOLUME));
 		float_slider(&level->audio.sound_effect_volume, buf, 0, MIX_MAX_VOLUME);
 		Mix_Volume(-1, level->audio.sound_effect_volume);
 		return ;
@@ -508,7 +585,6 @@ void	ui_config(t_level *level)
 	button(&ui->noclip, "noclip");
 	button(&ui->wireframe, "wireframe");
 	button(&ui->raytracing, "raytrace lights");
-
 	button(&ui->vertex_select_mode, "vertex select mode");
 	if (ui->wireframe)
 	{
@@ -516,7 +592,6 @@ void	ui_config(t_level *level)
 		button(&ui->show_quads, "quad visualize");
 		button(&ui->wireframe_culling_visual, "culling visualize");
 	}
-
 	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
 	call("edit uv", &enable_uv_editor, level);
 	call("edit doors", &enable_door_editor, level);
@@ -536,8 +611,9 @@ void	ui_config(t_level *level)
 		call("set spawn position", &set_spawn_pos, level);
 		call("set menu position 1", &set_menu_pos_1, level);
 		call("set menu position 2", &set_menu_pos_2, level);
-		sprintf(buf, "main menu animation time %ds", level->main_menu_anim_time);
-		int_slider((int*)&level->main_menu_anim_time, buf, 2, 50);
+		sprintf(buf, "main menu animation time %ds",
+			level->main_menu_anim_time);
+		int_slider((int *)&level->main_menu_anim_time, buf, 2, 50);
 		button(&ui->fog, "fog");
 		// color(ui->color, "fog color");
 		// call(, "set spawn point");
@@ -548,26 +624,24 @@ void	ui_config(t_level *level)
 		button(&ui->distance_culling, "distance culling");
 		sprintf(buf, "render distance: %.1fm", ui->render_distance);
 		float_slider(&ui->render_distance, buf, 2, 50);
-
 		file_save("save level", ".doom-nukem", NULL);
-
 		set_text_color(UI_INFO_TEXT_COLOR);
-		sprintf(buf, "fps:               %d",  get_fps());
+		sprintf(buf, "fps:               %d", get_fps());
 		text(buf);
-		sprintf(buf, "cull:              %ums",  ui->cull);
+		sprintf(buf, "cull:              %ums", ui->cull);
 		text(buf);
-		sprintf(buf, "ssp:               %ums",  ui->ssp);
+		sprintf(buf, "ssp:               %ums", ui->ssp);
 		text(buf);
-		sprintf(buf, "render:          %ums",  ui->render);
+		sprintf(buf, "render:          %ums", ui->render);
 		text(buf);
-		sprintf(buf, "frametime: %ums",  ui->frametime);
+		sprintf(buf, "frametime: %ums", ui->frametime);
 		text(buf);
-		sprintf(buf, "faces:           %d / %d", level->all.tri_amount, level->visible.tri_amount);
+		sprintf(buf, "faces:           %d / %d",
+			level->all.tri_amount, level->visible.tri_amount);
 		text(buf);
 		sprintf(buf, "xz velocity:  %.2fm/s", level->ui.horizontal_velocity);
 		text(buf);
 	}
-
 	set_text_color(UI_FACE_SELECTION_TEXT_COLOR);
 	ui_config_selected_faces(level);
 }
