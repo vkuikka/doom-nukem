@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/11 15:59:22 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/11 16:07:33 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -714,5 +714,8 @@ void		set_win_pos(t_level *level);
 void		set_spawn_pos(t_level *level);
 void		set_menu_pos_1(t_level *level);
 void		set_menu_pos_2(t_level *level);
+void		nonfatal_error(t_level *level, char *message);
+void		ui_render_nonfatal_errors(SDL_Texture *texture,
+						t_window *window, t_level *level);
 
 #endif

@@ -6,13 +6,13 @@
 #    By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/12/08 13:46:11 by vkuikka           #+#    #+#              #
-#    Updated: 2021/08/10 22:48:22 by rpehkone         ###   ########.fr        #
+#    Updated: 2021/08/11 16:07:55 by rpehkone         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = dnukem
 SRCDIR = src/
-SRC = main.c input.c game_logic.c color.c culling.c culling_occlusion.c vectors.c init.c raycast.c obj_read.c bmp_read.c find_quads.c wireframe.c ui.c ui_config.c editor_set_state.c physics.c enemies.c shaders.c select.c serialize.c screen_space_partition.c uv_editor.c uv_overlap.c 2d_intersect.c obj_editor.c door_editor.c door_runtime.c main_menu.c hud.c light_edit.c bake.c gizmo.c spray.c audio.c cast_face.c
+SRC = main.c input.c game_logic.c color.c culling.c culling_occlusion.c vectors.c init.c raycast.c obj_read.c bmp_read.c find_quads.c wireframe.c ui.c nonfatal_error.c ui_config.c editor_set_state.c physics.c enemies.c shaders.c select.c serialize.c screen_space_partition.c uv_editor.c uv_overlap.c 2d_intersect.c obj_editor.c door_editor.c door_runtime.c main_menu.c hud.c light_edit.c bake.c gizmo.c spray.c audio.c cast_face.c
 LIB = libft/libft.a -L x86_64-w64-mingw32/lib/
 INCLUDE = libft/includes -I x86_64-w64-mingw32/include/ -I x86_64-w64-mingw32/include/SDL2
 SDL_FRAMEWORKS = -framework SDL2 -framework SDL2_ttf -framework SDL2_mixer
