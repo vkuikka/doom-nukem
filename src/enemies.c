@@ -40,10 +40,8 @@ void			create_projectile(t_level *level, t_vec3 pos, t_vec3 dir, t_enemy *enemy)
 
 static void		remove_projectile(t_level *level, int remove)
 {
-	int		index;
 	t_tri	*new_tris;
 
-	index = level->all.tri_amount;
 	free_culling(level);
 	level->all.tri_amount--;
 	if (!(new_tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount)))
@@ -185,14 +183,15 @@ static void		move_projectile(t_tri *face, t_level *level, float time)
 	t_ray	e;
 	float	dist;
 	t_vec3	player;
+	int		hit_index;
 
 	player = level->cam.pos;
 	e.pos = face->verts[0].pos;
-	vec_add(&e.pos, e.pos, face->v0v1);
-	vec_add(&e.pos, e.pos, face->v0v2);
-	vec_avg(&e.pos, e.pos, face->verts[0].pos);
+	vec_add(&e.pos, e.pos, face->verts[1].pos);
+	vec_add(&e.pos, e.pos, face->verts[2].pos);
+	vec_div(&e.pos, 3);
 	vec_sub(&e.dir, player, e.pos);
-	if (vec_length(e.dir) <= 3 && face->projectile->damage > 0)
+	if (vec_length(e.dir) <= PROJECTILE_DAMAGE_DIST && face->projectile->damage > 0)
 	{
 		vec_mult(&level->player_vel, 0);
 		level->player_health -= face->projectile->damage;
@@ -200,11 +199,14 @@ static void		move_projectile(t_tri *face, t_level *level, float time)
 		return;
 	}
 	e.dir = face->projectile->dir;
-	dist = cast_all(e, level, NULL, NULL, NULL);
+	dist = cast_all(e, level, NULL, NULL, &hit_index);
 	vec_mult(&e.dir, face->projectile->speed * time);
 	if (dist <= vec_length(e.dir) || face->projectile->dist > MAX_PROJECTILE_TRAVEL)
 	{
-		remove_projectile(level, face->index);
+		if (dist <= vec_length(e.dir) && hit_index > 0 && level->all.tris[hit_index].isbreakable)
+			remove_projectile(level, hit_index);
+		else
+			remove_projectile(level, face->index);
 		return;
 	}
 	for (int i = 0; i < 3 + face->isquad; i++)

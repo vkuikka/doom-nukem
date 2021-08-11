@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/06/13 12:40:26 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/08/09 17:32:46 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,6 +113,7 @@ void	ui_config_selected_faces(t_level *level)
 					set_fourth_vertex(&level->all.tris[i]);
 				button(&level->all.tris[i].isgrid, "grid");
 				int_slider(&level->all.tris[i].shader, "shader", 0, 2);
+				button(&level->all.tris[i].isbreakable, "breakable");
 				button(&level->all.tris[i].isenemy, "enemy");
 				if (level->all.tris[i].isenemy)
 				{
@@ -538,6 +539,7 @@ void	ui_config(t_level *level)
 		call("set menu position 2", &set_menu_pos_2, level);
 		sprintf(buf, "main menu animation time %ds", level->main_menu_anim_time);
 		int_slider((int*)&level->main_menu_anim_time, buf, 2, 50);
+		float_slider(&level->player.projectile_scale, "Player projectile scale: ", 0, 1.5);
 		button(&ui->fog, "fog");
 		// color(ui->color, "fog color");
 		// call(, "set spawn point");
