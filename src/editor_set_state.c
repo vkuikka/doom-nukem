@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/11 15:51:06 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/12 15:39:17 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/08/12 16:27:14 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ void	set_texture(t_level *level, char *filename)
 	level->texture = bmp_read(filename);
 }
 
-void	set_normalmap(t_level *level, char *filename)
+void	set_normal_map(t_level *level, char *filename)
 {
 	free(level->normal_map.image);
 	level->normal_map = bmp_read(filename);

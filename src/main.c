@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/12 12:35:03 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/12 16:27:59 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,7 +105,6 @@ int	main(int argc, char **argv)
 	init_culling(level);
 	init_player(&level->player);
 	open_level(level, "level/demo.doom-nukem");
-	start_bake(level);
 	while (1)
 	{
 		frame_time = SDL_GetTicks();

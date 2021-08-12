@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/12 15:33:26 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/08/12 16:27:23 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -540,14 +540,14 @@ void	ui_config(t_level *level)
 	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
 	call("edit uv", &enable_uv_editor, level);
 	call("edit doors", &enable_door_editor, level);
-	if (nothing_selected(level))
+	if (nothing_selected(level) && level->bake_status != BAKE_BAKING)
 	{
 		call("edit lights", &enable_light_editor, level);
 		text("level:");
 		file_browser("select level", ".doom-nukem", &open_level);
 		file_browser("select obj", ".obj", &set_obj);
 		file_browser("select texture", ".bmp", &set_texture);
-		file_browser("select normalmap", ".bmp", &set_normalmap);
+		file_browser("select normal map", ".bmp", &set_normal_map);
 		file_browser("select skybox", ".bmp", &set_skybox);
 		call("add face", &add_face, level);
 		call("set win position", &set_win_pos, level);

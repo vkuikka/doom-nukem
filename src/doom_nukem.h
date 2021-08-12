@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/12 15:36:04 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/08/12 16:27:20 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -464,6 +464,7 @@ typedef struct s_level
 	struct s_bmp		spray;
 	unsigned int		*spray_overlay;
 	t_color				*baked;
+	t_vec2				baked_size;
 	t_bake				bake_status;
 	float				bake_progress;
 	struct s_skybox		sky;
@@ -733,7 +734,7 @@ int						is_player_in_air(t_level *level, float height);
 void					spray(t_camera cam, t_level *level);
 void					set_obj(t_level *level, char *filename);
 void					set_texture(t_level *level, char *filename);
-void					set_normalmap(t_level *level, char *filename);
+void					set_normal_map(t_level *level, char *filename);
 void					set_skybox(t_level *level, char *filename);
 void					set_spray(t_level *level, char *filename);
 void					set_win_pos(t_level *level);
