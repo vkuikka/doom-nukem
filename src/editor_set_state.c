@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   editor_set_state.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/11 15:51:06 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/12 11:36:12 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/12 15:39:17 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,12 @@ void	set_texture(t_level *level, char *filename)
 {
 	free(level->texture.image);
 	level->texture = bmp_read(filename);
+}
+
+void	set_normalmap(t_level *level, char *filename)
+{
+	free(level->normal_map.image);
+	level->normal_map = bmp_read(filename);
 }
 
 void	set_skybox(t_level *level, char *filename)

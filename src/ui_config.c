@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ui_config.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/12 14:34:46 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/12 15:33:26 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -547,6 +547,7 @@ void	ui_config(t_level *level)
 		file_browser("select level", ".doom-nukem", &open_level);
 		file_browser("select obj", ".obj", &set_obj);
 		file_browser("select texture", ".bmp", &set_texture);
+		file_browser("select normalmap", ".bmp", &set_normalmap);
 		file_browser("select skybox", ".bmp", &set_skybox);
 		call("add face", &add_face, level);
 		call("set win position", &set_win_pos, level);

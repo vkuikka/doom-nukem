@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   doom_nukem.h                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/12 14:40:16 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/12 15:36:04 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -733,6 +733,7 @@ int						is_player_in_air(t_level *level, float height);
 void					spray(t_camera cam, t_level *level);
 void					set_obj(t_level *level, char *filename);
 void					set_texture(t_level *level, char *filename);
+void					set_normalmap(t_level *level, char *filename);
 void					set_skybox(t_level *level, char *filename);
 void					set_spray(t_level *level, char *filename);
 void					set_win_pos(t_level *level);
