@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/12 11:42:37 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/12 11:52:50 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,7 +139,7 @@
 # include <stdio.h>
 # include <signal.h>
 
-typedef struct			s_audio
+typedef struct s_audio
 {
 	float				music_volume;
 	float				sound_effect_volume;
@@ -153,14 +153,14 @@ typedef struct			s_audio
 	Mix_Chunk			*door;
 }						t_audio;
 
-typedef struct			s_bmp
+typedef struct s_bmp
 {
 	int					width;
 	int					height;
 	int					*image;
 }						t_bmp;
 
-typedef struct			s_window
+typedef struct s_window
 {
 	SDL_Renderer		*SDLrenderer;
 	SDL_Window			*SDLwindow;
@@ -169,7 +169,7 @@ typedef struct			s_window
 	float				*depth_buffer;
 }						t_window;
 
-typedef struct			s_rect
+typedef struct s_rect
 {
 	int					x;
 	int					y;
@@ -177,61 +177,61 @@ typedef struct			s_rect
 	int					h;
 }						t_rect;
 
-typedef struct			s_ivec3
+typedef struct s_ivec3
 {
 	int					x;
 	int					y;
 	int					z;
 }						t_ivec3;
 
-typedef struct			s_ivec2
+typedef struct s_ivec2
 {
 	int					x;
 	int					y;
 }						t_ivec2;
 
-typedef struct			s_color
+typedef struct s_color
 {
 	float				r;
 	float				g;
 	float				b;
 }						t_color;
 
-typedef struct			s_vec3
+typedef struct s_vec3
 {
 	float				x;
 	float				y;
 	float				z;
 }						t_vec3;
 
-typedef struct			s_vec2
+typedef struct s_vec2
 {
 	float				x;
 	float				y;
 }						t_vec2;
 
-typedef struct			s_ray
+typedef struct s_ray
 {
 	struct s_vec3		pos;
 	struct s_vec3		dir;
 }						t_ray;
 
-typedef struct			s_vert
+typedef struct s_vert
 {
 	struct s_vec3		pos;		//world position in 3d
 	struct s_vec2		txtr;		//texture position in 2d
 	int					selected;
 }						t_vert;
 
-typedef struct			s_uv_parameters
+typedef struct s_uv_parameters
 {
 	struct s_vec2		scale;
 	struct s_tri		*tri;
 	struct s_vec2		offset;
-	unsigned			*pixels;
+	unsigned int		*pixels;
 }						t_uv_parameters;
 
-typedef struct			s_projectile
+typedef struct s_projectile
 {
 	struct s_vec3		dir;
 	float				speed;
@@ -239,7 +239,7 @@ typedef struct			s_projectile
 	float				damage;
 }						t_projectile;
 
-typedef struct			s_enemy
+typedef struct s_enemy
 {
 	struct s_vec3		dir;
 	struct s_vec2		projectile_uv[3];
@@ -255,7 +255,7 @@ typedef struct			s_enemy
 	float				current_attack_delay;
 }						t_enemy;
 
-typedef struct			s_tri
+typedef struct s_tri
 {
 	int					index;
 	struct s_vert		verts[4];	//vertex coordinates of 3d triangle
@@ -284,20 +284,20 @@ typedef struct			s_tri
 	// int					*reflection_culling_mask;
 }						t_tri;
 
-typedef struct			s_obj
+typedef struct s_obj
 {
 	struct s_tri		*tris;		//array of triangles that make the object
 	int					tri_amount;	//amount of triangles
 }						t_obj;
 
-typedef struct			s_skybox
+typedef struct s_skybox
 {
 	struct s_bmp		img;
 	struct s_obj		all;
 	struct s_obj		visible;
 }						t_skybox;
 
-typedef struct			s_camera
+typedef struct s_camera
 {
 	t_vec3				up;
 	t_vec3				side;
@@ -311,7 +311,7 @@ typedef struct			s_camera
 	float				fov_x;
 }						t_camera;
 
-typedef struct			s_door
+typedef struct s_door
 {
 	int					indice_amount;
 	int					*indices;
@@ -321,18 +321,18 @@ typedef struct			s_door
 	int					is_activation_pos_active;
 	t_vec3				activation_pos;
 	float				transition_time;
-	unsigned			transition_start_time;
+	unsigned int		transition_start_time;
 	int					transition_direction;
 }						t_door;
 
-typedef struct			s_all_doors
+typedef struct s_all_doors
 {
 	struct s_door		*door;
 	int					door_amount;
 	int					selected_index;
 }						t_all_doors;
 
-typedef enum			e_mouse_location
+typedef enum e_mouse_location
 {
 	MOUSE_LOCATION_GAME = 0,
 	MOUSE_LOCATION_UI,
@@ -345,14 +345,14 @@ typedef enum			e_mouse_location
 	MOUSE_LOCATION_SELECTION
 }						t_mouse_location;
 
-typedef enum			e_bake
+typedef enum e_bake
 {
 	BAKE_BAKED = 0,
 	BAKE_BAKING,
 	BAKE_NOT_BAKED,
 }						t_bake;
 
-typedef enum			e_game_state
+typedef enum e_game_state
 {
 	GAME_STATE_MAIN_MENU = 0,
 	GAME_STATE_EDITOR,
@@ -361,7 +361,7 @@ typedef enum			e_game_state
 	GAME_STATE_WIN
 }						t_game_state;
 
-typedef enum			e_ui_location
+typedef enum e_ui_location
 {
 	UI_LOCATION_MAIN = 0,
 	UI_LOCATION_FILE_OPEN,
@@ -374,7 +374,7 @@ typedef enum			e_ui_location
 }						t_ui_location;
 
 struct					s_level;
-typedef struct			s_ui_state
+typedef struct s_ui_state
 {
 	enum e_ui_location	ui_location;
 	int					ui_max_width;
@@ -384,7 +384,7 @@ typedef struct			s_ui_state
 	char				*text;
 
 	char				**error_message;
-	unsigned			*error_start_time;
+	unsigned int		*error_start_time;
 	int					error_amount;
 
 	int					mouse_capture;
@@ -404,7 +404,7 @@ typedef struct			s_ui_state
 	void				(*open_file)(struct s_level*, char*);
 }						t_ui_state;
 
-typedef struct			s_editor_ui
+typedef struct s_editor_ui
 {
 	int					editor_active;
 	int					noclip;
@@ -416,7 +416,7 @@ typedef struct			s_editor_ui
 	int					fog;
 	int					blur;
 	int					smooth_pixels;
-	unsigned			fog_color;
+	unsigned int		fog_color;
 	int					show_quads;
 	int					pause_culling_position;
 	int					backface_culling;
@@ -432,28 +432,28 @@ typedef struct			s_editor_ui
 	float				horizontal_velocity;
 
 	//info
-	unsigned			ssp;
-	unsigned			cull;
-	unsigned			render;
-	unsigned			frametime;
+	unsigned int		ssp;
+	unsigned int		cull;
+	unsigned int		render;
+	unsigned int		frametime;
 	struct s_ui_state	state;
 }						t_editor_ui;
 
-typedef struct			s_light
+typedef struct s_light
 {
 	t_vec3				pos;
 	t_color				color;
 	float				radius;
 }						t_light;
 
-typedef struct			s_player_pos
+typedef struct s_player_pos
 {
 	struct s_vec3		pos;
 	float				look_side;
 	float				look_up;
 }						t_player_pos;
 
-typedef struct			s_level
+typedef struct s_level
 {
 	// struct s_obj		*all_objs;	//(if want to add multiple objects) array of objects in the level
 	struct s_obj		all;		//all faces
@@ -462,7 +462,7 @@ typedef struct			s_level
 	struct s_bmp		texture;
 	struct s_bmp		normal_map;
 	struct s_bmp		spray;
-	unsigned			*spray_overlay;
+	unsigned int		*spray_overlay;
 	t_color				*baked;
 	t_bake				bake_status;
 	float				bake_progress;
@@ -482,12 +482,12 @@ typedef struct			s_level
 	struct s_player_pos	main_menu_pos2;
 	struct s_vec3		win_pos;
 	float				win_dist;
-	unsigned			win_start_time;
-	unsigned			main_menu_anim_time;
-	unsigned			main_menu_anim_start_time;
-	unsigned			death_start_time;
+	unsigned int		win_start_time;
+	unsigned int		main_menu_anim_time;
+	unsigned int		main_menu_anim_start_time;
+	unsigned int		death_start_time;
 	struct s_vec3		player_vel;
-	unsigned			reload_start_time;
+	unsigned int		reload_start_time;
 	int					viewmodel_index;
 	struct s_bmp		viewmodel[VIEWMODEL_FRAMES];
 	float				world_brightness;
@@ -495,14 +495,15 @@ typedef struct			s_level
 	struct s_audio		audio;
 }						t_level;
 
-typedef struct			s_rthread
+typedef struct s_rthread
 {
 	int					id;
 	struct s_level		*level;
 	struct s_window		*window;
 }						t_rthread;
 
-typedef struct __attribute__((__packed__))	s_bmp_fileheader {
+typedef struct __attribute__((__packed__)) s_bmp_fileheader
+{
 	unsigned char							fileMarker1;
 	unsigned char							fileMarker2;
 	unsigned int							bfSize;
@@ -511,7 +512,8 @@ typedef struct __attribute__((__packed__))	s_bmp_fileheader {
 	unsigned int							imageDataOffset;
 }											t_bmp_fileheader;
 
-typedef struct __attribute__((__packed__))	s_bmp_infoheader {
+typedef struct __attribute__((__packed__)) s_bmp_infoheader
+{
 	unsigned int							biSize;
 	int										width;
 	int										height;
@@ -525,25 +527,27 @@ typedef struct __attribute__((__packed__))	s_bmp_infoheader {
 	unsigned int							biClrImportant;
 }											t_bmp_infoheader;
 
-typedef struct __attribute__((__packed__))	s_bmp_pixel_32 {
+typedef struct __attribute__((__packed__)) s_bmp_pixel_32
+{
 	unsigned char							b;
 	unsigned char							g;
 	unsigned char							r;
 	unsigned char							a;
 }											t_bmp_pixel_32;
 
-typedef struct __attribute__((__packed__))	s_bmp_pixel_24 {
+typedef struct __attribute__((__packed__)) s_bmp_pixel_24
+{
 	unsigned char							b;
 	unsigned char							g;
 	unsigned char							r;
 }											t_bmp_pixel_24;
 
-typedef struct			s_cast_result
+typedef struct s_cast_result
 {
 	t_vec2				uv;
 	float				dist;
 	int					raytracing;
-	unsigned			color;
+	unsigned int		color;
 	int					face_index;
 	int					reflection_depth;
 	struct s_vec3		normal;
@@ -551,10 +555,10 @@ typedef struct			s_cast_result
 	struct s_bmp		*normal_map;
 	struct s_bmp		*texture;
 	t_color				*baked;
-	unsigned			*spray_overlay;
+	unsigned int		*spray_overlay;
 }						t_cast_result;
 
-typedef struct			s_buffer
+typedef struct s_buffer
 {
 	void				*data;
 	int					next;
@@ -595,12 +599,13 @@ void		game_logic(t_level *level, t_game_state *game_state);
 int			raycast(void *t);
 float		cast_face(t_tri t, t_ray ray, t_cast_result *res);
 float		cast_all(t_ray vec, t_level *level, float *dist_u, float *dist_d, int *index);
-void		fill_pixels(unsigned *grid, int pixel_gap, int blur, int smooth);
-unsigned	crossfade(unsigned color1, unsigned color2, unsigned fade, unsigned alpha);
+void		fill_pixels(unsigned int *grid, int pixel_gap, int blur, int smooth);
+unsigned int	crossfade(unsigned int color1, unsigned int color2,
+				unsigned int fade, unsigned int alpha);
 void		face_color(float u, float v, t_tri t, t_cast_result *res);
 void		wireframe(t_window *window, t_level *level);
 void		camera_offset(t_vec3 *vertex, t_camera *cam);
-SDL_Color	get_sdl_color(unsigned color);
+SDL_Color	get_sdl_color(unsigned int color);
 
 void		load_obj(char *filename, t_obj *obj);
 t_bmp		bmp_read(char *str);
@@ -652,13 +657,13 @@ void		player_movement(t_level *level, t_game_state game_state);
 void		enemies_update_physics(t_level *level);
 void		enemies_update_sprites(t_level *level);
 
-int			fog(int color, float dist, unsigned fog_color, t_level *level);
+int			fog(int color, float dist, unsigned int fog_color, t_level *level);
 int			skybox(t_level *l, t_obj *obj, t_ray r);
 
 void		opacity(t_cast_result *res, t_level *l, t_obj *obj, float opacity);
 void		reflection(t_cast_result *res, t_level *l, t_obj *obj);
-unsigned	shader_wave(t_vec3 mod, t_vec3 *normal, unsigned col1, unsigned col2);
-unsigned	shader_rule30(t_vec3 pos);
+unsigned int	shader_wave(t_vec3 mod, t_vec3 *normal, unsigned int col1, unsigned int col2);
+unsigned int	shader_rule30(t_vec3 pos);
 t_color		sunlight(t_level *l, t_cast_result *res, t_color light);
 
 void		select_face(t_camera *cam, t_level *level, int x, int y);
@@ -692,7 +697,7 @@ void		enable_door_editor(t_level *level);
 void		find_selected_door_index(t_level *level);
 void		door_activation_move(t_level *level, t_vec3 move_amount);
 t_color		lights(t_level *l, t_cast_result *res, t_vec3 normal);
-unsigned	brightness(unsigned color1, t_color new);
+unsigned int	brightness(unsigned int color1, t_color new);
 int			nothing_selected(t_level *level);
 void		light_put_text(t_window *window, t_level *level);
 void		enable_light_editor(t_level *level);
