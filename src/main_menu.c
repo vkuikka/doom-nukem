@@ -6,11 +6,11 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/19 18:51:47 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/10 23:40:21 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/12 11:37:01 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "doom-nukem.h"
+#include "doom_nukem.h"
 
 static void	put_text_main_menu(char *text, t_window *window,
 								SDL_Texture *texture, t_rect *pos)

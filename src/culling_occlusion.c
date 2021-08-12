@@ -6,11 +6,11 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/26 04:05:50 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/10 17:25:37 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/12 11:35:51 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "doom-nukem.h"
+#include "doom_nukem.h"
 
 static int	cull_behind_occlusion(t_vec3 dir, t_vec3 pos, t_tri tri)
 {

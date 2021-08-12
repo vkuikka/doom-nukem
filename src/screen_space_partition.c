@@ -6,11 +6,11 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/09 12:03:36 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/11 01:58:07 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/12 11:37:40 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "doom-nukem.h"
+#include "doom_nukem.h"
 
 int	get_ssp_index(int xd, int yd)
 {

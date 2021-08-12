@@ -6,11 +6,11 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/09 21:56:12 by alcohen           #+#    #+#             */
-/*   Updated: 2021/08/10 15:05:47 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/12 11:35:28 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "doom-nukem.h"
+#include "doom_nukem.h"
 
 static void	handle_jump_sound(t_level *level)
 {

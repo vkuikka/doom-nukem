@@ -6,11 +6,11 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/31 18:32:46 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/11 12:17:36 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/12 11:37:44 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "doom-nukem.h"
+#include "doom_nukem.h"
 
 void	deselect_all_faces(t_level *level)
 {

@@ -6,11 +6,11 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/26 13:48:01 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/11 14:32:19 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/12 11:38:22 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "doom-nukem.h"
+#include "doom_nukem.h"
 
 void	div_every_uv(t_level *l)
 {

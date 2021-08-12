@@ -6,11 +6,11 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/21 16:54:13 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/10 20:29:25 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/12 11:36:26 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "doom-nukem.h"
+#include "doom_nukem.h"
 
 /*
  * Purpose of file: Iterate 3D object and find all pairs of perfectly

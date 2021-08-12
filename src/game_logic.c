@@ -6,11 +6,11 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/10 22:47:18 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/10 22:47:36 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/12 11:36:33 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "doom-nukem.h"
+#include "doom_nukem.h"
 
 static void	player_reload(t_level *level)
 {

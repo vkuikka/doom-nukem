@@ -6,11 +6,11 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/10 19:12:42 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/11 19:14:53 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/12 11:36:09 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "doom-nukem.h"
+#include "doom_nukem.h"
 
 void	door_activate(t_level *level)
 {

@@ -6,11 +6,11 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/01 18:48:35 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/11 13:10:09 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/12 11:37:58 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "doom-nukem.h"
+#include "doom_nukem.h"
 
 static void	draw_line(t_level *l, t_vec2 line[2], t_tri *tri, float y_percent)
 {

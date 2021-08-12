@@ -6,11 +6,11 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/10 22:39:12 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/10 22:40:05 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/12 11:36:51 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "doom-nukem.h"
+#include "doom_nukem.h"
 
 static void	typing_input(t_level *level, SDL_Event event)
 {

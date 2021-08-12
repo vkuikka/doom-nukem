@@ -6,11 +6,11 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/26 15:15:59 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/11 01:10:45 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/12 11:35:24 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "doom-nukem.h"
+#include "doom_nukem.h"
 
 static float	sign(t_vec2 p1, t_vec2 p2, t_vec2 p3)
 {

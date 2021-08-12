@@ -6,11 +6,11 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/19 18:48:10 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/10 21:31:46 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/12 11:36:42 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "doom-nukem.h"
+#include "doom_nukem.h"
 
 unsigned int	cycle_rgb(unsigned int time)
 {

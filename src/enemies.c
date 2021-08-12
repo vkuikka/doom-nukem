@@ -6,11 +6,11 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/14 17:08:49 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/10 20:56:26 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/12 11:36:21 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "doom-nukem.h"
+#include "doom_nukem.h"
 
 void	create_projectile(t_level *level, t_vec3 pos, t_vec3 dir,
 													t_enemy *enemy)

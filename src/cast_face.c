@@ -6,11 +6,11 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/20 12:35:22 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/10 15:28:09 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/12 11:35:41 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "doom-nukem.h"
+#include "doom_nukem.h"
 
 float	cast_all(t_ray vec, t_level *level, float *dist_u, float *dist_d, int *index)
 {

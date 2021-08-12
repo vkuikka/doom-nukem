@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "doom-nukem.h"
+#include "doom_nukem.h"
 
 void	texture_minmax(t_vec2 *min, t_vec2 *max, t_tri tri)
 {

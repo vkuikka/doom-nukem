@@ -6,11 +6,11 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/22 23:13:42 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/11 00:06:32 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/12 11:37:16 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "doom-nukem.h"
+#include "doom_nukem.h"
 
 void	transform_quad(t_tri *tri, t_vec3 dir)
 {

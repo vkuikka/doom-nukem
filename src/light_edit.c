@@ -6,11 +6,11 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/21 20:19:04 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/10 22:04:38 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/12 11:36:56 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "doom-nukem.h"
+#include "doom_nukem.h"
 
 void	light_put_text(t_window *window, t_level *level)
 {

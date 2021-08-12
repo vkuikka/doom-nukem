@@ -6,11 +6,11 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/26 19:56:07 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/10 20:54:52 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/12 11:36:37 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "doom-nukem.h"
+#include "doom_nukem.h"
 
 static void	gizmo_pixel_put(int x, int y, int color, unsigned int *texture)
 {

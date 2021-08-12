@@ -6,11 +6,11 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/11 15:51:06 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/11 15:54:30 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/12 11:36:12 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "doom-nukem.h"
+#include "doom_nukem.h"
 
 void	set_obj(t_level *level, char *filename)
 {
