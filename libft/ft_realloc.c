@@ -11,20 +11,20 @@
 /* ************************************************************************** */
 
 #include "libft.h"
-#include "stdio.h"
 
-void		*ft_realloc(void *ptr, size_t size, size_t new_size)
+void	*ft_realloc(void *ptr, size_t size, size_t new_size)
 {
 	void	*res;
 	size_t	i;
 
 	i = 0;
-	if (!(res = (void*)malloc(new_size)))
+	res = (void *)malloc(new_size);
+	if (!res)
 		return (NULL);
 	while (i < new_size)
 	{
 		if (i < size && ptr)
-			((char*)res)[i] = ((char*)ptr)[i];
+			((char *)res)[i] = ((char *)ptr)[i];
 		else
 			((char *)res)[i] = 0;
 		i++;

@@ -12,10 +12,10 @@
 
 #include "libft.h"
 
-char	**ft_add_str(char *str, char **arr, unsigned arrlen)
+char	**ft_add_str(char *str, char **arr, unsigned int arrlen)
 {
-	char		**new;
-	unsigned	i;
+	char			**new;
+	unsigned int	i;
 
 	i = 0;
 	if (!str)
@@ -25,7 +25,8 @@ char	**ft_add_str(char *str, char **arr, unsigned arrlen)
 	while (i < arrlen && arr[i])
 		i++;
 	arrlen = i + 1;
-	if (!(new = (char **)malloc(sizeof(char*) * arrlen)))
+	new = (char **)malloc(sizeof(char *) * arrlen);
+	if (!new)
 		return (NULL);
 	i = 0;
 	while (i < arrlen - 1)

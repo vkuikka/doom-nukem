@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/12 12:37:47 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/12 14:40:16 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,7 @@
 
 # define ENEMY_MOVABLE_HEIGHT_DIFF 1
 # define MAX_PROJECTILE_TRAVEL 100
+# define PROJECTILE_DAMAGE_DIST 3
 # define SPRAY_LINE_PRECISION 2
 # define SPRAY_MAX_DIST 15
 # define SPRAY_FROM_VIEW_SIZE 0.5
@@ -268,6 +269,7 @@ typedef struct s_tri
 	struct s_projectile	*projectile;
 	int					isquad;
 	int					isgrid;
+	int					isbreakable;
 	int					disable_distance_culling;
 	int					disable_backface_culling;
 	float				opacity;

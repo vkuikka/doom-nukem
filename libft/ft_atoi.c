@@ -6,13 +6,31 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/17 19:53:44 by vkuikka           #+#    #+#             */
-/*   Updated: 2019/10/24 22:18:58 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/08/01 18:25:51 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-int		ft_atoi(const char *str)
+int	negative_check(const char *str, size_t *i)
+{
+	int	negative;
+
+	negative = 1;
+	if (str[*i] == '+' || str[*i] == '-')
+	{
+		if (str[*i] == '-')
+			negative = -1;
+		else
+			negative = 1;
+		*i = *i + 1;
+	}
+	if (str[*i] < '0' || str[*i] > '9')
+		negative = 0;
+	return (negative);
+}
+
+int	ft_atoi(const char *str)
 {
 	size_t		i;
 	size_t		num;
@@ -22,13 +40,10 @@ int		ft_atoi(const char *str)
 	i = 0;
 	mult = 1;
 	num = 0;
-	negative = 1;
-	while (str[i] && (str[i] == ' ' || str[i] == '\v' || str[i] == '\t' ||
-				str[i] == '\n' || str[i] == '\f' || str[i] == '\r'))
+	while (str[i] && (str[i] == ' ' || str[i] == '\v' || str[i] == '\t'
+			|| str[i] == '\n' || str[i] == '\f' || str[i] == '\r'))
 		i++;
-	if (str[i] == '+' || str[i] == '-')
-		negative = (str[i++] == '-' ? -1 : 1);
-	negative = (str[i] >= '0' || str[i] <= '9' ? negative : 0);
+	negative = negative_check(str, &i);
 	while (str[i] >= '0' && str[i] <= '9')
 		i++;
 	i--;

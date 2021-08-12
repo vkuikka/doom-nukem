@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/12 12:35:25 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/12 14:34:46 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,7 @@ int	get_selected_amount(t_level *level)
 
 void	copy_tri_settings(t_tri *a, t_tri *b)
 {
+	a->isbreakable = b->isbreakable;
 	a->isenemy = b->isenemy;
 	a->isgrid = b->isgrid;
 	a->opacity = b->opacity;
@@ -64,6 +65,7 @@ void	copy_tri_settings(t_tri *a, t_tri *b)
 		a->enemy->initial_health = b->enemy->initial_health;
 		a->enemy->move_speed = b->enemy->move_speed;
 		a->enemy->projectile_speed = b->enemy->projectile_speed;
+		a->enemy->projectile_scale = b->enemy->projectile_scale;
 		a->enemy->projectile_uv[0] = b->enemy->projectile_uv[0];
 		a->enemy->projectile_uv[1] = b->enemy->projectile_uv[1];
 		a->enemy->projectile_uv[2] = b->enemy->projectile_uv[2];
@@ -123,6 +125,7 @@ void	ui_config_selected_faces(t_level *level)
 					set_fourth_vertex(&level->all.tris[i]);
 				button(&level->all.tris[i].isgrid, "grid");
 				int_slider(&level->all.tris[i].shader, "shader", 0, 2);
+				button(&level->all.tris[i].isbreakable, "breakable");
 				button(&level->all.tris[i].isenemy, "enemy");
 				if (level->all.tris[i].isenemy)
 				{
@@ -555,7 +558,9 @@ void	ui_config(t_level *level)
 		call("set menu position 2", &set_menu_pos_2, level);
 		sprintf(buf, "main menu animation time %ds",
 			level->main_menu_anim_time);
-		int_slider((int *)&level->main_menu_anim_time, buf, 2, 50);
+		int_slider((int*)&level->main_menu_anim_time, buf, 2, 50);
+		float_slider(&level->player.projectile_scale,
+			"Player projectile scale: ", 0, 1.5);
 		button(&ui->fog, "fog");
 		// color(ui->color, "fog color");
 		// call(, "set spawn point");
