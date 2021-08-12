@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/07 18:13:00 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/12 11:38:26 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/12 14:24:03 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,54 +27,32 @@ t_vec3	vec_interpolate(t_vec3 a, t_vec3 b, float f)
 	return (res);
 }
 
-float	Q_rsqrt(float number)
-{
-	long		i;
-	float		threehalfs;
-	float		x2;
-	float		y;
-
-	threehalfs = 1.5F;
-	x2 = number * 0.5F;
-	y  = number;
-	i  = * ( long * ) &y;                       // evil floating point bit level hacking
-	i  = 0x5f3759df - ( i >> 1 );               // what the fuck? 
-	y  = * ( float * ) &i;
-	y  = y * ( threehalfs - ( x2 * y * y ) );   // 1st iteration
-//	y  = y * ( threehalfs - ( x2 * y * y ) );   // 2nd iteration, this can be removed
-	return (y);
-}
-
 void	vec_normalize(t_vec3 *vec)
 {
-	float	tmp;
+	// float	tmp;
 
-	tmp = vec->x * vec->x + vec->y * vec->y + vec->z * vec->z;
-	_mm_store_ss(&tmp, _mm_rsqrt_ss(_mm_load_ss(&tmp)));
-	vec_mult(vec, tmp);
-	// float w = Q_rsqrt(vec->x * vec->x + vec->y * vec->y + vec->z * vec->z);
-	// vec->x *= pOut;
-	// vec->y *= pOut;
-	// vec->z *= pOut;
-	// float w = sqrt(vec->x * vec->x + vec->y * vec->y + vec->z * vec->z);
-	// vec->x /= w;
-	// vec->y /= w;
-	// vec->z /= w;
+	// tmp = vec->x * vec->x + vec->y * vec->y + vec->z * vec->z;
+	// _mm_store_ss(&tmp, _mm_rsqrt_ss(_mm_load_ss(&tmp)));
+	// vec_mult(vec, tmp);
+	float w = sqrtf(vec->x * vec->x + vec->y * vec->y + vec->z * vec->z);
+	vec->x /= w;
+	vec->y /= w;
+	vec->z /= w;
 }
 
 float	vec_length(t_vec3 vec)
 {
-	float	tmp;
+	// float	tmp;
 
-	tmp = vec.x * vec.x + vec.y * vec.y + vec.z * vec.z;
-	_mm_store_ss(&tmp, _mm_sqrt_ss(_mm_load_ss(&tmp)));
-	return (tmp);
-	// return (sqrt(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z));
+	// tmp = vec.x * vec.x + vec.y * vec.y + vec.z * vec.z;
+	// _mm_store_ss(&tmp, _mm_sqrt_ss(_mm_load_ss(&tmp)));
+	// return (tmp);
+	return (sqrtf(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z));
 }
 
 float	vec2_length(t_vec2 vec)
 {
-	return (sqrt(vec.x * vec.x + vec.y * vec.y));
+	return (sqrtf(vec.x * vec.x + vec.y * vec.y));
 }
 
 float	vec_dot(t_vec3 ve1, t_vec3 ve2)
