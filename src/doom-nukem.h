@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   doom-nukem.h                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lsjoberg <lsjoberg@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/06/30 17:30:24 by lsjoberg         ###   ########.fr       */
+/*   Updated: 2021/08/11 18:40:51 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,7 @@
 
 # define ENEMY_MOVABLE_HEIGHT_DIFF 1
 # define MAX_PROJECTILE_TRAVEL 100
+# define PROJECTILE_DAMAGE_DIST 3
 # define SPRAY_LINE_PRECISION 2
 # define SPRAY_MAX_DIST 15
 # define SPRAY_FROM_VIEW_SIZE 0.5
@@ -268,6 +269,7 @@ typedef struct			s_tri
 	struct s_projectile	*projectile;
 	int					isquad;
 	int					isgrid;
+	int					isbreakable;
 	int					disable_distance_culling;
 	int					disable_backface_culling;
 	float				opacity;
