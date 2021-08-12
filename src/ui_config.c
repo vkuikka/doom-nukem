@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/09 17:32:46 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/08/12 12:36:10 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,7 @@ int		get_selected_amount(t_level *level)
 
 void	copy_tri_settings(t_tri *a, t_tri *b)
 {
+	a->isbreakable = b->isbreakable;
 	a->isenemy = b->isenemy;
 	a->isgrid = b->isgrid;
 	a->opacity = b->opacity;
@@ -64,6 +65,7 @@ void	copy_tri_settings(t_tri *a, t_tri *b)
 		a->enemy->initial_health = b->enemy->initial_health;
 		a->enemy->move_speed = b->enemy->move_speed;
 		a->enemy->projectile_speed = b->enemy->projectile_speed;
+		a->enemy->projectile_scale = b->enemy->projectile_scale;
 		a->enemy->projectile_uv[0] = b->enemy->projectile_uv[0];
 		a->enemy->projectile_uv[1] = b->enemy->projectile_uv[1];
 		a->enemy->projectile_uv[2] = b->enemy->projectile_uv[2];
