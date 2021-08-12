@@ -3,22 +3,23 @@
 /*                                                        :::      ::::::::   */
 /*   obj_read.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/04/08 17:57:48 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/08/12 11:37:23 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "doom-nukem.h"
+#include "doom_nukem.h"
 
 static char	**file2d(char *filename)
 {
 	char	**file;
 	char	*line;
 	int		fd;
-	int		i = 0;
+	int		i;
 
+	i = 0;
 	fd = open(filename, O_RDONLY);
 	while (get_next_line(fd, &line))
 	{
@@ -27,7 +28,7 @@ static char	**file2d(char *filename)
 	}
 	free(line);
 	close(fd);
-	file = (char **)malloc(sizeof(char*) * (i + 1));
+	file = (char **)malloc(sizeof(char *) * (i + 1));
 	fd = open(filename, O_RDONLY);
 	if (fd < 2)
 	{
@@ -48,8 +49,9 @@ static char	**file2d(char *filename)
 
 static void	set_uv_vert(char **file, int i, t_vec2 *vert)
 {
-	int j = 0;
+	int	j;
 
+	j = 0;
 	while (file[i][j] != ' ')
 	{
 		j++;
@@ -66,20 +68,25 @@ static void	set_uv_vert(char **file, int i, t_vec2 *vert)
 
 static t_vec2	*load_uvs(char **file)
 {
-	int i = 0;
-	int uv_amount = 0;
-	t_vec2 *res = NULL;
+	int		i;
+	int		uv_amount;
+	t_vec2	*res;
+	int		j;
 
+	i = 0;
+	uv_amount = 0;
+	res = NULL;
 	while (file[i])
 	{
 		if (!ft_strncmp(file[i], "vt ", 3))
 			uv_amount++;
 		i++;
 	}
-	if (!(res = (t_vec2*)malloc(sizeof(t_vec2) * uv_amount)))
+	res = (t_vec2 *)malloc(sizeof(t_vec2) * uv_amount);
+	if (!res)
 		ft_error("memory allocation failed\n");
 	i = 0;
-	int j = 0;
+	j = 0;
 	while (file[i])
 	{
 		if (!ft_strncmp(file[i], "vt ", 3))
@@ -94,8 +101,9 @@ static t_vec2	*load_uvs(char **file)
 
 static void	set_vert(char **file, int i, t_vec3 *vert)
 {
-	int j = 0;
+	int	j;
 
+	j = 0;
 	while (file[i][j] != ' ')
 	{
 		j++;
@@ -118,20 +126,24 @@ static void	set_vert(char **file, int i, t_vec3 *vert)
 
 static t_vec3	*load_verts(char **file)
 {
-	int i = 0;
-	int ver_amount = 0;
-	t_vec3 *res;
+	int		i;
+	int		ver_amount;
+	t_vec3	*res;
+	int		j;
 
+	i = 0;
+	ver_amount = 0;
 	while (file[i])
 	{
 		if (!ft_strncmp(file[i], "v ", 2))
 			ver_amount++;
 		i++;
 	}
-	if (!(res = (t_vec3*)malloc(sizeof(t_vec3) * ver_amount)))
+	res = (t_vec3 *)malloc(sizeof(t_vec3) * ver_amount);
+	if (!res)
 		ft_error("memory allocation failed\n");
 	i = 0;
-	int j = 0;
+	j = 0;
 	while (file[i])
 	{
 		if (!ft_strncmp(file[i], "v ", 2))
@@ -141,28 +153,25 @@ static t_vec3	*load_verts(char **file)
 		}
 		i++;
 	}
-	/*for (int x = 0; x < ver_amount; x++)
-	{
-		printf("%d = %f\n", x, res[x].x);
-		printf("%d = %f\n", x, res[x].y);
-		printf("%d = %f\n", x, res[x].z);
-	}*/
 	return (res);
 }
 
 static void	set_tri(char *str, t_vec3 *verts, t_vec2 *uvs, t_obj *obj, int i)
 {
-	t_ivec3 tex_index;
-	t_ivec3 uv_index;
-	int j = 0;
+	t_ivec3	tex_index;
+	t_ivec3	uv_index;
+	int		j;
+	int		x;
 
+	j = 0;
 	uv_index.x = 0;
 	uv_index.y = 0;
 	uv_index.z = 0;
 	while (str[j] != ' ')
 		j++;
 	j++;
-	for (int x = 0; x < 3; x++)
+	x = -1;
+	while (++x < 3)
 	{
 		if (x == 0)
 			tex_index.x = atoi(&str[j]) - 1;
@@ -186,7 +195,6 @@ static void	set_tri(char *str, t_vec3 *verts, t_vec2 *uvs, t_obj *obj, int i)
 		}
 		j++;
 	}
-
 	if (uvs)
 	{
 		obj->tris[i].verts[0].txtr.x = uvs[uv_index.x].x;
@@ -199,11 +207,9 @@ static void	set_tri(char *str, t_vec3 *verts, t_vec2 *uvs, t_obj *obj, int i)
 	obj->tris[i].verts[0].pos.x = verts[tex_index.x].x;
 	obj->tris[i].verts[0].pos.y = -verts[tex_index.x].y;
 	obj->tris[i].verts[0].pos.z = -verts[tex_index.x].z;
-
 	obj->tris[i].verts[1].pos.x = verts[tex_index.y].x;
 	obj->tris[i].verts[1].pos.y = -verts[tex_index.y].y;
 	obj->tris[i].verts[1].pos.z = -verts[tex_index.y].z;
-
 	obj->tris[i].verts[2].pos.x = verts[tex_index.z].x;
 	obj->tris[i].verts[2].pos.y = -verts[tex_index.z].y;
 	obj->tris[i].verts[2].pos.z = -verts[tex_index.z].z;
@@ -211,10 +217,15 @@ static void	set_tri(char *str, t_vec3 *verts, t_vec2 *uvs, t_obj *obj, int i)
 
 void	load_obj(char *filename, t_obj *obj)
 {
-	char **file;
-	int i = 0;
-	int tri_amount = 0;
+	char	**file;
+	int		i;
+	int		tri_amount;
+	t_vec3	*verts;
+	t_vec2	*uvs;
+	int		j;
 
+	i = 0;
+	tri_amount = 0;
 	file = file2d(filename);
 	while (file[i])
 	{
@@ -222,14 +233,14 @@ void	load_obj(char *filename, t_obj *obj)
 			tri_amount++;
 		i++;
 	}
-	printf("faces = %d\n", tri_amount);
-	if (!(obj->tris = (t_tri *)malloc(sizeof(t_tri) * tri_amount)))
+	obj->tris = (t_tri *)malloc(sizeof(t_tri) * tri_amount);
+	if (!obj->tris)
 		ft_error("memory allocation failed\n");
 	obj->tri_amount = tri_amount;
-	t_vec3 *verts = load_verts(file);
-	t_vec2 *uvs = load_uvs(file);
+	verts = load_verts(file);
+	uvs = load_uvs(file);
 	i = 0;
-	int j = 0;
+	j = 0;
 	while (file[i])
 	{
 		if (!ft_strncmp(file[i], "f ", 2))
@@ -250,11 +261,12 @@ void	load_obj(char *filename, t_obj *obj)
 	i = 0;
 	while (i < obj->tri_amount)
 	{
-		vec_sub(&obj->tris[i].v0v2, obj->tris[i].verts[1].pos, obj->tris[i].verts[0].pos);
-		vec_sub(&obj->tris[i].v0v1, obj->tris[i].verts[2].pos, obj->tris[i].verts[0].pos);
+		vec_sub(&obj->tris[i].v0v2, obj->tris[i].verts[1].pos,
+			obj->tris[i].verts[0].pos);
+		vec_sub(&obj->tris[i].v0v1, obj->tris[i].verts[2].pos,
+			obj->tris[i].verts[0].pos);
 		vec_cross(&obj->tris[i].normal, obj->tris[i].v0v2, obj->tris[i].v0v1);
 		vec_normalize(&obj->tris[i].normal);
 		i++;
 	}
-	printf("faces = %d\n", obj->tri_amount);
 }

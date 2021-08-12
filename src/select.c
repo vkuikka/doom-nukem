@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   select.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/31 18:32:46 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/02 19:58:53 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/08/12 11:37:44 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "doom-nukem.h"
+#include "doom_nukem.h"
 
-void		deselect_all_faces(t_level *level)
+void	deselect_all_faces(t_level *level)
 {
 	int	i;
 	int	o;
@@ -31,7 +31,7 @@ void		deselect_all_faces(t_level *level)
 	}
 }
 
-void			find_closest_mouse(t_vec3 *vert, int *i, int *k)
+void	find_closest_mouse(t_vec3 *vert, int *i, int *k)
 {
 	static float	nearest_len = -1;
 	static int		nearest_tri_index = -1;
@@ -66,20 +66,33 @@ void			find_closest_mouse(t_vec3 *vert, int *i, int *k)
 	}
 }
 
-static void		update_closest_vertex(t_level *level)
+static void	update_closest_vertex(t_level *level)
 {
-	int	i;
-	int	k;
+	int		i;
+	int		k;
+	int		o;
+	int		p;
+	int		new_state;
+	t_vec3	pos;
 
 	find_closest_mouse(NULL, &i, &k);
-	if (level->ui.state.m1_click && i != -1 && level->ui.state.mouse_location == MOUSE_LOCATION_SELECTION)
+	if (level->ui.state.m1_click && i != -1
+		&& level->ui.state.mouse_location == MOUSE_LOCATION_SELECTION)
 	{
-		int new_state = level->all.tris[i].verts[k].selected ? 0 : 1;
-		t_vec3 pos = level->all.tris[i].verts[k].pos;
-		for (int o = 0; o < level->all.tri_amount; o++)
-			for (int p = 0; p < 3 + level->all.tris[o].isquad; p++)
+		new_state = level->all.tris[i].verts[k].selected == 0;
+		pos = level->all.tris[i].verts[k].pos;
+		o = 0;
+		while (o < level->all.tri_amount)
+		{
+			p = 0;
+			while (p < 3 + level->all.tris[o].isquad)
+			{
 				if (vec_cmp(level->all.tris[o].verts[p].pos, pos))
 					level->all.tris[o].verts[p].selected = new_state;
+				p++;
+			}
+			o++;
+		}
 	}
 }
 
@@ -103,7 +116,7 @@ static void	raycast_face_selection(t_ray vec, t_level *level)
 		i++;
 	}
 	if (dist != FLT_MAX)
-		level->all.tris[hit].selected = level->all.tris[hit].selected ? 0 : 1;
+		level->all.tris[hit].selected = level->all.tris[hit].selected == 0;
 	else
 		deselect_all_faces(level);
 }
@@ -131,9 +144,9 @@ void	select_face(t_camera *cam, t_level *level, int x, int y)
 
 void	toggle_selection_all(t_level *level)
 {
-	int		selected;
-	int		i;
-	int		j;
+	int	selected;
+	int	i;
+	int	j;
 
 	i = 0;
 	selected = FALSE;

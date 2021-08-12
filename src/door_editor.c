@@ -3,31 +3,41 @@
 /*                                                        :::      ::::::::   */
 /*   door_editor.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/06 23:29:24 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/06/20 12:02:39 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/08/12 11:36:04 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "doom-nukem.h"
+#include "doom_nukem.h"
 
 void	find_selected_door_index(t_level *level)
 {
-	for (int i = 0; i < level->all.tri_amount; i++)
+	int	i;
+	int	k;
+	int	m;
+	int	z;
+
+	i = -1;
+	while (++i < level->all.tri_amount)
 	{
 		if (level->all.tris[i].selected)
 		{
-			for (int k = 0; k < level->doors.door_amount; k++)
+			k = -1;
+			while (++k < level->doors.door_amount)
 			{
-				for (int m = 0; m < level->doors.door[k].indice_amount; m++)
+				m = -1;
+				while (++m < level->doors.door[k].indice_amount)
 				{
 					if (i == level->doors.door[k].indices[m])
 					{
 						deselect_all_faces(level);
 						level->doors.selected_index = k + 1;
-						for (int z = 0; z < level->doors.door[k].indice_amount; z++)
-							level->all.tris[level->doors.door[k].indices[z]].selected = TRUE;
+						z = -1;
+						while (++z < level->doors.door[k].indice_amount)
+							level->all.tris[level->doors.door[k].indices[z]]
+								.selected = TRUE;
 						return ;
 					}
 				}
@@ -39,90 +49,33 @@ void	find_selected_door_index(t_level *level)
 	level->doors.selected_index = 0;
 }
 
-void	door_activate(t_level *level)
-{
-	int		nearest_index;
-	float	len;
-	float	nearest_len;
-	t_door	*door;
-
-	nearest_index = -1;
-	nearest_len = FLT_MAX;;
-	for (int i = 0; i < level->doors.door_amount; i++)
-	{
-		t_vec3 avg = {0, 0, 0};
-		door = &level->doors.door[i];
-		if (door->is_activation_pos_active)
-			avg = door->activation_pos;
-		else
-		{
-			int amount = 0;
-			for (int j = 0; j < door->indice_amount; j++)
-			{
-				for (int k = 0; k < 3 + door->isquad[j]; k++)
-				{
-					vec_add(&avg, avg, level->all.tris[door->indices[j]].verts[k].pos);
-					amount++;
-				}
-			}
-			vec_div(&avg, amount);
-		}
-		vec_sub(&avg, avg, level->cam.pos);
-		len = vec_length(avg);
-		if (len < nearest_len)
-		{
-			nearest_index = i;
-			nearest_len = len;
-		}
-	}
-	if (nearest_index != -1 && nearest_len < DOOR_ACTIVATION_DISTANCE)
-	{
-		Mix_PlayChannel(AUDIO_DOOR_CHANNEL, level->audio.door, 0);
-		door = &level->doors.door[nearest_index];
-		door->transition_direction = door->transition_direction ? 0 : 1;
-		float time = (SDL_GetTicks() - door->transition_start_time) / (1000 * door->transition_time);
-		if (time < 1)
-			door->transition_start_time = SDL_GetTicks() - ((door->transition_time * 1000) - (SDL_GetTicks() - door->transition_start_time));
-		else
-			door->transition_start_time = SDL_GetTicks();
-	}
-}
-
-float	lerp(float a, float b, float f)
-{
-    return (a + f * (b - a));
-}
-
-t_vec3	vec_interpolate(t_vec3 a, t_vec3 b, float f)
-{
-	t_vec3 res;
-
-	res.x = lerp(a.x, b.x, f);
-	res.y = lerp(a.y, b.y, f);
-	res.z = lerp(a.z, b.z, f);
-	return (res);
-}
-
 void	door_put_text(t_window *window, t_level *level)
 {
 	t_vec3	avg;
-	t_door*	door;
+	t_door	*door;
 	int		avg_amount;
 	t_ivec2	text_pos;
 	char	buf[100];
+	int		a;
+	int		i;
+	int		k;
 
-	for (int a = 0; a < level->doors.door_amount; a++)
+	a = -1;
+	while (++a < level->doors.door_amount)
 	{
 		avg.x = 0;
 		avg.y = 0;
 		avg.z = 0;
 		avg_amount = 0;
 		door = &level->doors.door[a];
-		for (int i = 0; i < door->indice_amount; i++)
+		i = -1;
+		while (++i < door->indice_amount)
 		{
-			for (int k = 0; k < 3 + door->isquad[i]; k++)
+			k = -1;
+			while (++k < 3 + door->isquad[i])
 			{
-				vec_add(&avg, avg, level->all.tris[door->indices[i]].verts[k].pos);
+				vec_add(&avg, avg,
+					level->all.tris[door->indices[i]].verts[k].pos);
 				avg_amount++;
 			}
 		}
@@ -155,102 +108,97 @@ void	door_put_text(t_window *window, t_level *level)
 	}
 }
 
-void		door_activation_move(t_level *level, t_vec3 move_amount)
+//gizmo calls this
+void	door_activation_move(t_level *level, t_vec3 move_amount)
 {
-	vec_add(&level->doors.door[level->doors.selected_index - 1].activation_pos,
-			level->doors.door[level->doors.selected_index - 1].activation_pos, move_amount);
-	level->ui.state.gizmo_pos = level->doors.door[level->doors.selected_index - 1].activation_pos;
-}
+	int	index;
 
-void	door_animate(t_level *level)
-{
-	t_door* door;
-
-	for (int a = 0; a < level->doors.door_amount; a++)
-	{
-		door = &level->doors.door[a];
-		if (door->transition_start_time)
-		{
-			float time = (SDL_GetTicks() - door->transition_start_time) / (1000 * door->transition_time);
-			for (int i = 0; i < door->indice_amount; i++)
-			{
-				for (int k = 0; k < 3 + door->isquad[i]; k++)
-				{
-					if (time < 1)
-					{
-						if (door->transition_direction)
-							level->all.tris[door->indices[i]].verts[k].pos = vec_interpolate(door->pos2[i][k], door->pos1[i][k], time);
-						else
-							level->all.tris[door->indices[i]].verts[k].pos = vec_interpolate(door->pos1[i][k], door->pos2[i][k], time);
-					}
-					else
-					{
-						if (door->transition_direction)
-							level->all.tris[door->indices[i]].verts[k].pos = door->pos1[i][k];
-						else
-							level->all.tris[door->indices[i]].verts[k].pos = door->pos2[i][k];
-						door->transition_start_time = 0;
-					}
-				}
-			}
-		}
-	}
+	index = level->doors.selected_index - 1;
+	vec_add(&level->doors.door[index].activation_pos,
+		level->doors.door[index].activation_pos, move_amount);
+	level->ui.state.gizmo_pos = level->doors.door[index].activation_pos;
 }
 
 void	delete_door(t_level *level)
 {
-	t_door *door = &level->doors.door[level->doors.selected_index - 1];
+	t_door	*door;
+	int		i;
 
-	for (int i = 0; i < door->indice_amount; i++)
+	door = &level->doors.door[level->doors.selected_index - 1];
+	i = 0;
+	while (i < door->indice_amount)
 	{
 		free(door->pos1[i]);
 		free(door->pos2[i]);
+		i++;
 	}
 	free(door->pos1);
 	free(door->pos2);
 	free(door->indices);
 	free(door->isquad);
-	for (int i = level->doors.selected_index - 1; i < level->doors.door_amount - 1; i++)
+	i = level->doors.selected_index - 1;
+	while (i < level->doors.door_amount - 1)
 	{
 		level->doors.door[i] = level->doors.door[i + 1];
+		i++;
 	}
 	level->doors.door_amount--;
-	if (!(level->doors.door = (t_door*)ft_realloc(level->doors.door, sizeof(t_door) * level->doors.door_amount - 1, sizeof(t_door) * level->doors.door_amount)))
+	level->doors.door = (t_door *)ft_realloc(level->doors.door,
+			sizeof(t_door) * level->doors.door_amount - 1,
+			sizeof(t_door) * level->doors.door_amount);
+	if (!level->doors.door)
 		ft_error("memory allocation failed\n");
 }
 
 void	add_new_door(t_level *level)
 {
+	t_door	*door;
+	int		selected;
+	int		i;
+	int		k;
+
 	level->doors.door_amount++;
-	if (!(level->doors.door = (t_door*)ft_realloc(level->doors.door, sizeof(t_door) * level->doors.door_amount - 1, sizeof(t_door) * level->doors.door_amount)))
+	level->doors.door = (t_door *)ft_realloc(level->doors.door,
+			sizeof(t_door) * level->doors.door_amount - 1,
+			sizeof(t_door) * level->doors.door_amount);
+	if (!level->doors.door)
 		ft_error("memory allocation failed\n");
-	t_door *door = &level->doors.door[level->doors.door_amount - 1];
+	door = &level->doors.door[level->doors.door_amount - 1];
 	ft_bzero(door, sizeof(t_door));
-	int selected = 0;
-	for (int i = 0; i < level->all.tri_amount; i++)
+	selected = 0;
+	i = -1;
+	while (++i < level->all.tri_amount)
 		if (level->all.tris[i].selected)
 			selected++;
 	door->indice_amount = selected;
-	if (!(door->isquad = (int*)malloc(sizeof(int) * selected)))
+	door->isquad = (int *)malloc(sizeof(int) * selected);
+	if (!door->isquad)
 		ft_error("memory allocation failed\n");
-	if (!(door->indices = (int*)malloc(sizeof(int) * selected)))
+	door->indices = (int *)malloc(sizeof(int) * selected);
+	if (!door->indices)
 		ft_error("memory allocation failed\n");
-	if (!(door->pos1 = (t_vec3**)malloc(sizeof(t_vec3*) * selected)))
+	door->pos1 = (t_vec3 **)malloc(sizeof(t_vec3 *) * selected);
+	if (!door->pos1)
 		ft_error("memory allocation failed\n");
-	if (!(door->pos2 = (t_vec3**)malloc(sizeof(t_vec3*) * selected)))
+	door->pos2 = (t_vec3 **)malloc(sizeof(t_vec3 *) * selected);
+	if (!door->pos2)
 		ft_error("memory allocation failed\n");
 	selected = 0;
-	for (int i = 0; i < level->all.tri_amount; i++)
+	i = -1;
+	while (++i < level->all.tri_amount)
 	{
 		if (level->all.tris[i].selected)
 		{
 			door->isquad[selected] = level->all.tris[i].isquad;
 			door->indices[selected] = i;
-			if (!(door->pos1[selected] = (t_vec3*)malloc(sizeof(t_vec3) * 4)))
+			door->pos1[selected] = (t_vec3 *)malloc(sizeof(t_vec3) * 4);
+			if (!door->pos1[selected])
 				ft_error("memory allocation failed\n");
-			if (!(door->pos2[selected] = (t_vec3*)malloc(sizeof(t_vec3) * 4)))
+			door->pos2[selected] = (t_vec3 *)malloc(sizeof(t_vec3) * 4);
+			if (!door->pos2[selected])
 				ft_error("memory allocation failed\n");
-			for (int k = 0; k < 4; k++)
+			k = -1;
+			while (++k < 4)
 			{
 				door->pos1[selected][k] = level->all.tris[i].verts[k].pos;
 				door->pos2[selected][k] = level->all.tris[i].verts[k].pos;
@@ -260,22 +208,34 @@ void	add_new_door(t_level *level)
 	}
 }
 
+static void	set_door_pos(t_level *level, int is_pos2)
+{
+	t_door	*door;
+	int		i;
+	int		k;
+
+	door = &level->doors.door[level->doors.selected_index - 1];
+	i = 0;
+	while (i < door->indice_amount)
+	{
+		k = 0;
+		while (k < 4)
+		{
+			door->pos2[i][k] = level->all.tris[door->indices[i]].verts[k].pos;
+			k++;
+		}
+		i++;
+	}
+}
+
 void	set_door_pos_1(t_level *level)
 {
-	t_door* door = &level->doors.door[level->doors.selected_index - 1];
-
-	for (int i = 0; i < door->indice_amount; i++)
-		for (int k = 0; k < 4; k++)
-			door->pos1[i][k] = level->all.tris[door->indices[i]].verts[k].pos;
+	set_door_pos(level, 0);
 }
 
 void	set_door_pos_2(t_level *level)
 {
-	t_door* door = &level->doors.door[level->doors.selected_index - 1];
-
-	for (int i = 0; i < door->indice_amount; i++)
-		for (int k = 0; k < 4; k++)
-			door->pos2[i][k] = level->all.tris[door->indices[i]].verts[k].pos;
+	set_door_pos(level, 1);
 }
 
 void	enable_door_editor(t_level *level)

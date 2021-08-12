@@ -3,30 +3,39 @@
 /*                                                        :::      ::::::::   */
 /*   enemies.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/14 17:08:49 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/12 16:33:29by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/08/12 14:33:03 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "doom-nukem.h"
+#include "doom_nukem.h"
 
-void			create_projectile(t_level *level, t_vec3 pos, t_vec3 dir, t_enemy *enemy)
+void	create_projectile(t_level *level, t_vec3 pos, t_vec3 dir,
+													t_enemy *enemy)
 {
-	int		index;
+	int	index;
 
 	index = level->all.tri_amount;
 	free_culling(level);
 	level->all.tri_amount++;
-	if (!(level->all.tris = (t_tri*)ft_realloc(level->all.tris, sizeof(t_tri) * (level->all.tri_amount - 1), sizeof(t_tri) * level->all.tri_amount)))
+	level->all.tris = (t_tri *)ft_realloc(level->all.tris,
+			sizeof(t_tri) * (level->all.tri_amount - 1),
+			sizeof(t_tri) * level->all.tri_amount);
+	if (!level->all.tris)
 		ft_error("memory allocation failed");
-	if (!(level->visible.tris = (t_tri*)ft_realloc(level->visible.tris, sizeof(t_tri) * (level->all.tri_amount - 1), sizeof(t_tri) * level->all.tri_amount)))
+	level->visible.tris = (t_tri *)ft_realloc(level->visible.tris,
+			sizeof(t_tri) * (level->all.tri_amount - 1),
+			sizeof(t_tri) * level->all.tri_amount);
+	if (!level->visible.tris)
 		ft_error("memory allocation failed");
 	set_new_face(level, pos, dir, enemy->projectile_scale);
 	init_screen_space_partition(level);
 	init_culling(level);
-	if (!(level->all.tris[index].projectile = (t_projectile*)malloc(sizeof(t_projectile))))
+	level->all.tris[index].projectile
+		= (t_projectile *)malloc(sizeof(t_projectile));
+	if (!level->all.tris[index].projectile)
 		ft_error("memory allocation failed");
 	level->all.tris[index].projectile->dist = enemy->attack_range;
 	level->all.tris[index].projectile->damage = enemy->attack_damage;
@@ -38,18 +47,24 @@ void			create_projectile(t_level *level, t_vec3 pos, t_vec3 dir, t_enemy *enemy)
 	level->all.tris[index].verts[2].txtr = enemy->projectile_uv[2];
 }
 
-static void		remove_projectile(t_level *level, int remove)
+static void	remove_projectile(t_level *level, int remove)
 {
 	t_tri	*new_tris;
+	int		i;
 
 	free_culling(level);
 	level->all.tri_amount--;
-	if (!(new_tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount)))
+	new_tris = (t_tri *)malloc(sizeof(t_tri) * level->all.tri_amount);
+	if (!new_tris)
 		ft_error("memory allocation failed");
-	if (!(level->visible.tris = (t_tri*)ft_realloc(level->visible.tris, sizeof(t_tri) * level->all.tri_amount - 1, sizeof(t_tri) * level->all.tri_amount)))
+	level->visible.tris = (t_tri *)ft_realloc(level->visible.tris,
+			sizeof(t_tri) * level->all.tri_amount - 1,
+			sizeof(t_tri) * level->all.tri_amount);
+	if (!level->visible.tris)
 		ft_error("memory allocation failed");
 	free(level->all.tris[remove].projectile);
-	for (int i = 0; i < level->all.tri_amount; i++)
+	i = -1;
+	while (++i < level->all.tri_amount)
 	{
 		if (i < remove)
 			new_tris[i] = level->all.tris[i];
@@ -65,7 +80,7 @@ static void		remove_projectile(t_level *level, int remove)
 	init_culling(level);
 }
 
-static void		calc_vectors(t_tri *tri)
+static void	calc_vectors(t_tri *tri)
 {
 	tri->v0v1.x = tri->verts[2].pos.x - tri->verts[0].pos.x;
 	tri->v0v1.y = tri->verts[2].pos.y - tri->verts[0].pos.y;
@@ -83,11 +98,12 @@ static float	find_angle(t_vec3 v1, t_vec3 v2)
 	if (isnan(angle))
 		return (0);
 	rotate_vertex(M_PI / 2, &v2, 0);
-	angle *= vec_dot(v1, v2) < 0 ? -1 : 1;
+	if (vec_dot(v1, v2) < 0)
+		angle *= -1;
 	return (angle);
 }
 
-static void		turn_sprite(t_tri *tri, t_vec3 dir)
+static void	turn_sprite(t_tri *tri, t_vec3 dir)
 {
 	t_vec3	face_mid;
 	t_vec3	rot_vert;
@@ -104,8 +120,9 @@ static void		turn_sprite(t_tri *tri, t_vec3 dir)
 	vec_div(&face_mid, (float)vert);
 	vec_sub(&rot_vert, dir, face_mid);
 	rot_vert.y = 0;
-	if (!(angle = find_angle(normal, rot_vert)))
-		return;
+	angle = find_angle(normal, rot_vert);
+	if (!angle)
+		return ;
 	while (vert--)
 	{
 		vec_sub(&rot_vert, tri->verts[vert].pos, face_mid);
@@ -117,28 +134,32 @@ static void		turn_sprite(t_tri *tri, t_vec3 dir)
 	vec_normalize(&tri->normal);
 }
 
-void			move_enemy(t_tri *face, t_level *level, float time)
+void	move_enemy(t_tri *face, t_level *level, float time)
 {
 	t_ray	e;
 	float	dist;
 	t_vec3	player;
 	t_vec3	tmp;
+	int		i;
 
 	player = level->cam.pos;
 	e.pos.x = 0;
 	e.pos.y = 0;
 	e.pos.z = 0;
-	for (int i = 0; i < 3 + face->isquad; i++)
+	i = -1;
+	while (++i < 3 + face->isquad)
 		vec_add(&e.pos, e.pos, face->verts[i].pos);
 	vec_div(&e.pos, 3 + face->isquad);
 	vec_sub(&e.dir, player, e.pos);
 	dist = cast_all(e, level, NULL, NULL, NULL);
-	if (player.y > e.pos.y - ENEMY_MOVABLE_HEIGHT_DIFF &&
-		player.y < e.pos.y + ENEMY_MOVABLE_HEIGHT_DIFF)
+	if (player.y > e.pos.y - ENEMY_MOVABLE_HEIGHT_DIFF
+		&& player.y < e.pos.y + ENEMY_MOVABLE_HEIGHT_DIFF)
 	{
 		if (dist > vec_length(e.dir))
 			face->enemy->dir = e.dir;
-		if ((dist > vec_length(e.dir) && vec_length(e.dir) > face->enemy->dist_limit) || dist < vec_length(e.dir) - face->enemy->dist_limit)
+		if ((dist > vec_length(e.dir)
+				&& vec_length(e.dir) > face->enemy->dist_limit)
+			|| dist < vec_length(e.dir) - face->enemy->dist_limit)
 		{
 			if (face->enemy->dir.x || face->enemy->dir.z)
 			{
@@ -152,7 +173,8 @@ void			move_enemy(t_tri *face, t_level *level, float time)
 				if (vec_dot(tmp, e.dir) > 0)
 				{
 					face->enemy->dir = tmp;
-					for (int i = 0; i < 3 + face->isquad; i++)
+					i = -1;
+					while (++i < 3 + face->isquad)
 						vec_add(&face->verts[i].pos, face->verts[i].pos, e.dir);
 				}
 			}
@@ -160,7 +182,8 @@ void			move_enemy(t_tri *face, t_level *level, float time)
 	}
 	vec_sub(&tmp, player, e.pos);
 	face->enemy->current_attack_delay += time;
-	if (dist > vec_length(tmp) && face->enemy->current_attack_delay >= face->enemy->attack_frequency)
+	if (dist > vec_length(tmp)
+		&& face->enemy->current_attack_delay >= face->enemy->attack_frequency)
 	{
 		if (vec_length(tmp) < face->enemy->attack_range)
 		{
@@ -178,11 +201,12 @@ void			move_enemy(t_tri *face, t_level *level, float time)
 	}
 }
 
-static void		move_projectile(t_tri *face, t_level *level, float time)
+static void	move_projectile(t_tri *face, t_level *level, float time)
 {
 	t_ray	e;
 	float	dist;
 	t_vec3	player;
+	int		i;
 	int		hit_index;
 
 	player = level->cam.pos;
@@ -196,12 +220,13 @@ static void		move_projectile(t_tri *face, t_level *level, float time)
 		vec_mult(&level->player_vel, 0);
 		level->player_health -= face->projectile->damage;
 		remove_projectile(level, face->index);
-		return;
+		return ;
 	}
 	e.dir = face->projectile->dir;
 	dist = cast_all(e, level, NULL, NULL, &hit_index);
 	vec_mult(&e.dir, face->projectile->speed * time);
-	if (dist <= vec_length(e.dir) || face->projectile->dist > MAX_PROJECTILE_TRAVEL)
+	if (dist <= vec_length(e.dir)
+		|| face->projectile->dist > MAX_PROJECTILE_TRAVEL)
 	{
 		if (dist <= vec_length(e.dir) && hit_index > 0 && level->all.tris[hit_index].isbreakable)
 			remove_projectile(level, hit_index);
@@ -209,12 +234,13 @@ static void		move_projectile(t_tri *face, t_level *level, float time)
 			remove_projectile(level, face->index);
 		return;
 	}
-	for (int i = 0; i < 3 + face->isquad; i++)
+	i = -1;
+	while (++i < 3 + face->isquad)
 		vec_add(&face->verts[i].pos, face->verts[i].pos, e.dir);
 	face->projectile->dist += vec_length(e.dir);
 }
 
-void			enemies_update_sprites(t_level *level)
+void	enemies_update_sprites(t_level *level)
 {
 	static int	time = 0;
 	int			delta_time;

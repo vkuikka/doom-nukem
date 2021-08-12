@@ -3,25 +3,28 @@
 /*                                                        :::      ::::::::   */
 /*   cast_face.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/20 12:35:22 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/06/20 19:30:43 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/08/12 11:35:41 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "doom-nukem.h"
+#include "doom_nukem.h"
 
-float			cast_all(t_ray vec, t_level *level, float *dist_u, float *dist_d, int *index)
+float	cast_all(t_ray vec, t_level *level, float *dist_u, float *dist_d, int *index)
 {
-	float			res = FLT_MAX;
+	float	res;
+	float	tmp;
+	int		i;
 
+	res = FLT_MAX;
 	vec_normalize(&vec.dir);
-	for (int i = 0; i < level->all.tri_amount; i++)
+	i = 0;
+	while (i < level->all.tri_amount)
 	{
 		if (!level->all.tris[i].isprojectile && !level->all.tris[i].isenemy)
 		{
-			float tmp;
 			tmp = cast_face(level->all.tris[i], vec, NULL);
 			if (dist_u != NULL)
 			{
@@ -37,11 +40,12 @@ float			cast_all(t_ray vec, t_level *level, float *dist_u, float *dist_d, int *i
 					*index = i;
 			}
 		}
+		i++;
 	}
 	return (res);
 }
 
-static void		grid_check(float *val, int isgrid)
+static void	grid_check(float *val, int isgrid)
 {
 	if (isgrid)
 	{
@@ -52,16 +56,16 @@ static void		grid_check(float *val, int isgrid)
 	}
 }
 
-float			cast_face(t_tri t, t_ray ray, t_cast_result *res)
+float	cast_face(t_tri t, t_ray ray, t_cast_result *res)
 {
 	t_vec3	qvec;
 	t_vec3	pvec;
 	t_vec3	tvec;
 	t_vec2	uv;
-	float 	invdet;
+	float	invdet;
 
 	vec_cross(&pvec, ray.dir, t.v0v2);
-	invdet = 1 / vec_dot(pvec, t.v0v1); 
+	invdet = 1 / vec_dot(pvec, t.v0v1);
 	vec_sub(&tvec, ray.pos, t.verts[0].pos);
 	uv.x = vec_dot(tvec, pvec) * invdet;
 	grid_check(&uv.x, t.isgrid);
@@ -73,7 +77,7 @@ float			cast_face(t_tri t, t_ray ray, t_cast_result *res)
 	if (!t.isquad && (uv.y < 0 || uv.x + uv.y > 1))
 		return (0);
 	else if (uv.y < 0 || uv.y > 1)
-			return (0);
+		return (0);
 	if (res)
 		res->uv = uv;
 	return (vec_dot(qvec, t.v0v2) * invdet);

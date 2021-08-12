@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   spray.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/01 18:48:35 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/06/20 12:53:53 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/08/12 11:37:58 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "doom-nukem.h"
+#include "doom_nukem.h"
 
-static void		draw_line(t_level *l, t_vec2 line[2], t_tri *tri, float y_percent)
+static void	draw_line(t_level *l, t_vec2 line[2], t_tri *tri, float y_percent)
 {
 	t_vec2	increment;
 	t_vec2	texture;
@@ -20,34 +20,42 @@ static void		draw_line(t_level *l, t_vec2 line[2], t_tri *tri, float y_percent)
 	int		texture_coord;
 	int		steps;
 	int		i;
+	t_vec2	point;
 
 	i = 0;
 	texture.x = line[0].x;
 	texture.y = line[0].y;
-	steps = fmax(ft_abs(line[1].x - line[0].x), ft_abs(line[1].y - line[0].y)) * SPRAY_LINE_PRECISION;
+	steps = fmax(ft_abs(line[1].x - line[0].x), ft_abs(line[1].y - line[0].y))
+		* SPRAY_LINE_PRECISION;
 	if (!steps)
 		return ;
 	increment.x = (line[1].x - line[0].x) / (float)steps;
 	increment.y = (line[1].y - line[0].y) / (float)steps;
 	while (i <= steps && i < 99999)
 	{
-		if (texture.x < l->texture.width && texture.x > 0 &&
-			texture.y < l->texture.height && texture.y > 0)
+		if (texture.x < l->texture.width && texture.x > 0
+			&& texture.y < l->texture.height && texture.y > 0)
 		{
 			texture_coord = (int)texture.x + (int)texture.y * l->texture.width;
-			if (texture_coord < l->texture.width * l->texture.height && texture_coord >= 0)
+			if (texture_coord < l->texture.width * l->texture.height
+				&& texture_coord >= 0)
 			{
-				spray_coord = (int)(l->spray.width * (float)i / steps) + (int)(l->spray.height * y_percent) * l->spray.width;
-				if (spray_coord < l->spray.width * l->spray.height && spray_coord >= 0 &&
-					l->spray.image[spray_coord] << 8 * 3 && l->texture.image[texture_coord] << 8 * 3)
+				spray_coord = (int)(l->spray.width * (float)i / steps)
+					+ (int)(l->spray.height * y_percent) * l->spray.width;
+				if (spray_coord < l->spray.width * l->spray.height
+					&& spray_coord >= 0 && l->spray.image[spray_coord] << 8 * 3
+					&& l->texture.image[texture_coord] << 8 * 3)
 				{
-					t_vec2 point;
 					point.x = texture.x / l->texture.width;
 					point.y = 1 - texture.y / l->texture.height;
-					l->spray.image[spray_coord] = (l->spray.image[spray_coord] >> 8 << 8) + 0xff;
-					if (point_in_tri(point, tri->verts[0].txtr, tri->verts[1].txtr, tri->verts[2].txtr) ||
-						point_in_tri(point, tri->verts[3].txtr, tri->verts[1].txtr, tri->verts[2].txtr))
-						l->spray_overlay[texture_coord] = l->spray.image[spray_coord];
+					l->spray.image[spray_coord]
+						= (l->spray.image[spray_coord] >> 8 << 8) + 0xff;
+					if (point_in_tri(point, tri->verts[0].txtr,
+							tri->verts[1].txtr, tri->verts[2].txtr)
+						|| point_in_tri(point, tri->verts[3].txtr,
+							tri->verts[1].txtr, tri->verts[2].txtr))
+						l->spray_overlay[texture_coord]
+							= l->spray.image[spray_coord];
 				}
 			}
 		}
@@ -57,7 +65,7 @@ static void		draw_line(t_level *l, t_vec2 line[2], t_tri *tri, float y_percent)
 	}
 }
 
-static void		draw_square(t_level *l, t_vec2 square[4], t_tri *tri)
+static void	draw_square(t_level *l, t_vec2 square[4], t_tri *tri)
 {
 	t_vec2	line[2];
 	int		left_steps;
@@ -66,10 +74,14 @@ static void		draw_square(t_level *l, t_vec2 square[4], t_tri *tri)
 	int		i;
 
 	i = 0;
-	left_steps = ft_abs(square[1].x - square[0].x) > ft_abs(square[1].y - square[0].y) ?
-				ft_abs(square[1].x - square[0].x) : ft_abs(square[1].y - square[0].y);
-	right_steps = ft_abs(square[3].x - square[2].x) > ft_abs(square[3].y - square[2].y) ?
-				ft_abs(square[3].x - square[2].x) : ft_abs(square[3].y - square[2].y);
+	if (ft_abs(square[1].x - square[0].x) > ft_abs(square[1].y - square[0].y))
+		left_steps = ft_abs(square[1].x - square[0].x);
+	else
+		left_steps = ft_abs(square[1].y - square[0].y);
+	if (ft_abs(square[3].x - square[2].x) > ft_abs(square[3].y - square[2].y))
+		right_steps = ft_abs(square[3].x - square[2].x);
+	else
+		right_steps = ft_abs(square[3].y - square[2].y);
 	if (!left_steps || !right_steps)
 		return ;
 	if (left_steps > right_steps)
@@ -90,12 +102,12 @@ static void		draw_square(t_level *l, t_vec2 square[4], t_tri *tri)
 	}
 }
 
-t_vec2		uv_to_2d(t_tri tri, t_bmp *txtr, t_vec2 uv, int isquad)
+t_vec2	uv_to_2d(t_tri tri, t_bmp *txtr, t_vec2 uv, int isquad)
 {
-	t_vec2		av0;
-	t_vec2		av1;
-	t_vec2		av2;
-	t_vec2		res;
+	t_vec2	av0;
+	t_vec2	av1;
+	t_vec2	av2;
+	t_vec2	res;
 
 	if (isquad)
 		av0 = tri.verts[3].txtr;
@@ -112,21 +124,23 @@ t_vec2		uv_to_2d(t_tri tri, t_bmp *txtr, t_vec2 uv, int isquad)
 	return (res);
 }
 
-static int		cast_uv(t_tri t, t_ray ray, t_vec2 *uv)
+static int	cast_uv(t_tri t, t_ray ray, t_vec2 *uv)
 {
 	t_vec3	pvec;
-	vec_cross(&pvec, ray.dir, t.v0v2);
-	float invdet = 1 / vec_dot(pvec, t.v0v1); 
-
+	float	invdet;
 	t_vec3	tvec;
+	float	u;
+	t_vec3	qvec;
+	float	v;
+	float	dist;
+
+	vec_cross(&pvec, ray.dir, t.v0v2);
+	invdet = 1 / vec_dot(pvec, t.v0v1);
 	vec_sub(&tvec, ray.pos, t.verts[0].pos);
-	float u = vec_dot(tvec, pvec) * invdet;
-
-	t_vec3 qvec;
+	u = vec_dot(tvec, pvec) * invdet;
 	vec_cross(&qvec, tvec, t.v0v1);
-	float v = vec_dot(ray.dir, qvec) * invdet;
-
-	float dist = vec_dot(qvec, t.v0v2) * invdet;
+	v = vec_dot(ray.dir, qvec) * invdet;
+	dist = vec_dot(qvec, t.v0v2) * invdet;
 	if (dist > SPRAY_MAX_DIST || dist < 0)
 		return (0);
 	uv->x = u;
@@ -134,12 +148,12 @@ static int		cast_uv(t_tri t, t_ray ray, t_vec2 *uv)
 	return (1);
 }
 
-static int		raycast_face_pos(t_ray *r, t_level *l, t_obj *object, t_camera *cam)
+static int	raycast_face_pos(t_ray *r, t_level *l, t_obj *object, t_camera *cam)
 {
-	float			dist;
-	float			tmp;
-	int				i;
-	int				new_hit;
+	float	dist;
+	float	tmp;
+	int		i;
+	int		new_hit;
 
 	i = 0;
 	dist = FLT_MAX;
@@ -160,7 +174,7 @@ static int		raycast_face_pos(t_ray *r, t_level *l, t_obj *object, t_camera *cam)
 	return (new_hit);
 }
 
-t_vec2		corner_cam_diff(int corner, t_camera *cam)
+t_vec2	corner_cam_diff(int corner, t_camera *cam)
 {
 	int		diff;
 	t_vec2	cam_diff;
@@ -189,7 +203,7 @@ t_vec2		corner_cam_diff(int corner, t_camera *cam)
 	return (cam_diff);
 }
 
-void		move_cam(t_level *l, t_camera *cam, int hit, t_ray r)
+void	move_cam(t_level *l, t_camera *cam, int hit, t_ray r)
 {
 	t_vec3	tmp;
 
@@ -208,7 +222,7 @@ void		move_cam(t_level *l, t_camera *cam, int hit, t_ray r)
 	vec_normalize(&cam->up);
 }
 
-void		spray(t_camera cam, t_level *level)
+void	spray(t_camera cam, t_level *level)
 {
 	t_vec3	point;
 	t_vec2	uv;
@@ -217,6 +231,7 @@ void		spray(t_camera cam, t_level *level)
 	t_vec2	corner[4];
 	t_vec2	cam_diff;
 	int		hit;
+	int		i;
 
 	r.dir = cam.front;
 	r.pos = cam.pos;
@@ -232,10 +247,11 @@ void		spray(t_camera cam, t_level *level)
 	r.dir.z += cam.up.z * cam_diff.y + cam.side.z * cam_diff.x;
 	hit = raycast_face_pos(&r, level, &level->all, &cam);
 	if (hit == -1)
-		return;
+		return ;
 	if (!level->ui.spray_from_view)
 		move_cam(level, &cam, hit, r);
-	for (int i = 0; i < 4; i++)
+	i = -1;
+	while (++i < 4)
 	{
 		r.dir = cam.front;
 		r.pos = cam.pos;
@@ -244,7 +260,7 @@ void		spray(t_camera cam, t_level *level)
 		r.dir.y += cam.up.y * cam_diff.y + cam.side.y * cam_diff.x;
 		r.dir.z += cam.up.z * cam_diff.y + cam.side.z * cam_diff.x;
 		if (!cast_uv(level->all.tris[hit], r, &uv))
-			return;
+			return ;
 		uv = uv_to_2d(level->all.tris[hit], &level->texture, uv, 0);
 		corner[i].x = uv.x;
 		corner[i].y = 1.0 - uv.y;
