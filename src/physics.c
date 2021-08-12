@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/10 01:23:16 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/12 11:37:30 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/12 12:36:00 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -229,7 +229,7 @@ void	player_movement(t_level *level, t_game_state game_state)
 	if (game_state != GAME_STATE_EDITOR)
 		level->ui.noclip = FALSE;
 	vel = level->player_vel;
-	delta_time = level->ui.frametime / 1000.;
+	delta_time = level->ui.frame_time / 1000.;
 	player_input(level, &wishdir, &height);
 	rotate_wishdir(level, &wishdir, &vel);
 	if (level->ui.noclip)

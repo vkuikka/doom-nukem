@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/12 11:38:03 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/12 12:35:25 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -570,13 +570,13 @@ void	ui_config(t_level *level)
 		set_text_color(UI_INFO_TEXT_COLOR);
 		sprintf(buf, "fps:               %d", get_fps());
 		text(buf);
-		sprintf(buf, "cull:              %ums", ui->cull);
+		sprintf(buf, "cull:              %ums", ui->cull_time);
 		text(buf);
-		sprintf(buf, "ssp:               %ums", ui->ssp);
+		sprintf(buf, "ssp:               %ums", ui->ssp_time);
 		text(buf);
-		sprintf(buf, "render:          %ums", ui->render);
+		sprintf(buf, "render:          %ums", ui->render_time);
 		text(buf);
-		sprintf(buf, "frametime: %ums", ui->frametime);
+		sprintf(buf, "frametime: %ums", ui->frame_time);
 		text(buf);
 		sprintf(buf, "faces:           %d / %d",
 			level->all.tri_amount, level->visible.tri_amount);

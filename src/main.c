@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/12 11:37:06 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/12 12:35:03 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,13 +131,13 @@ int	main(int argc, char **argv)
 		enemies_update_sprites(level);
 		cull_time = SDL_GetTicks();
 		culling(level);
-		level->ui.cull = SDL_GetTicks() - cull_time;
+		level->ui.cull_time = SDL_GetTicks() - cull_time;
 		ssp_time = SDL_GetTicks();
 		screen_space_partition(level);
-		level->ui.ssp = SDL_GetTicks() - ssp_time;
+		level->ui.ssp_time = SDL_GetTicks() - ssp_time;
 		render_time = SDL_GetTicks();
 		render(window, level, &game_state);
-		level->ui.render = SDL_GetTicks() - render_time;
-		level->ui.frametime = SDL_GetTicks() - frame_time;
+		level->ui.render_time = SDL_GetTicks() - render_time;
+		level->ui.frame_time = SDL_GetTicks() - frame_time;
 	}
 }
