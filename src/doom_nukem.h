@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/13 21:47:16 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/13 23:38:58 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -397,7 +397,6 @@ typedef struct s_ui_state
 	int					ui_text_y_pos;
 	int					ui_text_x_offset;
 	int					ui_text_color;
-	char				*text;
 
 	char				**error_message;
 	unsigned int		*error_start_time;
@@ -756,29 +755,14 @@ void					set_spawn_pos(t_level *level);
 void					set_menu_pos_1(t_level *level);
 void					set_menu_pos_2(t_level *level);
 void					nonfatal_error(t_level *level, char *message);
-
-
-
-void	ui_render_nonfatal_errors(t_level *level);
-
-t_ui_state	*get_ui_state(t_ui_state *get_state);
-t_window	*get_window(t_window *get_window);
-
-
-t_ivec2		render_text(char *text, int x, int y);
-
-void	render_call_streaming(unsigned int *get_texture, int dy,
-											t_ivec2 *size, int color);
-void	render_button_streaming(unsigned int *get_texture, int *var, int dy);
-void	render_slider_streaming(unsigned int *get_texture,
-											float unit, int dy);
-void	button_pixel_put(int x, int y, int color, unsigned int *texture);
-
-void	ui_editor(t_level *level);
-void	ui_level_select(t_level *level);
-void	ui_settings(t_level *level);
-void	render_ssp_visual_background(unsigned int *texture);
-void	render_ssp_visual_text(t_window *window, t_level *level);
-void	ui_render_background(t_window *window, t_level *level);
+void					ui_render_nonfatal_errors(t_level *level);
+t_ui_state				*get_ui_state(t_ui_state *get_state);
+t_window				*get_window(t_window *get_window);
+t_ivec2					render_text(char *text, int x, int y);
+void					button_pixel_put(int x, int y, int color, unsigned int *texture);
+void					ui(t_window *window, t_level *level, t_game_state *game_state);
+void					render_ssp_visual_background(unsigned int *texture);
+void					render_ssp_visual_text(t_window *window, t_level *level);
+void					ui_render_background(t_window *window, t_level *level);
 
 #endif

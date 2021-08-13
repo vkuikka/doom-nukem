@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/06 08:50:56 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/13 21:47:13 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/13 23:15:15 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ static SDL_Color	get_text_color(void)
 	return (get_sdl_color(state->ui_text_color));
 }
 
-static t_ivec2	render_text_internal(char *text, t_window *window, TTF_Font *font, t_ivec2 pos)
+static t_ivec2	render_text_internal(char *str, t_window *window, TTF_Font *font, t_ivec2 pos)
 {
 	SDL_Rect		text_rect;
 	t_ivec2			size;
@@ -44,12 +44,12 @@ static t_ivec2	render_text_internal(char *text, t_window *window, TTF_Font *font
 	SDL_Texture		*Message;
 
 	surfaceMessage
-		= TTF_RenderText_Blended(font, text, get_text_color());
+		= TTF_RenderText_Blended(font, str, get_text_color());
 	Message
 		= SDL_CreateTextureFromSurface(window->SDLrenderer, surfaceMessage);
 	text_rect.w = 0;
 	text_rect.h = 0;
-	TTF_SizeText(font, text, &text_rect.w, &text_rect.h);
+	TTF_SizeText(font, str, &text_rect.w, &text_rect.h);
 	text_rect.x = pos.x;
 	text_rect.y = pos.y;
 	SDL_SetRenderTarget(window->SDLrenderer, window->text_texture);
@@ -62,7 +62,7 @@ static t_ivec2	render_text_internal(char *text, t_window *window, TTF_Font *font
 	return (size);
 }
 
-t_ivec2	render_text(char *text, int x, int y)
+t_ivec2	render_text(char *str, int x, int y)
 {
 	t_ivec2		pos;
 	t_window	*window;
@@ -74,7 +74,7 @@ t_ivec2	render_text(char *text, int x, int y)
 	font = state->current_font;
 	pos.x = x;
 	pos.y = y;
-	return (render_text_internal(text, window, font, pos));
+	return (render_text_internal(str, window, font, pos));
 }
 
 void	render_ssp_visual_background(unsigned int *texture)
