@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/10 22:39:12 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/13 22:38:48 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/13 23:49:46 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,6 +151,12 @@ static void	keyboard_input(t_window *window, t_level *level, SDL_Event event,
 		door_activate(level);
 	else if (event.key.keysym.scancode == SDL_SCANCODE_Q)
 	{
+		if (level->bake_status == BAKE_BAKING)
+		{
+			nonfatal_error(level,
+				"cancel baking first (press baking button)");
+			return ;
+		}
 		level->ui.main_menu = MAIN_MENU_LOCATION_MAIN;
 		if (*game_state != GAME_STATE_MAIN_MENU)
 		{

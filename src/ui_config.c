@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/13 22:36:03 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/13 23:46:42 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -418,7 +418,7 @@ void	ui_level_select(t_level *level)
 	ui_render_directory(level);
 }
 
-void	ui_editor(t_level *level)
+void	ui_door_editor(t_level *level)
 {
 	char		buf[100];
 	t_editor_ui	*ui;
@@ -426,144 +426,127 @@ void	ui_editor(t_level *level)
 	int			i;
 
 	ui = &level->ui;
-	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
-	if (level->bake_status == BAKE_BAKING)
+	if (call("close door editor", NULL, level))
+		level->ui.state.ui_location = UI_LOCATION_MAIN;
+	find_selected_door_index(level);
+	if (level->doors.selected_index)
 	{
-		sprintf(buf, "baking: %.3f%%", level->bake_progress);
-		set_text_color(UI_LEVEL_BAKING_COLOR);
-		if (call(buf, start_bake, level))
-			level->bake_status = BAKE_NOT_BAKED;
-		set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
-	}
-	if (level->ui.state.ui_location == UI_LOCATION_FILE_SAVE
-		|| level->ui.state.ui_location == UI_LOCATION_FILE_OPEN)
-	{
-		ui_render_directory(level);
-		return ;
-	}
-	if (level->ui.state.ui_location == UI_LOCATION_UV_EDITOR)
-	{
-		if (call("close uv editor", NULL, level))
-			level->ui.state.ui_location = UI_LOCATION_MAIN;
-		call("fix selected uv overlap", &fix_uv_overlap, level);
-		return ;
-	}
-	if (level->ui.state.ui_location == UI_LOCATION_DOOR_EDITOR)
-	{
-		if (call("close door editor", NULL, level))
-			level->ui.state.ui_location = UI_LOCATION_MAIN;
-		find_selected_door_index(level);
-		if (level->doors.selected_index)
+		call("delete selected door", &delete_door, level);
+		call("set door start position", &set_door_pos_1, level);
+		call("set door stop position", &set_door_pos_2, level);
+		if (button(&level->doors.door[level->doors.selected_index - 1]
+				.is_activation_pos_active, "has activation button"))
 		{
-			call("delete selected door", &delete_door, level);
-			call("set door start position", &set_door_pos_1, level);
-			call("set door stop position", &set_door_pos_2, level);
-			if (button(&level->doors.door[level->doors.selected_index - 1]
-					.is_activation_pos_active, "has activation button"))
-			{
-				level->doors.door[level->doors.selected_index - 1]
-					.activation_pos = level->cam.pos;
-				vec_add(
-					&level->doors.door[level->doors.selected_index - 1]
-					.activation_pos,
-					level->doors.door[level->doors.selected_index - 1]
-					.activation_pos,
-					level->cam.front);
-			}
-			if (level->doors.door[level->doors.selected_index - 1]
-				.is_activation_pos_active)
-				if (call("move door activation button", NULL, level))
-					level->ui.state.ui_location
-						= UI_LOCATION_DOOR_ACTIVATION_BUTTON;
-			sprintf(buf, "door transition time: %fs",
-				level->doors.door[level->doors.selected_index - 1]
-				.transition_time);
-			float_slider(
+			level->doors.door[level->doors.selected_index - 1]
+				.activation_pos = level->cam.pos;
+			vec_add(
 				&level->doors.door[level->doors.selected_index - 1]
-				.transition_time,
-				buf, .2, 7);
+				.activation_pos,
+				level->doors.door[level->doors.selected_index - 1]
+				.activation_pos,
+				level->cam.front);
 		}
+		if (level->doors.door[level->doors.selected_index - 1]
+			.is_activation_pos_active)
+			if (call("move door activation button", NULL, level))
+				level->ui.state.ui_location
+					= UI_LOCATION_DOOR_ACTIVATION_BUTTON;
+		sprintf(buf, "door transition time: %fs",
+			level->doors.door[level->doors.selected_index - 1]
+			.transition_time);
+		float_slider(
+			&level->doors.door[level->doors.selected_index - 1]
+			.transition_time,
+			buf, .2, 7);
+	}
+	else
+	{
+		selected = 0;
+		i = -1;
+		while (++i < level->all.tri_amount)
+			if (level->all.tris[i].selected)
+				selected++;
+		if (selected)
+			call("new door from selection", &add_new_door, level);
 		else
-		{
-			selected = 0;
-			i = -1;
-			while (++i < level->all.tri_amount)
-				if (level->all.tris[i].selected)
-					selected++;
-			if (selected)
-				call("new door from selection", &add_new_door, level);
-			else
-				text("Select faces to create door from");
-		}
-		return ;
+			text("Select faces to create door from");
 	}
-	if (level->ui.state.ui_location == UI_LOCATION_DOOR_ACTIVATION_BUTTON)
+	return ;
+}
+
+void	ui_light_editor(t_level *level)
+{
+	char		buf[100];
+	t_editor_ui	*ui;
+
+	ui = &level->ui;
+	if (level->bake_status == BAKE_NOT_BAKED)
 	{
-		if (call("return to door editor", NULL, level))
-			level->ui.state.ui_location = UI_LOCATION_DOOR_EDITOR;
-		return ;
+		set_text_color(UI_LEVEL_NOT_BAKED_COLOR);
+		sprintf(buf, "bake lighting");
+		call(buf, start_bake, level);
 	}
-	if (level->ui.state.ui_location == UI_LOCATION_LIGHT_EDITOR)
+	else if (level->bake_status == BAKE_BAKED)
 	{
-		if (level->bake_status == BAKE_NOT_BAKED)
-		{
-			set_text_color(UI_LEVEL_NOT_BAKED_COLOR);
-			sprintf(buf, "bake lighting");
-			call(buf, start_bake, level);
-		}
-		else if (level->bake_status == BAKE_BAKED)
-		{
-			set_text_color(UI_LEVEL_BAKED_COLOR);
-			sprintf(buf, "lighting baked");
-			call(buf, start_bake, level);
-		}
-		set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
-		if (call("close light editor", NULL, level))
-			level->ui.state.ui_location = UI_LOCATION_MAIN;
-		sprintf(buf, "world brightness: %.2f", level->world_brightness);
-		float_slider(&level->world_brightness, buf, 0, 1);
-		sprintf(buf, "skybox brightness: %.2f (0 = sync)",
-			level->skybox_brightness);
-		float_slider(&level->skybox_brightness, buf, 0, 1);
-		sprintf(buf, "sun red: %.2f", level->ui.sun_color.r);
-		float_slider(&level->ui.sun_color.r, buf, 0, 1);
-		sprintf(buf, "sun green: %.2f", level->ui.sun_color.g);
-		float_slider(&level->ui.sun_color.g, buf, 0, 1);
-		sprintf(buf, "sun blue: %.2f", level->ui.sun_color.b);
-		float_slider(&level->ui.sun_color.b, buf, 0, 1);
-		sprintf(buf, "sun dir: (%.2f, %.2f, %.2f)",
-			ui->sun_dir.x, ui->sun_dir.y, ui->sun_dir.z);
-		text(buf);
-		float_slider(&ui->sun_dir.x, NULL, -1, 1);
-		float_slider(&ui->sun_dir.y, NULL, -1, 1);
-		float_slider(&ui->sun_dir.z, NULL, -1, 1);
-		vec_normalize(&ui->sun_dir);
-		call("add light", &add_light, level);
-		if (level->selected_light_index)
-		{
-			sprintf(buf, "radius: %.2f",
-				level->lights[level->selected_light_index - 1].radius);
-			float_slider(&level->lights[level->selected_light_index - 1].radius,
-				buf, .1, 20);
-			sprintf(buf, "red: %.2f",
-				level->lights[level->selected_light_index - 1].color.r);
-			float_slider(
-				&level->lights[level->selected_light_index - 1].color.r,
-				buf, 0, 5);
-			sprintf(buf, "green: %.2f",
-				level->lights[level->selected_light_index - 1].color.g);
-			float_slider(
-				&level->lights[level->selected_light_index - 1].color.g,
-				buf, 0, 5);
-			sprintf(buf, "blue: %.2f",
-				level->lights[level->selected_light_index - 1].color.b);
-			float_slider(
-				&level->lights[level->selected_light_index - 1].color.b,
-				buf, 0, 5);
-			call("delete light", &delete_light, level);
-		}
-		return ;
+		set_text_color(UI_LEVEL_BAKED_COLOR);
+		sprintf(buf, "lighting baked");
+		call(buf, start_bake, level);
 	}
+	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
+	if (call("close light editor", NULL, level))
+		level->ui.state.ui_location = UI_LOCATION_MAIN;
+	sprintf(buf, "world brightness: %.2f", level->world_brightness);
+	float_slider(&level->world_brightness, buf, 0, 1);
+	sprintf(buf, "skybox brightness: %.2f (0 = sync)",
+		level->skybox_brightness);
+	float_slider(&level->skybox_brightness, buf, 0, 1);
+	sprintf(buf, "sun red: %.2f", level->ui.sun_color.r);
+	float_slider(&level->ui.sun_color.r, buf, 0, 1);
+	sprintf(buf, "sun green: %.2f", level->ui.sun_color.g);
+	float_slider(&level->ui.sun_color.g, buf, 0, 1);
+	sprintf(buf, "sun blue: %.2f", level->ui.sun_color.b);
+	float_slider(&level->ui.sun_color.b, buf, 0, 1);
+	sprintf(buf, "sun dir: (%.2f, %.2f, %.2f)",
+		ui->sun_dir.x, ui->sun_dir.y, ui->sun_dir.z);
+	text(buf);
+	float_slider(&ui->sun_dir.x, NULL, -1, 1);
+	float_slider(&ui->sun_dir.y, NULL, -1, 1);
+	float_slider(&ui->sun_dir.z, NULL, -1, 1);
+	vec_normalize(&ui->sun_dir);
+	call("add light", &add_light, level);
+	if (level->selected_light_index)
+	{
+		sprintf(buf, "radius: %.2f",
+			level->lights[level->selected_light_index - 1].radius);
+		float_slider(&level->lights[level->selected_light_index - 1].radius,
+			buf, .1, 20);
+		sprintf(buf, "red: %.2f",
+			level->lights[level->selected_light_index - 1].color.r);
+		float_slider(
+			&level->lights[level->selected_light_index - 1].color.r,
+			buf, 0, 5);
+		sprintf(buf, "green: %.2f",
+			level->lights[level->selected_light_index - 1].color.g);
+		float_slider(
+			&level->lights[level->selected_light_index - 1].color.g,
+			buf, 0, 5);
+		sprintf(buf, "blue: %.2f",
+			level->lights[level->selected_light_index - 1].color.b);
+		float_slider(
+			&level->lights[level->selected_light_index - 1].color.b,
+			buf, 0, 5);
+		call("delete light", &delete_light, level);
+	}
+	return ;
+}
+
+void	ui_editor(t_level *level)
+{
+	char		buf[100];
+	t_editor_ui	*ui;
+
+	ui = &level->ui;
+	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
 	button(&ui->noclip, "noclip");
 	button(&ui->wireframe, "wireframe");
 	button(&ui->raytracing, "raytrace lights");
@@ -612,4 +595,75 @@ void	ui_editor(t_level *level)
 	}
 	set_text_color(UI_FACE_SELECTION_TEXT_COLOR);
 	ui_config_selected_faces(level);
+}
+
+void	select_editor_ui(t_level *level)
+{
+	char		buf[100];
+
+	if (level->bake_status == BAKE_BAKING)
+	{
+		set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
+		button(&level->ui.noclip, "noclip");
+		button(&level->ui.wireframe, "wireframe");
+		sprintf(buf, "baking: %.3f%%", level->bake_progress);
+		set_text_color(UI_LEVEL_BAKING_COLOR);
+		if (call(buf, NULL, level))
+			level->bake_status = BAKE_NOT_BAKED;
+	}
+	else if (level->ui.state.ui_location == UI_LOCATION_FILE_SAVE
+		|| level->ui.state.ui_location == UI_LOCATION_FILE_OPEN)
+		ui_render_directory(level);
+	else if (level->ui.state.ui_location == UI_LOCATION_UV_EDITOR)
+	{
+		if (call("close uv editor", NULL, level))
+			level->ui.state.ui_location = UI_LOCATION_MAIN;
+		call("fix selected uv overlap", &fix_uv_overlap, level);
+	}
+	else if (level->ui.state.ui_location == UI_LOCATION_DOOR_EDITOR)
+		ui_door_editor(level);
+	else if (level->ui.state.ui_location == UI_LOCATION_DOOR_ACTIVATION_BUTTON)
+	{
+		if (call("return to door editor", NULL, level))
+			level->ui.state.ui_location = UI_LOCATION_DOOR_EDITOR;
+	}
+	else if (level->ui.state.ui_location == UI_LOCATION_LIGHT_EDITOR)
+		ui_light_editor(level);
+	else
+		ui_editor(level);
+}
+
+void	ui(t_window *window, t_level *level, t_game_state *game_state)
+{
+	level->ui.state.ui_max_width = 0;
+	level->ui.state.ui_text_color = 0;
+	level->ui.state.ui_text_x_offset = 0;
+	level->ui.state.ui_text_y_pos = 0;
+	level->ui.state.current_font = level->ui.editor_font;
+	if (level->ui.state.ssp_visual)
+	{
+		render_ssp_visual_background(window->ui_texture_pixels);
+		render_ssp_visual_text(window, level);
+	}
+	if (*game_state == GAME_STATE_EDITOR)
+	{
+		if (level->ui.state.ui_location == UI_LOCATION_UV_EDITOR)
+			uv_editor(level, window->ui_texture_pixels);
+		select_editor_ui(level);
+		door_put_text(window, level);
+		light_put_text(window, level);
+	}
+	else if (*game_state == GAME_STATE_MAIN_MENU)
+	{
+		if (level->ui.main_menu == MAIN_MENU_LOCATION_MAIN)
+			main_menu(level, window->ui_texture_pixels, game_state);
+		else if (level->ui.main_menu == MAIN_MENU_LOCATION_SETTINGS)
+			ui_settings(level);
+		else
+			ui_level_select(level);
+	}
+	else
+		hud(level, window->ui_texture_pixels, *game_state);
+	ui_render_background(window, level);
+	ui_render_nonfatal_errors(level);
 }
