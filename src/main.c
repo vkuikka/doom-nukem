@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/12 16:00:46 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/13 20:57:17 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ static void	update_camera(t_level *l)
 	l->cam.fov_x = l->ui.fov * ((float)RES_X / RES_Y);
 }
 
-static void	render(t_window *window, t_level *level, t_game_state *game_state)
+static void	render_raycast(t_window *window, t_level *level)
 {
 	SDL_Thread	*threads[THREAD_AMOUNT];
 	t_rthread	**thread_data;
@@ -63,26 +63,66 @@ static void	render(t_window *window, t_level *level, t_game_state *game_state)
 		fill_pixels(window->frame_buffer, level->ui.raycast_quality,
 			level->ui.blur, level->ui.smooth_pixels);
 	}
-	if (*game_state == GAME_STATE_EDITOR
-		&& level->ui.state.ui_location != UI_LOCATION_SETTINGS)
-		wireframe(window, level);
 	SDL_UnlockTexture(window->texture);
-	SDL_RenderClear(window->SDLrenderer);
 	SDL_RenderCopy(window->SDLrenderer, window->texture, NULL, NULL);
-	if (*game_state == GAME_STATE_INGAME || *game_state == GAME_STATE_DEAD
-		|| *game_state == GAME_STATE_WIN)
-		hud(level, window, *game_state);
-	else if (*game_state == GAME_STATE_MAIN_MENU)
-		main_menu(level, window, game_state);
-	else
-	{
-		gizmo_render(level, window);
-		if (level->ui.state.ui_location == UI_LOCATION_UV_EDITOR)
-			uv_editor(level, window);
-		ui_render(level);
-	}
-	SDL_RenderPresent(window->SDLrenderer);
+}
+
+static void	render_raster(t_window *window, t_level *level)
+{
+	int	dummy_for_sdl;
+
+	if (SDL_LockTexture(window->raster_texture, NULL, (void **)&window->raster_texture_pixels,
+			&dummy_for_sdl) != 0)
+		ft_error("failed to lock texture\n");
+	wireframe(window->raster_texture_pixels, level);
+	gizmo_render(level, window->raster_texture_pixels);
+	SDL_UnlockTexture(window->raster_texture);
+	SDL_RenderCopy(window->SDLrenderer, window->raster_texture, NULL, NULL);
 	return ;
+}
+
+static void	render(t_window *window, t_level *level, t_game_state *game_state)
+{
+	SDL_RenderClear(window->SDLrenderer);
+	render_raycast(window, level);
+
+	if (*game_state == GAME_STATE_EDITOR)
+		render_raster(window, level);
+
+int width;
+	if (SDL_LockTexture(window->ui_texture, NULL,
+			(void **)&window->ui_texture_pixels, &width) != 0)
+		ft_error("failed to lock texture\n");
+	ft_memset(window->ui_texture_pixels, 0, RES_X * RES_Y * 4);
+
+	if (*game_state == GAME_STATE_EDITOR)
+	{
+		if (level->ui.state.ui_location == UI_LOCATION_UV_EDITOR)
+			uv_editor(level, window->ui_texture_pixels);
+		ui_render(window, level);
+	}
+	else if (*game_state == GAME_STATE_MAIN_MENU)
+		main_menu(level, window->ui_texture_pixels, game_state);
+	else
+		hud(level, window->ui_texture_pixels, *game_state);
+
+
+	if (*game_state == GAME_STATE_EDITOR)
+	{
+		door_put_text(window, level);
+		light_put_text(window, level);
+	}
+	SDL_UnlockTexture(window->ui_texture);
+	SDL_RenderCopy(window->SDLrenderer, window->ui_texture, NULL, NULL);
+	SDL_RenderCopy(window->SDLrenderer, window->text_texture, NULL, NULL);
+	SDL_SetRenderTarget(window->SDLrenderer, window->text_texture);
+	SDL_RenderClear(window->SDLrenderer);
+	SDL_RenderPresent(window->SDLrenderer);
+	SDL_SetRenderTarget(window->SDLrenderer, NULL);
+
+
+
+	SDL_RenderPresent(window->SDLrenderer);
 }
 
 int	main(int argc, char **argv)
@@ -123,11 +163,6 @@ int	main(int argc, char **argv)
 		}
 		update_camera(level);
 		door_animate(level);
-		if (game_state == GAME_STATE_EDITOR)
-		{
-			door_put_text(window, level);
-			light_put_text(window, level);
-		}
 		enemies_update_sprites(level);
 		cull_time = SDL_GetTicks();
 		culling(level);

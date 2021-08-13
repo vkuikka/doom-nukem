@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/21 20:19:04 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/12 11:36:56 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/13 17:18:27 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 
 void	light_put_text(t_window *window, t_level *level)
 {
-	t_ivec2	text_pos;
 	t_vec3	pos;
 	int		i;
 
@@ -25,17 +24,15 @@ void	light_put_text(t_window *window, t_level *level)
 		camera_offset(&pos, &level->cam);
 		if (pos.z < 0)
 			continue ;
-		text_pos.x = pos.x;
-		text_pos.y = pos.y;
 		if (level->selected_light_index && i + 1 == level->selected_light_index)
 		{
 			set_text_color(WF_SELECTED_COL);
-			render_text("-light-", window, &text_pos, NULL);
+			render_text("-light-", pos.x, pos.y);
 		}
 		else
 		{
 			set_text_color(LIGHT_LOCATION_INFO_COLOR);
-			render_text("light", window, &text_pos, NULL);
+			render_text("light", pos.x, pos.y);
 		}
 	}
 }

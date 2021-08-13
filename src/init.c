@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/08 14:38:45 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/12 11:36:47 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/13 18:03:38 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,6 +95,8 @@ void	init_window(t_window **window)
 		= SDL_CreateRenderer(window[0]->SDLwindow, -1, 0);
 	if (!window[0]->SDLrenderer)
 		ft_error("could not create renderer");
+	window[0]->raster_texture = empty_texture(window[0]->SDLrenderer);
+	SDL_SetTextureBlendMode(window[0]->raster_texture, SDL_BLENDMODE_BLEND);
 	window[0]->texture = empty_texture(window[0]->SDLrenderer);
 	window[0]->frame_buffer = NULL;
 	window[0]->depth_buffer

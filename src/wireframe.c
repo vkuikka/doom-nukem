@@ -6,24 +6,24 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/05 16:44:10 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/12 11:38:31 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/13 18:05:27 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
 
-void	pixel_put(int x, int y, int color, t_window *window)
+void	pixel_put(int x, int y, int color, unsigned int *texture)
 {
 	if (x < 0 || y < 0 || x >= RES_X || y >= RES_Y)
 		return ;
 	if (color == WF_SELECTED_COL
-		|| (window->frame_buffer[x + (y * RES_X)] != WF_VERT_COL
-			&& window->frame_buffer[x + (y * RES_X)] != WF_SELECTED_COL
-			&& window->frame_buffer[x + (y * RES_X)] != WF_VISIBLE_COL
-			&& window->frame_buffer[x + (y * RES_X)] != WF_VISIBLE_NORMAL_COL
-			&& (window->frame_buffer[x + (y * RES_X)] != WF_NOT_QUAD_WARNING_COL
+		|| (texture[x + (y * RES_X)] != WF_VERT_COL
+			&& texture[x + (y * RES_X)] != WF_SELECTED_COL
+			&& texture[x + (y * RES_X)] != WF_VISIBLE_COL
+			&& texture[x + (y * RES_X)] != WF_VISIBLE_NORMAL_COL
+			&& (texture[x + (y * RES_X)] != WF_NOT_QUAD_WARNING_COL
 				|| color == WF_SELECTED_COL)))
-		window->frame_buffer[x + (y * RES_X)] = color;
+		texture[x + (y * RES_X)] = color;
 }
 
 t_vec3	move2z(t_vec3 *p1, t_vec3 *p2)
@@ -39,7 +39,7 @@ t_vec3	move2z(t_vec3 *p1, t_vec3 *p2)
 	return (intersection);
 }
 
-void	print_line(t_vec3 start, t_vec3 stop, int color, t_window *window)
+void	print_line(t_vec3 start, t_vec3 stop, int color, unsigned int *texture)
 {
 	t_vec3	step;
 	t_vec3	pos;
@@ -63,7 +63,7 @@ void	print_line(t_vec3 start, t_vec3 stop, int color, t_window *window)
 	step.y = (stop.y - start.y) / (float)step.z;
 	while (pos.z <= step.z && i < 10000)
 	{
-		pixel_put(pos.x, pos.y, color, window);
+		pixel_put(pos.x, pos.y, color, texture);
 		pos.x += step.x;
 		pos.y += step.y;
 		pos.z++;
@@ -96,15 +96,15 @@ void	rotate_vertex(float angle, t_vec3 *vertex, int axis)
 	}
 }
 
-void	pixel_put_force(int x, int y, int color, t_window *window)
+void	pixel_put_force(int x, int y, int color, unsigned int *texture)
 {
 	if (x < 0 || y < 0 || x >= RES_X || y >= RES_Y)
 		return ;
-	if (window->frame_buffer[x + (y * RES_X)] != WF_SELECTED_COL)
-		window->frame_buffer[x + (y * RES_X)] = color;
+	if (texture[x + (y * RES_X)] != WF_SELECTED_COL)
+		texture[x + (y * RES_X)] = color;
 }
 
-static void	put_vertex(t_vec3 vertex, int color, t_window *window)
+static void	put_vertex(t_vec3 vertex, int color, unsigned int *texture)
 {
 	int	a;
 	int	b;
@@ -117,7 +117,7 @@ static void	put_vertex(t_vec3 vertex, int color, t_window *window)
 		b = -1;
 		while (b < 2)
 		{
-			pixel_put_force(vertex.x + a, vertex.y + b, color, window);
+			pixel_put_force(vertex.x + a, vertex.y + b, color, texture);
 			b++;
 		}
 		a++;
@@ -141,7 +141,7 @@ void	camera_offset(t_vec3 *vertex, t_camera *cam)
 	vertex->y += RES_Y / 2.0;
 }
 
-void	put_normal(t_window *window, t_level *level, t_tri tri, int color)
+void	put_normal(unsigned int *texture, t_level *level, t_tri tri, int color)
 {
 	t_vec3	normal;
 	t_vec3	avg;
@@ -169,11 +169,11 @@ void	put_normal(t_window *window, t_level *level, t_tri tri, int color)
 	normal.z = avg.z + normal.z * WF_NORMAL_LEN;
 	camera_offset(&avg, &level->cam);
 	camera_offset(&normal, &level->cam);
-	put_vertex(avg, 0, window);
-	print_line(avg, normal, color, window);
+	put_vertex(avg, 0, texture);
+	print_line(avg, normal, color, texture);
 }
 
-void	render_wireframe(t_window *window, t_level *level, t_obj *obj,
+void	render_wireframe(unsigned int *texture, t_level *level, t_obj *obj,
 														int is_visible)
 {
 	t_vec3	start;
@@ -201,33 +201,35 @@ void	render_wireframe(t_window *window, t_level *level, t_obj *obj,
 			camera_offset(&start, &level->cam);
 			camera_offset(&stop, &level->cam);
 			if (obj->tris[i].selected)
-				print_line(start, stop, WF_SELECTED_COL, window);
+				print_line(start, stop, WF_SELECTED_COL, texture);
 			else if (is_visible)
-				print_line(start, stop, WF_VISIBLE_COL, window);
+				print_line(start, stop, WF_VISIBLE_COL, texture);
 			else if (level->ui.show_quads && !obj->tris[i].isquad)
-				print_line(start, stop, WF_NOT_QUAD_WARNING_COL, window);
+				print_line(start, stop, WF_NOT_QUAD_WARNING_COL, texture);
 			else
-				print_line(start, stop, WF_UNSELECTED_COL, window);
+				print_line(start, stop, WF_UNSELECTED_COL, texture);
 			if (obj->tris[i].verts[j].selected)
-				put_vertex(start, WF_SELECTED_COL, window);
+				put_vertex(start, WF_SELECTED_COL, texture);
 			else
-				put_vertex(start, WF_VERT_COL, window);
+				put_vertex(start, WF_VERT_COL, texture);
 			if (!is_visible)
 				find_closest_mouse(&start, &i, &j);
 		}
 		if (is_visible || !level->ui.wireframe_culling_visual)
-			put_normal(window, level, obj->tris[i], WF_VISIBLE_NORMAL_COL);
+			put_normal(texture, level, obj->tris[i], WF_VISIBLE_NORMAL_COL);
 		else
-			put_normal(window, level, obj->tris[i], WF_NORMAL_COL);
+			put_normal(texture, level, obj->tris[i], WF_NORMAL_COL);
 	}
 }
 
-void	wireframe(t_window *window, t_level *level)
+void	wireframe(unsigned int *texture, t_level *level)
 {
-	if (!level->ui.wireframe_on_top)
-		ft_memset(window->frame_buffer,
-			WF_BACKGROUND_COL, RES_X * RES_Y * sizeof(int));
+	// if (!level->ui.wireframe_on_top)
+		// ft_memset(texture,
+		// 	WF_BACKGROUND_COL, RES_X * RES_Y * sizeof(int));
+		ft_memset(texture,
+			0, RES_X * RES_Y * sizeof(int));
 	if (level->ui.wireframe && level->ui.wireframe_culling_visual)
-		render_wireframe(window, level, &level->visible, TRUE);
-	render_wireframe(window, level, &level->all, FALSE);
+		render_wireframe(texture, level, &level->visible, TRUE);
+	render_wireframe(texture, level, &level->all, FALSE);
 }

@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/26 19:56:07 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/12 11:36:37 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/13 20:14:12 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,7 +89,7 @@ static void	put_gizmo_box(t_vec3 vertex, int color, unsigned int *pixels)
 	}
 }
 
-static void	render_translation_gizmo(t_level *level, unsigned int *pixels)
+void	gizmo_render(t_level *level, unsigned int *pixels)
 {
 	t_vec3	avg;
 	t_vec3	x;
@@ -217,29 +217,4 @@ void	gizmo(t_level *level)
 		obj_editor_input(level, res);
 	prevx = mx;
 	prevy = my;
-}
-
-void	gizmo_render(t_level *level, t_window *window)
-{
-	static SDL_Texture	*texture = NULL;
-	static unsigned int	*pixels;
-	signed				width;
-
-	if (!texture)
-	{
-		texture = SDL_CreateTexture(window->SDLrenderer,
-				SDL_PIXELFORMAT_RGBA8888,
-				SDL_TEXTUREACCESS_STREAMING,
-				RES_X,
-				RES_Y);
-		SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
-		if (SDL_LockTexture(texture, NULL, (void **)&pixels, &width))
-			ft_error("failed to lock texture\n");
-	}
-	render_translation_gizmo(level, pixels);
-	SDL_UnlockTexture(texture);
-	SDL_RenderCopy(window->SDLrenderer, texture, NULL, NULL);
-	if (SDL_LockTexture(texture, NULL, (void **)&pixels, &width))
-		ft_error("failed to lock texture\n");
-	ft_memset(pixels, 0, RES_X * RES_Y * 4);
 }

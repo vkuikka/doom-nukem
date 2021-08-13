@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/06 23:29:24 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/12 11:36:04 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/13 17:16:11 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,6 @@ void	door_put_text(t_window *window, t_level *level)
 	t_vec3	avg;
 	t_door	*door;
 	int		avg_amount;
-	t_ivec2	text_pos;
 	char	buf[100];
 	int		a;
 	int		i;
@@ -86,10 +85,8 @@ void	door_put_text(t_window *window, t_level *level)
 			if (avg.z > 0)
 			{
 				set_text_color(DOOR_LOCATION_INFO_COLOR);
-				text_pos.x = avg.x;
-				text_pos.y = avg.y;
 				sprintf(buf, "door %d", a + 1);
-				render_text(buf, window, &text_pos, NULL);
+				render_text(buf, avg.x, avg.y);
 			}
 		}
 		if (door->is_activation_pos_active)
@@ -99,10 +96,8 @@ void	door_put_text(t_window *window, t_level *level)
 			if (avg.z > 0)
 			{
 				set_text_color(DOOR_ACTIVATION_LOCATION_INFO_COLOR);
-				text_pos.x = avg.x;
-				text_pos.y = avg.y;
 				sprintf(buf, "door %d activation", a + 1);
-				render_text(buf, window, &text_pos, NULL);
+				render_text(buf, avg.x, avg.y);
 			}
 		}
 	}

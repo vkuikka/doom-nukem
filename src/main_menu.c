@@ -6,58 +6,24 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/19 18:51:47 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/12 16:14:52 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/13 20:44:30 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
 
-static void	put_text_main_menu(char *text, t_window *window,
-								SDL_Texture *texture, t_rect *pos)
-{
-	static TTF_Font	*font = NULL;
-	SDL_Rect		text_rect;
-	SDL_Surface		*surfaceMessage;
-	SDL_Texture		*Message;
-
-	if (!font)
-	{
-		font = TTF_OpenFont("embed/Roboto-Medium.ttf", MAIN_MENU_FONT_SIZE);
-		if (!font)
-		{
-			printf("TTF_OpenFont: %s\n", TTF_GetError());
-			ft_error("font open fail");
-		}
-	}
-	surfaceMessage
-		= TTF_RenderText_Blended(font, text,
-			get_sdl_color(MAIN_MENU_FONT_COLOR));
-	Message
-		= SDL_CreateTextureFromSurface(window->SDLrenderer, surfaceMessage);
-	text_rect.w = 0;
-	text_rect.h = 0;
-	TTF_SizeText(font, text, &text_rect.w, &text_rect.h);
-	text_rect.x = pos->x;
-	text_rect.y = pos->y;
-	SDL_SetRenderTarget(window->SDLrenderer, texture);
-	SDL_RenderCopy(window->SDLrenderer, Message, NULL, &text_rect);
-	SDL_SetRenderTarget(window->SDLrenderer, NULL);
-	SDL_FreeSurface(surfaceMessage);
-	SDL_DestroyTexture(Message);
-	pos->w = text_rect.w;
-	pos->h = text_rect.h;
-}
-
-static t_rect	main_menu_button_text(char *text, t_window *window,
-										SDL_Texture *texture, int index)
+static t_rect	main_menu_button_text(char *text, int index)
 {
 	t_rect	rect;
+	t_ivec2	res;
 
 	rect.x = MAIN_MENU_FONT_SIZE * 2;
 	rect.y = RES_Y / 2
 		+ ((MAIN_MENU_FONT_SIZE * MAIN_MENU_FONT_PADDING_MULTIPLIER)
 			* (index - (MAIN_MENU_BUTTON_AMOUNT / 2)));
-	put_text_main_menu(text, window, texture, &rect);
+	res = render_text(text, rect.x, rect.y);
+	rect.w = res.x;
+	rect.h = res.y;
 	rect.x -= MAIN_MENU_FONT_SIZE / 4;
 	rect.w += MAIN_MENU_FONT_SIZE / 2;
 	return (rect);
@@ -105,15 +71,16 @@ static void	main_menu_title(t_bmp *img, unsigned int *pixels)
 	}
 }
 
-static int	mouse_collision(t_rect rect, t_level *level)
+static int	mouse_collision(t_rect rect, t_level *level, unsigned int *pixels)
 {
 	t_ivec2	mouse;
 
-	if (level->ui.state.m1_click)
+	SDL_GetMouseState(&mouse.x, &mouse.y);
+	if (mouse.x >= rect.x && mouse.x < rect.x + rect.w
+		&& mouse.y >= rect.y && mouse.y < rect.y + rect.h)
 	{
-		SDL_GetMouseState(&mouse.x, &mouse.y);
-		if (mouse.x >= rect.x && mouse.x < rect.x + rect.w
-			&& mouse.y >= rect.y && mouse.y < rect.y + rect.h)
+		main_menu_text_background(rect, pixels);
+		if (level->ui.state.m1_click)
 			return (1);
 	}
 	return (0);
@@ -148,44 +115,26 @@ void	main_menu_move_background(t_level *level)
 		level->main_menu_anim_start_time = SDL_GetTicks();
 }
 
-void	main_menu(t_level *level, t_window *window, t_game_state *game_state)
+void	main_menu(t_level *level, unsigned int *pixels, t_game_state *game_state)
 {
-	static SDL_Texture	*texture = NULL;
-	static SDL_Texture	*background_texture = NULL;
-	unsigned int		*pixels;
 	int					width;
 	t_rect				rect;
 	int					state_changed;
 
-	if (!texture)
-	{
-		texture = SDL_CreateTexture(window->SDLrenderer,
-				SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET,
-				RES_X, RES_Y);
-		background_texture = SDL_CreateTexture(window->SDLrenderer,
-				SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING,
-				RES_X, RES_Y);
-		SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
-		SDL_SetTextureBlendMode(background_texture, SDL_BLENDMODE_BLEND);
-	}
-	if (SDL_LockTexture(background_texture, NULL,
-			(void **)&pixels, &width) != 0)
-		ft_error("failed to lock texture\n");
-	ft_memset(pixels, 0, RES_X * RES_Y * 4);
+	level->ui.state.current_font = level->ui.main_menu_font;
+	set_text_color(MAIN_MENU_FONT_COLOR);
 	main_menu_title(&level->main_menu_title, pixels);
-	rect = main_menu_button_text("play", window, texture, 0);
-	main_menu_text_background(rect, pixels);
+	rect = main_menu_button_text("play", 0);
 	state_changed = FALSE;
-	if (mouse_collision(rect, level) && level->bake_status != BAKE_BAKING)
+	if (mouse_collision(rect, level, pixels) && level->bake_status != BAKE_BAKING)
 	{
 		*game_state = GAME_STATE_INGAME;
 		state_changed = TRUE;
 		level->player_health = PLAYER_HEALTH_MAX;
 		level->player_ammo = PLAYER_AMMO_MAX;
 	}
-	rect = main_menu_button_text("select level", window, texture, 1);
-	main_menu_text_background(rect, pixels);
-	if (mouse_collision(rect, level))
+	rect = main_menu_button_text("select level", 1);
+	if (mouse_collision(rect, level, pixels))
 	{
 		*game_state = GAME_STATE_EDITOR;
 		level->ui.state.ui_location = UI_LOCATION_FILE_OPEN;
@@ -193,23 +142,20 @@ void	main_menu(t_level *level, t_window *window, t_game_state *game_state)
 		level->ui.state.open_file = &open_level;
 		// state_changed = TRUE;
 	}
-	rect = main_menu_button_text("edit level", window, texture, 2);
-	main_menu_text_background(rect, pixels);
-	if (mouse_collision(rect, level))
+	rect = main_menu_button_text("edit level", 2);
+	if (mouse_collision(rect, level, pixels))
 	{
 		*game_state = GAME_STATE_EDITOR;
 		state_changed = TRUE;
 	}
-	rect = main_menu_button_text("new level", window, texture, 3);
-	main_menu_text_background(rect, pixels);
-	if (mouse_collision(rect, level))
+	rect = main_menu_button_text("new level", 3);
+	if (mouse_collision(rect, level, pixels))
 	{
 		*game_state = GAME_STATE_EDITOR;
 		state_changed = TRUE;
 	}
-	rect = main_menu_button_text("settings", window, texture, 4);
-	main_menu_text_background(rect, pixels);
-	if (mouse_collision(rect, level))
+	rect = main_menu_button_text("settings", 4);
+	if (mouse_collision(rect, level, pixels))
 	{
 		*game_state = GAME_STATE_EDITOR;
 		level->ui.state.ui_location = UI_LOCATION_SETTINGS;
@@ -223,11 +169,4 @@ void	main_menu(t_level *level, t_window *window, t_game_state *game_state)
 		level->player_vel.y = 0;
 		level->player_vel.z = 0;
 	}
-	SDL_UnlockTexture(background_texture);
-	SDL_RenderCopy(window->SDLrenderer, background_texture, NULL, NULL);
-	SDL_RenderCopy(window->SDLrenderer, texture, NULL, NULL);
-	SDL_SetRenderTarget(window->SDLrenderer, texture);
-	SDL_RenderClear(window->SDLrenderer);
-	SDL_RenderPresent(window->SDLrenderer);
-	SDL_SetRenderTarget(window->SDLrenderer, NULL);
 }
