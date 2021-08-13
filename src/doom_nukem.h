@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   doom_nukem.h                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/12 16:27:20 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/08/13 15:14:37 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -496,6 +496,11 @@ typedef struct s_level
 	struct s_audio		audio;
 }						t_level;
 
+typedef struct s_root
+{
+
+}						t_root;
+
 typedef struct s_rthread
 {
 	int					id;
@@ -744,5 +749,16 @@ void					set_menu_pos_2(t_level *level);
 void					nonfatal_error(t_level *level, char *message);
 void					ui_render_nonfatal_errors(SDL_Texture *texture,
 							t_window *window, t_level *level);
+
+void	render_call_streaming(unsigned int *get_texture, int dy,
+											t_ivec2 *size, int color);
+void	render_button_streaming(unsigned int *get_texture, int *var, int dy);
+void	render_slider_streaming(unsigned int *get_texture,
+											float unit, int dy);
+t_ui_state	*get_ui_state(t_ui_state *get_state);
+void	button_pixel_put(int x, int y, int color, unsigned int *texture);
+t_ivec2	ui_render_internal(SDL_Texture *get_text,
+				SDL_Texture *get_streaming, t_window *get_window,
+				t_level *level, t_ui_state *state);
 
 #endif

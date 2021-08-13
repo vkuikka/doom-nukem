@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/06 08:50:56 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/12 11:38:08 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/13 15:14:40 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ t_ui_state	*get_ui_state(t_ui_state *get_state)
 	return (NULL);
 }
 
-static void	button_pixel_put(int x, int y, int color, unsigned int *texture)
+void	button_pixel_put(int x, int y, int color, unsigned int *texture)
 {
 	if (x < 0 || y < 0 || x >= RES_X || y >= RES_Y)
 		return ;
@@ -176,7 +176,7 @@ static void	ui_render_background(unsigned int *get_texture,
 	}
 }
 
-static t_ivec2	ui_render_internal(SDL_Texture *get_text,
+t_ivec2	ui_render_internal(SDL_Texture *get_text,
 				SDL_Texture *get_streaming, t_window *get_window,
 				t_level *level, t_ui_state *state)
 {
@@ -222,280 +222,6 @@ static t_ivec2	ui_render_internal(SDL_Texture *get_text,
 		SDL_SetRenderTarget(window->SDLrenderer, NULL);
 	}
 	return (size);
-}
-
-static void	edit_slider_var(float *unit, t_ui_state *state)
-{
-	int	x;
-	int	y;
-
-	SDL_GetMouseState(&x, &y);
-	if (state->mouse_location == MOUSE_LOCATION_UI && state->m1_drag
-		&& y >= state->ui_text_y_pos + 4 && y <= state->ui_text_y_pos + 15
-		&& x < 109 && x > 2)
-		*unit = (float)(x - 4) / (float)100;
-}
-
-static int	edit_call_var(t_ui_state *state, t_ivec2 size)
-{
-	int	x;
-	int	y;
-
-	SDL_GetMouseState(&x, &y);
-	if (state->mouse_location == MOUSE_LOCATION_UI && state->m1_click
-		&& x >= 3 && x <= size.x + 6 && y >= state->ui_text_y_pos + 4
-		&& y <= state->ui_text_y_pos + size.y + 2)
-		return (TRUE);
-	return (FALSE);
-}
-
-static int	edit_button_var(int *var, t_ui_state *state)
-{
-	int	x;
-	int	y;
-
-	SDL_GetMouseState(&x, &y);
-	if (state->mouse_location == MOUSE_LOCATION_UI && state->m1_click
-		&& x >= 2 && x <= 11 && y >= state->ui_text_y_pos
-		&& y <= state->ui_text_y_pos + UI_ELEMENT_HEIGHT)
-	{
-		*var = *var == 0;
-		return (TRUE);
-	}
-	return (FALSE);
-}
-
-static void	render_call_streaming(unsigned int *get_texture, int dy,
-											t_ivec2 *size, int color)
-{
-	static unsigned int	*texture;
-	int					x;
-	int					y;
-
-	if (get_texture)
-	{
-		texture = get_texture;
-		return ;
-	}
-	y = 0;
-	while (y < size->y - 1)
-	{
-		x = 0;
-		while (x < size->x + 4)
-		{
-			button_pixel_put(x + 2, y + 2 + dy, color, texture);
-			x++;
-		}
-		y++;
-	}
-}
-
-static void	render_button_streaming(unsigned int *get_texture, int *var, int dy)
-{
-	static unsigned int	*texture;
-	int					color;
-	int					x;
-	int					y;
-
-	if (get_texture)
-	{
-		texture = get_texture;
-		return ;
-	}
-	color = 0x303030ff;
-	if (*var)
-		color = 0x008020ff;
-	y = 0;
-	while (y < 10)
-	{
-		x = 0;
-		while (x < 10)
-		{
-			if (y < 1 || y > 8 || x < 1 || x > 8)
-				button_pixel_put(x + 2, y + 4 + dy, 0x404040ff, texture);
-			else
-				button_pixel_put(x + 2, y + 4 + dy, color, texture);
-			x++;
-		}
-		y++;
-	}
-}
-
-static void	render_slider_streaming(unsigned int *get_texture,
-											float unit, int dy)
-{
-	static unsigned int	*texture;
-	int					x;
-	int					y;
-
-	if (get_texture)
-	{
-		texture = get_texture;
-		return ;
-	}
-	y = 0;
-	while (y < 4)
-	{
-		x = 0;
-		while (x < 106)
-		{
-			button_pixel_put(x + 2, y + 6 + dy, 0x404040ff, texture);
-			x++;
-		}
-		y++;
-	}
-	y = 0;
-	while (y < 12)
-	{
-		x = 0;
-		while (x < 6)
-		{
-			button_pixel_put(
-				x + 2 + (100 * unit), y + 2 + dy, 0x666666ff, texture);
-			x++;
-		}
-		y++;
-	}
-}
-
-void	text(char *text)
-{
-	t_ui_state	*state;
-
-	state = get_ui_state(NULL);
-	state->text = text;
-	state->ui_text_x_offset = 4;
-	ui_render_internal(NULL, NULL, NULL, NULL, state);
-}
-
-int	button(int *var, char *text)
-{
-	t_ui_state	*state;
-	int			changed;
-
-	state = get_ui_state(NULL);
-	state->text = text;
-	state->ui_text_x_offset = 14;
-	render_button_streaming(NULL, var, state->ui_text_y_pos);
-	changed = edit_button_var(var, state);
-	ui_render_internal(NULL, NULL, NULL, NULL, state);
-	return (changed);
-}
-
-float	clamp(float var, float min, float max)
-{
-	if (var < min)
-		var = min;
-	else if (var > max)
-		var = max;
-	return (var);
-}
-
-void	int_slider(int *var, char *str, int min, int max)
-{
-	t_ui_state	*state;
-	float		unit;
-
-	if (str)
-		text(str);
-	state = get_ui_state(NULL);
-	state->text = "";
-	state->ui_text_x_offset = 14;
-	*var = clamp(*var, min, max);
-	*var -= min;
-	unit = (float)*var / (float)(max - min);
-	render_slider_streaming(NULL, unit, state->ui_text_y_pos);
-	edit_slider_var(&unit, state);
-	unit = clamp(unit, 0, 1);
-	*var = min + ((max - min) * unit);
-	state->ui_text_y_pos += UI_ELEMENT_HEIGHT;
-}
-
-void	float_slider(float *var, char *str, float min, float max)
-{
-	t_ui_state	*state;
-	float		unit;
-
-	if (str)
-		text(str);
-	state = get_ui_state(NULL);
-	state->text = "";
-	state->ui_text_x_offset = 14;
-	*var = clamp(*var, min, max);
-	*var -= min;
-	unit = (float)*var / (float)(max - min);
-	render_slider_streaming(NULL, unit, state->ui_text_y_pos);
-	edit_slider_var(&unit, state);
-	unit = clamp(unit, 0, 1);
-	*var = min + ((max - min) * unit);
-	state->ui_text_y_pos += UI_ELEMENT_HEIGHT;
-}
-
-void	file_save(char *str, char *extension, void (*f)(t_level *, char *))
-{
-	t_ui_state	*state;
-
-	state = get_ui_state(NULL);
-	if (call(str, NULL, NULL))
-	{
-		state->ui_location = UI_LOCATION_FILE_SAVE;
-		ft_strcpy(state->extension, extension);
-		state->open_file = *f;
-	}
-}
-
-void	file_browser(char *str, char *extension, void (*f)(t_level *, char *))
-{
-	t_ui_state	*state;
-
-	state = get_ui_state(NULL);
-	if (call(str, NULL, NULL))
-	{
-		state->ui_location = UI_LOCATION_FILE_OPEN;
-		ft_strcpy(state->extension, extension);
-		state->open_file = *f;
-	}
-}
-
-void	text_input(char *str, t_level *level)
-{
-	char	*filename;
-
-	if (str[0])
-		filename = ft_strjoin(str, ".doom-nukem");
-	if ((!str[0] && call("input:", NULL, NULL))
-		|| (str[0] && call(filename, NULL, NULL)))
-		level->ui.state.text_input_enable = TRUE;
-	if (str[0])
-		free(filename);
-}
-
-int	call(char *str, void (*f)(t_level *), t_level *level)
-{
-	int			res;
-	t_ui_state	*state;
-	int			color_tmp;
-	t_ivec2		size;
-
-	res = 0;
-	state = get_ui_state(NULL);
-	state->text = str;
-	state->ui_text_x_offset = 4;
-	color_tmp = state->ui_text_color;
-	state->ui_text_color = UI_BACKGROUND_COL;
-	size = ui_render_internal(NULL, NULL, NULL, NULL, state);
-	state->ui_text_y_pos -= UI_ELEMENT_HEIGHT;
-	state->ui_text_color = color_tmp;
-	render_call_streaming(
-		NULL, state->ui_text_y_pos, &size, state->ui_text_color);
-	if (edit_call_var(state, size))
-	{
-		res = 1;
-		if (*f)
-			(*f)(level);
-	}
-	state->ui_text_y_pos += UI_ELEMENT_HEIGHT;
-	return (res);
 }
 
 void	ui_render(t_level *level)
