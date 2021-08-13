@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/19 18:51:47 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/12 14:33:32 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/12 16:14:52 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -173,7 +173,7 @@ void	main_menu(t_level *level, t_window *window, t_game_state *game_state)
 		ft_error("failed to lock texture\n");
 	ft_memset(pixels, 0, RES_X * RES_Y * 4);
 	main_menu_title(&level->main_menu_title, pixels);
-	rect = main_menu_button_text("play level", window, texture, 0);
+	rect = main_menu_button_text("play", window, texture, 0);
 	main_menu_text_background(rect, pixels);
 	state_changed = FALSE;
 	if (mouse_collision(rect, level) && level->bake_status != BAKE_BAKING)
@@ -183,27 +183,36 @@ void	main_menu(t_level *level, t_window *window, t_game_state *game_state)
 		level->player_health = PLAYER_HEALTH_MAX;
 		level->player_ammo = PLAYER_AMMO_MAX;
 	}
-	rect = main_menu_button_text("edit level", window, texture, 1);
+	rect = main_menu_button_text("select level", window, texture, 1);
+	main_menu_text_background(rect, pixels);
+	if (mouse_collision(rect, level))
+	{
+		*game_state = GAME_STATE_EDITOR;
+		level->ui.state.ui_location = UI_LOCATION_FILE_OPEN;
+		ft_strcpy(level->ui.state.extension, ".doom-nukem");
+		level->ui.state.open_file = &open_level;
+		// state_changed = TRUE;
+	}
+	rect = main_menu_button_text("edit level", window, texture, 2);
 	main_menu_text_background(rect, pixels);
 	if (mouse_collision(rect, level))
 	{
 		*game_state = GAME_STATE_EDITOR;
 		state_changed = TRUE;
 	}
-	rect = main_menu_button_text("new level", window, texture, 2);
+	rect = main_menu_button_text("new level", window, texture, 3);
 	main_menu_text_background(rect, pixels);
 	if (mouse_collision(rect, level))
 	{
 		*game_state = GAME_STATE_EDITOR;
 		state_changed = TRUE;
 	}
-	rect = main_menu_button_text("settings", window, texture, 3);
+	rect = main_menu_button_text("settings", window, texture, 4);
 	main_menu_text_background(rect, pixels);
 	if (mouse_collision(rect, level))
 	{
 		*game_state = GAME_STATE_EDITOR;
 		level->ui.state.ui_location = UI_LOCATION_SETTINGS;
-		state_changed = TRUE;
 	}
 	if (state_changed)
 	{

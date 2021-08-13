@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ui_config.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/12 16:27:23 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/08/12 18:19:47 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -317,8 +317,9 @@ void	ui_render_directory(t_level *level)
 {
 	set_text_color(UI_FACE_SELECTION_TEXT_COLOR);
 	text(level->ui.state.directory);
-	if (call("close", NULL, level))
-		level->ui.state.ui_location = UI_LOCATION_MAIN;
+	if (level->ui.state.open_file != &open_level)
+		if (call("close", NULL, level))
+			level->ui.state.ui_location = UI_LOCATION_MAIN;
 	if (call("up dir ..", NULL, level))
 		path_up_dir(level->ui.state.directory);
 	set_text_color(UI_EDITOR_SETTINGS_TEXT_COLOR);
@@ -543,8 +544,6 @@ void	ui_config(t_level *level)
 	if (nothing_selected(level) && level->bake_status != BAKE_BAKING)
 	{
 		call("edit lights", &enable_light_editor, level);
-		text("level:");
-		file_browser("select level", ".doom-nukem", &open_level);
 		file_browser("select obj", ".obj", &set_obj);
 		file_browser("select texture", ".bmp", &set_texture);
 		file_browser("select normal map", ".bmp", &set_normal_map);
