@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/19 18:48:10 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/12 11:36:42 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/13 20:55:48 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,79 +28,6 @@ unsigned int	cycle_rgb(unsigned int time)
 	grn = grn << 8 * 2;
 	blu = blu << 8 * 1;
 	return (red + grn + blu + 0x70);
-}
-
-t_ivec2	put_text_hud_game_event(char *text, t_window *window,
-								SDL_Texture *texture, unsigned int color)
-{
-	static TTF_Font	*font = NULL;
-	SDL_Rect		text_rect;
-	t_ivec2			size;
-	SDL_Surface		*surfaceMessage;
-	SDL_Texture		*Message;
-
-	if (!font)
-	{
-		font = TTF_OpenFont("embed/Roboto-Medium.ttf",
-				HUD_GAME_EVENT_FONT_SIZE);
-		if (!font)
-		{
-			printf("TTF_OpenFont: %s\n", TTF_GetError());
-			ft_error("font open fail");
-		}
-	}
-	surfaceMessage = TTF_RenderText_Blended(font, text, get_sdl_color(color));
-	Message = SDL_CreateTextureFromSurface(window->SDLrenderer, surfaceMessage);
-	text_rect.w = 0;
-	text_rect.h = 0;
-	TTF_SizeText(font, text, &text_rect.w, &text_rect.h);
-	text_rect.x = RES_X / 2 - (text_rect.w / 2);
-	text_rect.y = RES_Y / 3 - (text_rect.h / 2);
-	SDL_SetRenderTarget(window->SDLrenderer, texture);
-	SDL_RenderCopy(window->SDLrenderer, Message, NULL, &text_rect);
-	SDL_SetRenderTarget(window->SDLrenderer, NULL);
-	SDL_FreeSurface(surfaceMessage);
-	SDL_DestroyTexture(Message);
-	size.x = text_rect.w;
-	size.y = text_rect.h;
-	return (size);
-}
-
-t_ivec2	put_text_hud(char *text, t_window *window, SDL_Texture *texture,
-																t_ivec2 pos)
-{
-	static TTF_Font	*font = NULL;
-	SDL_Rect		text_rect;
-	t_ivec2			size;
-	SDL_Surface		*surfaceMessage;
-	SDL_Texture		*Message;
-
-	if (!font)
-	{
-		font = TTF_OpenFont("embed/digital.ttf", HUD_FONT_SIZE);
-		if (!font)
-		{
-			printf("TTF_OpenFont: %s\n", TTF_GetError());
-			ft_error("font open fail");
-		}
-	}
-	surfaceMessage
-		= TTF_RenderText_Blended(font, text, get_sdl_color(HUD_TEXT_COLOR));
-	Message
-		= SDL_CreateTextureFromSurface(window->SDLrenderer, surfaceMessage);
-	text_rect.w = 0;
-	text_rect.h = 0;
-	TTF_SizeText(font, text, &text_rect.w, &text_rect.h);
-	text_rect.x = pos.x;
-	text_rect.y = pos.y;
-	SDL_SetRenderTarget(window->SDLrenderer, texture);
-	SDL_RenderCopy(window->SDLrenderer, Message, NULL, &text_rect);
-	SDL_SetRenderTarget(window->SDLrenderer, NULL);
-	SDL_FreeSurface(surfaceMessage);
-	SDL_DestroyTexture(Message);
-	size.x = text_rect.w;
-	size.y = text_rect.h;
-	return (size);
 }
 
 static void	pixel_put_hud(int x, int y, int color, unsigned int *texture)
@@ -173,46 +100,34 @@ static void	viewmodel(unsigned int *pixels, t_bmp img)
 	}
 }
 
-void	hud(t_level *level, t_window *window, t_game_state game_state)
+void	hud(t_level *level, unsigned int *pixels, t_game_state game_state)
 {
-	static SDL_Texture	*texture = NULL;
-	unsigned int		*pixels;
-	signed				width;
-	char				buf[100];
+	int		width;
+	char	buf[100];
 
-	if (!texture)
-	{
-		texture = SDL_CreateTexture(window->SDLrenderer,
-				SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING,
-				RES_X, RES_Y);
-		SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
-	}
-	if (SDL_LockTexture(texture, NULL, (void **)&pixels, &width) != 0)
-		ft_error("failed to lock texture\n");
-	ft_memset(pixels, 0, RES_X * RES_Y * 4);
 	viewmodel(pixels, level->viewmodel[level->viewmodel_index]);
 	if (game_state == GAME_STATE_DEAD)
 	{
+		level->ui.state.current_font = level->ui.win_lose_font;
+		set_text_color(HUD_GAME_EVENT_TEXT_COLOR);
 		death_overlay(pixels);
-		put_text_hud_game_event(
-			"DEAD", window, texture, HUD_GAME_EVENT_TEXT_COLOR);
+		render_text("DEAD", 0, 0);
 	}
 	else if (game_state == GAME_STATE_WIN)
 	{
-		put_text_hud_game_event(
-			"YOU WIN", window, texture, cycle_rgb(SDL_GetTicks()));
+		level->ui.state.current_font = level->ui.win_lose_font;
+		set_text_color(cycle_rgb(SDL_GetTicks()));
+		render_text("YOU WIN", 0, 0);
 	}
 	else
 	{
+		level->ui.state.current_font = level->ui.hud_font;
+		set_text_color(HUD_TEXT_COLOR);
 		crosshair(pixels, RES_X / 2, RES_Y / 2);
 		sprintf(buf, "%d+", level->player_health);
-		put_text_hud(buf, window, texture,
-			(t_ivec2){HUD_FONT_SIZE / 4, RES_Y - HUD_FONT_SIZE});
+		render_text(buf, HUD_FONT_SIZE / 4, RES_Y - HUD_FONT_SIZE);
 		sprintf(buf, "%d", level->player_ammo);
-		put_text_hud(buf, window, texture,
-			(t_ivec2){RES_X - ((HUD_FONT_SIZE / 2) * strlen(buf)),
-			RES_Y - HUD_FONT_SIZE});
+		render_text(buf, RES_X - ((HUD_FONT_SIZE / 2) * strlen(buf)),
+						RES_Y - HUD_FONT_SIZE);
 	}
-	SDL_UnlockTexture(texture);
-	SDL_RenderCopy(window->SDLrenderer, texture, NULL, NULL);
 }

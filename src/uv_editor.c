@@ -290,25 +290,13 @@ static void	match_projectile_uv(t_level *level)
 	}
 }
 
-void	uv_editor(t_level *level, t_window *window)
+void	uv_editor(t_level *level, unsigned int *pixels)
 {
-	static SDL_Texture	*texture = NULL;
-	static unsigned int	*pixels;
-	signed				width;
 	float				image_scale;
 	t_ivec2				offset;
 	int					x;
 	int					y;
 
-	if (!texture)
-	{
-		texture = SDL_CreateTexture(window->SDLrenderer,
-				SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING,
-				RES_X, RES_Y);
-		SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
-		if (SDL_LockTexture(texture, NULL, (void **)&pixels, &width))
-			ft_error("failed to lock texture\n");
-	}
 	image_scale = get_texture_scale(&level->texture) * level->ui.state.uv_zoom;
 	offset.x = level->ui.state.uv_pos.x;
 	offset.y = UV_EDITOR_Y_OFFSET + level->ui.state.uv_pos.y;
@@ -341,11 +329,6 @@ void	uv_editor(t_level *level, t_window *window)
 	}
 	match_projectile_uv(level);
 	uv_wireframe(level, offset, pixels, image_scale);
-	SDL_UnlockTexture(texture);
-	SDL_RenderCopy(window->SDLrenderer, texture, NULL, NULL);
-	if (SDL_LockTexture(texture, NULL, (void **)&pixels, &width))
-		ft_error("failed to lock texture\n");
-	ft_memset(pixels, 0, RES_X * RES_Y * 4);
 }
 
 void	enable_uv_editor(t_level *level)

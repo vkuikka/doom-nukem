@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/11 16:04:11 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/12 11:37:10 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/13 17:21:37 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,10 +95,10 @@ static int	ui_nonfatal_get_fade(t_level *level, int i)
 	return (0xff);
 }
 
-void	ui_render_nonfatal_errors(SDL_Texture *texture, t_window *window,
-															t_level *level)
+void	ui_render_nonfatal_errors(t_level *level)
 {
-	t_ivec2	rect;
+	int		x;
+	int		y;
 	int		i;
 
 	if (!level->ui.state.error_amount)
@@ -106,14 +106,14 @@ void	ui_render_nonfatal_errors(SDL_Texture *texture, t_window *window,
 	ui_remove_expired_nonfatal_errors(level);
 	if (!level->ui.state.error_amount)
 		return ;
-	rect.x = level->ui.state.ui_max_width + UI_PADDING_4 + UI_PADDING_4;
-	rect.y = RES_Y / 2;
+	x = level->ui.state.ui_max_width + UI_PADDING_4 + UI_PADDING_4;
+	y = RES_Y / 2;
 	i = 0;
 	while (i < level->ui.state.error_amount)
 	{
 		set_text_color(UI_ERROR_COLOR + ui_nonfatal_get_fade(level, i));
-		put_text(level->ui.state.error_message[i], window, texture, rect);
-		rect.y += UI_ELEMENT_HEIGHT;
+		render_text(level->ui.state.error_message[i], x, y);
+		y += UI_ELEMENT_HEIGHT;
 		i++;
 	}
 }

@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/13 15:14:37 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/13 20:57:38 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,8 @@
 # define WF_BACKGROUND_COL 0x99		//1 byte value
 # define WF_NORMAL_LEN 0.3
 
+# define SSP_VISUAL_CHESSBOARD_1 0x66666644
+# define SSP_VISUAL_CHESSBOARD_2 0x66666688
 # define HUD_TEXT_COLOR 0xff6666bb
 # define HUD_FONT_SIZE 42
 # define HUD_GAME_EVENT_FONT_SIZE 130
@@ -68,7 +70,7 @@
 # define MAIN_MENU_FONT_SIZE 30
 # define MAIN_MENU_BUTTON_AMOUNT 4
 # define MAIN_MENU_FONT_BACKGROUND_COLOR 0xffffff55
-# define MAIN_MENU_FONT_COLOR 0x000000ff
+# define MAIN_MENU_FONT_COLOR 0xff8a00ff
 # define MAIN_MENU_FONT_PADDING_MULTIPLIER 1.5
 # define CROSSHAIR_COLOR 0xff0000ff
 # define INITIAL_LEVEL_WIN_DIST 3
@@ -165,9 +167,14 @@ typedef struct s_window
 {
 	SDL_Renderer		*SDLrenderer;
 	SDL_Window			*SDLwindow;
-	SDL_Texture			*texture;
-	unsigned int		*frame_buffer;
+	SDL_Texture			*texture;//rename to frame_buffer
+	unsigned int		*frame_buffer;//rename to frame_buffer_pixels
 	float				*depth_buffer;
+	SDL_Texture			*raster_texture;
+	unsigned int		*raster_texture_pixels;
+	SDL_Texture			*text_texture;
+	SDL_Texture			*ui_texture;
+	unsigned int		*ui_texture_pixels;
 }						t_window;
 
 typedef struct s_rect
@@ -378,6 +385,7 @@ typedef enum e_ui_location
 struct	s_level;
 typedef struct s_ui_state
 {
+	TTF_Font			*current_font;
 	enum e_ui_location	ui_location;
 	int					ui_max_width;
 	int					ui_text_y_pos;
@@ -408,6 +416,10 @@ typedef struct s_ui_state
 
 typedef struct s_editor_ui
 {
+	TTF_Font			*editor_font;
+	TTF_Font			*hud_font;
+	TTF_Font			*win_lose_font;
+	TTF_Font			*main_menu_font;
 	int					editor_active;
 	int					noclip;
 	int					vertex_select_mode;
@@ -495,11 +507,6 @@ typedef struct s_level
 	float				skybox_brightness;
 	struct s_audio		audio;
 }						t_level;
-
-typedef struct s_root
-{
-
-}						t_root;
 
 typedef struct s_rthread
 {
@@ -612,7 +619,7 @@ unsigned int			crossfade(unsigned int color1, unsigned int color2,
 							unsigned int fade, unsigned int alpha);
 void					face_color(float u, float v, t_tri t,
 							t_cast_result *res);
-void					wireframe(t_window *window, t_level *level);
+void					wireframe(unsigned int *texture, t_level *level);
 void					camera_offset(t_vec3 *vertex, t_camera *cam);
 SDL_Color				get_sdl_color(unsigned int color);
 
@@ -634,7 +641,7 @@ void					init_enemy(t_tri *face);
 void					init_ui(t_window *window, t_level *level);
 void					init_player(t_enemy *player);
 void					init_audio(t_level *level);
-void					ui_render(t_level *level);
+void					ui_render(t_window *window, t_level *level);
 void					ui_config(t_level *level);
 void					set_text_color(int color);
 void					text(char *text);
@@ -651,20 +658,16 @@ void					path_up_dir(char *path);
 void					go_in_dir(char *path, char *folder);
 void					text_input(char *str, t_level *level);
 void					find_closest_mouse(t_vec3 *vert, int *i, int *k);
-void					render_text(char *text, t_window *window,
-							t_ivec2 *pos, SDL_Texture *get_texture);
 
-void					main_menu(t_level *level, t_window *window,
-							t_game_state *game_state);
+void	main_menu(t_level *level, unsigned int *pixels, t_game_state *game_state);
 void					main_menu_move_background(t_level *level);
-void					hud(t_level *level, t_window *window,
-							t_game_state game_state);
+void				hud(t_level *level, unsigned int *pixels, t_game_state game_state);
 void					create_projectile(t_level *level, t_vec3 pos,
 							t_vec3 dir, t_enemy *enemy);
 
-void					uv_editor(t_level *level, t_window *window);
+void					uv_editor(t_level *level, unsigned int *pixels);
 void					enable_uv_editor(t_level *level);
-void					gizmo_render(t_level *level, t_window *window);
+void					gizmo_render(t_level *level, unsigned int *pixels);
 void					gizmo(t_level *level);
 void					obj_editor_input(t_level *level, t_vec3 move_amount);
 
@@ -747,18 +750,22 @@ void					set_spawn_pos(t_level *level);
 void					set_menu_pos_1(t_level *level);
 void					set_menu_pos_2(t_level *level);
 void					nonfatal_error(t_level *level, char *message);
-void					ui_render_nonfatal_errors(SDL_Texture *texture,
-							t_window *window, t_level *level);
+
+
+
+void	ui_render_nonfatal_errors(t_level *level);
+
+t_ui_state	*get_ui_state(t_ui_state *get_state);
+t_window	*get_window(t_window *get_window);
+
+
+t_ivec2		render_text(char *text, int x, int y);
 
 void	render_call_streaming(unsigned int *get_texture, int dy,
 											t_ivec2 *size, int color);
 void	render_button_streaming(unsigned int *get_texture, int *var, int dy);
 void	render_slider_streaming(unsigned int *get_texture,
 											float unit, int dy);
-t_ui_state	*get_ui_state(t_ui_state *get_state);
 void	button_pixel_put(int x, int y, int color, unsigned int *texture);
-t_ivec2	ui_render_internal(SDL_Texture *get_text,
-				SDL_Texture *get_streaming, t_window *get_window,
-				t_level *level, t_ui_state *state);
 
 #endif

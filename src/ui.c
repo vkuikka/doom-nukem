@@ -6,22 +6,11 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/06 08:50:56 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/13 15:14:40 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/13 20:49:53 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
-
-t_ui_state	*get_ui_state(t_ui_state *get_state)
-{
-	static t_ui_state	*state = NULL;
-
-	if (get_state)
-		state = get_state;
-	else
-		return (state);
-	return (NULL);
-}
 
 void	button_pixel_put(int x, int y, int color, unsigned int *texture)
 {
@@ -47,24 +36,13 @@ static SDL_Color	get_text_color(void)
 	return (get_sdl_color(state->ui_text_color));
 }
 
-t_ivec2	put_text(char *text, t_window *window, SDL_Texture *texture,
-														t_ivec2 pos)
+static t_ivec2	render_text_internal(char *text, t_window *window, TTF_Font *font, t_ivec2 pos)
 {
-	static TTF_Font	*font = NULL;
 	SDL_Rect		text_rect;
 	t_ivec2			size;
 	SDL_Surface		*surfaceMessage;
 	SDL_Texture		*Message;
 
-	if (!font)
-	{
-		font = TTF_OpenFont("embed/Roboto-Medium.ttf", UI_FONT_SIZE);
-		if (!font)
-		{
-			printf("TTF_OpenFont: %s\n", TTF_GetError());
-			ft_error("font open fail");
-		}
-	}
 	surfaceMessage
 		= TTF_RenderText_Blended(font, text, get_text_color());
 	Message
@@ -74,7 +52,7 @@ t_ivec2	put_text(char *text, t_window *window, SDL_Texture *texture,
 	TTF_SizeText(font, text, &text_rect.w, &text_rect.h);
 	text_rect.x = pos.x;
 	text_rect.y = pos.y;
-	SDL_SetRenderTarget(window->SDLrenderer, texture);
+	SDL_SetRenderTarget(window->SDLrenderer, window->text_texture);
 	SDL_RenderCopy(window->SDLrenderer, Message, NULL, &text_rect);
 	SDL_SetRenderTarget(window->SDLrenderer, NULL);
 	SDL_FreeSurface(surfaceMessage);
@@ -84,155 +62,112 @@ t_ivec2	put_text(char *text, t_window *window, SDL_Texture *texture,
 	return (size);
 }
 
-void	render_text(char *text, t_window *window, t_ivec2 *pos,
-											SDL_Texture *get_texture)
+t_ivec2	render_text(char *text, int x, int y)
 {
-	static SDL_Texture	*texture;
+	t_ivec2		pos;
+	t_window	*window;
+	t_ui_state	*state;
+	TTF_Font	*font;
 
-	if (get_texture)
-	{
-		texture = get_texture;
-		return ;
-	}
-	put_text(text, window, texture, *pos);
+	window = get_window(NULL);
+	state = get_ui_state(NULL);
+	font = state->current_font;
+	pos.x = x;
+	pos.y = y;
+	return (render_text_internal(text, window, font, pos));
 }
 
-static void	ui_render_background(unsigned int *get_texture,
-			SDL_Texture *text_texture, t_window *window, t_level *level)
+static void	render_ssp_visual_background(unsigned int *texture)
 {
-	static unsigned int	*texture;
-	t_ui_state			*state;
+	int	x;
+	int	y;
+
+	y = -1;
+	while (++y < RES_Y)
+	{
+		x = -1;
+		while (++x < RES_X)
+		{
+			if (!texture[x + (y * RES_X)])
+			{
+				if (get_ssp_coordinate(x, 1) % 2
+					^ get_ssp_coordinate(y, 0) % 2)
+					button_pixel_put(x, y, SSP_VISUAL_CHESSBOARD_1, texture);
+				else
+					button_pixel_put(x, y, SSP_VISUAL_CHESSBOARD_2, texture);
+			}
+		}
+	}
+}
+
+static void	render_ssp_visual_text(t_window *window, t_level *level)
+{
 	char				buf[100];
-	int					color[3];
 	int					max_tris;
 	int					x;
 	int					y;
-	int					red;
+	int					color;
 
-	if (get_texture)
+	max_tris = 0;
+	y = -1;
+	while (++y < SSP_MAX_Y)
 	{
-		texture = get_texture;
-		return ;
+		x = -1;
+		while (++x < SSP_MAX_X)
+			if (max_tris < level->ssp[y * SSP_MAX_X + x].tri_amount)
+				max_tris = level->ssp[y * SSP_MAX_X + x].tri_amount;
 	}
-	state = get_ui_state(NULL);
-	if (state->ssp_visual)
+	y = -1;
+	while (++y < SSP_MAX_Y)
 	{
-		color[0] = 0;
-		color[1] = 0x66666644;
-		color[2] = 0x66666688;
-		y = -1;
-		while (++y < RES_Y)
+		x = -1;
+		while (++x < SSP_MAX_X)
 		{
-			x = -1;
-			while (++x < RES_X)
-			{
-				if (!texture[x + (y * RES_X)])
-				{
-					if (get_ssp_coordinate(x, 1) % 2
-						^ get_ssp_coordinate(y, 0) % 2)
-						button_pixel_put(x, y, color[1], texture);
-					else
-						button_pixel_put(x, y, color[2], texture);
-				}
-			}
-		}
-		max_tris = 0;
-		y = -1;
-		while (++y < SSP_MAX_Y)
-		{
-			x = -1;
-			while (++x < SSP_MAX_X)
-				if (max_tris < level->ssp[y * SSP_MAX_X + x].tri_amount)
-					max_tris = level->ssp[y * SSP_MAX_X + x].tri_amount;
-		}
-		y = -1;
-		while (++y < SSP_MAX_Y)
-		{
-			x = -1;
-			while (++x < SSP_MAX_X)
-			{
-				sprintf(buf, "%d", level->ssp[y * SSP_MAX_X + x].tri_amount);
-				red = (float)level->ssp[y * SSP_MAX_X + x].tri_amount
-					/ max_tris * 0xff;
-				red = crossfade(0x00ff00, 0xff0000, red, 0xff);
-				set_text_color(red);
-				put_text(buf, window, text_texture,
-					(t_ivec2){(RES_X / SSP_MAX_X) * x
-					+ (RES_X / SSP_MAX_X / 2) - 5,
-					(RES_Y / SSP_MAX_Y) * y + (RES_Y / SSP_MAX_Y / 2) - 7});
-			}
-		}
-	}
-	else
-	{
-		y = -1;
-		while (++y < state->ui_text_y_pos + 6)
-		{
-			x = -1;
-			while (++x < state->ui_max_width + UI_PADDING_4)
-				if (!texture[x + (y * RES_X)])
-					button_pixel_put(x, y, UI_BACKGROUND_COL, texture);
+			sprintf(buf, "%d", level->ssp[y * SSP_MAX_X + x].tri_amount);
+			color = (float)level->ssp[y * SSP_MAX_X + x].tri_amount
+				/ max_tris * 0xff;
+			color = crossfade(0x00ff00, 0xff0000, color, 0xff);
+			set_text_color(color);
+			render_text(buf,
+				(RES_X / SSP_MAX_X) * x + (RES_X / SSP_MAX_X / 2) - 5,
+				(RES_Y / SSP_MAX_Y) * y + (RES_Y / SSP_MAX_Y / 2) - 7);
 		}
 	}
 }
 
-t_ivec2	ui_render_internal(SDL_Texture *get_text,
-				SDL_Texture *get_streaming, t_window *get_window,
-				t_level *level, t_ui_state *state)
+static void	ui_render_background(t_window *window, t_level *level)
 {
-	static SDL_Texture	*text_texture;
-	static SDL_Texture	*streaming_texture;
-	static t_window		*window;
-	unsigned int		*pixels;
-	signed				width;
-	t_ivec2				size;
-	t_ivec2				text_pos;
+	int	x;
+	int	y;
 
-	if (get_text) // on init
+	y = -1;
+	while (++y < level->ui.state.ui_text_y_pos + 6)
 	{
-		text_texture = get_text;
-		streaming_texture = get_streaming;
-		window = get_window;
-		return (size);
+		x = -1;
+		while (++x < level->ui.state.ui_max_width + UI_PADDING_4)
+			if (!window->ui_texture_pixels[x + (y * RES_X)])
+				button_pixel_put(x, y, UI_BACKGROUND_COL, window->ui_texture_pixels);
 	}
-	if (state) // add line of text
-	{
-		text_pos.x = state->ui_text_x_offset;
-		text_pos.y = state->ui_text_y_pos;
-		size = put_text(state->text, window, text_texture, text_pos);
-		if (state->ui_max_width < text_pos.x + size.x)
-			state->ui_max_width = text_pos.x + size.x;
-		state->ui_text_y_pos += UI_ELEMENT_HEIGHT;
-		return (size);
-	}
-	else // render
-	{
-		ui_render_nonfatal_errors(text_texture, window, level);
-		ui_render_background(NULL, text_texture, window, level);
-		SDL_UnlockTexture(streaming_texture);
-		SDL_RenderCopy(window->SDLrenderer, streaming_texture, NULL, NULL);
-		if (SDL_LockTexture(streaming_texture, NULL,
-				(void **)&pixels, &width) != 0)
-			ft_error("failed to lock texture\n");
-		ft_memset(pixels, 0, RES_X * RES_Y * 4);
-		SDL_RenderCopy(window->SDLrenderer, text_texture, NULL, NULL);
-		SDL_SetRenderTarget(window->SDLrenderer, text_texture);
-		SDL_RenderClear(window->SDLrenderer);
-		SDL_RenderPresent(window->SDLrenderer);
-		SDL_SetRenderTarget(window->SDLrenderer, NULL);
-	}
-	return (size);
 }
 
-void	ui_render(t_level *level)
+void	ui_render(t_window *window, t_level *level)
 {
+	int				width;
+
 	level->ui.state.ui_max_width = 0;
 	level->ui.state.ui_text_color = 0;
 	level->ui.state.ui_text_x_offset = 0;
 	level->ui.state.ui_text_y_pos = 0;
-	get_ui_state(&level->ui.state);
+	level->ui.state.current_font = level->ui.editor_font;
 	ui_config(level);
-	ui_render_internal(NULL, NULL, NULL, level, NULL);
+	ui_render_nonfatal_errors(level);
+	if (level->ui.state.ssp_visual)
+	{
+		render_ssp_visual_background(window->ui_texture_pixels);
+		render_ssp_visual_text(window, level);
+	}
+	ui_render_background(window, level);
+
 }
 
 void	init_ui_state(t_level *level)
@@ -267,17 +202,44 @@ void	init_ui_state(t_level *level)
 	go_in_dir(level->ui.state.directory, "level");
 }
 
+static void	init_fonts(t_editor_ui *ui)
+{
+	TTF_Init();
+	ui->editor_font = TTF_OpenFont("embed/Roboto-Medium.ttf", UI_FONT_SIZE);
+	if (!ui->editor_font)
+	{
+		printf("TTF_OpenFont: %s\n", TTF_GetError());
+		ft_error("font open fail");
+	}
+	ui->hud_font = TTF_OpenFont("embed/digital.ttf", HUD_FONT_SIZE);
+	if (!ui->hud_font)
+	{
+		printf("TTF_OpenFont: %s\n", TTF_GetError());
+		ft_error("font open fail");
+	}
+	ui->main_menu_font = TTF_OpenFont("embed/Roboto-Medium.ttf", MAIN_MENU_FONT_SIZE);
+	if (!ui->main_menu_font)
+	{
+		printf("TTF_OpenFont: %s\n", TTF_GetError());
+		ft_error("font open fail");
+	}
+	ui->win_lose_font = TTF_OpenFont("embed/Roboto-Medium.ttf", HUD_GAME_EVENT_FONT_SIZE);
+	if (!ui->win_lose_font)
+	{
+		printf("TTF_OpenFont: %s\n", TTF_GetError());
+		ft_error("font open fail");
+	}
+
+}
+
 void	init_ui(t_window *window, t_level *level)
 {
-	unsigned int	*pixels;
-	signed			width;
+	int				width;
 	t_editor_ui		*ui;
-	SDL_Texture		*text_texture;
-	SDL_Texture		*ui_texture;
 
-	text_texture = SDL_CreateTexture(window->SDLrenderer,
+	window->text_texture = SDL_CreateTexture(window->SDLrenderer,
 			SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, RES_X, RES_Y);
-	ui_texture = SDL_CreateTexture(window->SDLrenderer,
+	window->ui_texture = SDL_CreateTexture(window->SDLrenderer,
 			SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING,
 			RES_X, RES_Y);
 	ui = &level->ui;
@@ -304,16 +266,11 @@ void	init_ui(t_window *window, t_level *level)
 	ui->spray_from_view = 1;
 	ui->spray_size = 3;
 	init_ui_state(level);
-	TTF_Init();
-	SDL_SetTextureBlendMode(text_texture, SDL_BLENDMODE_BLEND);
-	SDL_SetTextureBlendMode(ui_texture, SDL_BLENDMODE_BLEND);
-	if (SDL_LockTexture(ui_texture, NULL, (void **)&pixels, &width) != 0)
+	SDL_SetTextureBlendMode(window->text_texture, SDL_BLENDMODE_BLEND);
+	SDL_SetTextureBlendMode(window->ui_texture, SDL_BLENDMODE_BLEND);
+	if (SDL_LockTexture(window->ui_texture, NULL, (void **)&window->ui_texture_pixels, &width) != 0)
 		ft_error("failed to lock texture\n");
-	ui_render_internal(text_texture, ui_texture, window, NULL, NULL);
-	render_button_streaming(pixels, 0, 0);
-	render_slider_streaming(pixels, 0, 0);
-	render_call_streaming(pixels, 0, NULL, 0);
-	ui_render_background(pixels, NULL, NULL, NULL);
-	render_text(NULL, NULL, NULL, text_texture);
-	ui_render(level);
+	init_fonts(ui);
+	get_ui_state(&level->ui.state);
+	get_window(window);
 }
