@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/13 20:57:17 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/13 22:02:06 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,23 +95,42 @@ int width;
 		ft_error("failed to lock texture\n");
 	ft_memset(window->ui_texture_pixels, 0, RES_X * RES_Y * 4);
 
+
+	level->ui.state.ui_max_width = 0;
+	level->ui.state.ui_text_color = 0;
+	level->ui.state.ui_text_x_offset = 0;
+	level->ui.state.ui_text_y_pos = 0;
+	level->ui.state.current_font = level->ui.editor_font;
+
+	if (level->ui.state.ssp_visual)
+	{
+		render_ssp_visual_background(window->ui_texture_pixels);
+		render_ssp_visual_text(window, level);
+	}
+
+
 	if (*game_state == GAME_STATE_EDITOR)
 	{
 		if (level->ui.state.ui_location == UI_LOCATION_UV_EDITOR)
 			uv_editor(level, window->ui_texture_pixels);
-		ui_render(window, level);
-	}
-	else if (*game_state == GAME_STATE_MAIN_MENU)
-		main_menu(level, window->ui_texture_pixels, game_state);
-	else
-		hud(level, window->ui_texture_pixels, *game_state);
-
-
-	if (*game_state == GAME_STATE_EDITOR)
-	{
+		ui_editor(level);
 		door_put_text(window, level);
 		light_put_text(window, level);
 	}
+	else if (*game_state == GAME_STATE_MAIN_MENU)
+	{
+		if (level->ui.main_menu == MAIN_MENU_LOCATION_MAIN)
+			main_menu(level, window->ui_texture_pixels, game_state);
+		else if (level->ui.main_menu == MAIN_MENU_LOCATION_SETTINGS)
+			ui_settings(level);
+		else
+			ui_level_select(level);
+	}
+	else
+		hud(level, window->ui_texture_pixels, *game_state);
+	ui_render_background(window, level);
+	ui_render_nonfatal_errors(level);
+
 	SDL_UnlockTexture(window->ui_texture);
 	SDL_RenderCopy(window->SDLrenderer, window->ui_texture, NULL, NULL);
 	SDL_RenderCopy(window->SDLrenderer, window->text_texture, NULL, NULL);
@@ -119,7 +138,6 @@ int width;
 	SDL_RenderClear(window->SDLrenderer);
 	SDL_RenderPresent(window->SDLrenderer);
 	SDL_SetRenderTarget(window->SDLrenderer, NULL);
-
 
 
 	SDL_RenderPresent(window->SDLrenderer);
@@ -149,14 +167,11 @@ int	main(int argc, char **argv)
 	{
 		frame_time = SDL_GetTicks();
 		read_input(window, level, &game_state);
-		if (game_state == GAME_STATE_MAIN_MENU
-			|| level->ui.state.ui_location == UI_LOCATION_SETTINGS)
+		if (game_state == GAME_STATE_MAIN_MENU)
 			main_menu_move_background(level);
 		else
 		{
-			if (game_state == GAME_STATE_INGAME
-				|| game_state == GAME_STATE_DEAD
-				|| game_state == GAME_STATE_WIN)
+			if (game_state != GAME_STATE_EDITOR)
 				game_logic(level, &game_state);
 			if (game_state != GAME_STATE_DEAD)
 				player_movement(level, game_state);

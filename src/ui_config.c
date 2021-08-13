@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/12 18:19:47 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/13 22:03:27 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -354,7 +354,71 @@ int	nothing_selected(t_level *level)
 	return (1);
 }
 
-void	ui_config(t_level *level)
+void	ui_render_info(t_level *level)
+{
+	char		buf[100];
+	t_editor_ui	*ui;
+
+	ui = &level->ui;
+	set_text_color(UI_INFO_TEXT_COLOR);
+	sprintf(buf, "fps:               %d", get_fps());
+	text(buf);
+	sprintf(buf, "cull:              %ums", ui->cull_time);
+	text(buf);
+	sprintf(buf, "ssp:               %ums", ui->ssp_time);
+	text(buf);
+	sprintf(buf, "render:          %ums", ui->render_time);
+	text(buf);
+	sprintf(buf, "frametime: %ums", ui->frame_time);
+	text(buf);
+	sprintf(buf, "faces:           %d / %d",
+		level->all.tri_amount, level->visible.tri_amount);
+	text(buf);
+	sprintf(buf, "xz velocity:  %.2fm/s", level->ui.horizontal_velocity);
+	text(buf);
+}
+
+void	ui_settings(t_level *level)
+{
+	char		buf[100];
+	t_editor_ui	*ui;
+
+	ui = &level->ui;
+	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
+	file_browser("select spray", ".bmp", &set_spray);
+	button(&ui->spray_from_view, "spray from view");
+	if (!ui->spray_from_view)
+	{
+		sprintf(buf, "spray size: %.1f", ui->spray_size);
+		float_slider(&ui->spray_size, buf, 0.1, 5);
+	}
+	sprintf(buf, "render scale: %d (%.0f%%)", ui->raycast_quality,
+		100.0 / (float)ui->raycast_quality);
+	int_slider(&ui->raycast_quality, buf, 1, 20);
+	sprintf(buf, "fov: %d",
+		(int)((float)(ui->fov + 0.01) * (180.0 / M_PI)));
+	float_slider(&ui->fov, buf, M_PI / 6, M_PI);
+	button(&ui->blur, "blur");
+	button(&ui->smooth_pixels, "smooth pixel transition");
+	button(&ui->state.ssp_visual, "ssp visualize");
+	sprintf(buf, "music volume: %.0f%%",
+		100 * (level->audio.music_volume / MIX_MAX_VOLUME));
+	float_slider(&level->audio.music_volume, buf, 0, MIX_MAX_VOLUME);
+	Mix_VolumeMusic(level->audio.music_volume);
+	sprintf(buf, "sound effect volume: %.0f%%",
+		100 * (level->audio.sound_effect_volume / MIX_MAX_VOLUME));
+	float_slider(&level->audio.sound_effect_volume, buf, 0, MIX_MAX_VOLUME);
+	Mix_Volume(-1, level->audio.sound_effect_volume);
+	ui_render_info(level);
+}
+
+void	ui_level_select(t_level *level)
+{
+	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
+	ui_render_directory(level);
+}
+
+void	ui_editor(t_level *level)
 {
 	char		buf[100];
 	t_editor_ui	*ui;
@@ -500,34 +564,6 @@ void	ui_config(t_level *level)
 		}
 		return ;
 	}
-	if (level->ui.state.ui_location == UI_LOCATION_SETTINGS)
-	{
-		file_browser("select spray", ".bmp", &set_spray);
-		button(&ui->spray_from_view, "spray from view");
-		if (!ui->spray_from_view)
-		{
-			sprintf(buf, "spray size: %.1f", ui->spray_size);
-			float_slider(&ui->spray_size, buf, 0.1, 5);
-		}
-		sprintf(buf, "render scale: %d (%.0f%%)", ui->raycast_quality,
-			100.0 / (float)ui->raycast_quality);
-		int_slider(&ui->raycast_quality, buf, 1, 20);
-		sprintf(buf, "fov: %d",
-			(int)((float)(ui->fov + 0.01) * (180.0 / M_PI)));
-		float_slider(&ui->fov, buf, M_PI / 6, M_PI);
-		button(&ui->blur, "blur");
-		button(&ui->smooth_pixels, "smooth pixel transition");
-		button(&ui->state.ssp_visual, "ssp visualize");
-		sprintf(buf, "music volume: %.0f%%",
-			100 * (level->audio.music_volume / MIX_MAX_VOLUME));
-		float_slider(&level->audio.music_volume, buf, 0, MIX_MAX_VOLUME);
-		Mix_VolumeMusic(level->audio.music_volume);
-		sprintf(buf, "sound effect volume: %.0f%%",
-			100 * (level->audio.sound_effect_volume / MIX_MAX_VOLUME));
-		float_slider(&level->audio.sound_effect_volume, buf, 0, MIX_MAX_VOLUME);
-		Mix_Volume(-1, level->audio.sound_effect_volume);
-		return ;
-	}
 	button(&ui->noclip, "noclip");
 	button(&ui->wireframe, "wireframe");
 	button(&ui->raytracing, "raytrace lights");
@@ -572,22 +608,7 @@ void	ui_config(t_level *level)
 		sprintf(buf, "render distance: %.1fm", ui->render_distance);
 		float_slider(&ui->render_distance, buf, 2, 50);
 		file_save("save level", ".doom-nukem", NULL);
-		set_text_color(UI_INFO_TEXT_COLOR);
-		sprintf(buf, "fps:               %d", get_fps());
-		text(buf);
-		sprintf(buf, "cull:              %ums", ui->cull_time);
-		text(buf);
-		sprintf(buf, "ssp:               %ums", ui->ssp_time);
-		text(buf);
-		sprintf(buf, "render:          %ums", ui->render_time);
-		text(buf);
-		sprintf(buf, "frametime: %ums", ui->frame_time);
-		text(buf);
-		sprintf(buf, "faces:           %d / %d",
-			level->all.tri_amount, level->visible.tri_amount);
-		text(buf);
-		sprintf(buf, "xz velocity:  %.2fm/s", level->ui.horizontal_velocity);
-		text(buf);
+		ui_render_info(level);
 	}
 	set_text_color(UI_FACE_SELECTION_TEXT_COLOR);
 	ui_config_selected_faces(level);
