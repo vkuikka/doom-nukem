@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/13 23:38:58 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/14 00:12:10 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@
 # define WF_NORMAL_COL 0xff0000ff
 # define WF_VISIBLE_NORMAL_COL 0x00ffffff
 # define WF_VISIBLE_COL 0x00ff00ff
-# define WF_BACKGROUND_COL 0x99		//1 byte value
+# define WF_BACKGROUND_COL 0x999999ff
 # define WF_NORMAL_LEN 0.3
 
 # define SSP_VISUAL_CHESSBOARD_1 0x66666644

@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/13 23:25:47 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/14 00:16:09 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,15 +67,19 @@ static void	render_raycast(t_window *window, t_level *level)
 	SDL_RenderCopy(window->SDLrenderer, window->texture, NULL, NULL);
 }
 
-static void	render_raster(t_window *window, t_level *level)
+static void	render_raster(t_window *window, t_level *level, t_game_state *game_state)
 {
 	int	dummy_for_sdl;
 
 	if (SDL_LockTexture(window->raster_texture, NULL, (void **)&window->raster_texture_pixels,
 			&dummy_for_sdl) != 0)
 		ft_error("failed to lock texture\n");
-	wireframe(window->raster_texture_pixels, level);
-	gizmo_render(level, window->raster_texture_pixels);
+	ft_memset(window->raster_texture_pixels, 0, RES_X * RES_Y * sizeof(int));
+	if (*game_state == GAME_STATE_EDITOR)
+	{
+		wireframe(window->raster_texture_pixels, level);
+		gizmo_render(level, window->raster_texture_pixels);
+	}
 	SDL_UnlockTexture(window->raster_texture);
 	SDL_RenderCopy(window->SDLrenderer, window->raster_texture, NULL, NULL);
 	return ;
@@ -103,8 +107,7 @@ static void	render(t_window *window, t_level *level, t_game_state *game_state)
 {
 	SDL_RenderClear(window->SDLrenderer);
 	render_raycast(window, level);
-	if (*game_state == GAME_STATE_EDITOR)
-		render_raster(window, level);
+	render_raster(window, level, game_state);
 	render_ui(window, level, game_state);
 	SDL_RenderPresent(window->SDLrenderer);
 }

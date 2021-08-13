@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/05 16:44:10 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/13 18:05:27 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/14 00:17:53 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -224,11 +224,18 @@ void	render_wireframe(unsigned int *texture, t_level *level, t_obj *obj,
 
 void	wireframe(unsigned int *texture, t_level *level)
 {
-	// if (!level->ui.wireframe_on_top)
-		// ft_memset(texture,
-		// 	WF_BACKGROUND_COL, RES_X * RES_Y * sizeof(int));
-		ft_memset(texture,
-			0, RES_X * RES_Y * sizeof(int));
+	int	x;
+	int	y;
+	if (!level->ui.wireframe_on_top && level->ui.wireframe)
+	{
+		y = -1;
+		while (++y < RES_Y)
+		{
+			x = -1;
+			while (++x < RES_X)
+				texture[x + (y * RES_X)] = WF_BACKGROUND_COL;
+		}
+	}
 	if (level->ui.wireframe && level->ui.wireframe_culling_visual)
 		render_wireframe(texture, level, &level->visible, TRUE);
 	render_wireframe(texture, level, &level->all, FALSE);
