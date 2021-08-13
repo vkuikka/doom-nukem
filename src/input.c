@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/10 22:39:12 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/13 21:50:13 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/13 22:38:48 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,12 @@ static void	set_mouse_input_location(t_level *level, t_game_state game_state)
 
 	SDL_GetMouseState(&x, &y);
 	if (game_state == GAME_STATE_MAIN_MENU)
-		level->ui.state.mouse_location = MOUSE_LOCATION_MAIN_MENU;
+	{
+		if (level->ui.main_menu == MAIN_MENU_LOCATION_MAIN)
+			level->ui.state.mouse_location = MOUSE_LOCATION_MAIN_MENU;
+		else
+			level->ui.state.mouse_location = MOUSE_LOCATION_UI;
+	}
 	else if (level->ui.state.mouse_capture || game_state == GAME_STATE_INGAME)
 		level->ui.state.mouse_location = MOUSE_LOCATION_GAME;
 	else if (x < level->ui.state.ui_max_width

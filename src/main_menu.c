@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/19 18:51:47 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/13 22:06:23 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/13 22:53:53 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,22 +133,24 @@ void	main_menu(t_level *level, unsigned int *pixels, t_game_state *game_state)
 		level->player_health = PLAYER_HEALTH_MAX;
 		level->player_ammo = PLAYER_AMMO_MAX;
 	}
-	rect = main_menu_button_text("select level", 1);
+	rect = main_menu_button_text("edit level", 1);
+	if (mouse_collision(rect, level, pixels))
+	{
+		level->ui.noclip = TRUE;
+		*game_state = GAME_STATE_EDITOR;
+		state_changed = TRUE;
+	}
+	rect = main_menu_button_text("select level", 2);
 	if (mouse_collision(rect, level, pixels))
 	{
 		level->ui.main_menu = MAIN_MENU_LOCATION_LEVEL_SELECT;
 		ft_strcpy(level->ui.state.extension, ".doom-nukem");
 		level->ui.state.open_file = &open_level;
 	}
-	rect = main_menu_button_text("edit level", 2);
-	if (mouse_collision(rect, level, pixels))
-	{
-		*game_state = GAME_STATE_EDITOR;
-		state_changed = TRUE;
-	}
 	rect = main_menu_button_text("new level", 3);
 	if (mouse_collision(rect, level, pixels))
 	{
+		level->ui.noclip = TRUE;
 		*game_state = GAME_STATE_EDITOR;
 		state_changed = TRUE;
 	}

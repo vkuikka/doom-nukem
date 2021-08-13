@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/19 18:48:10 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/13 20:55:48 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/13 22:51:45 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,7 @@ static void	death_overlay(unsigned int *pixels)
 	x = 0;
 	while (x < RES_X)
 	{
+		y = 0;
 		while (y < RES_Y)
 		{
 			pixel_put_hud(x, y, DEATH_OVERLAY_COLOR, pixels);
@@ -105,19 +106,23 @@ void	hud(t_level *level, unsigned int *pixels, t_game_state game_state)
 	int		width;
 	char	buf[100];
 
-	viewmodel(pixels, level->viewmodel[level->viewmodel_index]);
+	// viewmodel(pixels, level->viewmodel[level->viewmodel_index]);
 	if (game_state == GAME_STATE_DEAD)
 	{
 		level->ui.state.current_font = level->ui.win_lose_font;
-		set_text_color(HUD_GAME_EVENT_TEXT_COLOR);
 		death_overlay(pixels);
-		render_text("DEAD", 0, 0);
+		set_text_color(HUD_GAME_EVENT_TEXT_COLOR);
+		render_text("DEAD",
+			RES_X / 2 - HUD_GAME_EVENT_FONT_SIZE,
+			RES_Y / 2 - HUD_GAME_EVENT_FONT_SIZE / 2);
 	}
 	else if (game_state == GAME_STATE_WIN)
 	{
 		level->ui.state.current_font = level->ui.win_lose_font;
 		set_text_color(cycle_rgb(SDL_GetTicks()));
-		render_text("YOU WIN", 0, 0);
+		render_text("YOU WIN",
+			RES_X / 2 - HUD_GAME_EVENT_FONT_SIZE * 2,
+			RES_Y / 2 - HUD_GAME_EVENT_FONT_SIZE / 2);
 	}
 	else
 	{
