@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/06 08:50:56 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/13 20:49:53 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/13 21:47:13 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,7 @@ t_ivec2	render_text(char *text, int x, int y)
 	return (render_text_internal(text, window, font, pos));
 }
 
-static void	render_ssp_visual_background(unsigned int *texture)
+void	render_ssp_visual_background(unsigned int *texture)
 {
 	int	x;
 	int	y;
@@ -100,7 +100,7 @@ static void	render_ssp_visual_background(unsigned int *texture)
 	}
 }
 
-static void	render_ssp_visual_text(t_window *window, t_level *level)
+void	render_ssp_visual_text(t_window *window, t_level *level)
 {
 	char				buf[100];
 	int					max_tris;
@@ -135,7 +135,7 @@ static void	render_ssp_visual_text(t_window *window, t_level *level)
 	}
 }
 
-static void	ui_render_background(t_window *window, t_level *level)
+void	ui_render_background(t_window *window, t_level *level)
 {
 	int	x;
 	int	y;
@@ -148,26 +148,6 @@ static void	ui_render_background(t_window *window, t_level *level)
 			if (!window->ui_texture_pixels[x + (y * RES_X)])
 				button_pixel_put(x, y, UI_BACKGROUND_COL, window->ui_texture_pixels);
 	}
-}
-
-void	ui_render(t_window *window, t_level *level)
-{
-	int				width;
-
-	level->ui.state.ui_max_width = 0;
-	level->ui.state.ui_text_color = 0;
-	level->ui.state.ui_text_x_offset = 0;
-	level->ui.state.ui_text_y_pos = 0;
-	level->ui.state.current_font = level->ui.editor_font;
-	ui_config(level);
-	ui_render_nonfatal_errors(level);
-	if (level->ui.state.ssp_visual)
-	{
-		render_ssp_visual_background(window->ui_texture_pixels);
-		render_ssp_visual_text(window, level);
-	}
-	ui_render_background(window, level);
-
 }
 
 void	init_ui_state(t_level *level)

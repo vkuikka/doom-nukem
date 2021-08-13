@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/13 20:57:38 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/13 21:47:16 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -370,13 +370,19 @@ typedef enum e_game_state
 	GAME_STATE_WIN
 }						t_game_state;
 
+typedef enum e_main_menu
+{
+	MAIN_MENU_LOCATION_MAIN,
+	MAIN_MENU_LOCATION_SETTINGS,
+	MAIN_MENU_LOCATION_LEVEL_SELECT
+}						t_main_menu;
+
 typedef enum e_ui_location
 {
 	UI_LOCATION_MAIN = 0,
 	UI_LOCATION_FILE_OPEN,
 	UI_LOCATION_FILE_SAVE,
 	UI_LOCATION_UV_EDITOR,
-	UI_LOCATION_SETTINGS,
 	UI_LOCATION_DOOR_EDITOR,
 	UI_LOCATION_DOOR_ACTIVATION_BUTTON,
 	UI_LOCATION_LIGHT_EDITOR
@@ -386,7 +392,7 @@ struct	s_level;
 typedef struct s_ui_state
 {
 	TTF_Font			*current_font;
-	enum e_ui_location	ui_location;
+	t_ui_location		ui_location;
 	int					ui_max_width;
 	int					ui_text_y_pos;
 	int					ui_text_x_offset;
@@ -416,6 +422,7 @@ typedef struct s_ui_state
 
 typedef struct s_editor_ui
 {
+	t_main_menu			main_menu;
 	TTF_Font			*editor_font;
 	TTF_Font			*hud_font;
 	TTF_Font			*win_lose_font;
@@ -642,7 +649,6 @@ void					init_ui(t_window *window, t_level *level);
 void					init_player(t_enemy *player);
 void					init_audio(t_level *level);
 void					ui_render(t_window *window, t_level *level);
-void					ui_config(t_level *level);
 void					set_text_color(int color);
 void					text(char *text);
 int						button(int *var, char *text);
@@ -767,5 +773,12 @@ void	render_button_streaming(unsigned int *get_texture, int *var, int dy);
 void	render_slider_streaming(unsigned int *get_texture,
 											float unit, int dy);
 void	button_pixel_put(int x, int y, int color, unsigned int *texture);
+
+void	ui_editor(t_level *level);
+void	ui_level_select(t_level *level);
+void	ui_settings(t_level *level);
+void	render_ssp_visual_background(unsigned int *texture);
+void	render_ssp_visual_text(t_window *window, t_level *level);
+void	ui_render_background(t_window *window, t_level *level);
 
 #endif
