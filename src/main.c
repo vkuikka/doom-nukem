@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/12 16:27:59 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/08/12 16:00:46 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,7 +109,8 @@ int	main(int argc, char **argv)
 	{
 		frame_time = SDL_GetTicks();
 		read_input(window, level, &game_state);
-		if (game_state == GAME_STATE_MAIN_MENU)
+		if (game_state == GAME_STATE_MAIN_MENU
+			|| level->ui.state.ui_location == UI_LOCATION_SETTINGS)
 			main_menu_move_background(level);
 		else
 		{

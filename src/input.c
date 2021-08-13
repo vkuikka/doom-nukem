@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/10 22:39:12 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/12 11:36:51 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/12 16:29:57 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -150,11 +150,9 @@ static void	keyboard_input(t_window *window, t_level *level, SDL_Event event,
 		level->ui.state.mouse_capture = FALSE;
 		SDL_SetRelativeMouseMode(SDL_FALSE);
 		*game_state = GAME_STATE_MAIN_MENU;
+		if (level->ui.state.ui_location != UI_LOCATION_SETTINGS)
+			level->main_menu_anim_start_time = SDL_GetTicks();
 		level->ui.state.ui_location = UI_LOCATION_MAIN;
-		level->cam.pos = level->main_menu_pos1.pos;
-		level->cam.look_side = level->main_menu_pos1.look_side;
-		level->cam.look_up = level->main_menu_pos1.look_up;
-		level->main_menu_anim_start_time = SDL_GetTicks();
 		level->win_start_time = 0;
 		level->death_start_time = 0;
 		Mix_PlayMusic(level->audio.music, -1);
