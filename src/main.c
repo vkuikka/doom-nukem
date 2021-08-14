@@ -300,25 +300,82 @@ void		update_screen_space_vertices(t_level *level)
 	t_vec3 start;
 	t_vec3 stop;
 
+	int	z = 0;
+	level->ss_tri_amount = 0;
 	for (int i = 0; i < level->visible.tri_amount; i++)
 	{
-		int amount = level->visible.tris[i].isquad ? 4 : 3;
-		for (int k = 0; k < amount; k++)
+		for (int k = 0; k < 3; k++)
 		{
 			int		next;
-			if (amount == 4)
-				next = (int[4]){1, 3, 0, 2}[k];
-			else
-				next = (k + 1) % 3;
+			next = (k + 1) % 3;
 			start = level->visible.tris[i].verts[k].pos;
 			stop = level->visible.tris[i].verts[next].pos;
 			camera_offset(&start, &level->cam);
 			camera_offset(&stop, &level->cam);
 			if (start.z < 0)
 				start = move2z(&stop, &start);
-			level->visible.tris[i].ss_verts[k].x = start.x;
-			level->visible.tris[i].ss_verts[k].y = start.y;
+			level->ss_tris[z].verts[k].pos.x = start.x;
+			level->ss_tris[z].verts[k].pos.y = start.y;
+			level->ss_tris[z].verts[k].uv = level->visible.tris[i].verts[k].txtr;
 		}
+		z++;
+		if (level->visible.tris[i].isquad)
+		{
+			for (int k = 0; k < 3; k++)
+			{
+				int		next;
+				int		next2;
+				next = (int[3]){1, 3, 2}[k];
+				next2 = (int[3]){1, 3, 2}[(k + 1) % 3];
+				start = level->visible.tris[i].verts[next].pos;
+				stop = level->visible.tris[i].verts[next2].pos;
+				camera_offset(&start, &level->cam);
+				camera_offset(&stop, &level->cam);
+				if (start.z < 0)
+					start = move2z(&stop, &start);
+				level->ss_tris[z].verts[k].pos.x = stop.x;
+				level->ss_tris[z].verts[k].pos.y = stop.y;
+				level->ss_tris[z].verts[k].uv = level->visible.tris[i].verts[next].txtr;
+			}
+			z++;
+		}
+	}
+	level->ss_tri_amount = z;
+}
+
+void		insertion_sort_tris(t_level *level)
+{
+	int		i;
+	t_obj	*obj = &level->all;
+	t_tri	key;
+	int		j;
+	t_vec3	sub;
+
+	i = 0;
+	while (i < obj->tri_amount)
+	{
+		obj->tris[i].dist = FLT_MIN;
+		j = 0;
+		while (j < 3)
+		{
+			vec_sub(&sub, obj->tris[i].verts[j].pos, level->cam.pos);
+			if (vec_length(sub) > obj->tris[i].dist)
+				obj->tris[i].dist = vec_length(sub);
+			j++;
+		}
+		i++;
+	}
+
+	for (i = 1; i < obj->tri_amount; i++)
+	{
+		key = obj->tris[i];
+		j = i - 1;
+		while (j >= 0 && obj->tris[j].dist > key.dist)
+		{
+			obj->tris[j + 1] = obj->tris[j];
+			j--;
+		}
+		obj->tris[j + 1] = key;
 	}
 }
 
@@ -341,6 +398,7 @@ int			main(int argc, char **argv)
 	init_screen_space_partition(level);
 	init_culling(level);
 	init_player(&level->player);
+	level->ss_tris = malloc(sizeof(t_ss_tri) * level->all.tri_amount * 2 * 8);
 	while (1)
 	{
 		frametime = SDL_GetTicks();
@@ -361,6 +419,7 @@ int			main(int argc, char **argv)
 			door_put_text(window, level);
 			light_put_text(window, level);
 		}
+		insertion_sort_tris(level);
 		enemies_update_sprites(level);
 		cull = SDL_GetTicks();
 		culling(level);

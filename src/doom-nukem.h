@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   doom-nukem.h                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/06/01 02:06:40 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/08/14 16:42:04 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -245,14 +245,25 @@ typedef struct			s_enemy
 	float				current_attack_delay;
 }						t_enemy;
 
+typedef struct			s_ss_vert
+{
+	t_vec2				pos;
+	t_vec2				uv;
+}						t_ss_vert;
+
+typedef struct			s_ss_tri
+{
+	t_ss_vert			verts[3];
+}						t_ss_tri;
+
 typedef struct			s_tri
 {
-	struct s_vec2		ss_verts[4];
 	int					index;
 	struct s_vert		verts[4];	//vertex coordinates of 3d triangle
 	struct s_vec3		v0v1;		//vector between vertices 1 and 0
 	struct s_vec3		v0v2;		//vector between vertices 2 and 0
 	struct s_vec3		normal;
+	float				dist;
 	int					isenemy;
 	struct s_enemy		*enemy;
 	int					isprojectile;
@@ -450,6 +461,8 @@ typedef struct			s_level
 	struct s_bmp		texture;
 	struct s_bmp		normal_map;
 	struct s_bmp		spray;
+	t_ss_tri			*ss_tris;
+	int					ss_tri_amount;
 	t_color				*baked;
 	t_bake				bake_status;
 	float				bake_progress;
