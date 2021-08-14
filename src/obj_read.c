@@ -246,7 +246,7 @@ void	load_obj(char *filename, t_obj *obj)
 	free(file);
 	free(verts);
 	free(uvs);
-	find_quads(obj);
+	// find_quads(obj);
 	i = 0;
 	while (i < obj->tri_amount)
 	{

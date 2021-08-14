@@ -352,6 +352,7 @@ void		init_culling(t_level *level)
 	for (int i = 0; i < level->all.tri_amount; i++)
 	{
 		level->all.tris[i].index = i;
+		/*
 		level->all.tris[i].reflection_obj_all = (t_obj*)malloc(sizeof(t_obj));
 		level->all.tris[i].reflection_obj_all->tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount);
 		level->all.tris[i].reflection_obj_all->tri_amount = 0;
@@ -364,12 +365,13 @@ void		init_culling(t_level *level)
 		level->all.tris[i].shadow_faces = (t_obj*)malloc(sizeof(t_obj));
 		level->all.tris[i].shadow_faces->tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount);
 		level->all.tris[i].shadow_faces->tri_amount = 0;
+		*/
 	}
-	for (int i = 0; i < level->all.tri_amount; i++)
-	{
-		reflection_culling(level, i);
-		opacity_culling(level, i);
-	}
+	// for (int i = 0; i < level->all.tri_amount; i++)
+	// {
+	// 	reflection_culling(level, i);
+	// 	opacity_culling(level, i);
+	// }
 }
 
 static void		calculate_corner_vectors(t_vec3 corner[4], t_camera *cam)

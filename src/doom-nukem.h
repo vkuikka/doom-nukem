@@ -12,8 +12,8 @@
 
 #ifndef DOOM_NUKEM_H
 # define DOOM_NUKEM_H
-# define RES_X 1000
-# define RES_Y 700
+# define RES_X 960
+# define RES_Y 720
 # define THREAD_AMOUNT 8
 # define NOISE_QUALITY_LIMIT 8
 # define SSP_MAX_X 20

@@ -153,13 +153,13 @@ void	ui_config_selected_faces(t_level *level)
 
 void	set_obj(t_level *level, char *filename)
 {
-	free_culling(level);
+	// free_culling(level);
 	free(level->all.tris);
 	free(level->visible.tris);
 	load_obj(filename, &level->all);
 	if (!(level->visible.tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount)))
 		ft_error("memory allocation failed\n");
-	init_screen_space_partition(level);
+	//init_screen_space_partition(level);
 	init_culling(level);
 }
 

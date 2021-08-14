@@ -12,7 +12,7 @@
 
 #include "doom-nukem.h"
 
-void			ss_minmax(t_vec2 *min, t_vec2 *max, t_ss_tri tri)
+void			ss_minmax(t_vec2 *min, t_vec2 *max, t_ss_tri tri, int resx, int resy)
 {
 	min->x = tri.verts[0].pos.x;
 	min->x = fmin(tri.verts[1].pos.x, min->x);
@@ -33,8 +33,8 @@ void			ss_minmax(t_vec2 *min, t_vec2 *max, t_ss_tri tri)
 	min->x = fmax(0, min->x);
 	min->y = fmax(0, min->y);
 
-	max->x = fmin(RES_X, max->x);
-	max->y = fmin(RES_Y, max->y);
+	max->x = fmin(resx, max->x);
+	max->y = fmin(resy, max->y);
 }
 
 t_vec3			ss_to_uv(t_vec2 *fp, t_ss_tri *tri, t_bmp *txtr)
@@ -106,16 +106,20 @@ int				raster(void *data_pointer)
 	t_ss_tri		*tri;
 	int				i;
 
+	int resx = RES_X / t->level->ui.raycast_quality;
+	int resy = RES_Y / t->level->ui.raycast_quality;
+
+
 	i = 0;
 	all = &t->level->ss_tris[0];
 	while (i < t->level->ss_tri_amount)
 	{
 		tri = &all[i];
-		ss_minmax(&min, &max, *tri);
-		if (min.x < RES_X / THREAD_AMOUNT * (t->id + 0))
-			min.x = RES_X / THREAD_AMOUNT * (t->id + 0);
-		if (max.x > RES_X / THREAD_AMOUNT * (t->id + 1))
-			max.x = RES_X / THREAD_AMOUNT * (t->id + 1);
+		ss_minmax(&min, &max, *tri, resx, resy);
+		if (min.x < resx / THREAD_AMOUNT * (t->id + 0))
+			min.x = resx / THREAD_AMOUNT * (t->id + 0);
+		if (max.x > resx / THREAD_AMOUNT * (t->id + 1))
+			max.x = resx / THREAD_AMOUNT * (t->id + 1);
 		screen.x = min.x;
 		while (screen.x < max.x)
 		{

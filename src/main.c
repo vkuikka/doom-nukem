@@ -58,8 +58,8 @@ void		render(t_window *window, t_level *level, t_game_state *game_state)
 			i++;
 		}
 		free(thread_data);
-		fill_pixels(window->frame_buffer, level->ui.raycast_quality,
-					level->ui.blur, level->ui.smooth_pixels);
+		// fill_pixels(window->frame_buffer, level->ui.raycast_quality,
+		// 			level->ui.blur, level->ui.smooth_pixels);
 	}
 	if (*game_state == GAME_STATE_EDITOR && level->ui.state.ui_location != UI_LOCATION_SETTINGS)
 		wireframe(window, level);
@@ -332,7 +332,7 @@ void		update_screen_space_vertices(t_level *level)
 				camera_offset(&start, &level->cam);
 				camera_offset(&stop, &level->cam);
 				if (start.z < 0)
-					start = move2z(&stop, &start);
+					start = move2z(&start, &stop);
 				level->ss_tris[z].verts[k].pos.x = stop.x;
 				level->ss_tris[z].verts[k].pos.y = stop.y;
 				level->ss_tris[z].verts[k].uv = level->visible.tris[i].verts[next].txtr;
@@ -395,10 +395,12 @@ int			main(int argc, char **argv)
 	init_audio(level);
 	init_window(&window);
 	init_ui(window, level);
-	init_screen_space_partition(level);
+	// init_screen_space_partition(level);
+	level->ui.backface_culling = FALSE;
+	level->ui.raycast_quality = 1;
 	init_culling(level);
 	init_player(&level->player);
-	level->ss_tris = malloc(sizeof(t_ss_tri) * level->all.tri_amount * 2 * 8);
+	level->ss_tris = malloc(sizeof(t_ss_tri) * level->all.tri_amount * 2 * 18 * 3);
 	while (1)
 	{
 		frametime = SDL_GetTicks();
@@ -426,7 +428,7 @@ int			main(int argc, char **argv)
 		update_screen_space_vertices(level);
 		level->ui.cull = SDL_GetTicks() - cull;
 		ssp = SDL_GetTicks();
-		screen_space_partition(level);
+		//screen_space_partition(level);
 		level->ui.ssp = SDL_GetTicks() - ssp;
 		rendertime = SDL_GetTicks();
 		render(window, level, &game_state);
