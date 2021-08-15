@@ -601,6 +601,7 @@ void	select_editor_ui(t_level *level)
 {
 	char		buf[100];
 
+	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
 	if (level->bake_status == BAKE_BAKING)
 	{
 		set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
