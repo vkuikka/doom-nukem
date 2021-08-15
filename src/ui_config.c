@@ -292,8 +292,7 @@ void	ui_render_directory_loopdir(t_level *level, int find_dir,
 							- ft_strlen(extension)])
 					&& call(data.cFileName, NULL, level))
 				{
-					if (level->ui.state.ui_location == UI_LOCATION_FILE_OPEN)
-						make_fileopen_call(level, data.cFileName);
+					make_fileopen_call(level, data.cFileName);
 				}
 				else if (!find_ext
 					&& ft_strlen(data.cFileName) > ft_strlen(extension)
@@ -302,8 +301,7 @@ void	ui_render_directory_loopdir(t_level *level, int find_dir,
 							- ft_strlen(extension)])
 					&& call(data.cFileName, NULL, level))
 				{
-					if (level->ui.state.ui_location == UI_LOCATION_FILE_OPEN)
-						make_fileopen_call(level, data.cFileName);
+					make_fileopen_call(level, data.cFileName);
 				}
 			}
 		}
@@ -385,7 +383,14 @@ void	ui_settings(t_level *level)
 
 	ui = &level->ui;
 	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
-	file_browser("select spray", ".bmp", &set_spray);
+
+
+	if (call("select spray", NULL, level))
+	{
+		level->ui.main_menu = MAIN_MENU_LOCATION_SPRAY_SELECT;
+		ft_strcpy(level->ui.state.extension, ".bmp");
+		level->ui.state.open_file = &set_spray;
+	}
 	button(&ui->spray_from_view, "spray from view");
 	if (!ui->spray_from_view)
 	{
@@ -410,12 +415,6 @@ void	ui_settings(t_level *level)
 	float_slider(&level->audio.sound_effect_volume, buf, 0, MIX_MAX_VOLUME);
 	Mix_Volume(-1, level->audio.sound_effect_volume);
 	ui_render_info(level);
-}
-
-void	ui_level_select(t_level *level)
-{
-	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
-	ui_render_directory(level);
 }
 
 void	ui_door_editor(t_level *level)
@@ -656,12 +655,13 @@ void	ui(t_window *window, t_level *level, t_game_state *game_state)
 	}
 	else if (*game_state == GAME_STATE_MAIN_MENU)
 	{
+		set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
 		if (level->ui.main_menu == MAIN_MENU_LOCATION_MAIN)
 			main_menu(level, window->ui_texture_pixels, game_state);
 		else if (level->ui.main_menu == MAIN_MENU_LOCATION_SETTINGS)
 			ui_settings(level);
 		else
-			ui_level_select(level);
+			ui_render_directory(level);
 	}
 	else
 		hud(level, window->ui_texture_pixels, *game_state);
