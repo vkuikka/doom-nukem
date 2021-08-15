@@ -247,7 +247,7 @@ typedef struct			s_enemy
 
 typedef struct			s_ss_vert
 {
-	t_vec2				pos;
+	t_vec3				pos;
 	t_vec2				uv;
 }						t_ss_vert;
 

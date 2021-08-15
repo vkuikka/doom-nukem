@@ -314,8 +314,7 @@ void		update_screen_space_vertices(t_level *level)
 			camera_offset(&stop, &level->cam);
 			if (start.z < 0)
 				start = move2z(&stop, &start);
-			level->ss_tris[z].verts[k].pos.x = start.x;
-			level->ss_tris[z].verts[k].pos.y = start.y;
+			level->ss_tris[z].verts[k].pos = start;
 			level->ss_tris[z].verts[k].uv = level->visible.tris[i].verts[k].txtr;
 		}
 		z++;
@@ -333,8 +332,7 @@ void		update_screen_space_vertices(t_level *level)
 				camera_offset(&stop, &level->cam);
 				if (start.z < 0)
 					start = move2z(&start, &stop);
-				level->ss_tris[z].verts[k].pos.x = stop.x;
-				level->ss_tris[z].verts[k].pos.y = stop.y;
+				level->ss_tris[z].verts[k].pos = stop;
 				level->ss_tris[z].verts[k].uv = level->visible.tris[i].verts[next].txtr;
 			}
 			z++;

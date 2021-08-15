@@ -44,9 +44,9 @@ t_vec3			ss_to_uv(t_vec2 *fp, t_ss_tri *tri, t_bmp *txtr)
 	t_vec2	*v2;
 	t_vec3	uvw;
 
-	v0 = &tri->verts[0].pos;
-	v1 = &tri->verts[1].pos;
-	v2 = &tri->verts[2].pos;
+	v0 = (t_vec2*)&tri->verts[0].pos;
+	v1 = (t_vec2*)&tri->verts[1].pos;
+	v2 = (t_vec2*)&tri->verts[2].pos;
 	uvw.z = fabs((fp->x * (v1->y - v2->y) +
 				v1->x * (v2->y - fp->y) +
 				v2->x * (fp->y - v1->y)));
@@ -108,8 +108,17 @@ int				raster(void *data_pointer)
 			screen.y = min.y;
 			while (screen.y < max.y)
 			{
+				t_vec2 a;
+				t_vec2 b;
+				t_vec2 c;
+				a.x = tri->verts[0].pos.x;
+				a.y = tri->verts[0].pos.y;
+				b.x = tri->verts[1].pos.x;
+				b.y = tri->verts[1].pos.y;
+				c.x = tri->verts[2].pos.x;
+				c.y = tri->verts[2].pos.y;
 				if (!t->window->frame_buffer[(int)screen.x + ((int)screen.y * RES_X)]
-				&& point_in_tri(screen, tri->verts[0].pos, tri->verts[1].pos, tri->verts[2].pos))
+				&& point_in_tri(screen, a, b, c))
 				{
 					uv = ss_to_uv(&screen, tri, &t->level->texture);
 					t->window->frame_buffer[(int)screen.x + ((int)screen.y * RES_X)]
