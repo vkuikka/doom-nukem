@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   doom-nukem.h                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/14 16:42:04 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/15 22:45:54 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -698,6 +698,7 @@ void		delete_light(t_level *level);
 void		set_fourth_vertex_uv(t_tri *a);
 void		start_bake(t_level *level);
 t_vec3		get_normal(int vec);
-void		normalize_data(t_vec3 *uvw, t_tri tri);
+void		normalize_data(t_vec3 *uvw);
+void		wrap_coords(int *x, int *y, int max_x, int max_y);
 
 #endif

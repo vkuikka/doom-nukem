@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   raster.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/31 23:51:41 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/14 17:11:59 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/15 22:45:05 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,9 +44,9 @@ t_vec3			ss_to_uv(t_vec2 *fp, t_ss_tri *tri, t_bmp *txtr)
 	t_vec2	*v2;
 	t_vec3	uvw;
 
-	v0 = &tri->verts[0].uv;
-	v1 = &tri->verts[1].uv;
-	v2 = &tri->verts[2].uv;
+	v0 = &tri->verts[0].pos;
+	v1 = &tri->verts[1].pos;
+	v2 = &tri->verts[2].pos;
 	uvw.z = fabs((fp->x * (v1->y - v2->y) +
 				v1->x * (v2->y - fp->y) +
 				v2->x * (fp->y - v1->y)));
@@ -56,26 +56,8 @@ t_vec3			ss_to_uv(t_vec2 *fp, t_ss_tri *tri, t_bmp *txtr)
 	uvw.x = fabs((v0->x * (v1->y - fp->y) +
 				v1->x * (fp->y - v0->y) +
 				fp->x * (v0->y - v1->y)));
-
-	// normalize_data(&uvw, tri);
-	float div =  uvw.x + uvw.y + uvw.z;
-	uvw.x /= div;
-	uvw.y /= div;
-	uvw.z /= div;
+	normalize_data(&uvw);
 	return (uvw);
-}
-
-static void		wrap_coords2(int *x, int *y, int max_x, int max_y)
-{
-	while (*y < 0)
-		*y += max_y;
-	if (*y >= max_y)
-		*y = *y % max_y;
-	*y = max_y - *y - 1;
-	while (*x < 0)
-		*x += max_x;
-	if (*x >= max_x)
-		*x = *x % max_x;
 }
 
 unsigned int			raster_face_color(float u, float v, t_ss_tri t, t_bmp *texture)
@@ -91,7 +73,7 @@ unsigned int			raster_face_color(float u, float v, t_ss_tri t, t_bmp *texture)
 	y =	((t.verts[0].uv.y * texture->height * w +
 			t.verts[1].uv.y * texture->height * v +
 			t.verts[2].uv.y * texture->height * u) / (float)(u + v + w));
-	wrap_coords2(&x, &y, texture->width, texture->height);
+	wrap_coords(&x, &y, texture->width, texture->height);
 	return(texture->image[x + (y * texture->width)]);
 }
 

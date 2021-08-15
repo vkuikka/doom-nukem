@@ -223,15 +223,15 @@ t_vec3			get_normal(int vec)
 	return (dir);
 }
 
-static void		wrap_coords(int *x, int *y, int max_x, int max_y)
+void			wrap_coords(int *x, int *y, int max_x, int max_y)
 {
-	while (*y < 0)
-		*y += max_y;
+	if (*y < 0)
+		*y = -(*y % max_y) + max_y;
 	if (*y >= max_y)
 		*y = *y % max_y;
 	*y = max_y - *y - 1;
-	while (*x < 0)
-		*x += max_x;
+	if (*x < 0)
+		*x = -(*x % max_x) + max_x;
 	if (*x >= max_x)
 		*x = *x % max_x;
 }

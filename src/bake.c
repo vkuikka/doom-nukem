@@ -31,7 +31,7 @@ void		texture_minmax(t_vec2 *min, t_vec2 *max, t_tri tri)
 	max->y = fmax(1-tri.verts[2].txtr.y, max->y);
 }
 
-void		normalize_data(t_vec3 *uvw, t_tri tri)
+void		normalize_data(t_vec3 *uvw)
 {
 	vec_div(uvw, uvw->x + uvw->y + uvw->z);
 }
@@ -61,7 +61,7 @@ void		get_uv(t_vec3 *uvw, t_ivec2 ipoint, t_tri tri, t_bmp *txtr)
 	uvw->x = fabs((v0.x * (v1.y - fp.y) +
 				v1.x * (fp.y - v0.y) +
 				fp.x * (v0.y - v1.y)));
-	normalize_data(uvw, tri);
+	normalize_data(uvw);
 }
 
 t_vec3		uv_to_3d(t_tri tri, t_bmp *txtr, t_ivec2 point)
@@ -89,18 +89,6 @@ t_vec3		uv_to_3d(t_tri tri, t_bmp *txtr, t_ivec2 point)
 	vec_add(&res, res, av1);
 	vec_add(&res, res, av2);
 	return (res);
-}
-
-static void	wrap_coords(int *x, int *y, int max_x, int max_y)
-{
-	while (*y < 0)
-		*y += max_y;
-	if (*y >= max_y)
-		*y = *y % max_y;
-	while (*x < 0)
-		*x += max_x;
-	if (*x >= max_x)
-		*x = *x % max_x;
 }
 
 int			bake(void *d)
