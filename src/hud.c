@@ -106,7 +106,7 @@ void	hud(t_level *level, unsigned int *pixels, t_game_state game_state)
 	int		width;
 	char	buf[100];
 
-	// viewmodel(pixels, level->viewmodel[level->viewmodel_index]);
+	viewmodel(pixels, level->viewmodel[level->viewmodel_index]);
 	if (game_state == GAME_STATE_DEAD)
 	{
 		level->ui.state.current_font = level->ui.win_lose_font;
