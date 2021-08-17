@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "doom-nukem.h"
+#include "doom_nukem.h"
 
 void		opacity(t_cast_result *res, t_level *l, t_obj *obj, float opacity)
 {

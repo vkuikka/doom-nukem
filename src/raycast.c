@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "doom-nukem.h"
+#include "doom_nukem.h"
 
 float			cast_face(t_tri t, t_ray ray, t_cast_result *res)
 {

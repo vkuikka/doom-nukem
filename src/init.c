@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "doom-nukem.h"
+#include "doom_nukem.h"
 
 SDL_Texture		*empty_texture(SDL_Renderer *renderer)
 {

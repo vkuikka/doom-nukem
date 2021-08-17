@@ -3,14 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   gizmo.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/26 19:56:07 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/05/30 22:22:56 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/17 23:58:35 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "doom-nukem.h"
+#include "doom_nukem.h"
 
 static void		gizmo_pixel_put(int x, int y, int color, unsigned *texture)
 {

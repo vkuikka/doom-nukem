@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "doom-nukem.h"
+#include "doom_nukem.h"
 
 unsigned		crossfade(unsigned color1, unsigned color2, unsigned fade, unsigned alpha)
 {

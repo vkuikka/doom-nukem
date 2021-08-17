@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "doom-nukem.h"
+#include "doom_nukem.h"
 
 void			create_projectile(t_level *level, t_vec3 pos, t_vec3 dir, t_enemy *enemy)
 {
