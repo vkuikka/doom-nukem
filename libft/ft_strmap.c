@@ -22,7 +22,8 @@ char	*ft_strmap(char const *s, char (*f)(char))
 		return (NULL);
 	while (s[i])
 		i++;
-	if (!(copy = (char *)malloc(sizeof(char) * (i + 1))))
+	copy = (char *)malloc(sizeof(char) * (i + 1));
+	if (!copy)
 		return (NULL);
 	copy[i] = '\0';
 	i = 0;

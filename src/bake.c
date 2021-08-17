@@ -6,37 +6,34 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/22 10:29:09 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/25 21:11:25by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/08/18 00:50:18 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
 
-void		texture_minmax(t_vec2 *min, t_vec2 *max, t_tri tri)
+void	texture_minmax(t_vec2 *min, t_vec2 *max, t_tri tri)
 {
 	min->x = tri.verts[0].txtr.x;
 	min->x = fmin(tri.verts[1].txtr.x, min->x);
 	min->x = fmin(tri.verts[2].txtr.x, min->x);
-
-	min->y = 1-tri.verts[0].txtr.y;
-	min->y = fmin(1-tri.verts[1].txtr.y, min->y);
-	min->y = fmin(1-tri.verts[2].txtr.y, min->y);
-
+	min->y = 1 - tri.verts[0].txtr.y;
+	min->y = fmin(1 - tri.verts[1].txtr.y, min->y);
+	min->y = fmin(1 - tri.verts[2].txtr.y, min->y);
 	max->x = tri.verts[0].txtr.x;
 	max->x = fmax(tri.verts[1].txtr.x, max->x);
 	max->x = fmax(tri.verts[2].txtr.x, max->x);
-
-	max->y = 1-tri.verts[0].txtr.y;
-	max->y = fmax(1-tri.verts[1].txtr.y, max->y);
-	max->y = fmax(1-tri.verts[2].txtr.y, max->y);
+	max->y = 1 - tri.verts[0].txtr.y;
+	max->y = fmax(1 - tri.verts[1].txtr.y, max->y);
+	max->y = fmax(1 - tri.verts[2].txtr.y, max->y);
 }
 
-void		normalize_data(t_vec3 *uvw)
+void	normalize_data(t_vec3 *uvw)
 {
 	vec_div(uvw, uvw->x + uvw->y + uvw->z);
 }
 
-void		get_uv(t_vec3 *uvw, t_ivec2 ipoint, t_tri tri, t_bmp *txtr)
+void	get_uv(t_vec3 *uvw, t_ivec2 ipoint, t_tri tri, t_bmp *txtr)
 {
 	t_vec2	diff;
 	t_vec2	fp;
@@ -45,37 +42,37 @@ void		get_uv(t_vec3 *uvw, t_ivec2 ipoint, t_tri tri, t_bmp *txtr)
 	t_vec2	v2;
 
 	fp.x = (float)ipoint.x / txtr->width;
-	fp.y = 1-(float)ipoint.y / txtr->height;
+	fp.y = 1 - (float)ipoint.y / txtr->height;
 	if (!point_in_tri(fp, tri.verts[0].txtr, tri.verts[1].txtr, tri.verts[2].txtr))
 		v0 = tri.verts[3].txtr;
 	else
 		v0 = tri.verts[0].txtr;
 	v1 = tri.verts[1].txtr;
 	v2 = tri.verts[2].txtr;
-	uvw->z = fabs((fp.x * (v1.y - v2.y) +
-				v1.x * (v2.y - fp.y) +
-				v2.x * (fp.y - v1.y)));
-	uvw->y = fabs((v0.x * (fp.y - v2.y) +
-				fp.x * (v2.y - v0.y) +
-				v2.x * (v0.y - fp.y)));
-	uvw->x = fabs((v0.x * (v1.y - fp.y) +
-				v1.x * (fp.y - v0.y) +
-				fp.x * (v0.y - v1.y)));
+	uvw->z = fabs((fp.x * (v1.y - v2.y)
+				+ v1.x * (v2.y - fp.y)
+				+ v2.x * (fp.y - v1.y)));
+	uvw->y = fabs((v0.x * (fp.y - v2.y)
+				+ fp.x * (v2.y - v0.y)
+				+ v2.x * (v0.y - fp.y)));
+	uvw->x = fabs((v0.x * (v1.y - fp.y)
+				+ v1.x * (fp.y - v0.y)
+				+ fp.x * (v0.y - v1.y)));
 	normalize_data(uvw);
 }
 
-t_vec3		uv_to_3d(t_tri tri, t_bmp *txtr, t_ivec2 point)
+t_vec3	uv_to_3d(t_tri tri, t_bmp *txtr, t_ivec2 point)
 {
-	t_vec3		uvw;
-	t_vec3		av0;
-	t_vec3		av1;
-	t_vec3		av2;
-	t_vec3		res;
-	t_vec2		fp;
+	t_vec3	uvw;
+	t_vec3	av0;
+	t_vec3	av1;
+	t_vec3	av2;
+	t_vec3	res;
+	t_vec2	fp;
 
 	get_uv(&uvw, point, tri, txtr);
 	fp.x = (float)point.x / txtr->width;
-	fp.y = 1-(float)point.y / txtr->height;
+	fp.y = 1 - (float)point.y / txtr->height;
 	if (!point_in_tri(fp, tri.verts[0].txtr, tri.verts[1].txtr, tri.verts[2].txtr))
 		av0 = tri.verts[3].pos;
 	else
@@ -93,7 +90,7 @@ t_vec3		uv_to_3d(t_tri tri, t_bmp *txtr, t_ivec2 point)
 
 int			bake(void *d)
 {
-	t_level			*l = d;
+	t_level			*l;
 	t_vec2			min;
 	t_vec2			max;
 	t_vec2			tmp;
@@ -102,6 +99,7 @@ int			bake(void *d)
 	t_ivec2			i;
 	int				tri;
 
+	l = d;
 	i.x = 0;
 	i.y = 0;
 	tri = 0;
@@ -143,7 +141,6 @@ int			bake(void *d)
 						vec_normalize(&res.normal);
 						l->baked[wrapped.x + wrapped.y * l->texture.width] = sunlight(l, &res, lights(l, &res, l->all.tris[tri].normal));
 					}
-
 					wrapped.x -= 1;
 					wrap_coords(&wrapped.x, &wrapped.y, l->texture.width, l->texture.height);
 					if (!(l->baked[wrapped.x + wrapped.y * l->texture.width].r) &&
@@ -155,7 +152,6 @@ int			bake(void *d)
 						vec_normalize(&res.normal);
 						l->baked[wrapped.x + wrapped.y * l->texture.width] = sunlight(l, &res, lights(l, &res, l->all.tris[tri].normal));
 					}
-
 					wrapped.y += 1;
 					wrap_coords(&wrapped.x, &wrapped.y, l->texture.width, l->texture.height);
 					if (!(l->baked[wrapped.x + wrapped.y * l->texture.width].r) &&
@@ -179,10 +175,10 @@ int			bake(void *d)
 	return (1);
 }
 
-void		clear_bake(t_level *level)
+void	clear_bake(t_level *level)
 {
-	int		x;
-	int		y;
+	int	x;
+	int	y;
 
 	x = 0;
 	while (x < level->texture.width)
@@ -199,13 +195,25 @@ void		clear_bake(t_level *level)
 	}
 }
 
-void		start_bake(t_level *level)
+void	start_bake(t_level *level)
 {
+	if (level->texture.width != level->normal_map.width ||
+		level->texture.height != level->normal_map.height)
+	{
+		nonfatal_error(level, "texture and normal map are not same size");
+		return;
+	}
+	if (level->baked_size.x != level->texture.width || level->baked_size.y != level->texture.height)
+		level->baked = ft_realloc(level->baked,
+			sizeof(t_color) * level->baked_size.x * level->baked_size.y,
+			sizeof(t_color) * level->texture.height * level->texture.width);
 	if (level->bake_status == BAKE_NOT_BAKED)
 	{
 		clear_bake(level);
 		level->bake_status = BAKE_BAKING;
 		level->bake_progress = 0;
-		SDL_CreateThread(bake, "asd", (void*)level);
+		SDL_CreateThread(bake, "asd", (void *)level);
+		level->baked_size.x = level->texture.width;
+		level->baked_size.y = level->texture.height;
 	}
 }

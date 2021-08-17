@@ -12,7 +12,7 @@
 
 #include "libft.h"
 
-void		ft_fill_array(char const *s, char c, char **ar)
+void	ft_fill_array(char const *s, char c, char **ar)
 {
 	int		i;
 	int		len;

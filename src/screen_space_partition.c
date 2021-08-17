@@ -6,25 +6,27 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/09 12:03:36 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/17 23:58:35 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/08/18 00:30:59 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
 
-int			get_ssp_index(int xd, int yd)
+int	get_ssp_index(int xd, int yd)
 {
-	return ((int)((float)xd / RES_X * SSP_MAX_X) + (int)((float)yd / RES_Y * SSP_MAX_Y) * SSP_MAX_X);
+	return ((int)((float)xd / RES_X * SSP_MAX_X)
+			+ (int)((float)yd / RES_Y * SSP_MAX_Y) * SSP_MAX_X);
 }
 
-int			get_ssp_coordinate(int coord, int horizontal)
+int	get_ssp_coordinate(int coord, int horizontal)
 {
 	if (horizontal)
 		return ((int)((float)coord / RES_X * SSP_MAX_X));
 	return ((int)((float)coord / RES_Y * SSP_MAX_Y));
 }
 
-static void		calculate_corner_vectors(t_vec3 result[2], t_camera c, float px, int horizontal)
+static void	calculate_corner_vectors(t_vec3 result[2], t_camera c,
+											float px, int horizontal)
 {
 	float	ym;
 	float	xm;
@@ -57,81 +59,98 @@ static void		calculate_corner_vectors(t_vec3 result[2], t_camera c, float px, in
 	result[1].z = c.front.z + c.up.z * ym + c.side.z * xm;
 }
 
-static int				left(t_tri *tri, int x, t_camera cam)
+static int	left(t_tri *tri, int x, t_camera cam)
 {
 	t_vec3	corners[2];
 	t_vec3	normal;
 	t_vec3	vert;
-
-	calculate_corner_vectors(corners, cam, (float)x, 1);
-	vec_cross(&normal, corners[0], corners[1]);
-	for (int i = 0; i < 3 + tri->isquad; i++)
-	{
-		vec_sub(&vert, tri->verts[i].pos, cam.pos);
-		if (vec_dot(vert, normal) > 0)
-			return (0);
-	}
-	return (1);
-}
-
-static int				right(t_tri *tri, int x, t_camera cam)
-{
-	t_vec3	corners[2];
-	t_vec3	normal;
-	t_vec3	vert;
-
-	calculate_corner_vectors(corners, cam, (float)x, 1);
-	vec_cross(&normal, corners[1], corners[0]);
-	for (int i = 0; i < 3 + tri->isquad; i++)
-	{
-		vec_sub(&vert, tri->verts[i].pos, cam.pos);
-		if (vec_dot(vert, normal) > 0)
-			return (0);
-	}
-	return (1);
-}
-
-static int				over(t_tri *tri, int x, t_camera cam)
-{
-	t_vec3	corners[2];
-	t_vec3	normal;
-	t_vec3	vert;
-
-	calculate_corner_vectors(corners, cam, (float)x, 0);
-	vec_cross(&normal, corners[0], corners[1]);
-	for (int i = 0; i < 3 + tri->isquad; i++)
-	{
-		vec_sub(&vert, tri->verts[i].pos, cam.pos);
-		if (vec_dot(vert, normal) > 0)
-			return (0);
-	}
-	return (1);
-}
-
-static int				under(t_tri *tri, int x, t_camera cam)
-{
-	t_vec3	corners[2];
-	t_vec3	normal;
-	t_vec3	vert;
-
-	calculate_corner_vectors(corners, cam, (float)x, 0);
-	vec_cross(&normal, corners[1], corners[0]);
-	for (int i = 0; i < 3 + tri->isquad; i++)
-	{
-		vec_sub(&vert, tri->verts[i].pos, cam.pos);
-		if (vec_dot(vert, normal) > 0)
-			return (0);
-	}
-	return (1);
-}
-
-static void				find_partition(int (*dir1)(t_tri*, int, t_camera),
-										int (*dir2)(t_tri*, int, t_camera), t_tri *tri, t_camera cam, float bounds[3])
-{
-	float	min = bounds[0];
-	float	max = bounds[1];
 	int		i;
 
+	calculate_corner_vectors(corners, cam, (float)x, 1);
+	vec_cross(&normal, corners[0], corners[1]);
+	i = 0;
+	while (i < 3 + tri->isquad)
+	{
+		vec_sub(&vert, tri->verts[i].pos, cam.pos);
+		if (vec_dot(vert, normal) > 0)
+			return (0);
+		i++;
+	}
+	return (1);
+}
+
+static int	right(t_tri *tri, int x, t_camera cam)
+{
+	t_vec3	corners[2];
+	t_vec3	normal;
+	t_vec3	vert;
+	int		i;
+
+	calculate_corner_vectors(corners, cam, (float)x, 1);
+	vec_cross(&normal, corners[1], corners[0]);
+	i = 0;
+	while (i < 3 + tri->isquad)
+	{
+		vec_sub(&vert, tri->verts[i].pos, cam.pos);
+		if (vec_dot(vert, normal) > 0)
+			return (0);
+		i++;
+	}
+	return (1);
+}
+
+static int	over(t_tri *tri, int x, t_camera cam)
+{
+	t_vec3	corners[2];
+	t_vec3	normal;
+	t_vec3	vert;
+	int		i;
+
+	calculate_corner_vectors(corners, cam, (float)x, 0);
+	vec_cross(&normal, corners[0], corners[1]);
+	i = 0;
+	while (i < 3 + tri->isquad)
+	{
+		vec_sub(&vert, tri->verts[i].pos, cam.pos);
+		if (vec_dot(vert, normal) > 0)
+			return (0);
+		i++;
+	}
+	return (1);
+}
+
+static int	under(t_tri *tri, int x, t_camera cam)
+{
+	t_vec3	corners[2];
+	t_vec3	normal;
+	t_vec3	vert;
+	int		i;
+
+	calculate_corner_vectors(corners, cam, (float)x, 0);
+	vec_cross(&normal, corners[1], corners[0]);
+	i = 0;
+	while (i < 3 + tri->isquad)
+	{
+		vec_sub(&vert, tri->verts[i].pos, cam.pos);
+		if (vec_dot(vert, normal) > 0)
+			return (0);
+		i++;
+	}
+	return (1);
+}
+
+static void	find_partition(int (*dir1)(t_tri *, int, t_camera),
+					int (*dir2)(t_tri *, int, t_camera), t_tri *tri,
+					t_camera cam, float bounds[3])
+{
+	float	min;
+	float	max;
+	int		i;
+	int		j;
+	float	tmp;
+
+	min = bounds[0];
+	max = bounds[1];
 	i = 0;
 	while (i < bounds[2])
 	{
@@ -141,8 +160,7 @@ static void				find_partition(int (*dir1)(t_tri*, int, t_camera),
 			min = (max + min) / 2;
 		else
 		{
-			int j = i;
-			float	tmp;
+			j = i;
 			tmp = (max + min) / 2;
 			while (j < bounds[2])
 			{
@@ -166,7 +184,7 @@ static void				find_partition(int (*dir1)(t_tri*, int, t_camera),
 					tmp = (max + tmp) / 2;
 				j++;
 			}
-			break;
+			break ;
 		}
 		i++;
 	}
@@ -174,12 +192,15 @@ static void				find_partition(int (*dir1)(t_tri*, int, t_camera),
 	bounds[1] = max;
 }
 
-static void            find_ssp_index(t_tri *tri, t_level *level)
+static void	find_ssp_index(t_tri *tri, t_level *level)
 {
-	t_camera	cam = level->cam;
+	t_camera	cam;
 	float		y_bounds[3];
 	float		x_bounds[3];
+	int			x;
+	int			y;
 
+	cam = level->cam;
 	x_bounds[0] = 0;
 	x_bounds[1] = RES_X - 1;
 	x_bounds[2] = SSP_MAX_X - 1;
@@ -188,38 +209,71 @@ static void            find_ssp_index(t_tri *tri, t_level *level)
 	y_bounds[2] = SSP_MAX_Y - 1;
 	find_partition(left, right, tri, cam, x_bounds);
 	find_partition(under, over, tri, cam, y_bounds);
-	for (int x = get_ssp_coordinate(x_bounds[0], 1); x <= get_ssp_coordinate(x_bounds[1], 1); x++)
-		for (int y = get_ssp_coordinate(y_bounds[0], 0); y <= get_ssp_coordinate(y_bounds[1], 0); y++)
-			level->ssp[x + y * SSP_MAX_X].tris[level->ssp[x + y * SSP_MAX_X].tri_amount++] = *tri;
+	x = get_ssp_coordinate(x_bounds[0], 1);
+	while (x <= get_ssp_coordinate(x_bounds[1], 1))
+	{
+		y = get_ssp_coordinate(y_bounds[0], 0);
+		while (y <= get_ssp_coordinate(y_bounds[1], 0))
+		{
+			level->ssp[x + y * SSP_MAX_X]
+				.tris[level->ssp[x + y * SSP_MAX_X].tri_amount++] = *tri;
+			y++;
+		}
+		x++;
+	}
 }
 
-void		screen_space_partition(t_level *level)
+void	screen_space_partition(t_level *level)
 {
-	for (int i = 0; i < SSP_MAX_X * SSP_MAX_Y; i++)
-		level->ssp[i].tri_amount =  0;
-	for (int i = 0; i < level->visible.tri_amount; i++)
+	int	i;
+	int	k;
+
+	i = -1;
+	while (++i < SSP_MAX_X * SSP_MAX_Y)
+		level->ssp[i].tri_amount = 0;
+	i = 0;
+	while (i < level->visible.tri_amount)
 	{
 		if (level->visible.tris[i].isgrid)
 		{
-			for (int o = 0; o < SSP_MAX_X * SSP_MAX_Y; o++)
-				level->ssp[o].tris[level->ssp[o].tri_amount++] = level->visible.tris[i];
+			k = 0;
+			while (k < SSP_MAX_X * SSP_MAX_Y)
+			{
+				level->ssp[k].tris[level->ssp[k].tri_amount++]
+					= level->visible.tris[i];
+				k++;
+			}
 		}
 		else
 			find_ssp_index(&level->visible.tris[i], level);
+		i++;
 	}
 }
 
-void		init_screen_space_partition(t_level *level)
+void	init_screen_space_partition(t_level *level)
 {
+	int	i;
+
 	if (level->ssp)
 	{
-		for (int i = 0; i < SSP_MAX_X * SSP_MAX_Y; i++)
+		i = 0;
+		while (i < SSP_MAX_X * SSP_MAX_Y)
+		{
 			free(level->ssp[i].tris);
+			i++;
+		}
 		free(level->ssp);
 	}
-	if (!(level->ssp = (t_obj*)malloc(sizeof(t_obj) * SSP_MAX_X * SSP_MAX_Y)))
+	level->ssp = (t_obj *)malloc(sizeof(t_obj) * SSP_MAX_X * SSP_MAX_Y);
+	if (!level->ssp)
 		ft_error("memory allocation failed");
-	for (int i = 0; i < SSP_MAX_X * SSP_MAX_Y; i++)
-		if (!(level->ssp[i].tris = (t_tri*)malloc(sizeof(t_tri) * level->all.tri_amount)))
+	i = 0;
+	while (i < SSP_MAX_X * SSP_MAX_Y)
+	{
+		level->ssp[i].tris = (t_tri *)malloc(sizeof(t_tri)
+				* level->all.tri_amount);
+		if (!level->ssp[i].tris)
 			ft_error("memory allocation failed");
+		i++;
+	}
 }

@@ -12,17 +12,19 @@
 
 #include "libft.h"
 
-int		**ft_new_int_arr(unsigned str_len, unsigned arr_len)
+int	**ft_new_int_arr(unsigned int str_len, unsigned int arr_len)
 {
-	int			**ret;
-	unsigned	i;
+	int				**ret;
+	unsigned int	i;
 
 	i = 0;
-	if (!(ret = (int **)malloc(sizeof(int*) * arr_len)))
+	ret = (int **)malloc(sizeof(int *) * arr_len);
+	if (!ret)
 		return (NULL);
 	while (i < arr_len)
 	{
-		if (!(ret[i] = (int *)malloc(sizeof(int) * str_len)))
+		ret[i] = (int *)malloc(sizeof(int) * str_len);
+		if (!ret[i])
 			return (NULL);
 		ft_bzero(ret[i], str_len);
 		i++;

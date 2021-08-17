@@ -3,95 +3,55 @@
 /*                                                        :::      ::::::::   */
 /*   raycast.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/18 18:25:74vkuikka          ###   ########.fr       */
+/*   Updated: 2021/08/12 11:37:35 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
 
-float			cast_face(t_tri t, t_ray ray, t_cast_result *res)
+void	rot_cam(t_vec3 *cam, const float lon, const float lat)
 {
-	t_vec3	pvec;
-	vec_cross(&pvec, ray.dir, t.v0v2);
-	float invdet = 1 / vec_dot(pvec, t.v0v1); 
+	float		phi;
+	float		radius;
 
-	t_vec3	tvec;
-	vec_sub(&tvec, ray.pos, t.verts[0].pos);
-	float u = vec_dot(tvec, pvec) * invdet;
-	if (t.isgrid)
-	{
-		if (u < 0)
-			u = 1 - fabs(u - (int)u);
-		else
-			u = fabs(u - (int)u);
-	}
-	if (u < 0 || u > 1)
-		return 0;
-	t_vec3 qvec;
-	vec_cross(&qvec, tvec, t.v0v1);
-	float v = vec_dot(ray.dir, qvec) * invdet;
-	if (t.isgrid)
-	{
-		if (v < 0)
-			v = 1 - fabs(v - (int)v);
-		else
-			v = fabs(v - (int)v);
-	}
-	if (t.isquad)
-	{
-		if (v < 0 || v > 1) //quad hack
-			return 0;
-	}
-	else if (v < 0 || u + v > 1)
-		return 0;
-	float dist = vec_dot(qvec, t.v0v2) * invdet;
-	if (res)
-	{
-		res->u = u;
-		res->v = v;
-		res->dist = dist;
-	}
-	return (dist);
-}
-
-void			rot_cam(t_vec3 *cam, const float lon, const float lat)
-{
-	const float	phi = (M_PI / 2 - lat);
-	const float	theta = lon;
-	float radius = 1;
-
-	cam->x = radius * sin(phi) * cos(theta);
+	phi = (M_PI / 2 - lat);
+	radius = 1;
+	cam->x = radius * sin(phi) * cos(lon);
 	cam->y = radius * cos(phi);
-	cam->z = radius * sin(phi) * sin(theta);
+	cam->z = radius * sin(phi) * sin(lon);
 }
 
-static void		raytrace(t_cast_result *res, t_vec3 face_normal, t_ray r, t_level *l)
+static void	raytrace(t_cast_result *res, t_obj *obj, t_ray r, t_level *l)
 {
-	float		opacity_value;
-	t_color		light;
+	float	opacity_value;
+	t_vec3	face_normal;
+	t_color	light;
+	t_vec3	tmp;
 
+	vec_add(&tmp, r.dir, r.pos);
+	face_normal = l->all.tris[res->face_index].normal;
 	vec_normalize(&res->normal);
 	res->ray = r;
 	if (l->all.tris[res->face_index].shader == 1)
-	{
-		t_vec3 tmp;
-		vec_add(&tmp, r.dir, r.pos);
-		res->color = wave_shader(tmp, &res->normal, 0x070C5A, 0x020540);
-	}
-	if (!res->baked || res->raytracing)
+		res->color = shader_wave(tmp, &res->normal, 0x070C5A, 0x020540);
+	if (l->all.tris[res->face_index].shader == 2)
+		res->color = shader_rule30(tmp);
+	else if (!res->baked || res->raytracing)
 	{
 		light = sunlight(l, res, lights(l, res, face_normal));
-		res->color = brightness(res->color >> 8, light) + (res->color << 24 >> 24);
+		res->color
+			= brightness(res->color >> 8, light) + (res->color << 24 >> 24);
 	}
-	if (l->all.tris[res->face_index].reflectivity &&
-		res->reflection_depth < REFLECTION_DEPTH)
+	if (l->all.tris[res->face_index].reflectivity
+		&& res->reflection_depth < REFLECTION_DEPTH)
 	{
 		res->reflection_depth++;
 		if (res->reflection_depth == 1)
-			reflection(res, l, l->all.tris[res->face_index].reflection_obj_first_bounce);
+			reflection(res, l,
+				l->all.tris[res->face_index].reflection_obj_first_bounce);
 		else
 			reflection(res, l, l->all.tris[res->face_index].reflection_obj_all);
 	}
@@ -101,58 +61,72 @@ static void		raytrace(t_cast_result *res, t_vec3 face_normal, t_ray r, t_level *
 	if (opacity_value)
 	{
 		res->reflection_depth++;
-		opacity(res, l, l->all.tris[res->face_index].opacity_obj_all, opacity_value);
+		opacity(res, l, obj, opacity_value);
 	}
 }
 
-void			cast_all_color(t_ray r, t_level *l, t_obj *obj, t_cast_result *res)
+void	cast_all_color(t_ray r, t_level *l, t_obj *obj, t_cast_result *res)
 {
-	float			dist;
-	int				new_hit;
-	int				color;
-	int				i;
-	float			u;
-	float			v;
+	float	dist;
+	float	tmp_dist;
+	int		new_hit;
+	int		color;
+	int		i;
+	t_vec2	uv;
 
 	dist = FLT_MAX;
-	res->dist = FLT_MAX;
 	i = 0;
 	color = 0;
 	new_hit = -1;
 	while (i < obj->tri_amount)
 	{
-		if (0 < cast_face(obj->tris[i], r, res) && res->dist < dist && obj->tris[i].index != res->face_index)
+		tmp_dist = cast_face(obj->tris[i], r, res);
+		if (0 < tmp_dist && tmp_dist < dist
+			&& obj->tris[i].index != res->face_index)
 		{
-			dist = res->dist;
+			dist = tmp_dist;
 			new_hit = i;
-			u = res->u;
-			v = res->v;
+			uv = res->uv;
 		}
 		i++;
 	}
 	res->dist = dist;
 	if (new_hit == -1)
-		res->color = skybox(l, res->reflection_depth ? &l->sky.all : &l->sky.visible, r);
+	{
+		if (res->reflection_depth)
+			res->color = skybox(l, &l->sky.all, r);
+		else
+			res->color = skybox(l, &l->sky.visible, r);
+	}
 	else
 	{
-		res->u = u;
-		res->v = v;
+		res->uv = uv;
 		res->face_index = obj->tris[new_hit].index;
-		face_color(res->u, res->v, obj->tris[new_hit], res);
+		face_color(res->uv.x, res->uv.y, obj->tris[new_hit], res);
 		vec_mult(&r.dir, dist);
 		vec_add(&r.pos, r.pos, r.dir);
-		raytrace(res, obj->tris[new_hit].normal, r, l);
+		raytrace(res, obj, r, l);
 	}
 }
 
-int				raycast(void *data_pointer)
+int	raycast(void *data_pointer)
 {
-	t_rthread	*t = data_pointer;
-	t_ray		r;
-	t_camera	*cam = &t->level->cam;
-	int			pixel_gap = t->level->ui.raycast_quality;
-	int			rand_amount = 0;
+	int				rand_amount;
+	int				pixel_gap;
+	float			fov_x;
+	t_camera		*cam;
+	t_cast_result	res;
+	t_rthread		*t;
+	t_ray			r;
+	float			xm;
+	float			ym;
+	int				x;
+	int				y;
 
+	t = data_pointer;
+	cam = &t->level->cam;
+	pixel_gap = t->level->ui.raycast_quality;
+	rand_amount = 0;
 	if (t->level->ui.raycast_quality >= NOISE_QUALITY_LIMIT)
 	{
 		srand(SDL_GetTicks());
@@ -161,42 +135,42 @@ int				raycast(void *data_pointer)
 	r.pos.x = cam->pos.x;
 	r.pos.y = cam->pos.y;
 	r.pos.z = cam->pos.z;
-	float fov_x = t->level->ui.fov * ((float)RES_X / RES_Y);
-	for (int x = t->id; x < RES_X; x += THREAD_AMOUNT)
+	fov_x = t->level->ui.fov * ((float)RES_X / RES_Y);
+	x = t->id;
+	while (x < RES_X)
 	{
-		t_vec3 tmp;
-		tmp.x = 1.0 / RES_X * x - 0.5;
-		tmp.y = 0;
-		tmp.z = 1;
-		for (int y = 0; y < RES_Y; y++)
+		y = -1;
+		while (++y < RES_Y)
 		{
-			if (!rand_amount || rand() % rand_amount)	//skip random pixel
-			if (!(x % pixel_gap) && !(y % pixel_gap))
+			if ((!rand_amount || rand() % rand_amount)
+				&& !(x % pixel_gap) && !(y % pixel_gap))
 			{
-				float ym = t->level->ui.fov / RES_Y * y - t->level->ui.fov / 2;
-				float xm = fov_x / RES_X * x - fov_x / 2;
-
+				ym = t->level->ui.fov / RES_Y * y - t->level->ui.fov / 2;
+				xm = fov_x / RES_X * x - fov_x / 2;
 				r.dir.x = cam->front.x + cam->up.x * ym + cam->side.x * xm;
 				r.dir.y = cam->front.y + cam->up.y * ym + cam->side.y * xm;
 				r.dir.z = cam->front.z + cam->up.z * ym + cam->side.z * xm;
-
-				t_cast_result	res;
 				res.raytracing = t->level->ui.raytracing;
 				res.normal_map = &t->level->normal_map;
 				res.texture = &t->level->texture;
+				res.spray_overlay = t->level->spray_overlay;
 				if (t->level->bake_status != BAKE_NOT_BAKED)
 					res.baked = t->level->baked;
 				else
 					res.baked = NULL;
 				res.reflection_depth = 0;
 				res.face_index = -1;
-				cast_all_color(r, t->level, &t->level->ssp[get_ssp_index(x, y)], &res);
+				cast_all_color(
+					r, t->level, &t->level->ssp[get_ssp_index(x, y)], &res);
 				if (t->level->ui.fog)
-					res.color = fog(res.color, res.dist, t->level->ui.fog_color, t->level);
-				t->window->frame_buffer[x + (y * RES_X)] = (res.color >> 8 << 8) + 0xff;
+					res.color = fog(res.color, res.dist,
+							t->level->ui.fog_color, t->level);
+				t->window->frame_buffer[x + (y * RES_X)]
+					= (res.color >> 8 << 8) + 0xff;
 				t->window->depth_buffer[x + (y * RES_X)] = res.dist;
 			}
 		}
+		x += THREAD_AMOUNT;
 	}
 	return (0);
 }

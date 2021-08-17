@@ -12,13 +12,14 @@
 
 #include "libft.h"
 
-int		*ft_arrdup(const int *src, const int len)
+int	*ft_arrdup(const int *src, const int len)
 {
 	int		i;
 	int		*arr;
 
 	i = -1;
-	if (!(arr = (int*)malloc(sizeof(int) * len)))
+	arr = (int *)malloc(sizeof(int) * len);
+	if (!arr)
 		return (NULL);
 	while (++i < len)
 		arr[i] = src[i];

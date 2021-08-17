@@ -3,16 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   color.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/21 17:32:09 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/07 12:40:357 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/18 00:32:24 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
 
-unsigned		crossfade(unsigned color1, unsigned color2, unsigned fade, unsigned alpha)
+unsigned int	crossfade(unsigned int color1, unsigned int color2,
+							unsigned int fade, unsigned int alpha)
 {
 	unsigned char	*rgb1;
 	unsigned char	*rgb2;
@@ -20,22 +21,22 @@ unsigned		crossfade(unsigned color1, unsigned color2, unsigned fade, unsigned al
 	unsigned int	newg;
 	unsigned int	newb;
 
-	rgb1 = (unsigned char*)&color1;
-	rgb2 = (unsigned char*)&color2;
+	rgb1 = (unsigned char *)&color1;
+	rgb2 = (unsigned char *)&color2;
 	newr = (rgb1[2] * (0xff - fade) + rgb2[2] * fade) / 0xff;
 	newg = (rgb1[1] * (0xff - fade) + rgb2[1] * fade) / 0xff;
 	newb = (rgb1[0] * (0xff - fade) + rgb2[0] * fade) / 0xff;
 	return ((newr << 8 * 3) + (newg << 8 * 2) + (newb << 8 * 1) + alpha);
 }
 
-unsigned		brightness(unsigned color1, t_color new)
+unsigned int	brightness(unsigned int color1, t_color new)
 {
 	unsigned char	*rgb;
 	unsigned int	newr;
 	unsigned int	newg;
 	unsigned int	newb;
 
-	rgb = (unsigned char*)&color1;
+	rgb = (unsigned char *)&color1;
 	newr = rgb[2] * sqrt(new.r);
 	newg = rgb[1] * sqrt(new.g);
 	newb = rgb[0] * sqrt(new.b);
@@ -54,10 +55,11 @@ unsigned		brightness(unsigned color1, t_color new)
 	return ((newr << 8 * 3) + (newg << 8 * 2) + (newb << 8 * 1));
 }
 
-int				skybox(t_level *l, t_obj *obj, t_ray r)
+int	skybox(t_level *l, t_obj *obj, t_ray r)
 {
 	t_cast_result	res;
 	t_color			tmp;
+	int				i;
 
 	if (l->skybox_brightness != 0)
 	{
@@ -78,35 +80,42 @@ int				skybox(t_level *l, t_obj *obj, t_ray r)
 	res.texture = &l->sky.img;
 	res.normal_map = NULL;
 	res.baked = NULL;
+	res.spray_overlay = NULL;
 	res.raytracing = 0;
-	for (int i = 0; i < obj->tri_amount; i++)
+	i = 0;
+	while (i < obj->tri_amount)
+	{
 		if (0 < cast_face(obj->tris[i], r, &res))
 		{
-			face_color(res.u, res.v, obj->tris[i], &res);
+			face_color(res.uv.x, res.uv.y, obj->tris[i], &res);
 			res.color = brightness(res.color >> 8, tmp) + 0xff;
 			return (res.color);
 		}
+		i++;
+	}
 	return (res.color);
 }
 
-int				fog(int color, float dist, unsigned fog_color, t_level *level)
+int	fog(int color, float dist, unsigned int fog_color, t_level *level)
 {
 	float	fade;
 
 	if (dist < level->ui.render_distance)
 	{
 		fade = (dist + 1) / (level->ui.render_distance - 1);
-		fade = fade > 1 ? 1 : fade;
+		if (fade > 1)
+			fade = 1;
 		return (crossfade(color >> 8, fog_color >> 8, 0xff * fade, 0xff));
 	}
 	return (fog_color);
 }
 
-void			blur_pixels(unsigned *color, int gap)
+void	blur_pixels(unsigned int *color, int gap)
 {
 	int		res;
 	int		x;
 	int		y;
+	int		col;
 
 	y = gap;
 	res = 0;
@@ -116,15 +125,14 @@ void			blur_pixels(unsigned *color, int gap)
 		while (x < RES_X - gap)
 		{
 			res = color[x + (y * RES_X)];
-			int col1 = color[x - gap + (y * RES_X)];
-			int col2 = color[x + ((y - gap) * RES_X)];
-			int col3 = color[x + gap + (y * RES_X)];
-			int col4 = color[x + ((y + gap) * RES_X)];
-			float fade = 1.0 / 4.0;
-			res = crossfade(res >> 8, col1 >> 8, fade * 0xff, 0xff);
-			res = crossfade(res >> 8, col2 >> 8, fade * 0xff, 0xff);
-			res = crossfade(res >> 8, col3 >> 8, fade * 0xff, 0xff);
-			res = crossfade(res >> 8, col4 >> 8, fade * 0xff, 0xff);
+			col = color[x - gap + (y * RES_X)];
+			res = crossfade(res >> 8, col >> 8, .25 * 0xff, 0xff);
+			col = color[x + ((y - gap) * RES_X)];
+			res = crossfade(res >> 8, col >> 8, .25 * 0xff, 0xff);
+			col = color[x + gap + (y * RES_X)];
+			res = crossfade(res >> 8, col >> 8, .25 * 0xff, 0xff);
+			col = color[x + ((y + gap) * RES_X)];
+			res = crossfade(res >> 8, col >> 8, .25 * 0xff, 0xff);
 			color[x + (y * RES_X)] = res;
 			x += gap;
 		}
@@ -132,29 +140,32 @@ void			blur_pixels(unsigned *color, int gap)
 	}
 }
 
-int				smooth_color(unsigned *pixels, int gap, int x, int y)
+int	smooth_color(unsigned int *pixels, int gap, int x, int y)
 {
-	int		dx;
-	int		dy;
-	int		re1 = 0;
-	int		re2 = 0;
-	int		tmp = 0;
+	int	dx;
+	int	dy;
+	int	re1;
+	int	re2;
+	int	tmp;
 
+	re1 = 0;
+	re2 = 0;
+	tmp = 0;
 	dx = x - x % gap;
 	dy = y - y % gap;
 	if (x >= RES_X - gap && y >= RES_Y - gap)
-		return(pixels[dx + ((y - y % gap) * RES_X)]);
+		return (pixels[dx + ((y - y % gap) * RES_X)]);
 	if (x >= RES_X - gap)
 	{
 		re1 = pixels[dx + dy * RES_X];
 		re2 = pixels[dx + (dy + gap) * RES_X];
-		return(crossfade(re1 >> 8, re2 >> 8, y % gap / (float)gap * 0xff, 0xff));
+		return (crossfade(re1 >> 8, re2 >> 8, y % gap / (float)gap * 0xff, 0xff));
 	}
 	if (y >= RES_Y - gap)
 	{
 		re1 = pixels[dx + dy * RES_X];
 		re2 = pixels[dx + gap + dy * RES_X];
-		return(crossfade(re1 >> 8, re2 >> 8, x % gap / (float)gap * 0xff, 0xff));
+		return (crossfade(re1 >> 8, re2 >> 8, x % gap / (float)gap * 0xff, 0xff));
 	}
 	re1 = pixels[dx + dy * RES_X];
 	re2 = pixels[dx + (dy + gap) * RES_X];
@@ -162,15 +173,15 @@ int				smooth_color(unsigned *pixels, int gap, int x, int y)
 	re1 = pixels[dx + gap + dy * RES_X];
 	re2 = pixels[dx + gap + (dy + gap) * RES_X];
 	re1 = crossfade(re1 >> 8, re2 >> 8, y % gap / (float)gap * 0xff, 0xff);
-	return(crossfade(tmp >> 8, re1 >> 8, x % gap / (float)gap * 0xff, 0xff));
+	return (crossfade(tmp >> 8, re1 >> 8, x % gap / (float)gap * 0xff, 0xff));
 }
 
-void			fill_pixels(unsigned *grid, int gap, int blur, int smooth)
+void	fill_pixels(unsigned int *grid, int gap, int blur, int smooth)
 {
-	int		color;
-	int		i;
-	int		x;
-	int		y;
+	int	color;
+	int	i;
+	int	x;
+	int	y;
 
 	y = 0;
 	if (blur)
@@ -200,7 +211,7 @@ void			fill_pixels(unsigned *grid, int gap, int blur, int smooth)
 	}
 }
 
-SDL_Color		get_sdl_color(unsigned color)
+SDL_Color	get_sdl_color(unsigned int color)
 {
 	SDL_Color	res;
 
@@ -211,19 +222,19 @@ SDL_Color		get_sdl_color(unsigned color)
 	return (res);
 }
 
-t_vec3			get_normal(int vec)
+t_vec3	get_normal(int vec)
 {
 	unsigned char	*v;
 	t_vec3			dir;
 
-	v = (unsigned char*)&vec;
+	v = (unsigned char *)&vec;
 	dir.x = v[3] - 128;
 	dir.y = -(v[1] - 128);
 	dir.z = v[2] - 128;
 	return (dir);
 }
 
-void			wrap_coords(int *x, int *y, int max_x, int max_y)
+void	wrap_coords(int *x, int *y, int max_x, int max_y)
 {
 	if (*y < 0)
 		*y = -(*y % max_y) + max_y;
@@ -236,30 +247,33 @@ void			wrap_coords(int *x, int *y, int max_x, int max_y)
 		*x = *x % max_x;
 }
 
-void			face_color(float u, float v, t_tri t, t_cast_result *res)
+void	face_color(float u, float v, t_tri t, t_cast_result *res)
 {
 	int		x;
-	int 	y;
+	int		y;
 	float	w;
 
 	w = 1 - u - v;
-	x =	((t.verts[0].txtr.x * res->texture->width * w +
+	x = ((t.verts[0].txtr.x * res->texture->width * w +
 			t.verts[1].txtr.x * res->texture->width * v +
-			t.verts[2].txtr.x * res->texture->width * u) / (float)(u + v + w));
-	y =	((t.verts[0].txtr.y * res->texture->height * w +
+			t.verts[2].txtr.x * res->texture->width * u) /
+			(float)(u + v + w));
+	y = ((t.verts[0].txtr.y * res->texture->height * w +
 			t.verts[1].txtr.y * res->texture->height * v +
-			t.verts[2].txtr.y * res->texture->height * u) / (float)(u + v + w));
+			t.verts[2].txtr.y * res->texture->height * u) /
+			(float)(u + v + w));
 	wrap_coords(&x, &y, res->texture->width, res->texture->height);
 	res->color = res->texture->image[x + (y * res->texture->width)];
+	if (res->spray_overlay && res->spray_overlay[x + y * res->texture->width])
+		res->color = res->spray_overlay[x + y * res->texture->width];
 	if (res->baked && !res->raytracing)
 		res->color = brightness(res->color >> 8, res->baked[x + y * res->texture->width]) + (res->color << 24 >> 24);
-
 	if (!res->normal_map)
-		return;
-	x =	((t.verts[0].txtr.x * res->normal_map->width * w +
+		return ;
+	x = ((t.verts[0].txtr.x * res->normal_map->width * w +
 			t.verts[1].txtr.x * res->normal_map->width * v +
 			t.verts[2].txtr.x * res->normal_map->width * u) / (float)(u + v + w));
-	y =	((t.verts[0].txtr.y * res->normal_map->height * w +
+	y = ((t.verts[0].txtr.y * res->normal_map->height * w +
 			t.verts[1].txtr.y * res->normal_map->height * v +
 			t.verts[2].txtr.y * res->normal_map->height * u) / (float)(u + v + w));
 	wrap_coords(&x, &y, res->normal_map->width, res->normal_map->height);

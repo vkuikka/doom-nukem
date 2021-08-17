@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-void		ft_swap(int *value1, int *value2)
+void	ft_swap(int *value1, int *value2)
 {
 	int		tmp;
 

@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/17 14:44:12 by vkuikka           #+#    #+#             */
-/*   Updated: 2020/08/15 21:06:01 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/06/20 11:02:02 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,14 +16,15 @@
 # include <unistd.h>
 # include <stdlib.h>
 
-typedef struct		s_list
+typedef struct s_list
 {
 	void			*content;
 	size_t			content_size;
 	struct s_list	*next;
 }					t_list;
 
-char				**ft_add_str(char *str, char **arr, unsigned arrlen);
+void				*ft_realloc(void *ptr, size_t size, size_t new_size);
+char				**ft_add_str(char *str, char **arr, unsigned int arrlen);
 void				ft_error(char *message);
 int					*ft_arrdup(const int *src, const int len);
 void				ft_quicksort(int *nums, int index, int len);
@@ -36,12 +37,12 @@ int					ft_abs(int num);
 void				ft_swap(int *value1, int *value2);
 int					**ft_permutations(int a[], int size, int n);
 int					**ft_new_int_arr(unsigned str_len, unsigned arr_len);
-char				**ft_new_char_arr(unsigned str_len, unsigned arr_len);
+char				**ft_new_char_arr(size_t str_len, size_t arr_len);
 int					ft_factorial(int num);
 void				ft_putnbr_arr(int **array,
-					unsigned arr_len, unsigned str_len);
+						unsigned int arr_len, unsigned int str_len);
 void				ft_putchar_arr(char **array,
-					unsigned arr_len, unsigned str_len);
+						unsigned int arr_len, unsigned int str_len);
 void				ft_fill_array(char const *s, char c, char **ar);
 int					*ft_len_words(const char *s, const char c);
 int					ft_word_count(const char *s, const char c);
@@ -61,12 +62,12 @@ int					ft_memcmp(const void *s1, const void *s2, size_t n);
 size_t				ft_strlen(const char *str);
 void				*ft_memset(void *b, int c, size_t len);
 void				*ft_memcpy(void *dst,
-					const void *src, size_t n);
+						const void *src, size_t n);
 void				*ft_memccpy(void *dst,
-					const void *src, int c, size_t n);
+						const void *src, int c, size_t n);
 char				*ft_strcat(char *s1, const char *s2);
 char				*ft_strncat(char *s1,
-					const char *s2, size_t n);
+						const char *s2, size_t n);
 size_t				ft_strlcat(char *dst, const char *src, size_t dstsize);
 char				*ft_strdup(const char *s1);
 void				ft_bzero(void *s, size_t n);
@@ -78,7 +79,7 @@ int					ft_isascii(int c);
 int					ft_isalnum(int c);
 char				*ft_strstr(const char *haystack, const char *needle);
 char				*ft_strnstr(const char *haystack,
-					const char *needle, size_t len);
+						const char *needle, size_t len);
 char				*ft_strchr(const char *s, int c);
 char				*ft_strrchr(const char *s, int c);
 void				*ft_memalloc(size_t size);

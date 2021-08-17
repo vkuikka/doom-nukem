@@ -12,7 +12,7 @@
 
 #include "libft.h"
 
-int		**ft_permutations(int a[], int size, int n)
+int	**ft_permutations(int a[], int size, int n)
 {
 	int			i;
 	static int	**res = NULL;
