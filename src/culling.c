@@ -421,7 +421,8 @@ void	init_culling(t_level *level)
 			ft_error("culling malloc fail");
 		level->all.tris[i].shadow_faces->tri_amount = 0;
 	}
-	for (int i = 0; i < level->all.tri_amount; i++)
+	i = -1;
+	while (++i < level->all.tri_amount)
 	{
 		reflection_culling(level, i);
 		opacity_culling(level, i);
@@ -430,8 +431,8 @@ void	init_culling(t_level *level)
 
 static void	calculate_corner_vectors(t_vec3 corner[4], t_camera *cam)
 {
-	float	xm;
 	float	ym;
+	float	xm;
 
 	ym = -cam->fov_y / 2;
 	xm = -cam->fov_x / 2;
