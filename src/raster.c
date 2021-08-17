@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/31 23:51:41 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/15 22:45:05 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/08/16 00:02:35by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,25 +37,33 @@ void			ss_minmax(t_vec2 *min, t_vec2 *max, t_ss_tri tri, int resx, int resy)
 	max->y = fmin(resy, max->y);
 }
 
-t_vec3			ss_to_uv(t_vec2 *fp, t_ss_tri *tri, t_bmp *txtr)
+t_vec3			ss_to_uv(t_vec2 fp, t_ss_tri *tri, t_bmp *txtr)
 {
-	t_vec2	*v0;
-	t_vec2	*v1;
-	t_vec2	*v2;
+	t_vec2	v0;
+	t_vec2	v1;
+	t_vec2	v2;
 	t_vec3	uvw;
 
-	v0 = (t_vec2*)&tri->verts[0].pos;
-	v1 = (t_vec2*)&tri->verts[1].pos;
-	v2 = (t_vec2*)&tri->verts[2].pos;
-	uvw.z = fabs((fp->x * (v1->y - v2->y) +
-				v1->x * (v2->y - fp->y) +
-				v2->x * (fp->y - v1->y)));
-	uvw.y = fabs((v0->x * (fp->y - v2->y) +
-				fp->x * (v2->y - v0->y) +
-				v2->x * (v0->y - fp->y)));
-	uvw.x = fabs((v0->x * (v1->y - fp->y) +
-				v1->x * (fp->y - v0->y) +
-				fp->x * (v0->y - v1->y)));
+	v0 = *(t_vec2*)&tri->verts[0].pos;
+	v1 = *(t_vec2*)&tri->verts[1].pos;
+	v2 = *(t_vec2*)&tri->verts[2].pos;
+	uvw.z = fabs((fp.x * (v1.y - v2.y) +
+				v1.x * (v2.y - fp.y) +
+				v2.x * (fp.y - v1.y)));
+	uvw.y = fabs((v0.x * (fp.y - v2.y) +
+				fp.x * (v2.y - v0.y) +
+				v2.x * (v0.y - fp.y)));
+	uvw.x = fabs((v0.x * (v1.y - fp.y) +
+				v1.x * (fp.y - v0.y) +
+				fp.x * (v0.y - v1.y)));
+	uvw.z *= 1 / tri->verts[0].pos.z;
+	uvw.y *= 1 / tri->verts[1].pos.z;
+	uvw.x *= 1 / tri->verts[2].pos.z;
+
+	// float dist = (uvw.z * tri->verts[0].pos.z +
+	// 		uvw.y * tri->verts[1].pos.z +
+	// 		uvw.x * tri->verts[2].pos.z) / (float)(uvw.x + uvw.y + uvw.z);
+
 	normalize_data(&uvw);
 	return (uvw);
 }
@@ -91,7 +99,6 @@ int				raster(void *data_pointer)
 	int resx = RES_X / t->level->ui.raycast_quality;
 	int resy = RES_Y / t->level->ui.raycast_quality;
 
-
 	i = 0;
 	all = &t->level->ss_tris[0];
 	while (i < t->level->ss_tri_amount)
@@ -120,7 +127,7 @@ int				raster(void *data_pointer)
 				if (!t->window->frame_buffer[(int)screen.x + ((int)screen.y * RES_X)]
 				&& point_in_tri(screen, a, b, c))
 				{
-					uv = ss_to_uv(&screen, tri, &t->level->texture);
+					uv = ss_to_uv(screen, tri, &t->level->texture);
 					t->window->frame_buffer[(int)screen.x + ((int)screen.y * RES_X)]
 					= raster_face_color(uv.x, uv.y, *tri, &t->level->texture);
 				}
