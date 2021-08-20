@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/19 18:48:10 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/13 22:51:45 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/20 23:11:52 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,10 +101,23 @@ static void	viewmodel(unsigned int *pixels, t_bmp img)
 	}
 }
 
+void	ingame_hud(t_level *level, unsigned int *pixels)
+{
+	char	buf[100];
+
+	level->ui.state.current_font = level->ui.hud_font;
+	set_text_color(HUD_TEXT_COLOR);
+	crosshair(pixels, RES_X / 2, RES_Y / 2);
+	sprintf(buf, "%d+", level->player_health);
+	render_text(buf, HUD_FONT_SIZE / 4, RES_Y - HUD_FONT_SIZE);
+	sprintf(buf, "%d", level->player_ammo);
+	render_text(buf, RES_X - ((HUD_FONT_SIZE / 2) * strlen(buf)),
+		RES_Y - HUD_FONT_SIZE);
+}
+
 void	hud(t_level *level, unsigned int *pixels, t_game_state game_state)
 {
 	int		width;
-	char	buf[100];
 
 	viewmodel(pixels, level->viewmodel[level->viewmodel_index]);
 	if (game_state == GAME_STATE_DEAD)
@@ -125,14 +138,5 @@ void	hud(t_level *level, unsigned int *pixels, t_game_state game_state)
 			RES_Y / 2 - HUD_GAME_EVENT_FONT_SIZE / 2);
 	}
 	else
-	{
-		level->ui.state.current_font = level->ui.hud_font;
-		set_text_color(HUD_TEXT_COLOR);
-		crosshair(pixels, RES_X / 2, RES_Y / 2);
-		sprintf(buf, "%d+", level->player_health);
-		render_text(buf, HUD_FONT_SIZE / 4, RES_Y - HUD_FONT_SIZE);
-		sprintf(buf, "%d", level->player_ammo);
-		render_text(buf, RES_X - ((HUD_FONT_SIZE / 2) * strlen(buf)),
-						RES_Y - HUD_FONT_SIZE);
-	}
+		ingame_hud(level, pixels);
 }
