@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/06 23:29:24 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/20 22:14:14 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/20 23:16:04 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,7 @@ void	door_find_avg(t_level *level)
 	}
 }
 
-void	door_put_text(t_window *window, t_level *level)
+void	door_put_text(t_level *level)
 {
 	t_door	*door;
 	char	buf[100];

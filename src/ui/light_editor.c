@@ -1,54 +1,43 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   light_edit.c                                       :+:      :+:    :+:   */
+/*   light_editor.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/21 20:19:04 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/13 17:18:27 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/20 23:33:17 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
 
-void	light_put_text(t_window *window, t_level *level)
+void	light_put_text(t_level *level)
 {
-	t_vec3	pos;
 	int		i;
 
-	i = -1;
-	while (++i < level->light_amount)
+	i = 0;
+	while (i < level->light_amount)
 	{
-		pos = level->lights[i].pos;
-		camera_offset(&pos, &level->cam);
-		if (pos.z < 0)
-			continue ;
 		if (level->selected_light_index && i + 1 == level->selected_light_index)
-		{
-			set_text_color(WF_SELECTED_COL);
-			render_text("-light-", pos.x, pos.y);
-		}
+			render_text_3d("-light-", level->lights[i].pos,
+				WF_SELECTED_COL, level);
 		else
-		{
-			set_text_color(LIGHT_LOCATION_INFO_COLOR);
-			render_text("light", pos.x, pos.y);
-		}
+			render_text_3d("light", level->lights[i].pos,
+				LIGHT_LOCATION_INFO_COLOR, level);
+		i++;
 	}
 }
 
 void	select_light(t_level *level, int x, int y)
 {
 	float	nearest_len;
-	int		nearest_index;
 	float	len;
 	t_vec2	test;
 	t_vec3	vert;
 	int		i;
 
-	level->selected_light_index = 0;
 	nearest_len = -1;
-	nearest_index = -1;
 	i = -1;
 	while (++i < level->light_amount)
 	{
@@ -63,13 +52,10 @@ void	select_light(t_level *level, int x, int y)
 		test.y -= y;
 		len = vec2_length(test);
 		if (len < nearest_len || nearest_len == -1)
-		{
+			level->selected_light_index = i + 1;
+		if (len < nearest_len || nearest_len == -1)
 			nearest_len = len;
-			nearest_index = i;
-		}
 	}
-	if (nearest_index != -1)
-		level->selected_light_index = nearest_index + 1;
 }
 
 void	move_light(t_level *level, t_vec3 move_amount)

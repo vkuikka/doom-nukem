@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/20 22:15:37 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/20 23:15:46 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -651,8 +651,8 @@ void	ui(t_window *window, t_level *level, t_game_state *game_state)
 		if (level->ui.state.ui_location == UI_LOCATION_UV_EDITOR)
 			uv_editor(level, window->ui_texture_pixels);
 		select_editor_ui(level);
-		door_put_text(window, level);
-		light_put_text(window, level);
+		door_put_text(level);
+		light_put_text(level);
 	}
 	else if (*game_state == GAME_STATE_MAIN_MENU)
 	{
