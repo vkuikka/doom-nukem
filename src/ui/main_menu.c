@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/19 18:51:47 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/13 22:53:53 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/20 23:44:29 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,21 +115,17 @@ void	main_menu_move_background(t_level *level)
 		level->main_menu_anim_start_time = SDL_GetTicks();
 }
 
-void	main_menu(t_level *level, unsigned int *pixels, t_game_state *game_state)
+void	main_menu_buttons_1(t_game_state *game_state, int *state_changed,
+						t_level *level, unsigned int *pixels)
 {
-	int					width;
-	t_rect				rect;
-	int					state_changed;
+	t_rect	rect;
 
-	level->ui.state.current_font = level->ui.main_menu_font;
-	set_text_color(MAIN_MENU_FONT_COLOR);
-	main_menu_title(&level->main_menu_title, pixels);
 	rect = main_menu_button_text("play", 0);
-	state_changed = FALSE;
-	if (mouse_collision(rect, level, pixels) && level->bake_status != BAKE_BAKING)
+	if (mouse_collision(rect, level, pixels)
+		&& level->bake_status != BAKE_BAKING)
 	{
 		*game_state = GAME_STATE_INGAME;
-		state_changed = TRUE;
+		*state_changed = TRUE;
 		level->player_health = PLAYER_HEALTH_MAX;
 		level->player_ammo = PLAYER_AMMO_MAX;
 	}
@@ -138,7 +134,7 @@ void	main_menu(t_level *level, unsigned int *pixels, t_game_state *game_state)
 	{
 		level->ui.noclip = TRUE;
 		*game_state = GAME_STATE_EDITOR;
-		state_changed = TRUE;
+		*state_changed = TRUE;
 	}
 	rect = main_menu_button_text("select level", 2);
 	if (mouse_collision(rect, level, pixels))
@@ -147,18 +143,39 @@ void	main_menu(t_level *level, unsigned int *pixels, t_game_state *game_state)
 		ft_strcpy(level->ui.state.extension, ".doom-nukem");
 		level->ui.state.open_file = &open_level;
 	}
+}
+
+void	main_menu_buttons_2(t_game_state *game_state, int *state_changed,
+						t_level *level, unsigned int *pixels)
+{
+	t_rect	rect;
+
 	rect = main_menu_button_text("new level", 3);
 	if (mouse_collision(rect, level, pixels))
 	{
 		level->ui.noclip = TRUE;
 		*game_state = GAME_STATE_EDITOR;
-		state_changed = TRUE;
+		*state_changed = TRUE;
 	}
 	rect = main_menu_button_text("settings", 4);
 	if (mouse_collision(rect, level, pixels))
 	{
 		level->ui.main_menu = MAIN_MENU_LOCATION_SETTINGS;
 	}
+}
+
+void	main_menu(t_level *level, unsigned int *pixels,
+			t_game_state *game_state)
+{
+	t_rect	rect;
+	int		state_changed;
+
+	level->ui.state.current_font = level->ui.main_menu_font;
+	set_text_color(MAIN_MENU_FONT_COLOR);
+	main_menu_title(&level->main_menu_title, pixels);
+	state_changed = FALSE;
+	main_menu_buttons_1(game_state, &state_changed, level, pixels);
+	main_menu_buttons_2(game_state, &state_changed, level, pixels);
 	if (state_changed)
 	{
 		level->cam.pos = level->spawn_pos.pos;
