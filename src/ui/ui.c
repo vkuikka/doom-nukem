@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/06 08:50:56 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/13 23:15:15 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/20 21:13:47 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,6 +75,15 @@ t_ivec2	render_text(char *str, int x, int y)
 	pos.x = x;
 	pos.y = y;
 	return (render_text_internal(str, window, font, pos));
+}
+
+void	render_text_3d(char *str, t_vec3 pos,
+			unsigned int color, t_level *level)
+{
+	set_text_color(color);
+	camera_offset(&pos, &level->cam);
+	if (pos.z > 0)
+		render_text(str, pos.x, pos.y);
 }
 
 void	render_ssp_visual_background(unsigned int *texture)

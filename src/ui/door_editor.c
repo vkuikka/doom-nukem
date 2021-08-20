@@ -6,18 +6,29 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/06 23:29:24 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/13 17:16:11 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/20 21:39:20 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
+
+void	select_door(int index, t_level *level)
+{
+	int	i;
+
+	deselect_all_faces(level);
+	level->doors.selected_index = index + 1;
+	i = -1;
+	while (++i < level->doors.door[index].indice_amount)
+		level->all.tris[level->doors.door[index].indices[i]]
+			.selected = TRUE;
+}
 
 void	find_selected_door_index(t_level *level)
 {
 	int	i;
 	int	k;
 	int	m;
-	int	z;
 
 	i = -1;
 	while (++i < level->all.tri_amount)
@@ -31,15 +42,7 @@ void	find_selected_door_index(t_level *level)
 				while (++m < level->doors.door[k].indice_amount)
 				{
 					if (i == level->doors.door[k].indices[m])
-					{
-						deselect_all_faces(level);
-						level->doors.selected_index = k + 1;
-						z = -1;
-						while (++z < level->doors.door[k].indice_amount)
-							level->all.tris[level->doors.door[k].indices[z]]
-								.selected = TRUE;
-						return ;
-					}
+						return (select_door(k, level));
 				}
 			}
 		}
@@ -49,57 +52,54 @@ void	find_selected_door_index(t_level *level)
 	level->doors.selected_index = 0;
 }
 
-void	door_put_text(t_window *window, t_level *level)
+void	door_find_avg(t_level *level)
 {
-	t_vec3	avg;
+	t_ivec3	i;
 	t_door	*door;
 	int		avg_amount;
-	char	buf[100];
-	int		a;
-	int		i;
-	int		k;
 
-	a = -1;
-	while (++a < level->doors.door_amount)
+	i.x = -1;
+	while (++i.x < level->doors.door_amount)
 	{
-		avg.x = 0;
-		avg.y = 0;
-		avg.z = 0;
+		door = &level->doors.door[i.x];
+		vec_mult(&door->avg, 0);
 		avg_amount = 0;
-		door = &level->doors.door[a];
-		i = -1;
-		while (++i < door->indice_amount)
+		i.y = -1;
+		while (++i.y < door->indice_amount)
 		{
-			k = -1;
-			while (++k < 3 + door->isquad[i])
+			i.z = -1;
+			while (++i.z < 3 + door->isquad[i.y])
 			{
-				vec_add(&avg, avg,
-					level->all.tris[door->indices[i]].verts[k].pos);
+				vec_add(&door->avg, door->avg,
+					level->all.tris[door->indices[i.y]].verts[i.z].pos);
 				avg_amount++;
 			}
 		}
 		if (avg_amount)
-		{
-			vec_div(&avg, avg_amount);
-			camera_offset(&avg, &level->cam);
-			if (avg.z > 0)
-			{
-				set_text_color(DOOR_LOCATION_INFO_COLOR);
-				sprintf(buf, "door %d", a + 1);
-				render_text(buf, avg.x, avg.y);
-			}
-		}
+			vec_div(&door->avg, avg_amount);
+	}
+}
+
+void	door_put_text(t_window *window, t_level *level)
+{
+	t_door	*door;
+	char	buf[100];
+	int		i;
+
+	door_find_avg(level);
+	i = 0;
+	while (i < level->doors.door_amount)
+	{
+		door = &level->doors.door[i];
+		sprintf(buf, "door %d", i + 1);
+		render_text_3d(buf, door->avg, DOOR_LOCATION_INFO_COLOR, level);
 		if (door->is_activation_pos_active)
 		{
-			avg = door->activation_pos;
-			camera_offset(&avg, &level->cam);
-			if (avg.z > 0)
-			{
-				set_text_color(DOOR_ACTIVATION_LOCATION_INFO_COLOR);
-				sprintf(buf, "door %d activation", a + 1);
-				render_text(buf, avg.x, avg.y);
-			}
+			sprintf(buf, "door %d activation", i + 1);
+			render_text_3d(buf, door->activation_pos,
+				DOOR_ACTIVATION_LOCATION_INFO_COLOR, level);
 		}
+		i++;
 	}
 }
 
