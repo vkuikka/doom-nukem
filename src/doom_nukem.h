@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/20 21:13:18 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/20 22:48:34 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -415,6 +415,7 @@ typedef struct s_ui_state
 	int					text_input_enable;
 	int					ssp_visual;
 	struct s_vec3		gizmo_pos;
+	float				gizmo_dist_from_screen;
 
 	char				*directory;
 	char				*extension;

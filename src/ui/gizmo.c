@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/26 19:56:07 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/13 20:14:12 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/20 23:06:25 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,64 +140,16 @@ static t_vec3	calc_move_screen_space(int index, int amount)
 	return (dir);
 }
 
-void	gizmo(t_level *level)
+void	gizmo_set_mouse_location(t_level *level,
+				int deltax, int deltay, int drag_direction)
 {
-	t_vec3		x;
-	t_vec3		y;
-	t_vec3		z;
-	t_vec3		avg;
-	int			mx;
-	int			my;
-	static int	drag_direction = 1;
-	static int	prevx = 0;
-	static int	prevy = 0;
-	int			deltax;
-	int			deltay;
-	t_vec3		res;
-	float		dist_from_screen;
+	float	dist_from_screen;
+	t_vec3	res;
 
-	x = (t_vec3){-1, 0, 0};
-	y = (t_vec3){0, -1, 0};
-	z = (t_vec3){0, 0, -1};
-	avg = level->ui.state.gizmo_pos;
-	dist_from_screen = scale_translation_gizmo(&x, &y, &z,
-			vec_sub_return(avg, level->cam.pos));
-	vec_add(&x, x, avg);
-	vec_add(&y, y, avg);
-	vec_add(&z, z, avg);
-	camera_offset(&avg, &level->cam);
-	camera_offset(&x, &level->cam);
-	camera_offset(&y, &level->cam);
-	camera_offset(&z, &level->cam);
-	drag_direction = 1;
-	SDL_GetMouseState(&mx, &my);
-	if (level->ui.state.m1_click)
-	{
-		if (x.z > 0 && is_near(mx, x.x, 9) && is_near(my, x.y, 9))
-		{
-			level->ui.state.mouse_location = MOUSE_LOCATION_GIZMO_X;
-			drag_direction = 1;
-			if (vec_dot((t_vec3){0, 0, -1}, level->cam.front) > 0)
-				drag_direction = -1;
-		}
-		else if (y.z > 0 && is_near(mx, y.x, 9) && is_near(my, y.y, 9))
-		{
-			level->ui.state.mouse_location = MOUSE_LOCATION_GIZMO_Y;
-			drag_direction = 1;
-		}
-		else if (z.z > 0 && is_near(mx, z.x, 9) && is_near(my, z.y, 9))
-		{
-			level->ui.state.mouse_location = MOUSE_LOCATION_GIZMO_Z;
-			drag_direction = 1;
-			if (vec_dot((t_vec3){-1, 0, 0}, level->cam.front) > 0)
-				drag_direction = -1;
-		}
-	}
+	dist_from_screen = level->ui.state.gizmo_dist_from_screen;
 	if (!level->ui.state.m1_drag
 		&& level->ui.state.mouse_location >= MOUSE_LOCATION_GIZMO_X)
 		level->ui.state.mouse_location = MOUSE_LOCATION_SELECTION;
-	deltax = prevx - mx;
-	deltay = prevy - my;
 	res = (t_vec3){0, 0, 0};
 	if (deltax || deltay)
 	{
@@ -215,6 +167,66 @@ void	gizmo(t_level *level)
 		move_light(level, res);
 	else
 		obj_editor_input(level, res);
-	prevx = mx;
-	prevy = my;
+}
+
+void	gizmo_move_amount(t_level *level, t_ivec2 mouse, int drag_direction)
+{
+	static t_ivec2	prev_mouse;
+
+	gizmo_set_mouse_location(level,
+		prev_mouse.x - mouse.x, prev_mouse.y - mouse.y, drag_direction);
+	prev_mouse = mouse;
+}
+
+void	gizmo_drag(t_level *level, t_vec3 x, t_vec3 y, t_vec3 z)
+{
+	static int	drag_direction = 1;
+	t_ivec2		mouse;
+
+	SDL_GetMouseState(&mouse.x, &mouse.y);
+	if (!level->ui.state.m1_click)
+		return (gizmo_move_amount(level, mouse, drag_direction));
+	if (y.z > 0 && is_near(mouse.x, y.x, 9) && is_near(mouse.y, y.y, 9))
+		level->ui.state.mouse_location = MOUSE_LOCATION_GIZMO_Y;
+	if (y.z > 0 && is_near(mouse.x, y.x, 9) && is_near(mouse.y, y.y, 9))
+		drag_direction = 1;
+	else if (x.z > 0 && is_near(mouse.x, x.x, 9) && is_near(mouse.y, x.y, 9))
+	{
+		level->ui.state.mouse_location = MOUSE_LOCATION_GIZMO_X;
+		drag_direction = 1;
+		if (vec_dot((t_vec3){0, 0, -1}, level->cam.front) > 0)
+			drag_direction = -1;
+	}
+	else if (z.z > 0 && is_near(mouse.x, z.x, 9) && is_near(mouse.y, z.y, 9))
+	{
+		level->ui.state.mouse_location = MOUSE_LOCATION_GIZMO_Z;
+		drag_direction = 1;
+		if (vec_dot((t_vec3){-1, 0, 0}, level->cam.front) > 0)
+			drag_direction = -1;
+	}
+	gizmo_move_amount(level, mouse, drag_direction);
+}
+
+void	gizmo(t_level *level)
+{
+	t_vec3	x;
+	t_vec3	y;
+	t_vec3	z;
+	t_vec3	avg;
+
+	x = (t_vec3){-1, 0, 0};
+	y = (t_vec3){0, -1, 0};
+	z = (t_vec3){0, 0, -1};
+	avg = level->ui.state.gizmo_pos;
+	level->ui.state.gizmo_dist_from_screen
+		= scale_translation_gizmo(&x, &y, &z,
+			vec_sub_return(avg, level->cam.pos));
+	vec_add(&x, x, avg);
+	vec_add(&y, y, avg);
+	vec_add(&z, z, avg);
+	camera_offset(&avg, &level->cam);
+	camera_offset(&x, &level->cam);
+	camera_offset(&y, &level->cam);
+	camera_offset(&z, &level->cam);
+	gizmo_drag(level, x, y, z);
 }
