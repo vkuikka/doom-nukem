@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/06 23:29:24 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/20 21:39:20 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/20 22:14:14 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,13 @@ void	select_door(int index, t_level *level)
 	while (++i < level->doors.door[index].indice_amount)
 		level->all.tris[level->doors.door[index].indices[i]]
 			.selected = TRUE;
+}
+
+void	deselect_door(t_level *level)
+{
+	if (level->doors.selected_index)
+		deselect_all_faces(level);
+	level->doors.selected_index = 0;
 }
 
 void	find_selected_door_index(t_level *level)
@@ -47,9 +54,7 @@ void	find_selected_door_index(t_level *level)
 			}
 		}
 	}
-	if (level->doors.selected_index)
-		deselect_all_faces(level);
-	level->doors.selected_index = 0;
+	deselect_door(level);
 }
 
 void	door_find_avg(t_level *level)
@@ -103,7 +108,6 @@ void	door_put_text(t_window *window, t_level *level)
 	}
 }
 
-//gizmo calls this
 void	door_activation_move(t_level *level, t_vec3 move_amount)
 {
 	int	index;
@@ -131,31 +135,28 @@ void	delete_door(t_level *level)
 	free(door->pos2);
 	free(door->indices);
 	free(door->isquad);
-	i = level->doors.selected_index - 1;
-	while (i < level->doors.door_amount - 1)
-	{
+	i = level->doors.selected_index - 2;
+	while (++i < level->doors.door_amount - 1)
 		level->doors.door[i] = level->doors.door[i + 1];
-		i++;
-	}
 	level->doors.door_amount--;
 	level->doors.door = (t_door *)ft_realloc(level->doors.door,
 			sizeof(t_door) * level->doors.door_amount - 1,
 			sizeof(t_door) * level->doors.door_amount);
 	if (!level->doors.door)
 		ft_error("memory allocation failed\n");
+	deselect_door(level);
 }
 
-void	add_new_door(t_level *level)
+t_door	*alloc_new_door(t_level *level)
 {
 	t_door	*door;
 	int		selected;
 	int		i;
 	int		k;
 
-	level->doors.door_amount++;
 	level->doors.door = (t_door *)ft_realloc(level->doors.door,
-			sizeof(t_door) * level->doors.door_amount - 1,
-			sizeof(t_door) * level->doors.door_amount);
+			sizeof(t_door) * level->doors.door_amount,
+			sizeof(t_door) * ++level->doors.door_amount);
 	if (!level->doors.door)
 		ft_error("memory allocation failed\n");
 	door = &level->doors.door[level->doors.door_amount - 1];
@@ -167,38 +168,39 @@ void	add_new_door(t_level *level)
 			selected++;
 	door->indice_amount = selected;
 	door->isquad = (int *)malloc(sizeof(int) * selected);
-	if (!door->isquad)
-		ft_error("memory allocation failed\n");
 	door->indices = (int *)malloc(sizeof(int) * selected);
-	if (!door->indices)
-		ft_error("memory allocation failed\n");
 	door->pos1 = (t_vec3 **)malloc(sizeof(t_vec3 *) * selected);
-	if (!door->pos1)
-		ft_error("memory allocation failed\n");
 	door->pos2 = (t_vec3 **)malloc(sizeof(t_vec3 *) * selected);
-	if (!door->pos2)
+	if (!door->pos2 || !door->pos1 || !door->indices || !door->isquad)
 		ft_error("memory allocation failed\n");
-	selected = 0;
-	i = -1;
-	while (++i < level->all.tri_amount)
+	return (door);
+}
+
+void	add_new_door(t_level *level)
+{
+	t_door	*door;
+	t_ivec3	i;
+
+	door = alloc_new_door(level);
+	i.z = 0;
+	i.x = -1;
+	while (++i.x < level->all.tri_amount)
 	{
-		if (level->all.tris[i].selected)
+		if (level->all.tris[i.x].selected)
 		{
-			door->isquad[selected] = level->all.tris[i].isquad;
-			door->indices[selected] = i;
-			door->pos1[selected] = (t_vec3 *)malloc(sizeof(t_vec3) * 4);
-			if (!door->pos1[selected])
+			door->isquad[i.z] = level->all.tris[i.x].isquad;
+			door->indices[i.z] = i.x;
+			door->pos1[i.z] = (t_vec3 *)malloc(sizeof(t_vec3) * 4);
+			door->pos2[i.z] = (t_vec3 *)malloc(sizeof(t_vec3) * 4);
+			if (!door->pos2[i.z] || !door->pos1[i.z])
 				ft_error("memory allocation failed\n");
-			door->pos2[selected] = (t_vec3 *)malloc(sizeof(t_vec3) * 4);
-			if (!door->pos2[selected])
-				ft_error("memory allocation failed\n");
-			k = -1;
-			while (++k < 4)
+			i.y = -1;
+			while (++i.y < 4)
 			{
-				door->pos1[selected][k] = level->all.tris[i].verts[k].pos;
-				door->pos2[selected][k] = level->all.tris[i].verts[k].pos;
+				door->pos1[i.z][i.y] = level->all.tris[i.x].verts[i.y].pos;
+				door->pos2[i.z][i.y] = level->all.tris[i.x].verts[i.y].pos;
 			}
-			selected++;
+			i.z++;
 		}
 	}
 }

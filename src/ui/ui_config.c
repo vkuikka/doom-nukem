@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/13 23:46:42 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/20 22:15:37 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -429,8 +429,9 @@ void	ui_door_editor(t_level *level)
 		level->ui.state.ui_location = UI_LOCATION_MAIN;
 	find_selected_door_index(level);
 	if (level->doors.selected_index)
-	{
 		call("delete selected door", &delete_door, level);
+	if (level->doors.selected_index)
+	{
 		call("set door start position", &set_door_pos_1, level);
 		call("set door stop position", &set_door_pos_2, level);
 		if (button(&level->doors.door[level->doors.selected_index - 1]
