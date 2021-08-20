@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/14 00:12:10 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/20 21:13:18 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -328,6 +328,7 @@ typedef struct s_door
 	t_vec3				**pos1;
 	t_vec3				**pos2;
 	int					is_activation_pos_active;
+	t_vec3				avg;
 	t_vec3				activation_pos;
 	float				transition_time;
 	unsigned int		transition_start_time;
@@ -760,6 +761,8 @@ void					ui_render_nonfatal_errors(t_level *level);
 t_ui_state				*get_ui_state(t_ui_state *get_state);
 t_window				*get_window(t_window *get_window);
 t_ivec2					render_text(char *text, int x, int y);
+void					render_text_3d(char *str, t_vec3 pos,
+							unsigned int color, t_level *level);
 void					button_pixel_put(int x, int y, int color, unsigned int *texture);
 void					ui(t_window *window, t_level *level, t_game_state *game_state);
 void					render_ssp_visual_background(unsigned int *texture);
