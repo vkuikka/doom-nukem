@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/20 22:48:34 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/20 23:16:17 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -723,7 +723,7 @@ void					set_new_face(t_level *level, t_vec3 pos, t_vec3 dir,
 							float scale);
 
 void					door_animate(t_level *level);
-void					door_put_text(t_window *window, t_level *level);
+void					door_put_text(t_level *level);
 void					add_new_door(t_level *level);
 void					delete_door(t_level *level);
 void					door_activate(t_level *level);
@@ -736,7 +736,7 @@ void					door_activation_move(t_level *level,
 t_color					lights(t_level *l, t_cast_result *res, t_vec3 normal);
 unsigned int			brightness(unsigned int color1, t_color new);
 int						nothing_selected(t_level *level);
-void					light_put_text(t_window *window, t_level *level);
+void					light_put_text(t_level *level);
 void					enable_light_editor(t_level *level);
 void					add_light(t_level *level);
 void					move_light(t_level *level, t_vec3 move_amount);
