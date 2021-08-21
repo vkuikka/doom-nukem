@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/21 22:12:58 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/21 23:40:18 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,7 @@ void	copy_tri_settings(t_tri *a, t_tri *b)
 	}
 }
 
-static void	ui_config_enemy_projectile_settings(t_level *level, t_tri *tri)
+static void	ui_config_enemy_projectile_settings(t_tri *tri)
 {
 	char	buf[100];
 
@@ -87,7 +87,7 @@ static void	ui_config_enemy_projectile_settings(t_level *level, t_tri *tri)
 		buf, 0.1, 5);
 }
 
-static void	ui_config_enemy_settings(t_level *level, t_tri *tri)
+static void	ui_config_enemy_settings(t_tri *tri)
 {
 	char	buf[100];
 
@@ -113,11 +113,10 @@ static void	ui_config_enemy_settings(t_level *level, t_tri *tri)
 		tri->enemy->attack_range);
 	float_slider(
 		&tri->enemy->attack_range, buf, 0, 10);
-	ui_config_enemy_projectile_settings(level, tri);
+	ui_config_enemy_projectile_settings(tri);
 }
 
-static void	ui_confing_face_render_settings(t_level *level,
-				t_tri *tri)
+static void	ui_confing_face_render_settings(t_tri *tri)
 {
 	char	buf[100];
 
@@ -162,9 +161,9 @@ static void	ui_confing_face_settings(t_level *level,
 			tri->reflection_obj_all->tri_amount,
 			tri->reflection_obj_first_bounce->tri_amount);
 	float_slider(&tri->reflectivity, buf, 0, 1);
-	ui_confing_face_render_settings(level, tri);
+	ui_confing_face_render_settings(tri);
 	if (tri->isenemy)
-		ui_config_enemy_settings(level, tri);
+		ui_config_enemy_settings(tri);
 }
 
 void	ui_config_selected_faces(t_level *level)
@@ -387,7 +386,6 @@ void	ui_door_settings(t_level *level)
 
 void	ui_door_editor(t_level *level)
 {
-	char		buf[100];
 	t_editor_ui	*ui;
 	int			selected;
 	int			i;
@@ -522,7 +520,6 @@ void	ui_level_settings(t_level *level)
 
 void	ui_editor(t_level *level)
 {
-	char		buf[100];
 	t_editor_ui	*ui;
 
 	ui = &level->ui;
@@ -563,8 +560,6 @@ void	ui_baking(t_level *level)
 
 void	select_editor_ui(t_level *level)
 {
-	char	buf[100];
-
 	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
 	if (level->bake_status == BAKE_BAKING)
 		ui_baking(level);

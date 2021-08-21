@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/19 18:51:47 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/20 23:44:29 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/21 23:33:58 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -167,8 +167,7 @@ void	main_menu_buttons_2(t_game_state *game_state, int *state_changed,
 void	main_menu(t_level *level, unsigned int *pixels,
 			t_game_state *game_state)
 {
-	t_rect	rect;
-	int		state_changed;
+	int	state_changed;
 
 	level->ui.state.current_font = level->ui.main_menu_font;
 	set_text_color(MAIN_MENU_FONT_COLOR);

@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/21 04:01:26 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/21 21:00:44 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/21 22:19:17 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,7 @@ void	loop_directory(char *directory, void *data,
 	{
 		if (data.cFileName[0] != '.')
 		{
-			if (data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY()
+			if (data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY())
 				(*f)(1, data.cFileName, data);
 			else
 				(*f)(0, data.cFileName, data);

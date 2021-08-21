@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/19 18:48:10 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/20 23:11:52 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/21 23:34:17 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,8 +117,6 @@ void	ingame_hud(t_level *level, unsigned int *pixels)
 
 void	hud(t_level *level, unsigned int *pixels, t_game_state game_state)
 {
-	int		width;
-
 	viewmodel(pixels, level->viewmodel[level->viewmodel_index]);
 	if (game_state == GAME_STATE_DEAD)
 	{

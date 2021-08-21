@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/06 14:13:02 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/12 11:37:49 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/21 23:46:04 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -714,7 +714,7 @@ void	open_file(char *filename, t_buffer *buf)
 	buf->data = malloc(buf->size + 1);
 	if (!buf->data)
 		ft_error("failed to allocate memory for file");
-	if (read(fd, buf->data, buf->size) != buf->size)
+	if ((size_t)read(fd, buf->data, buf->size) != buf->size)
 		ft_error("failed to read file");
 	close(fd);
 }

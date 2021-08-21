@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/06 23:29:24 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/20 23:16:04 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/21 23:40:58 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -152,7 +152,6 @@ t_door	*alloc_new_door(t_level *level)
 	t_door	*door;
 	int		selected;
 	int		i;
-	int		k;
 
 	level->doors.door = (t_door *)ft_realloc(level->doors.door,
 			sizeof(t_door) * level->doors.door_amount,
@@ -218,7 +217,12 @@ static void	set_door_pos(t_level *level, int is_pos2)
 		k = 0;
 		while (k < 4)
 		{
-			door->pos2[i][k] = level->all.tris[door->indices[i]].verts[k].pos;
+			if (is_pos2)
+				door->pos2[i][k]
+					= level->all.tris[door->indices[i]].verts[k].pos;
+			else
+				door->pos1[i][k]
+					= level->all.tris[door->indices[i]].verts[k].pos;
 			k++;
 		}
 		i++;

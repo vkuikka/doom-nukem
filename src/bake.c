@@ -28,14 +28,13 @@ void	texture_minmax(t_vec2 *min, t_vec2 *max, t_tri tri)
 	max->y = fmax(1 - tri.verts[2].txtr.y, max->y);
 }
 
-void	normalize_data(t_vec3 *uvw, t_tri tri)
+void	normalize_data(t_vec3 *uvw)
 {
 	vec_div(uvw, uvw->x + uvw->y + uvw->z);
 }
 
 void	get_uv(t_vec3 *uvw, t_ivec2 ipoint, t_tri tri, t_bmp *txtr)
 {
-	t_vec2	diff;
 	t_vec2	fp;
 	t_vec2	v0;
 	t_vec2	v1;
@@ -58,7 +57,7 @@ void	get_uv(t_vec3 *uvw, t_ivec2 ipoint, t_tri tri, t_bmp *txtr)
 	uvw->x = fabs((v0.x * (v1.y - fp.y)
 				+ v1.x * (fp.y - v0.y)
 				+ fp.x * (v0.y - v1.y)));
-	normalize_data(uvw, tri);
+	normalize_data(uvw);
 }
 
 t_vec3	uv_to_3d(t_tri tri, t_bmp *txtr, t_ivec2 point)

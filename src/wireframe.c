@@ -6,13 +6,13 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/05 16:44:10 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/14 00:17:53 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/21 22:22:23 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
 
-void	pixel_put(int x, int y, int color, unsigned int *texture)
+void	pixel_put(int x, int y, unsigned int color, unsigned int *texture)
 {
 	if (x < 0 || y < 0 || x >= RES_X || y >= RES_Y)
 		return ;
@@ -39,7 +39,7 @@ t_vec3	move2z(t_vec3 *p1, t_vec3 *p2)
 	return (intersection);
 }
 
-void	print_line(t_vec3 start, t_vec3 stop, int color, unsigned int *texture)
+void	print_line(t_vec3 start, t_vec3 stop, unsigned int color, unsigned int *texture)
 {
 	t_vec3	step;
 	t_vec3	pos;
@@ -141,7 +141,7 @@ void	camera_offset(t_vec3 *vertex, t_camera *cam)
 	vertex->y += RES_Y / 2.0;
 }
 
-void	put_normal(unsigned int *texture, t_level *level, t_tri tri, int color)
+void	put_normal(unsigned int *texture, t_level *level, t_tri tri, unsigned int color)
 {
 	t_vec3	normal;
 	t_vec3	avg;
