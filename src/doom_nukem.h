@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/21 04:27:50 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/21 05:01:44 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -647,6 +647,8 @@ void					rotate_vertex(float angle, t_vec3 *vertex, int axis);
 void					rot_cam(t_vec3 *cam, const float lon, const float lat);
 
 char					*get_current_directory(void);
+void					path_up_dir(char *path);
+void					go_in_dir(char *path, char *folder);
 
 void					init_enemy(t_tri *face);
 void					init_ui(t_window *window, t_level *level);
@@ -664,8 +666,6 @@ void					file_browser(char *str, char *extension,
 							void (*f)(t_level *, char *));
 void					file_save(char *str, char *extension,
 							void (*f)(t_level *, char *));
-void					path_up_dir(char *path);
-void					go_in_dir(char *path, char *folder);
 void					text_input(char *str, t_level *level);
 void					find_closest_mouse(t_vec3 *vert, int *i, int *k);
 

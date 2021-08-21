@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/21 03:57:37 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/21 06:56:40 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,19 +72,109 @@ void	copy_tri_settings(t_tri *a, t_tri *b)
 	}
 }
 
-void	ui_config_selected_faces(t_level *level)
+static void	ui_config_enemy_projectile_settings(t_level *level, t_tri *tri)
 {
 	char	buf[100];
-	int		selected_amount;
-	int		selected_index;
-	int		i;
+
+	sprintf(buf,
+		"projectile speed: %.1fm/s (0 = no projectile)",
+		tri->enemy->projectile_speed);
+	float_slider(&tri->enemy->projectile_speed,
+		buf, 0, 50);
+	sprintf(buf, "projectile scale: %.2f",
+		tri->enemy->projectile_scale);
+	float_slider(&tri->enemy->projectile_scale,
+		buf, 0.1, 5);
+}
+
+static void	ui_config_enemy_settings(t_level *level, t_tri *tri)
+{
+	char	buf[100];
+
+	if (!tri->enemy)
+		init_enemy(tri);
+	sprintf(buf, "distance limit: %.1fm",
+		tri->enemy->dist_limit);
+	float_slider(
+		&tri->enemy->dist_limit, buf, 1, 10);
+	sprintf(buf, "move speed: %.1fm/s",
+		tri->enemy->move_speed);
+	float_slider(
+		&tri->enemy->move_speed, buf, 0, 10);
+	sprintf(buf, "attack frequency: %.2f seconds per attack",
+		tri->enemy->attack_frequency);
+	float_slider(
+		&tri->enemy->attack_frequency, buf, 0, 5);
+	sprintf(buf, "attack damage: %.1f",
+		tri->enemy->attack_damage);
+	float_slider(
+		&tri->enemy->attack_damage, buf, 0, 50);
+	sprintf(buf, "attack range: %.1fm",
+		tri->enemy->attack_range);
+	float_slider(
+		&tri->enemy->attack_range, buf, 0, 10);
+	ui_config_enemy_projectile_settings(level, tri);
+}
+
+static void	ui_confing_face_render_settings(t_level *level,
+				t_tri *tri)
+{
+	char	buf[100];
+
+	sprintf(buf, "opacity: %.0f%%",
+		100 * tri->opacity);
+	float_slider(&tri->opacity, buf, 0, 1);
+	if (tri->opacity)
+	{
+		sprintf(buf, "refractive index: %.2f",
+			tri->refractivity);
+		float_slider(&tri->refractivity, buf, -1, 3);
+	}
+	if (button(&tri->isquad, "quad"))
+		set_fourth_vertex(tri);
+	button(&tri->isgrid, "grid");
+	int_slider(&tri->shader, "shader", 0, 2);
+	button(&tri->isbreakable, "breakable");
+	button(&tri->isenemy, "enemy");
+}
+
+static void	ui_confing_face_settings(t_level *level,
+				int selected_amount, t_tri *tri)
+{
+	char	buf[100];
+
+	if (selected_amount == 1)
+		text("Selected face:");
+	else
+	{
+		sprintf(buf, "%d faces selected:", selected_amount);
+		text(buf);
+	}
+	if (call("remove faces", &remove_faces, level))
+		return ;
+	if (!tri->reflectivity || selected_amount != 1)
+		sprintf(buf, "reflectivity: %.0f%%",
+			100 * tri->reflectivity);
+	else
+		sprintf(buf,
+			"reflectivity: %.0f%% (%d mirror %d first bounce)",
+			100 * tri->reflectivity,
+			tri->reflection_obj_all->tri_amount,
+			tri->reflection_obj_first_bounce->tri_amount);
+	float_slider(&tri->reflectivity, buf, 0, 1);
+	ui_confing_face_render_settings(level, tri);
+	if (tri->isenemy)
+		ui_config_enemy_settings(level, tri);
+}
+
+void	ui_config_selected_faces(t_level *level)
+{
+	int	selected_amount;
+	int	selected_index;
+	int	i;
 
 	selected_index = 0;
 	selected_amount = get_selected_amount(level);
-	i = -1;
-	if (selected_amount)
-		while (++i < level->all.tri_amount)
-			reflection_culling(level, i);
 	i = -1;
 	while (++i < level->all.tri_amount)
 	{
@@ -92,111 +182,18 @@ void	ui_config_selected_faces(t_level *level)
 		{
 			if (!selected_index)
 			{
-				if (selected_amount == 1)
-					text("Selected face:");
-				else
-				{
-					sprintf(buf, "%d faces selected:", selected_amount);
-					text(buf);
-				}
-				if (call("remove faces", &remove_faces, level))
-					return ;
-				if (!level->all.tris[i].reflectivity || selected_amount != 1)
-					sprintf(buf, "reflectivity: %.0f%%",
-						100 * level->all.tris[i].reflectivity);
-				else
-					sprintf(buf,
-						"reflectivity: %.0f%% (%d mirror %d first bounce)",
-						100 * level->all.tris[i].reflectivity,
-						level->all.tris[i].reflection_obj_all->tri_amount,
-						level->all.tris[i]
-						.reflection_obj_first_bounce->tri_amount);
-				float_slider(&level->all.tris[i].reflectivity, buf, 0, 1);
-				sprintf(buf, "opacity: %.0f%%",
-					100 * level->all.tris[i].opacity);
-				float_slider(&level->all.tris[i].opacity, buf, 0, 1);
-				if (level->all.tris[i].opacity)
-				{
-					sprintf(buf, "refractive index: %.2f",
-						level->all.tris[i].refractivity);
-					float_slider(&level->all.tris[i].refractivity, buf, -1, 3);
-				}
-				if (button(&level->all.tris[i].isquad, "quad"))
-					set_fourth_vertex(&level->all.tris[i]);
-				button(&level->all.tris[i].isgrid, "grid");
-				int_slider(&level->all.tris[i].shader, "shader", 0, 2);
-				button(&level->all.tris[i].isbreakable, "breakable");
-				button(&level->all.tris[i].isenemy, "enemy");
-				if (level->all.tris[i].isenemy)
-				{
-					if (!level->all.tris[i].enemy)
-						init_enemy(&level->all.tris[i]);
-					sprintf(buf, "distance limit: %.1fm",
-						level->all.tris[i].enemy->dist_limit);
-					float_slider(
-						&level->all.tris[i].enemy->dist_limit, buf, 1, 10);
-					sprintf(buf, "move speed: %.1fm/s",
-						level->all.tris[i].enemy->move_speed);
-					float_slider(
-						&level->all.tris[i].enemy->move_speed, buf, 0, 10);
-					sprintf(buf, "attack frequency: %.2f seconds per attack",
-						level->all.tris[i].enemy->attack_frequency);
-					float_slider(
-						&level->all.tris[i].enemy->attack_frequency, buf, 0, 5);
-					sprintf(buf, "attack damage: %.1f",
-						level->all.tris[i].enemy->attack_damage);
-					float_slider(
-						&level->all.tris[i].enemy->attack_damage, buf, 0, 50);
-					sprintf(buf, "attack range: %.1fm",
-						level->all.tris[i].enemy->attack_range);
-					float_slider(
-						&level->all.tris[i].enemy->attack_range, buf, 0, 10);
-					sprintf(buf,
-						"projectile speed: %.1fm/s (0 = no projectile)",
-						level->all.tris[i].enemy->projectile_speed);
-					float_slider(&level->all.tris[i].enemy->projectile_speed,
-						buf, 0, 50);
-					sprintf(buf, "projectile scale: %.2f",
-						level->all.tris[i].enemy->projectile_scale);
-					float_slider(&level->all.tris[i].enemy->projectile_scale,
-						buf, 0.1, 5);
-				}
+				ui_confing_face_settings(level,
+					selected_amount, &level->all.tris[i]);
 				selected_index = i + 1;
+				continue ;
 			}
-			else
-			{
-				if (level->all.tris[selected_index - 1].isenemy
-					&& !level->all.tris[i].enemy)
-					init_enemy(&level->all.tris[i]);
-				copy_tri_settings(&level->all.tris[i],
-					&level->all.tris[selected_index - 1]);
-			}
+			if (level->all.tris[selected_index - 1].isenemy
+				&& !level->all.tris[i].enemy)
+				init_enemy(&level->all.tris[i]);
+			copy_tri_settings(&level->all.tris[i],
+				&level->all.tris[selected_index - 1]);
 		}
 	}
-}
-
-void	go_in_dir(char *path, char *folder)
-{
-	int	i;
-	int	j;
-
-	i = 0;
-	j = 0;
-	while (path[i])
-		i++;
-#ifdef __APPLE__
-	path[i] = '/';
-#elif _WIN32
-	path[i] = '\\';
-#endif
-	i++;
-	while (folder[j])
-	{
-		path[i] = folder[j];
-		i++;
-		j++;
-	}
-	path[i] = '\0';
 }
 
 void	make_fileopen_call(t_level *level, char *file)
@@ -206,23 +203,6 @@ void	make_fileopen_call(t_level *level, char *file)
 	ft_strcpy(absolute_filename, level->ui.state.directory);
 	go_in_dir(absolute_filename, file);
 	level->ui.state.open_file(level, absolute_filename);
-}
-
-void	path_up_dir(char *path)
-{
-	int	i;
-
-	i = 0;
-	while (path[i])
-		i++;
-#ifdef __APPLE__
-	while (i && path[i] != '/')
-#elif _WIN32
-	while (i && path[i] != '\\')
-#endif
-		i--;
-	if (i)
-		path[i] = '\0';
 }
 
 #ifdef __APPLE__
@@ -383,8 +363,6 @@ void	ui_settings(t_level *level)
 
 	ui = &level->ui;
 	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
-
-
 	if (call("select spray", NULL, level))
 	{
 		level->ui.main_menu = MAIN_MENU_LOCATION_SPRAY_SELECT;
@@ -581,11 +559,6 @@ void	ui_editor(t_level *level)
 		float_slider(&level->player.projectile_scale,
 			"Player projectile scale: ", 0, 1.5);
 		button(&ui->fog, "fog");
-		// color(ui->color, "fog color");
-		// call(, "set spawn point");
-		// call(, "spawn enemy");
-		// call(, "remove enemies");
-		// button(&ui->pause_culling_position, "\tpause");
 		button(&ui->backface_culling, "backface & occlusion culling");
 		button(&ui->distance_culling, "distance culling");
 		sprintf(buf, "render distance: %.1fm", ui->render_distance);
