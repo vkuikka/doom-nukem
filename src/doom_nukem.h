@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/21 05:01:44 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/21 20:38:35 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -418,6 +418,8 @@ typedef struct s_ui_state
 	float				gizmo_dist_from_screen;
 
 	char				*directory;
+	int					find_dir;
+	int					find_extension;
 	char				*extension;
 	void				(*open_file)(struct s_level *, char *);
 }						t_ui_state;
@@ -649,6 +651,8 @@ void					rot_cam(t_vec3 *cam, const float lon, const float lat);
 char					*get_current_directory(void);
 void					path_up_dir(char *path);
 void					go_in_dir(char *path, char *folder);
+void					loop_directory(char *directory, void *data,
+							void (*f)(int, char *, void *));
 
 void					init_enemy(t_tri *face);
 void					init_ui(t_window *window, t_level *level);

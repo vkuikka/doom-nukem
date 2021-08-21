@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/21 04:01:29 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/21 05:00:25 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/21 21:00:21 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,4 +58,28 @@ void	path_up_dir(char *path)
 		i--;
 	if (i)
 		path[i] = '\0';
+}
+
+void	loop_directory(char *directory, void *data,
+					void (*f)(int, char *, void *))
+{
+	DIR				*dir;
+	struct dirent	*ent;
+
+	dir = opendir(directory);
+	if (!dir)
+		ft_error("Cannot open directory\n");
+	ent = readdir(dir);
+	while (ent != NULL)
+	{
+		if (ent->d_name[0] != '.')
+		{
+			if (ent->d_type == DT_DIR)
+				(*f)(1, ent->d_name, data);
+			else if (ent->d_type == DT_REG)
+				(*f)(0, ent->d_name, data);
+		}
+		ent = readdir(dir);
+	}
+	closedir(dir);
 }

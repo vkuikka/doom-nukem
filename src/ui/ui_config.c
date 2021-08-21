@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/21 18:21:10 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/21 22:12:58 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -205,109 +205,59 @@ void	make_fileopen_call(t_level *level, char *file)
 	level->ui.state.open_file(level, absolute_filename);
 }
 
-#ifdef __APPLE__
-void	ui_render_directory_loopdir(t_level *level, int find_dir,
-											char *extension, int find)
+void	ui_loop_directory_callback(int isdir, char *name, void *data)
 {
-	DIR				*dir;
-	struct dirent	*ent;
-	int				type;
+	t_level	*level;
+	char	*exten;
+	int		extension_match;
 
-	dir = opendir(level->ui.state.directory);
-	if (!dir)
-		ft_error("Cannot open directory\n");
-	type = DT_REG;
-	if (find_dir)
-		type = DT_DIR;
-	ent = readdir(dir);
-	while (ent != NULL)
+	level = (t_level *)data;
+	if (!isdir && !level->ui.state.find_dir)
 	{
-		if (ent->d_type == type && ent->d_name[0] != '.')
-		{
-			if (type == DT_DIR
-				|| (!find && ft_strlen(ent->d_name) > ft_strlen(extension)
-					&& ft_strcmp(extension,
-						&ent->d_name[ft_strlen(ent->d_name)
-							- ft_strlen(extension)]))
-				|| (find && ft_strlen(ent->d_name) > ft_strlen(extension)
-					&& !ft_strcmp(extension,
-						&ent->d_name[ft_strlen(ent->d_name)
-							- ft_strlen(extension)])))
-			{
-				if (type == DT_REG && call(ent->d_name, NULL, level))
-					make_fileopen_call(level, ent->d_name);
-				else if (type == DT_DIR && call(ent->d_name, NULL, level))
-					go_in_dir(level->ui.state.directory, ent->d_name);
-			}
-		}
-		ent = readdir(dir);
+		exten = level->ui.state.extension;
+		extension_match = FALSE;
+		if (ft_strlen(name) > ft_strlen(exten)
+			&& !ft_strcmp(exten, &name[ft_strlen(name) - ft_strlen(exten)]))
+			extension_match = TRUE;
+		if (level->ui.state.find_extension != extension_match)
+			if (call(name, NULL, level))
+				make_fileopen_call(level, name);
 	}
-	closedir(dir);
+	else if (isdir && level->ui.state.find_dir && call(name, NULL, level))
+		go_in_dir(level->ui.state.directory, name);
 }
 
-#elif _WIN32
-void	ui_render_directory_loopdir(t_level *level, int find_dir,
-										char *extension, int find_ext)
-{
-	WIN32_FIND_DATA	data;
-	HANDLE			dir;
-	char			*dirname;
-
-	dirname = ft_strjoin(level->ui.state.directory, "\\*");
-	dir = FindFirstFile(dirname, &data);
-	if (dir == INVALID_HANDLE_VALUE)
-		ft_error("Cannot open directory\n");
-	while (FindNextFile(dir, &data))
-	{
-		if (data.cFileName[0] != '.')
-		{
-			if (find_dir && data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY
-				&& call(data.cFileName, NULL, level))
-			{
-				go_in_dir(level->ui.state.directory, data.cFileName);
-			}
-			else if (!find_dir)
-			{
-				if (find_ext && ft_strlen(data.cFileName) > ft_strlen(extension)
-					&& !ft_strcmp(extension,
-						&data.cFileName[ft_strlen(data.cFileName)
-							- ft_strlen(extension)])
-					&& call(data.cFileName, NULL, level))
-				{
-					make_fileopen_call(level, data.cFileName);
-				}
-				else if (!find_ext
-					&& ft_strlen(data.cFileName) > ft_strlen(extension)
-					&& ft_strcmp(extension,
-						&data.cFileName[ft_strlen(data.cFileName)
-							- ft_strlen(extension)])
-					&& call(data.cFileName, NULL, level))
-				{
-					make_fileopen_call(level, data.cFileName);
-				}
-			}
-		}
-	}
-	FindClose(dir);
-	free(dirname);
-}
-#endif
-
-void	ui_render_directory(t_level *level)
+void	ui_render_directory_header(t_level *level)
 {
 	set_text_color(UI_FACE_SELECTION_TEXT_COLOR);
 	text(level->ui.state.directory);
-	if (level->ui.state.open_file != &open_level)
-		if (call("close", NULL, level))
+	if (call("close", NULL, level))
+	{
+		if (level->ui.state.open_file == &open_level)
+			level->ui.main_menu = MAIN_MENU_LOCATION_MAIN;
+		else
 			level->ui.state.ui_location = UI_LOCATION_MAIN;
+	}
 	if (call("up dir ..", NULL, level))
 		path_up_dir(level->ui.state.directory);
+}
+
+void	ui_render_directory(t_level *level)
+{
+	ui_render_directory_header(level);
 	set_text_color(UI_EDITOR_SETTINGS_TEXT_COLOR);
-	ui_render_directory_loopdir(level, 1, NULL, 0);
+	level->ui.state.find_dir = TRUE;
+	level->ui.state.find_extension = FALSE;
+	loop_directory(level->ui.state.directory, (void *)level,
+		&ui_loop_directory_callback);
 	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
-	ui_render_directory_loopdir(level, 0, level->ui.state.extension, 1);
+	level->ui.state.find_dir = FALSE;
+	loop_directory(level->ui.state.directory, (void *)level,
+		&ui_loop_directory_callback);
 	set_text_color(UI_INFO_TEXT_COLOR);
-	ui_render_directory_loopdir(level, 0, level->ui.state.extension, 0);
+	level->ui.state.find_extension = TRUE;
+	loop_directory(level->ui.state.directory, (void *)level,
+		&ui_loop_directory_callback);
 	set_text_color(UI_FACE_SELECTION_TEXT_COLOR);
 	if (level->ui.state.ui_location == UI_LOCATION_FILE_SAVE)
 	{
@@ -382,6 +332,8 @@ void	ui_settings(t_level *level)
 	char		buf[100];
 
 	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
+	if (call("close", NULL, level))
+		level->ui.main_menu = MAIN_MENU_LOCATION_MAIN;
 	if (call("select spray", NULL, level))
 	{
 		level->ui.main_menu = MAIN_MENU_LOCATION_SPRAY_SELECT;
@@ -390,10 +342,9 @@ void	ui_settings(t_level *level)
 	}
 	button(&level->ui.spray_from_view, "spray from view");
 	if (!level->ui.spray_from_view)
-	{
 		sprintf(buf, "spray size: %.1f", level->ui.spray_size);
+	if (!level->ui.spray_from_view)
 		float_slider(&level->ui.spray_size, buf, 0.1, 5);
-	}
 	ui_render_settings(level);
 	sprintf(buf, "music volume: %.0f%%",
 		100 * (level->audio.music_volume / MIX_MAX_VOLUME));
@@ -403,7 +354,6 @@ void	ui_settings(t_level *level)
 		100 * (level->audio.sound_effect_volume / MIX_MAX_VOLUME));
 	float_slider(&level->audio.sound_effect_volume, buf, 0, MIX_MAX_VOLUME);
 	Mix_Volume(-1, level->audio.sound_effect_volume);
-	ui_render_info(level);
 }
 
 void	ui_door_settings(t_level *level)
@@ -646,7 +596,10 @@ void	ui_main_menu(t_window *window, t_level *level, t_game_state *game_state)
 	if (level->ui.main_menu == MAIN_MENU_LOCATION_MAIN)
 		main_menu(level, window->ui_texture_pixels, game_state);
 	else if (level->ui.main_menu == MAIN_MENU_LOCATION_SETTINGS)
+	{
 		ui_settings(level);
+		ui_render_info(level);
+	}
 	else
 		ui_render_directory(level);
 }
