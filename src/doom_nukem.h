@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/21 03:20:16 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/21 04:27:50 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -645,6 +645,8 @@ void					set_fourth_vertex(t_tri *a);
 
 void					rotate_vertex(float angle, t_vec3 *vertex, int axis);
 void					rot_cam(t_vec3 *cam, const float lon, const float lat);
+
+char					*get_current_directory(void);
 
 void					init_enemy(t_tri *face);
 void					init_ui(t_window *window, t_level *level);
