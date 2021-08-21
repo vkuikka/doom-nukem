@@ -495,6 +495,8 @@ void	culling(t_level *level)
 	i = -1;
 	while (++i < level->all.tri_amount)
 	{
+		if (level->all.tris[i].selected)
+			reflection_culling(level, i);
 		if (level->all.tris[i].isgrid
 			|| (cull_behind(cam->front, cam->pos, level->all.tris[i])
 				&& fov_culling(side_normals, cam->pos, level->all.tris[i])
