@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/06 08:50:56 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/21 03:39:14 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/21 04:33:15 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -166,60 +166,24 @@ void	ui_render_background(t_window *window, t_level *level)
 	}
 }
 
-#ifdef __APPLE__
 void	init_ui_state(t_level *level)
 {
 	int		path_max_size;
 
-	level->ui.state.directory = (char *)malloc(sizeof(char) * PATH_MAX);
-	if (!level->ui.state.directory)
-		ft_error("memory allocation failed\n");
 	level->ui.state.extension = (char *)malloc(sizeof(char) * NAME_MAX);
 	if (!level->ui.state.extension)
 		ft_error("memory allocation failed\n");
 	level->ui.state.save_filename = (char *)malloc(sizeof(char) * NAME_MAX);
 	if (!level->ui.state.save_filename)
 		ft_error("memory allocation failed\n");
-	ft_memset(level->ui.state.directory, 0, PATH_MAX - 1);
 	ft_memset(level->ui.state.extension, 0, NAME_MAX - 1);
 	ft_memset(level->ui.state.save_filename, 0, NAME_MAX - 1);
 	level->ui.state.uv_pos.x = 0;
 	level->ui.state.uv_pos.y = 0;
 	level->ui.state.uv_zoom = 1;
-	path_max_size = PATH_MAX - 2;
-	_NSGetExecutablePath(level->ui.state.directory, &path_max_size);
-	path_up_dir(level->ui.state.directory);
-	path_up_dir(level->ui.state.directory);
+	level->ui.state.directory = get_current_directory();
 	go_in_dir(level->ui.state.directory, "level");
 }
-
-#elif _WIN32
-void	init_ui_state(t_level *level)
-{
-	int		path_max_size;
-	TCHAR	szFileName[PATH_MAX];
-
-	level->ui.state.directory = (char *)malloc(sizeof(char) * PATH_MAX);
-	if (!level->ui.state.directory)
-		ft_error("memory allocation failed\n");
-	level->ui.state.extension = (char *)malloc(sizeof(char) * NAME_MAX);
-	if (!level->ui.state.extension)
-		ft_error("memory allocation failed\n");
-	level->ui.state.save_filename = (char *)malloc(sizeof(char) * NAME_MAX);
-	if (!level->ui.state.save_filename)
-		ft_error("memory allocation failed\n");
-	ft_memset(level->ui.state.directory, 0, PATH_MAX - 1);
-	ft_memset(level->ui.state.extension, 0, NAME_MAX - 1);
-	ft_memset(level->ui.state.save_filename, 0, NAME_MAX - 1);
-	level->ui.state.uv_pos.x = 0;
-	level->ui.state.uv_pos.y = 0;
-	level->ui.state.uv_zoom = 1;
-	GetModuleFileName(NULL, szFileName, PATH_MAX);
-	ft_strcpy(level->ui.state.directory, szFileName);
-	path_up_dir(level->ui.state.directory);
-	go_in_dir(level->ui.state.directory, "level");
-}
-#endif
 
 static void	init_fonts(t_editor_ui *ui)
 {

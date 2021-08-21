@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/21 03:20:33 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/21 03:57:37 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -169,7 +169,7 @@ void	ui_config_selected_faces(t_level *level)
 					&& !level->all.tris[i].enemy)
 					init_enemy(&level->all.tris[i]);
 				copy_tri_settings(&level->all.tris[i],
-						&level->all.tris[selected_index - 1]);
+					&level->all.tris[selected_index - 1]);
 			}
 		}
 	}
@@ -577,7 +577,7 @@ void	ui_editor(t_level *level)
 		call("set menu position 2", &set_menu_pos_2, level);
 		sprintf(buf, "main menu animation time %ds",
 			level->main_menu_anim_time);
-		int_slider((int*)&level->main_menu_anim_time, buf, 2, 50);
+		int_slider((int *)&level->main_menu_anim_time, buf, 2, 50);
 		float_slider(&level->player.projectile_scale,
 			"Player projectile scale: ", 0, 1.5);
 		button(&ui->fog, "fog");
