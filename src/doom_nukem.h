@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/20 23:16:17 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/21 03:20:16 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -767,7 +767,7 @@ void					render_text_3d(char *str, t_vec3 pos,
 void					button_pixel_put(int x, int y, int color, unsigned int *texture);
 void					ui(t_window *window, t_level *level, t_game_state *game_state);
 void					render_ssp_visual_background(unsigned int *texture);
-void					render_ssp_visual_text(t_window *window, t_level *level);
+void					render_ssp_visual_text(t_level *level);
 void					ui_render_background(t_window *window, t_level *level);
 
 #endif
