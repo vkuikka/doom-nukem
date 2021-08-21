@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/01 18:48:35 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/12 11:37:58 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/21 23:52:00 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,8 +43,8 @@ static void	draw_line(t_level *l, t_vec2 line[2], t_tri *tri, float y_percent)
 				spray_coord = (int)(l->spray.width * (float)i / steps)
 					+ (int)(l->spray.height * y_percent) * l->spray.width;
 				if (spray_coord < l->spray.width * l->spray.height
-					&& spray_coord >= 0 && l->spray.image[spray_coord] << 8 * 3
-					&& l->texture.image[texture_coord] << 8 * 3)
+					&& spray_coord >= 0 && l->spray.image[spray_coord] << 8 * 3 != 0
+					&& l->texture.image[texture_coord] << 8 * 3 != 0)
 				{
 					point.x = texture.x / l->texture.width;
 					point.y = 1 - texture.y / l->texture.height;
@@ -102,7 +102,7 @@ static void	draw_square(t_level *l, t_vec2 square[4], t_tri *tri)
 	}
 }
 
-t_vec2	uv_to_2d(t_tri tri, t_bmp *txtr, t_vec2 uv, int isquad)
+t_vec2	uv_to_2d(t_tri tri, t_vec2 uv, int isquad)
 {
 	t_vec2	av0;
 	t_vec2	av1;
@@ -148,7 +148,7 @@ static int	cast_uv(t_tri t, t_ray ray, t_vec2 *uv)
 	return (1);
 }
 
-static int	raycast_face_pos(t_ray *r, t_level *l, t_obj *object, t_camera *cam)
+static int	raycast_face_pos(t_ray *r, t_obj *object)
 {
 	float	dist;
 	float	tmp;
@@ -195,7 +195,7 @@ t_vec2	corner_cam_diff(int corner, t_camera *cam)
 		cam_diff.y = cam->fov_y / RES_Y * (RES_Y / 2 - diff) - cam->fov_y / 2;
 		cam_diff.x = cam->fov_x / RES_X * (RES_X / 2 + diff) - cam->fov_x / 2;
 	}
-	else if (corner == 3)
+	else
 	{
 		cam_diff.y = cam->fov_y / RES_Y * (RES_Y / 2 + diff) - cam->fov_y / 2;
 		cam_diff.x = cam->fov_x / RES_X * (RES_X / 2 + diff) - cam->fov_x / 2;
@@ -224,9 +224,7 @@ void	move_cam(t_level *l, t_camera *cam, int hit, t_ray r)
 
 void	spray(t_camera cam, t_level *level)
 {
-	t_vec3	point;
 	t_vec2	uv;
-	t_vec2	pos;
 	t_ray	r;
 	t_vec2	corner[4];
 	t_vec2	cam_diff;
@@ -245,7 +243,7 @@ void	spray(t_camera cam, t_level *level)
 	r.dir.x += cam.up.x * cam_diff.y + cam.side.x * cam_diff.x;
 	r.dir.y += cam.up.y * cam_diff.y + cam.side.y * cam_diff.x;
 	r.dir.z += cam.up.z * cam_diff.y + cam.side.z * cam_diff.x;
-	hit = raycast_face_pos(&r, level, &level->all, &cam);
+	hit = raycast_face_pos(&r, &level->all);
 	if (hit == -1)
 		return ;
 	if (!level->ui.spray_from_view)
@@ -261,7 +259,7 @@ void	spray(t_camera cam, t_level *level)
 		r.dir.z += cam.up.z * cam_diff.y + cam.side.z * cam_diff.x;
 		if (!cast_uv(level->all.tris[hit], r, &uv))
 			return ;
-		uv = uv_to_2d(level->all.tris[hit], &level->texture, uv, 0);
+		uv = uv_to_2d(level->all.tris[hit], uv, 0);
 		corner[i].x = uv.x;
 		corner[i].y = 1.0 - uv.y;
 		corner[i].x *= level->texture.width;

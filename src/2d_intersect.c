@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/26 15:15:59 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/12 11:35:24 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/21 23:44:02 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,13 +37,14 @@ int	point_in_tri(t_vec2 pt, t_vec2 v1, t_vec2 v2, t_vec2 v3)
 ** Given three colinear points q, p, r, the function checks if point q lies on
 * line segment 'pr'
 */
-static int	on_segment(t_vec2 q, t_vec2 p, t_vec2 r)
-{
-	if (q.x <= fmax(p.x, r.x) && q.x >= fmin(p.x, r.x)
-		&& q.y <= fmax(p.y, r.y) && q.y >= fmin(p.y, r.y))
-		return (TRUE);
-	return (FALSE);
-}
+//unused what going on
+// static int	on_segment(t_vec2 q, t_vec2 p, t_vec2 r)
+// {
+// 	if (q.x <= fmax(p.x, r.x) && q.x >= fmin(p.x, r.x)
+// 		&& q.y <= fmax(p.y, r.y) && q.y >= fmin(p.y, r.y))
+// 		return (TRUE);
+// 	return (FALSE);
+// }
 
 static int	line_orientation(t_vec2 p, t_vec2 q, t_vec2 r)
 {

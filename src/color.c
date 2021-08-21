@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/21 17:32:09 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/12 14:22:45 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/21 22:20:28 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -179,7 +179,6 @@ int	smooth_color(unsigned int *pixels, int gap, int x, int y)
 void	fill_pixels(unsigned int *grid, int gap, int blur, int smooth)
 {
 	int	color;
-	int	i;
 	int	x;
 	int	y;
 

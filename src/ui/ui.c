@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/06 08:50:56 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/21 04:33:15 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/21 23:33:33 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,8 +29,7 @@ void	set_text_color(int color)
 
 static SDL_Color	get_text_color(void)
 {
-	unsigned int	get;
-	t_ui_state		*state;
+	t_ui_state	*state;
 
 	state = get_ui_state(NULL);
 	return (get_sdl_color(state->ui_text_color));
@@ -168,8 +167,6 @@ void	ui_render_background(t_window *window, t_level *level)
 
 void	init_ui_state(t_level *level)
 {
-	int		path_max_size;
-
 	level->ui.state.extension = (char *)malloc(sizeof(char) * NAME_MAX);
 	if (!level->ui.state.extension)
 		ft_error("memory allocation failed\n");

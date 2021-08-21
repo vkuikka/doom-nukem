@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/10 01:23:16 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/12 12:36:00 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/21 23:30:56 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,7 +134,7 @@ static void	noclip(t_level *level, t_vec3 *wishdir, t_vec3 *vel,
 	level->player_vel = *vel;
 }
 
-static void	rotate_wishdir(t_level *level, t_vec3 *wishdir, t_vec3 *vel)
+static void	rotate_wishdir(t_level *level, t_vec3 *wishdir)
 {
 	float	w;
 
@@ -171,6 +171,7 @@ void	air_movement(t_vec3 *wishdir, t_vec3 *vel, float delta_time)
 	float	length;
 	float	speed;
 
+	(void)delta_time;//fix this was to fix compiler unised warning
 	if (wishdir->x || wishdir->z)
 	{
 		length = sqrt(wishdir->x * wishdir->x + wishdir->z * wishdir->z);
@@ -231,7 +232,7 @@ void	player_movement(t_level *level, t_game_state game_state)
 	vel = level->player_vel;
 	delta_time = level->ui.frame_time / 1000.;
 	player_input(level, &wishdir, &height);
-	rotate_wishdir(level, &wishdir, &vel);
+	rotate_wishdir(level, &wishdir);
 	if (level->ui.noclip)
 		return (noclip(level, &wishdir, &vel, delta_time));
 	in_air = is_player_in_air(level, height);

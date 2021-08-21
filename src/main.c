@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/14 00:16:09 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/21 22:20:04 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,7 +112,7 @@ static void	render(t_window *window, t_level *level, t_game_state *game_state)
 	SDL_RenderPresent(window->SDLrenderer);
 }
 
-int	main(int argc, char **argv)
+int	main(void)
 {
 	t_window		*window;
 	t_level			*level;
