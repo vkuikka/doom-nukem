@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/13 12:51:47 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/14 00:36:09 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/21 03:02:43 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,6 @@ t_window	*get_window(t_window *get_window)
 	else
 		return (window);
 	return (NULL);
-
 }
 
 t_ui_state	*get_ui_state(t_ui_state *get_state)
@@ -123,11 +122,11 @@ void	render_button_streaming(unsigned int *texture, int *var, int dy)
 void	render_slider_streaming(unsigned int *texture,
 											float unit, int dy)
 {
-	int					x;
-	int					y;
+	int	x;
+	int	y;
 
-	y = 0;
-	while (y < 4)
+	y = -1;
+	while (++y < 4)
 	{
 		x = 0;
 		while (x < 106)
@@ -135,7 +134,6 @@ void	render_slider_streaming(unsigned int *texture,
 			button_pixel_put(x + 2, y + 6 + dy, 0x404040ff, texture);
 			x++;
 		}
-		y++;
 	}
 	y = 0;
 	while (y < 12)
@@ -172,7 +170,8 @@ int	button(int *var, char *str)
 	window = get_window(NULL);
 	state = get_ui_state(NULL);
 	state->ui_text_x_offset = 14;
-	render_button_streaming(window->ui_texture_pixels, var, state->ui_text_y_pos);
+	render_button_streaming(window->ui_texture_pixels, var,
+		state->ui_text_y_pos);
 	changed = edit_button_var(var, state);
 	text(str);
 	return (changed);
@@ -201,7 +200,8 @@ void	int_slider(int *var, char *str, int min, int max)
 	*var = clamp(*var, min, max);
 	*var -= min;
 	unit = (float)*var / (float)(max - min);
-	render_slider_streaming(window->ui_texture_pixels, unit, state->ui_text_y_pos);
+	render_slider_streaming(window->ui_texture_pixels, unit,
+		state->ui_text_y_pos);
 	edit_slider_var(&unit, state);
 	unit = clamp(unit, 0, 1);
 	*var = min + ((max - min) * unit);
@@ -222,7 +222,8 @@ void	float_slider(float *var, char *str, float min, float max)
 	*var = clamp(*var, min, max);
 	*var -= min;
 	unit = (float)*var / (float)(max - min);
-	render_slider_streaming(window->ui_texture_pixels, unit, state->ui_text_y_pos);
+	render_slider_streaming(window->ui_texture_pixels, unit,
+		state->ui_text_y_pos);
 	edit_slider_var(&unit, state);
 	unit = clamp(unit, 0, 1);
 	*var = min + ((max - min) * unit);
@@ -277,7 +278,6 @@ int	call(char *str, void (*f)(t_level *), t_level *level)
 	t_ivec2		size;
 
 	window = get_window(NULL);
-	res = 0;
 	state = get_ui_state(NULL);
 	state->ui_text_x_offset = 4;
 	color_tmp = state->ui_text_color;
@@ -286,14 +286,11 @@ int	call(char *str, void (*f)(t_level *), t_level *level)
 	if (state->ui_max_width < state->ui_text_x_offset + size.x)
 		state->ui_max_width = state->ui_text_x_offset + size.x;
 	state->ui_text_color = color_tmp;
-	render_call_streaming(
-		window->ui_texture_pixels, state->ui_text_y_pos, &size, state->ui_text_color);
-	if (edit_call_var(state, size))
-	{
-		res = 1;
-		if (*f)
-			(*f)(level);
-	}
+	render_call_streaming(window->ui_texture_pixels, state->ui_text_y_pos,
+		&size, state->ui_text_color);
+	res = edit_call_var(state, size);
+	if (res && *f)
+		(*f)(level);
 	state->ui_text_y_pos += UI_ELEMENT_HEIGHT;
 	return (res);
 }
