@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/20 23:15:46 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/21 03:20:33 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -644,7 +644,7 @@ void	ui(t_window *window, t_level *level, t_game_state *game_state)
 	if (level->ui.state.ssp_visual)
 	{
 		render_ssp_visual_background(window->ui_texture_pixels);
-		render_ssp_visual_text(window, level);
+		render_ssp_visual_text(level);
 	}
 	if (*game_state == GAME_STATE_EDITOR)
 	{
