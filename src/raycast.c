@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/23 00:39:07 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/08/23 00:49:05 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,16 +70,16 @@ static void	raytrace(t_cast_result *res, t_obj *obj, t_level *l)
 	trace_bounce(res, obj, l);
 }
 
-void	cast_all_color(t_level *l, t_obj *obj, t_cast_result *res)
+static int	cast_loop(t_obj *obj, t_cast_result *res)
 {
-	float	min_dist;
 	float	tmp_dist;
+	float	min_dist;
 	int		new_hit;
 	int		i;
 	t_vec2	uv;
 
-	min_dist = FLT_MAX;
 	i = 0;
+	min_dist = FLT_MAX;
 	new_hit = -1;
 	while (i < obj->tri_amount)
 	{
@@ -93,15 +93,23 @@ void	cast_all_color(t_level *l, t_obj *obj, t_cast_result *res)
 		}
 		i++;
 	}
+	res->uv = uv;
 	res->dist = min_dist;
+	return (new_hit);
+}
+
+void	cast_all_color(t_level *l, t_obj *obj, t_cast_result *res)
+{
+	int		new_hit;
+
+	new_hit = cast_loop(obj, res);
 	if (new_hit == -1)
 		res->color = skybox(l, *res);
 	else
 	{
-		res->uv = uv;
 		res->face_index = obj->tris[new_hit].index;
 		face_color(res->uv.x, res->uv.y, obj->tris[new_hit], res);
-		vec_mult(&res->ray.dir, min_dist);
+		vec_mult(&res->ray.dir, res->dist);
 		vec_add(&res->ray.pos, res->ray.pos, res->ray.dir);
 		raytrace(res, obj, l);
 	}
