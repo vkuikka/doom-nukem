@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/22 22:25:38 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/08/22 23:29:06 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -709,7 +709,7 @@ void					deselect_all_faces(t_level *level);
 void					save_level(t_level *level);
 void					open_level(t_level *level, char *filename);
 
-void					cast_all_color(t_ray r, t_level *l, t_obj *obj,
+void					cast_all_color(t_level *l, t_obj *obj,
 							t_cast_result *res);
 int						cull_behind(t_vec3 dir, t_vec3 pos, t_tri tri);
 int						cull_ahead(t_vec3 dir, t_vec3 pos, t_tri tri);

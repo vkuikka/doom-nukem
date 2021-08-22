@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/31 16:52:44 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/22 22:31:45 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/08/22 23:30:05 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ void	opacity(t_cast_result *res, t_level *l, t_obj *obj, float opacity)
 
 	transparent = *res;
 	if (l->all.tris[res->face_index].refractivity == 0)
-		cast_all_color(transparent.ray, l, obj, &transparent);
+		cast_all_color(l, obj, &transparent);
 	else
 	{
 		normal.pos = res->ray.pos;
@@ -27,8 +27,8 @@ void	opacity(t_cast_result *res, t_level *l, t_obj *obj, float opacity)
 		vec_mult(&normal.dir, vec_dot(transparent.ray.dir, normal.dir)
 			* l->all.tris[res->face_index].refractivity);
 		vec_add(&transparent.ray.dir, transparent.ray.dir, normal.dir);
-		cast_all_color(transparent.ray, l,
-			l->all.tris[res->face_index].opacity_obj_all, &transparent);
+		cast_all_color(l, l->all.tris[res->face_index].opacity_obj_all,
+			&transparent);
 	}
 	res->color = crossfade((unsigned int)res->color >> 8,
 			(unsigned int)transparent.color >> 8,
@@ -124,7 +124,7 @@ void	reflection(t_cast_result *res, t_level *l, t_obj *obj)
 	normal.dir = res->normal;
 	vec_mult(&normal.dir, vec_dot(reflection.ray.dir, normal.dir) * -2);
 	vec_add(&reflection.ray.dir, reflection.ray.dir, normal.dir);
-	cast_all_color(reflection.ray, l, obj, &reflection);
+	cast_all_color(l, obj, &reflection);
 	res->color = crossfade((unsigned int)res->color >> 8, reflection.color >> 8,
 			l->all.tris[res->face_index].reflectivity * 0xff,
 			(unsigned int)res->color << 24 >> 24);
