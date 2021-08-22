@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   physics.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/10 01:23:16 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/21 23:30:56 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/22 22:26:08 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,13 +78,13 @@ static int	player_collision(t_vec3 *vel, t_vec3 *pos, t_level *level,
 	r.dir.x = 0;
 	r.dir.y = 1;
 	r.dir.z = 0;
-	dist = cast_all(r, level, NULL, NULL, &index);
+	dist = cast_all(r, level, &index);
 	if (dist != FLT_MAX && dist <= height) // set height to ground
 		pos->y -= height - dist;
 	r.pos = *pos;
 	r.pos.y += height / PLAYER_HEIGHT_MAGIC;
 	r.dir = *vel;
-	dist = cast_all(r, level, NULL, NULL, &index);
+	dist = cast_all(r, level, &index);
 	if (dist != FLT_MAX
 		&& -level->all.tris[index].normal.y < WALKABLE_NORMAL_MIN_Y // is not floor
 		&& dist <= vec_length(*vel) + WALL_CLIP_DIST) // is in clip distance
@@ -109,7 +109,7 @@ int	is_player_in_air(t_level *level, float height)
 	r.dir.x = 0;
 	r.dir.y = 1;
 	r.dir.z = 0;
-	dist = cast_all(r, level, NULL, NULL, &index);
+	dist = cast_all(r, level, &index);
 	if (dist < height + .02
 		&& -level->all.tris[index].normal.y > WALKABLE_NORMAL_MIN_Y
 		&& !level->ui.noclip)

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   doom_nukem.h                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/21 20:38:35 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/22 22:25:38 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -622,8 +622,7 @@ void					read_input(t_window *window, t_level *level,
 void					game_logic(t_level *level, t_game_state *game_state);
 int						raycast(void *t);
 float					cast_face(t_tri t, t_ray ray, t_cast_result *res);
-float					cast_all(t_ray vec, t_level *level, float *dist_u,
-							float *dist_d, int *index);
+float					cast_all(t_ray vec, t_level *level, int *index);
 void					fill_pixels(unsigned int *grid, int pixel_gap,
 							int blur, int smooth);
 unsigned int			crossfade(unsigned int color1, unsigned int color2,

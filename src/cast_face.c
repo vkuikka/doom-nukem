@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   cast_face.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/20 12:35:22 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/12 11:35:41 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/22 22:30:54 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
 
-float	cast_all(t_ray vec, t_level *level, float *dist_u, float *dist_d, int *index)
+float	cast_all(t_ray vec, t_level *level, int *index)
 {
 	float	res;
 	float	tmp;
@@ -26,14 +26,7 @@ float	cast_all(t_ray vec, t_level *level, float *dist_u, float *dist_d, int *ind
 		if (!level->all.tris[i].isprojectile && !level->all.tris[i].isenemy)
 		{
 			tmp = cast_face(level->all.tris[i], vec, NULL);
-			if (dist_u != NULL)
-			{
-				if (tmp > 0 && tmp < *dist_d)
-					*dist_d = tmp;
-				else if (tmp < 0 && tmp > *dist_u)
-					*dist_u = tmp;
-			}
-			else if (tmp > 0 && tmp < res)
+			if (tmp > 0 && tmp < res)
 			{
 				res = tmp;
 				if (index)

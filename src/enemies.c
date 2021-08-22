@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   enemies.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/14 17:08:49 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/12 14:33:03 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/22 22:25:53 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,7 +151,7 @@ void	move_enemy(t_tri *face, t_level *level, float time)
 		vec_add(&e.pos, e.pos, face->verts[i].pos);
 	vec_div(&e.pos, 3 + face->isquad);
 	vec_sub(&e.dir, player, e.pos);
-	dist = cast_all(e, level, NULL, NULL, NULL);
+	dist = cast_all(e, level, NULL);
 	if (player.y > e.pos.y - ENEMY_MOVABLE_HEIGHT_DIFF
 		&& player.y < e.pos.y + ENEMY_MOVABLE_HEIGHT_DIFF)
 	{
@@ -223,7 +223,7 @@ static void	move_projectile(t_tri *face, t_level *level, float time)
 		return ;
 	}
 	e.dir = face->projectile->dir;
-	dist = cast_all(e, level, NULL, NULL, &hit_index);
+	dist = cast_all(e, level, &hit_index);
 	vec_mult(&e.dir, face->projectile->speed * time);
 	if (dist <= vec_length(e.dir)
 		|| face->projectile->dist > MAX_PROJECTILE_TRAVEL)

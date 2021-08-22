@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   shaders.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/31 16:52:44 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/12 11:37:54 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/22 22:31:45 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,8 +95,7 @@ t_color	lights(t_level *l, t_cast_result *res, t_vec3 normal)
 				result.b += (1.0 - dist / l->lights[i].radius)
 					* l->lights[i].color.b * -vec_dot(diff, res->normal);
 			}
-			else if (cast_all(ray, l, NULL, NULL, NULL)
-				>= vec_length(diff) - 0.1)
+			else if (cast_all(ray, l, NULL) >= vec_length(diff) - 0.1)
 			{
 				vec_normalize(&diff);
 				result.r += (1.0 - dist / l->lights[i].radius)
