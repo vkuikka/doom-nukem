@@ -6,11 +6,12 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/08 14:38:45 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/13 18:03:38 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/23 00:17:37 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
+#include "embed.h"
 
 SDL_Texture	*empty_texture(SDL_Renderer *renderer)
 {
@@ -60,8 +61,8 @@ t_level	*init_level(void)
 		level->texture.width * level->texture.height * 4);
 	level->bake_status = BAKE_NOT_BAKED;
 	level->normal_map = bmp_read("normal.bmp");
-	load_obj("embed/skybox.obj", &level->sky.all);
-	load_obj("embed/skybox.obj", &level->sky.visible);
+	load_obj_from_memory(&embed_skybox_obj[0], embed_skybox_obj_len, &level->sky.all);
+	load_obj_from_memory(&embed_skybox_obj[0], embed_skybox_obj_len, &level->sky.visible);
 	level->sky.img = bmp_read("skybox.bmp");
 	level->spray = bmp_read("spray.bmp");
 	level->main_menu_title = bmp_read("embed/title.bmp");
