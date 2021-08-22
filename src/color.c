@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   color.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/21 17:32:09 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/21 22:20:28 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/23 00:30:55 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,12 +55,16 @@ unsigned int	brightness(unsigned int color1, t_color new)
 	return ((newr << 8 * 3) + (newg << 8 * 2) + (newb << 8 * 1));
 }
 
-int	skybox(t_level *l, t_obj *obj, t_ray r)
+int	skybox(t_level *l, t_cast_result res)
 {
-	t_cast_result	res;
 	t_color			tmp;
+	t_obj			*obj;
 	int				i;
 
+	if (res.reflection_depth)
+		obj = &l->sky.all;
+	else
+		obj = &l->sky.visible;
 	if (l->skybox_brightness != 0)
 	{
 		tmp.r = l->skybox_brightness;
@@ -74,9 +78,9 @@ int	skybox(t_level *l, t_obj *obj, t_ray r)
 		tmp.b = l->ui.sun_color.b + l->world_brightness;
 	}
 	res.color = 0;
-	r.pos.x = 0;
-	r.pos.y = 0;
-	r.pos.z = 0;
+	res.ray.pos.x = 0;
+	res.ray.pos.y = 0;
+	res.ray.pos.z = 0;
 	res.texture = &l->sky.img;
 	res.normal_map = NULL;
 	res.baked = NULL;
@@ -85,7 +89,7 @@ int	skybox(t_level *l, t_obj *obj, t_ray r)
 	i = 0;
 	while (i < obj->tri_amount)
 	{
-		if (0 < cast_face(obj->tris[i], r, &res))
+		if (0 < cast_face(obj->tris[i], res.ray, &res))
 		{
 			face_color(res.uv.x, res.uv.y, obj->tris[i], &res);
 			res.color = brightness(res.color >> 8, tmp) + 0xff;
@@ -96,7 +100,7 @@ int	skybox(t_level *l, t_obj *obj, t_ray r)
 	return (res.color);
 }
 
-int	fog(int color, float dist, unsigned int fog_color, t_level *level)
+void	fog(unsigned int *color, float dist, unsigned int fog_color, t_level *level)
 {
 	float	fade;
 
@@ -105,9 +109,10 @@ int	fog(int color, float dist, unsigned int fog_color, t_level *level)
 		fade = (dist + 1) / (level->ui.render_distance - 1);
 		if (fade > 1)
 			fade = 1;
-		return (crossfade(color >> 8, fog_color >> 8, 0xff * fade, 0xff));
+		*color = crossfade(*color >> 8, fog_color >> 8, 0xff * fade, 0xff);
 	}
-	return (fog_color);
+	else
+		*color = fog_color;
 }
 
 void	blur_pixels(unsigned int *color, int gap)

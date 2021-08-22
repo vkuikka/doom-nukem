@@ -3,19 +3,19 @@
 /*                                                        :::      ::::::::   */
 /*   screen_space_partition.c                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/09 12:03:36 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/12 11:37:40 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/22 23:55:09 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
 
-int	get_ssp_index(int xd, int yd)
+int	get_ssp(t_ivec2 pixel)
 {
-	return ((int)((float)xd / RES_X * SSP_MAX_X)
-			+ (int)((float)yd / RES_Y * SSP_MAX_Y) * SSP_MAX_X);
+	return ((int)((float)pixel.x / RES_X * SSP_MAX_X)
+			+ (int)((float)pixel.y / RES_Y * SSP_MAX_Y) * SSP_MAX_X);
 }
 
 int	get_ssp_coordinate(int coord, int horizontal)

@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/22 23:29:06 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/08/23 00:28:56 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -614,13 +614,13 @@ t_level					*init_level(void);
 
 void					screen_space_partition(t_level *level);
 void					init_screen_space_partition(t_level *level);
-int						get_ssp_index(int x, int y);
+int						get_ssp(t_ivec2 pixel);
 int						get_ssp_coordinate(int coord, int horizontal);
 
 void					read_input(t_window *window, t_level *level,
 							t_game_state *game_state);
 void					game_logic(t_level *level, t_game_state *game_state);
-int						raycast(void *t);
+int						init_raycast(void *t);
 float					cast_face(t_tri t, t_ray ray, t_cast_result *res);
 float					cast_all(t_ray vec, t_level *level, int *index);
 void					fill_pixels(unsigned int *grid, int pixel_gap,
@@ -690,9 +690,9 @@ void					player_movement(t_level *level,
 void					enemies_update_physics(t_level *level);
 void					enemies_update_sprites(t_level *level);
 
-int						fog(int color, float dist, unsigned int fog_color,
+void					fog(unsigned int *color, float dist, unsigned int fog_color,
 							t_level *level);
-int						skybox(t_level *l, t_obj *obj, t_ray r);
+int						skybox(t_level *l, t_cast_result res);
 
 void					opacity(t_cast_result *res, t_level *l, t_obj *obj,
 							float opacity);
