@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/21 22:20:04 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/23 00:04:13 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ static void	render_raycast(t_window *window, t_level *level)
 			thread_data[i]->id = i;
 			thread_data[i]->level = level;
 			thread_data[i]->window = window;
-			threads[i] = SDL_CreateThread(raycast, "asd",
+			threads[i] = SDL_CreateThread(init_raycast, "asd",
 					(void *)thread_data[i]);
 			i++;
 		}
