@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/22 23:45:00 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/23 06:39:04 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -637,6 +637,8 @@ void					load_obj(char *filename, t_obj *obj);
 void					load_obj_from_memory(unsigned char *data,
 							unsigned int size, t_obj *obj);
 t_bmp					bmp_read(char *str);
+t_bmp					bmp_read_from_memory(unsigned char *data,
+								unsigned int size);
 
 void					culling(t_level *level);
 int						occlusion_culling(t_tri tri, t_level *level);
