@@ -42,7 +42,8 @@ void	get_uv(t_vec3 *uvw, t_ivec2 ipoint, t_tri tri, t_bmp *txtr)
 
 	fp.x = (float)ipoint.x / txtr->width;
 	fp.y = 1 - (float)ipoint.y / txtr->height;
-	if (!point_in_tri(fp, tri.verts[0].txtr, tri.verts[1].txtr, tri.verts[2].txtr))
+	if (!point_in_tri(fp, tri.verts[0].txtr,
+			tri.verts[1].txtr, tri.verts[2].txtr))
 		v0 = tri.verts[3].txtr;
 	else
 		v0 = tri.verts[0].txtr;
@@ -66,13 +67,13 @@ t_vec3	uv_to_3d(t_tri tri, t_bmp *txtr, t_ivec2 point)
 	t_vec3	av0;
 	t_vec3	av1;
 	t_vec3	av2;
-	t_vec3	res;
 	t_vec2	fp;
 
 	get_uv(&uvw, point, tri, txtr);
 	fp.x = (float)point.x / txtr->width;
 	fp.y = 1 - (float)point.y / txtr->height;
-	if (!point_in_tri(fp, tri.verts[0].txtr, tri.verts[1].txtr, tri.verts[2].txtr))
+	if (!point_in_tri(fp, tri.verts[0].txtr,
+			tri.verts[1].txtr, tri.verts[2].txtr))
 		av0 = tri.verts[3].pos;
 	else
 		av0 = tri.verts[0].pos;
@@ -81,10 +82,9 @@ t_vec3	uv_to_3d(t_tri tri, t_bmp *txtr, t_ivec2 point)
 	vec_mult(&av0, uvw.z);
 	vec_mult(&av1, uvw.y);
 	vec_mult(&av2, uvw.x);
-	res = av0;
-	vec_add(&res, res, av1);
-	vec_add(&res, res, av2);
-	return (res);
+	vec_add(&av0, av0, av1);
+	vec_add(&av0, av0, av2);
+	return (av0);
 }
 
 static void	wrap_coords(int *x, int *y, int max_x, int max_y)
@@ -208,16 +208,17 @@ void	clear_bake(t_level *level)
 
 void	start_bake(t_level *level)
 {
-	if (level->texture.width != level->normal_map.width ||
-		level->texture.height != level->normal_map.height)
+	if (level->texture.width != level->normal_map.width
+		|| level->texture.height != level->normal_map.height)
 	{
 		nonfatal_error(level, "texture and normal map are not same size");
-		return;
+		return ;
 	}
-	if (level->baked_size.x != level->texture.width || level->baked_size.y != level->texture.height)
+	if (level->baked_size.x != level->texture.width
+		|| level->baked_size.y != level->texture.height)
 		level->baked = ft_realloc(level->baked,
-			sizeof(t_color) * level->baked_size.x * level->baked_size.y,
-			sizeof(t_color) * level->texture.height * level->texture.width);
+				sizeof(t_color) * level->baked_size.x * level->baked_size.y,
+				sizeof(t_color) * level->texture.height * level->texture.width);
 	if (level->bake_status == BAKE_NOT_BAKED)
 	{
 		clear_bake(level);
