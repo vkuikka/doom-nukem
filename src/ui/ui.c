@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/06 08:50:56 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/21 23:33:33 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/23 20:43:48 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -182,29 +182,11 @@ void	init_ui_state(t_level *level)
 	go_in_dir(level->ui.state.directory, "level");
 }
 
-static void	init_fonts(t_editor_ui *ui)
-{
-	TTF_Init();
-	ui->editor_font = TTF_OpenFont("embed/Roboto-Medium.ttf", UI_FONT_SIZE);
-	ui->hud_font = TTF_OpenFont("embed/digital.ttf", HUD_FONT_SIZE);
-	ui->main_menu_font = TTF_OpenFont("embed/Roboto-Medium.ttf",
-			MAIN_MENU_FONT_SIZE);
-	ui->win_lose_font = TTF_OpenFont("embed/Roboto-Medium.ttf",
-			HUD_GAME_EVENT_FONT_SIZE);
-	if (!ui->editor_font || !ui->hud_font
-		|| !ui->main_menu_font || !ui->win_lose_font)
-	{
-		printf("TTF_OpenFont: %s\n", TTF_GetError());
-		ft_error("font open fail");
-	}
-}
-
 static void	init_ui_settings(t_level *level)
 {
 	t_editor_ui	*ui;
 
 	ui = &level->ui;
-	ft_bzero(ui, sizeof(t_editor_ui));
 	ui->noclip = TRUE;
 	ui->blur = FALSE;
 	ui->smooth_pixels = FALSE;
@@ -230,7 +212,7 @@ static void	init_ui_settings(t_level *level)
 
 void	init_ui(t_window *window, t_level *level)
 {
-	int				width;
+	int	width;
 
 	window->text_texture = SDL_CreateTexture(window->SDLrenderer,
 			SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, RES_X, RES_Y);
@@ -244,7 +226,6 @@ void	init_ui(t_window *window, t_level *level)
 	if (SDL_LockTexture(window->ui_texture, NULL,
 			(void **)&window->ui_texture_pixels, &width) != 0)
 		ft_error("failed to lock texture\n");
-	init_fonts(&level->ui);
 	get_ui_state(&level->ui.state);
 	get_window(window);
 }

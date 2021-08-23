@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/08 14:38:45 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/23 07:11:10 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/23 20:40:07 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,27 @@ SDL_Texture	*empty_texture(SDL_Renderer *renderer)
 	SDL_RenderClear(renderer);
 	SDL_SetRenderTarget(renderer, NULL);
 	return (texture);
+}
+
+static void	init_fonts(t_editor_ui *ui)
+{
+	SDL_RWops*	mem;
+
+	TTF_Init();
+	mem = SDL_RWFromMem((void *)&embed_digital_ttf[0], (int)embed_digital_ttf_len);
+	ui->hud_font = TTF_OpenFontRW(mem, 1, HUD_FONT_SIZE);
+	mem = SDL_RWFromMem((void *)&embed_Roboto_Medium_ttf[0], (int)embed_Roboto_Medium_ttf_len);
+	ui->editor_font = TTF_OpenFontRW(mem, 1, UI_FONT_SIZE);
+	mem = SDL_RWFromMem((void *)&embed_Roboto_Medium_ttf[0], (int)embed_Roboto_Medium_ttf_len);
+	ui->main_menu_font = TTF_OpenFontRW(mem, 1, MAIN_MENU_FONT_SIZE);
+	mem = SDL_RWFromMem((void *)&embed_Roboto_Medium_ttf[0], (int)embed_Roboto_Medium_ttf_len);
+	ui->win_lose_font = TTF_OpenFontRW(mem, 1, HUD_GAME_EVENT_FONT_SIZE);
+	if (!ui->editor_font || !ui->hud_font
+		|| !ui->main_menu_font || !ui->win_lose_font)
+	{
+		printf("TTF_OpenFont: %s\n", TTF_GetError());
+		ft_error("font open fail");
+	}
 }
 
 t_level	*init_level(void)
@@ -78,6 +99,7 @@ t_level	*init_level(void)
 			* level->all.tri_amount);
 	if (!level->visible.tris)
 		ft_error("memory allocation failed\n");
+	init_fonts(&level->ui);
 	return (level);
 }
 
