@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/31 16:52:44 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/22 23:30:05 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/08/24 18:38:27 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,54 +64,40 @@ t_color	sunlight(t_level *l, t_cast_result *res, t_color light)
 	return (light);
 }
 
+static void	color_set(t_color *col, float value)
+{
+	col->r = value;
+	col->g = value;
+	col->b = value;
+}
+
 t_color	lights(t_level *l, t_cast_result *res, t_vec3 normal)
 {
 	t_ray	ray;
 	t_vec3	diff;
 	float	dist;
-	t_color	result;
+	t_color	col;
 	int		i;
 
-	i = 0;
-	result.r = 0;
-	result.g = 0;
-	result.b = 0;
-	while (i < l->light_amount)
+	i = -1;
+	color_set(&col, l->world_brightness);
+	while (++i < l->light_amount)
 	{
 		vec_sub(&diff, res->ray.pos, l->lights[i].pos);
-		dist = vec_length(diff);
+		dist = 1.0 - vec_length(diff) / l->lights[i].radius;
 		ray.pos = l->lights[i].pos;
 		ray.dir = diff;
-		if (dist < l->lights[i].radius && vec_dot(diff, res->normal) < 0
-			&& vec_dot(diff, normal) < 0)
+		if (dist > 0 && vec_dot(diff, res->normal) < 0
+			&& vec_dot(diff, normal) < 0 && (!res->raytracing
+				|| cast_all(ray, l, NULL) >= vec_length(diff) - 0.1))
 		{
-			if (!res->raytracing)
-			{
-				vec_normalize(&diff);
-				result.r += (1.0 - dist / l->lights[i].radius)
-					* l->lights[i].color.r * -vec_dot(diff, res->normal);
-				result.g += (1.0 - dist / l->lights[i].radius)
-					* l->lights[i].color.g * -vec_dot(diff, res->normal);
-				result.b += (1.0 - dist / l->lights[i].radius)
-					* l->lights[i].color.b * -vec_dot(diff, res->normal);
-			}
-			else if (cast_all(ray, l, NULL) >= vec_length(diff) - 0.1)
-			{
-				vec_normalize(&diff);
-				result.r += (1.0 - dist / l->lights[i].radius)
-					* l->lights[i].color.r * -vec_dot(diff, res->normal);
-				result.g += (1.0 - dist / l->lights[i].radius)
-					* l->lights[i].color.g * -vec_dot(diff, res->normal);
-				result.b += (1.0 - dist / l->lights[i].radius)
-					* l->lights[i].color.b * -vec_dot(diff, res->normal);
-			}
+			vec_normalize(&diff);
+			col.r += dist * l->lights[i].color.r * -vec_dot(diff, res->normal);
+			col.g += dist * l->lights[i].color.g * -vec_dot(diff, res->normal);
+			col.b += dist * l->lights[i].color.b * -vec_dot(diff, res->normal);
 		}
-		i++;
 	}
-	result.r += l->world_brightness;
-	result.g += l->world_brightness;
-	result.b += l->world_brightness;
-	return (result);
+	return (col);
 }
 
 void	reflection(t_cast_result *res, t_level *l, t_obj *obj)
