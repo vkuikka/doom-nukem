@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/19 18:51:47 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/24 02:51:15 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/24 22:35:48 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,38 +48,51 @@ static void	main_menu_text_background(t_rect rect, unsigned int *pixels)
 	}
 }
 
+unsigned int	black_and_white(unsigned int color)
+{
+	unsigned char	*rgb;
+	unsigned int	res;
+	float			amount;
+
+	amount = 1.0;
+	rgb = (unsigned char *)&color;
+	res = 0;
+	res += rgb[3];
+	res += rgb[2];
+	res += rgb[1];
+	res /= 3;
+	rgb[3] = res * amount + rgb[3] * (1 - amount);
+	rgb[2] = res * amount + rgb[2] * (1 - amount);
+	rgb[1] = res * amount + rgb[1] * (1 - amount);
+	return ((unsigned int)*(int *)rgb);
+}
+
 static void	main_menu_title(t_bmp *img, unsigned int *pixels)
 {
-	int	x;
-	int	y;
-	int	r;
-	static float a = 0;
-	a += .02;
-	// printf("%f\n", sinf(a));
-	unsigned off = 1 + 6 * (1 + sinf(a));
+	static int		disturbance_y = 0;
+	static float	x_amount = 0;
+	unsigned int	screen_x;
+	unsigned int	color;
+	t_ivec3			i;
 
-	y = 0;
-	while (y < img->height)
+	x_amount += .02;
+	disturbance_y++;
+	disturbance_y = disturbance_y % img->height;
+	i.y = -1;
+	while (++i.y < img->height)
 	{
-		x = 0;
-		// printf("off=%u\n", off);
-		r = rand() % (2 + off);
-		r -= 6;
-		// printf("r= %d\n", r);
-		// if (y == img->height - 1 || y == 0)
-			// r = 0;
-		while (x < img->width)
+		i.z = (rand() % (int)(3 + 6 * (1 + sinf(x_amount)))) - 6;
+		if (i.y > disturbance_y - 5 && i.y < disturbance_y + 5)
+			i.z = (rand() % 15) - 6;
+		i.x = -1;
+		while (++i.x < img->width)
 		{
-			int nx = (RES_X / 2 - img->width / 2) + r + x;
-			// nx = x;
-			// if (nx >= 0 && y >= 0 && nx < RES_X && y < RES_Y)
-			{
-				pixels[nx + y * RES_X]
-					= img->image[x + y * img->width];
-			}
-			x++;
+			screen_x = (RES_X / 2 - img->width / 2) + i.z + i.x;
+			color = img->image[i.x + i.y * img->width];
+			if (disturbance_y < 6 && disturbance_y % 2)
+				color = black_and_white(img->image[i.x + i.y * img->width]);
+			pixels[screen_x + i.y * RES_X] = color;
 		}
-		y++;
 	}
 }
 
