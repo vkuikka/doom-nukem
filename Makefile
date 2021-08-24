@@ -6,7 +6,7 @@
 #    By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/12/08 13:46:11 by vkuikka           #+#    #+#              #
-#    Updated: 2021/08/23 06:52:41 by rpehkone         ###   ########.fr        #
+#    Updated: 2021/08/23 22:40:41 by rpehkone         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -38,7 +38,7 @@ ifeq ($(OS),Windows_NT)
 	gcc $(FLAGS) -O3  $(FILES) src/filesystem_windows.c $(LIB) -I $(INCLUDE) -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf -lSDL2_mixer -lws2_32 -o $(NAME)
 else
 	$(foreach file, $(EMBED), xxd -i $(file) >> embed.h;)
-	gcc $(FLAGS) -O3 -fsanitize=address $(SDL_HEADER) $(SDL_FRAMEWORKS) -F ./ $(FILES) src/filesystem_macos.c $(LIB) -I $(INCLUDE) -o $(NAME) -rpath @executable_path
+	-gcc $(FLAGS) -O3 -fsanitize=address $(SDL_HEADER) $(SDL_FRAMEWORKS) -F ./ $(FILES) src/filesystem_macos.c $(LIB) -I $(INCLUDE) -o $(NAME) -rpath @executable_path
 	rm embed.h
 endif
 

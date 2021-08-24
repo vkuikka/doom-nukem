@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/08 14:38:45 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/23 20:40:07 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/24 03:01:28 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,14 +49,26 @@ static void	init_fonts(t_editor_ui *ui)
 	}
 }
 
-t_level	*init_level(void)
+void	init_embedded(t_level *level)
 {
-	t_level	*level;
+	level->main_menu_title = bmp_read_from_memory(&embed_title_bmp[0], embed_title_bmp_len);
+	level->viewmodel[0] = bmp_read_from_memory(&embed_viewmodel_ak_0_bmp[0], embed_viewmodel_ak_0_bmp_len);
+	level->viewmodel[1] = bmp_read_from_memory(&embed_viewmodel_ak_1_bmp[0], embed_viewmodel_ak_1_bmp_len);
+	level->viewmodel[2] = bmp_read_from_memory(&embed_viewmodel_ak_2_bmp[0], embed_viewmodel_ak_2_bmp_len);
+	level->viewmodel[3] = bmp_read_from_memory(&embed_viewmodel_ak_3_bmp[0], embed_viewmodel_ak_3_bmp_len);
+	level->viewmodel[4] = bmp_read_from_memory(&embed_viewmodel_ak_4_bmp[0], embed_viewmodel_ak_4_bmp_len);
+	level->viewmodel[5] = bmp_read_from_memory(&embed_viewmodel_ak_5_bmp[0], embed_viewmodel_ak_5_bmp_len);
+	level->viewmodel[6] = bmp_read_from_memory(&embed_viewmodel_ak_6_bmp[0], embed_viewmodel_ak_6_bmp_len);
+	level->viewmodel[7] = bmp_read_from_memory(&embed_viewmodel_ak_7_bmp[0], embed_viewmodel_ak_7_bmp_len);
+	level->viewmodel[8] = bmp_read_from_memory(&embed_viewmodel_ak_8_bmp[0], embed_viewmodel_ak_8_bmp_len);
+	level->viewmodel[9] = bmp_read_from_memory(&embed_viewmodel_ak_9_bmp[0], embed_viewmodel_ak_9_bmp_len);
+	load_obj_from_memory(&embed_skybox_obj[0], embed_skybox_obj_len, &level->sky.all);
+	load_obj_from_memory(&embed_skybox_obj[0], embed_skybox_obj_len, &level->sky.visible);
+	init_fonts(&level->ui);
+}
 
-	level = (t_level *)malloc(sizeof(t_level));
-	if (!level)
-		ft_error("memory allocation failed\n");
-	ft_bzero(level, sizeof(t_level));
+void	init_level(t_level *level)
+{
 	level->player_health = PLAYER_HEALTH_MAX;
 	level->player_ammo = PLAYER_AMMO_MAX;
 	level->win_dist = INITIAL_LEVEL_WIN_DIST;
@@ -80,27 +92,19 @@ t_level	*init_level(void)
 		level->texture.width * level->texture.height * 4);
 	level->bake_status = BAKE_NOT_BAKED;
 	level->normal_map = bmp_read("normal.bmp");
-	load_obj_from_memory(&embed_skybox_obj[0], embed_skybox_obj_len, &level->sky.all);
-	load_obj_from_memory(&embed_skybox_obj[0], embed_skybox_obj_len, &level->sky.visible);
 	level->sky.img = bmp_read("skybox.bmp");
 	level->spray = bmp_read("spray.bmp");
-	level->main_menu_title = bmp_read_from_memory(&embed_title_bmp[0], embed_title_bmp_len);
-	level->viewmodel[0] = bmp_read_from_memory(&embed_viewmodel_ak_0_bmp[0], embed_viewmodel_ak_0_bmp_len);
-	level->viewmodel[1] = bmp_read_from_memory(&embed_viewmodel_ak_1_bmp[0], embed_viewmodel_ak_1_bmp_len);
-	level->viewmodel[2] = bmp_read_from_memory(&embed_viewmodel_ak_2_bmp[0], embed_viewmodel_ak_2_bmp_len);
-	level->viewmodel[3] = bmp_read_from_memory(&embed_viewmodel_ak_3_bmp[0], embed_viewmodel_ak_3_bmp_len);
-	level->viewmodel[4] = bmp_read_from_memory(&embed_viewmodel_ak_4_bmp[0], embed_viewmodel_ak_4_bmp_len);
-	level->viewmodel[5] = bmp_read_from_memory(&embed_viewmodel_ak_5_bmp[0], embed_viewmodel_ak_5_bmp_len);
-	level->viewmodel[6] = bmp_read_from_memory(&embed_viewmodel_ak_6_bmp[0], embed_viewmodel_ak_6_bmp_len);
-	level->viewmodel[7] = bmp_read_from_memory(&embed_viewmodel_ak_7_bmp[0], embed_viewmodel_ak_7_bmp_len);
-	level->viewmodel[8] = bmp_read_from_memory(&embed_viewmodel_ak_8_bmp[0], embed_viewmodel_ak_8_bmp_len);
-	level->viewmodel[9] = bmp_read_from_memory(&embed_viewmodel_ak_9_bmp[0], embed_viewmodel_ak_9_bmp_len);
 	level->visible.tris = (t_tri *)malloc(sizeof(t_tri)
 			* level->all.tri_amount);
 	if (!level->visible.tris)
 		ft_error("memory allocation failed\n");
-	init_fonts(&level->ui);
-	return (level);
+	load_obj("level/ship.obj", &level->all);
+	level->visible.tris
+		= (t_tri *)malloc(sizeof(t_tri) * level->all.tri_amount);
+	if (!level->visible.tris)
+		ft_error("memory allocation failed\n");
+	init_screen_space_partition(level);
+	init_culling(level);
 }
 
 void	init_window(t_window **window)

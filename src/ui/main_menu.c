@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/19 18:51:47 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/21 23:33:58 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/24 02:51:15 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,18 +52,30 @@ static void	main_menu_title(t_bmp *img, unsigned int *pixels)
 {
 	int	x;
 	int	y;
+	int	r;
+	static float a = 0;
+	a += .02;
+	// printf("%f\n", sinf(a));
+	unsigned off = 1 + 6 * (1 + sinf(a));
 
 	y = 0;
-	while (y < RES_Y && y < img->height)
+	while (y < img->height)
 	{
 		x = 0;
-		while (x < RES_X)
+		// printf("off=%u\n", off);
+		r = rand() % (2 + off);
+		r -= 6;
+		// printf("r= %d\n", r);
+		// if (y == img->height - 1 || y == 0)
+			// r = 0;
+		while (x < img->width)
 		{
-			if (x >= 0 && y >= 0 && x < RES_X && y < RES_Y)
+			int nx = (RES_X / 2 - img->width / 2) + r + x;
+			// nx = x;
+			// if (nx >= 0 && y >= 0 && nx < RES_X && y < RES_Y)
 			{
-				pixels[x + (y * RES_X)]
-					= img->image[(int)(((float)x / RES_X) * img->width)
-					+ (y * img->width)];
+				pixels[nx + y * RES_X]
+					= img->image[x + y * img->width];
 			}
 			x++;
 		}
@@ -115,7 +127,7 @@ void	main_menu_move_background(t_level *level)
 		level->main_menu_anim_start_time = SDL_GetTicks();
 }
 
-void	main_menu_buttons_1(t_game_state *game_state, int *state_changed,
+void	main_menu_buttons_level(t_game_state *game_state, int *state_changed,
 						t_level *level, unsigned int *pixels)
 {
 	t_rect	rect;
@@ -136,6 +148,13 @@ void	main_menu_buttons_1(t_game_state *game_state, int *state_changed,
 		*game_state = GAME_STATE_EDITOR;
 		*state_changed = TRUE;
 	}
+}
+
+void	main_menu_buttons_other(t_game_state *game_state, int *state_changed,
+						t_level *level, unsigned int *pixels)
+{
+	t_rect	rect;
+
 	rect = main_menu_button_text("select level", 2);
 	if (mouse_collision(rect, level, pixels))
 	{
@@ -143,19 +162,14 @@ void	main_menu_buttons_1(t_game_state *game_state, int *state_changed,
 		ft_strcpy(level->ui.state.extension, ".doom-nukem");
 		level->ui.state.open_file = &open_level;
 	}
-}
-
-void	main_menu_buttons_2(t_game_state *game_state, int *state_changed,
-						t_level *level, unsigned int *pixels)
-{
-	t_rect	rect;
-
-	rect = main_menu_button_text("new level", 3);
+	rect = main_menu_button_text("create level", 3);
 	if (mouse_collision(rect, level, pixels))
 	{
+		init_level(level);
 		level->ui.noclip = TRUE;
 		*game_state = GAME_STATE_EDITOR;
 		*state_changed = TRUE;
+		level->level_initialized = TRUE;
 	}
 	rect = main_menu_button_text("settings", 4);
 	if (mouse_collision(rect, level, pixels))
@@ -173,8 +187,9 @@ void	main_menu(t_level *level, unsigned int *pixels,
 	set_text_color(MAIN_MENU_FONT_COLOR);
 	main_menu_title(&level->main_menu_title, pixels);
 	state_changed = FALSE;
-	main_menu_buttons_1(game_state, &state_changed, level, pixels);
-	main_menu_buttons_2(game_state, &state_changed, level, pixels);
+	if (level->level_initialized)
+		main_menu_buttons_level(game_state, &state_changed, level, pixels);
+	main_menu_buttons_other(game_state, &state_changed, level, pixels);
 	if (state_changed)
 	{
 		level->cam.pos = level->spawn_pos.pos;

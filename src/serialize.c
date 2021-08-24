@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/06 14:13:02 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/21 23:46:04 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/23 23:03:27 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -598,6 +598,7 @@ void	deserialize_level(t_level *level, t_buffer *buf)
 		ft_error("memory allocation failed\n");
 	init_screen_space_partition(level);
 	init_culling(level);
+	level->level_initialized = TRUE;
 }
 
 void	serialize_level(t_level *level, t_buffer *buf)

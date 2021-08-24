@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/23 06:39:04 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/23 22:53:57 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -492,6 +492,7 @@ typedef struct s_level
 	float				bake_progress;
 	struct s_skybox		sky;
 	struct s_camera		cam;
+	int					level_initialized;
 	struct s_editor_ui	ui;
 	struct s_all_doors	doors;
 	struct s_light		*lights;
@@ -610,7 +611,8 @@ void					vec2_add(t_vec2 *res, t_vec2 ve1, t_vec2 ve2);
 void					vec2_mult(t_vec2 *res, float mult);
 
 void					init_window(t_window **window);
-t_level					*init_level(void);
+void					init_embedded(t_level *level);
+void					init_level(t_level *level);
 
 void					screen_space_partition(t_level *level);
 void					init_screen_space_partition(t_level *level);

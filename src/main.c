@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/21 22:20:04 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/23 22:50:36 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,8 +106,11 @@ static void	render_ui(t_window *window, t_level *level, t_game_state *game_state
 static void	render(t_window *window, t_level *level, t_game_state *game_state)
 {
 	SDL_RenderClear(window->SDLrenderer);
-	render_raycast(window, level);
-	render_raster(window, level, game_state);
+	if (level->level_initialized)
+	{
+		render_raycast(window, level);
+		render_raster(window, level, game_state);
+	}
 	render_ui(window, level, game_state);
 	SDL_RenderPresent(window->SDLrenderer);
 }
@@ -123,15 +126,25 @@ int	main(void)
 	unsigned int	frame_time;
 
 	game_state = GAME_STATE_MAIN_MENU;
-	game_state = GAME_STATE_EDITOR; // remove
-	level = init_level();
+	level = (t_level *)malloc(sizeof(t_level));
+	if (!level)
+		ft_error("memory allocation failed\n");
+	ft_bzero(level, sizeof(t_level));
+	init_embedded(level);
 	init_audio(level);
 	init_window(&window);
 	init_ui(window, level);
-	init_screen_space_partition(level);
-	init_culling(level);
-	init_player(&level->player);
-	open_level(level, "level/demo.doom-nukem");
+	while (!level->level_initialized)
+	{
+		read_input(window, level, &game_state);
+		render(window, level, &game_state);
+	}
+
+	// init_screen_space_partition(level);
+	// level = init_level();
+	// init_culling(level);
+	// init_player(&level->player);
+	// open_level(level, "level/demo.doom-nukem");
 	while (1)
 	{
 		frame_time = SDL_GetTicks();
