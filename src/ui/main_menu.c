@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/19 18:51:47 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/24 22:35:48 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/24 23:33:28 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,11 +48,10 @@ static void	main_menu_text_background(t_rect rect, unsigned int *pixels)
 	}
 }
 
-unsigned int	black_and_white(unsigned int color)
+static unsigned int	black_and_white(unsigned int color, float amount)
 {
 	unsigned char	*rgb;
 	unsigned int	res;
-	float			amount;
 
 	amount = 1.0;
 	rgb = (unsigned char *)&color;
@@ -65,6 +64,31 @@ unsigned int	black_and_white(unsigned int color)
 	rgb[2] = res * amount + rgb[2] * (1 - amount);
 	rgb[1] = res * amount + rgb[1] * (1 - amount);
 	return ((unsigned int)*(int *)rgb);
+}
+
+static unsigned int	chroma(t_bmp *img, int x, int y, int x_amount)
+{
+	unsigned int	res_color;
+	unsigned char	*rgb_l;
+	unsigned char	*rgb;
+	unsigned char	*rgb_r;
+	unsigned char	*res;
+
+	rgb = (unsigned char *)&img->image[x + y * img->width];
+	rgb_l = (unsigned char *)&img->image[x + y * img->width];
+	rgb_r = (unsigned char *)&img->image[x + y * img->width];
+	if (x_amount < 0)
+		x_amount *= -1;
+	if (x - x_amount > 0)
+		rgb_l = (unsigned char *)&img->image[(x - x_amount) + y * img->width];
+	if (x + x_amount < img->width)
+		rgb_r = (unsigned char *)&img->image[(x + x_amount) + y * img->width];
+	res = (unsigned char *)&res_color;
+	res[3] = rgb_l[3];
+	res[2] = rgb[2];
+	res[1] = rgb_r[1];
+	res[0] = rgb[0];
+	return (res_color);
 }
 
 static void	main_menu_title(t_bmp *img, unsigned int *pixels)
@@ -88,9 +112,9 @@ static void	main_menu_title(t_bmp *img, unsigned int *pixels)
 		while (++i.x < img->width)
 		{
 			screen_x = (RES_X / 2 - img->width / 2) + i.z + i.x;
-			color = img->image[i.x + i.y * img->width];
+			color = chroma(img, i.x, i.y, i.z + 2);
 			if (disturbance_y < 6 && disturbance_y % 2)
-				color = black_and_white(img->image[i.x + i.y * img->width]);
+				color = black_and_white(color, 1.0);
 			pixels[screen_x + i.y * RES_X] = color;
 		}
 	}
