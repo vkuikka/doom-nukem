@@ -155,7 +155,8 @@ t_door	*alloc_new_door(t_level *level)
 
 	level->doors.door = (t_door *)ft_realloc(level->doors.door,
 			sizeof(t_door) * level->doors.door_amount,
-			sizeof(t_door) * ++level->doors.door_amount);
+			sizeof(t_door) * level->doors.door_amount + 1);
+	level->doors.door_amount++;
 	if (!level->doors.door)
 		ft_error("memory allocation failed\n");
 	door = &level->doors.door[level->doors.door_amount - 1];

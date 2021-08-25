@@ -386,11 +386,9 @@ void	ui_door_settings(t_level *level)
 
 void	ui_door_editor(t_level *level)
 {
-	t_editor_ui	*ui;
 	int			selected;
 	int			i;
 
-	ui = &level->ui;
 	if (call("close door editor", NULL, level))
 		level->ui.state.ui_location = UI_LOCATION_MAIN;
 	find_selected_door_index(level);
@@ -465,9 +463,7 @@ void	ui_level_light_settings(t_level *level)
 void	ui_light_editor(t_level *level)
 {
 	char		buf[100];
-	t_editor_ui	*ui;
 
-	ui = &level->ui;
 	if (level->bake_status == BAKE_NOT_BAKED)
 	{
 		set_text_color(UI_LEVEL_NOT_BAKED_COLOR);
@@ -511,7 +507,7 @@ void	ui_level_settings(t_level *level)
 	float_slider(&level->player.projectile_scale,
 		"Player projectile scale: ", 0, 1.5);
 	button(&level->ui.fog, "fog");
-	button(&level->ui.backface_culling, "backface & occlusion culling");
+	button(&level->ui.backface_culling, "backface & occlusion culling (O(n^2)) (Horrible trash)");
 	button(&level->ui.distance_culling, "distance culling");
 	sprintf(buf, "render distance: %.1fm", level->ui.render_distance);
 	float_slider(&level->ui.render_distance, buf, 2, 50);

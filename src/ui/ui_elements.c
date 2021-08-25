@@ -260,13 +260,16 @@ void	text_input(char *str, t_level *level)
 {
 	char	*filename;
 
-	if (str[0])
-		filename = ft_strjoin(str, ".doom-nukem");
-	if ((!str[0] && call("input:", NULL, NULL))
-		|| (str[0] && call(filename, NULL, NULL)))
+	if (!str[0])
+	{
+		if (call("input:", NULL, NULL))
+			level->ui.state.text_input_enable = TRUE;
+		return ;
+	}
+	filename = ft_strjoin(str, ".doom-nukem");
+	if (call(filename, NULL, NULL))
 		level->ui.state.text_input_enable = TRUE;
-	if (str[0])
-		free(filename);
+	free(filename);
 }
 
 int	call(char *str, void (*f)(t_level *), t_level *level)

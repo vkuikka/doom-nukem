@@ -46,12 +46,6 @@ unsigned int	brightness(unsigned int color1, t_color new)
 		newg = 0xff;
 	if (newb > 0xff)
 		newb = 0xff;
-	if (newr < 0)
-		newr = 0;
-	if (newg < 0)
-		newg = 0;
-	if (newb < 0)
-		newb = 0;
 	return ((newr << 8 * 3) + (newg << 8 * 2) + (newb << 8 * 1));
 }
 

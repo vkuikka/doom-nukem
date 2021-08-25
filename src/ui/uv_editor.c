@@ -152,6 +152,8 @@ static void	draw_uv(t_level *level, t_uv_parameters param, t_vec2 uv[3],
 	int		k;
 
 	k = 0;
+	start.x = 0;
+	start.y = 0;
 	while (k < 3)
 	{
 		next = (k + 1) % 3;
@@ -212,6 +214,8 @@ static void	draw_face_uv(t_level *level, t_uv_parameters param,
 	int		next;
 
 	k = 0;
+	start.x = 0;
+	start.y = 0;
 	while (k < 3 + param.tri->isquad)
 	{
 		next = get_uv_wf_line_settings(k, &start, &stop, param);
@@ -233,7 +237,6 @@ static void	draw_face_uv(t_level *level, t_uv_parameters param,
 static void	uv_wireframe_selected(t_level *level,
 			t_uv_parameters param, t_ivec2 *mouse)
 {
-	t_vec2	start;
 	int		i;
 	int		k;
 
@@ -252,7 +255,7 @@ static void	uv_wireframe_selected(t_level *level,
 				while (++k < 3)
 					find_closest_to_mouse(level,
 						&level->all.tris[i].enemy->projectile_uv[k],
-						&start, mouse);
+						&(t_vec2){0, 0}, mouse);
 			}
 		}
 	}
@@ -262,7 +265,6 @@ static void	uv_wireframe(t_level *level, t_ivec2 offset,
 						unsigned int *pixels, float image_scale)
 {
 	t_ivec2			mouse;
-	t_vec2			start;
 	t_uv_parameters	param;
 	int				i;
 
@@ -278,7 +280,7 @@ static void	uv_wireframe(t_level *level, t_ivec2 offset,
 		i = -1;
 		while (++i < 3)
 			find_closest_to_mouse(level, &level->player.projectile_uv[i],
-				&start, &mouse);
+				&(t_vec2){0, 0}, &mouse);
 	}
 	else
 		uv_wireframe_selected(level, param, &mouse);

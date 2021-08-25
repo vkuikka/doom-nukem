@@ -23,12 +23,19 @@ void	reserve_space(t_buffer *buf, size_t bytes)
 	}
 }
 
+// IMPORTANT!!
+// Gcc assumes that your program will never access variables though pointers of different type.
+// This assumption is called strict-aliasing and allows the compiler to make some optimizations.
+// Strict-aliasing rule says that a char* and void* can point at any type.
 float	ntoh_float(float value)
 {
-	int	temp;
+	int		temp;
+	void	*cast;
 
-	temp = ntohl(*(unsigned int *)&value);
-	return (*(float *)&temp);
+	cast = &value;
+	temp = ntohl(*(unsigned int *)cast);
+	cast = &temp;
+	return (*(float *)cast);
 }
 
 void	deserialize_float(float *x, t_buffer *buf)
@@ -42,10 +49,13 @@ void	deserialize_float(float *x, t_buffer *buf)
 
 float	hton_float(float value)
 {
-	int	temp;
+	int		temp;
+	void	*cast;
 
-	temp = htonl(*(unsigned int *)&value);
-	return (*(float *)&temp);
+	cast = &value;
+	temp = htonl(*(unsigned int *)cast);
+	cast = &temp;
+	return (*(float *)cast);
 }
 
 void	serialize_float(float x, t_buffer *buf)

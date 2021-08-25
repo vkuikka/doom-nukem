@@ -70,13 +70,11 @@ void	cast_all_color(t_ray r, t_level *l, t_obj *obj, t_cast_result *res)
 	float	dist;
 	float	tmp_dist;
 	int		new_hit;
-	int		color;
 	int		i;
 	t_vec2	uv;
 
 	dist = FLT_MAX;
 	i = 0;
-	color = 0;
 	new_hit = -1;
 	while (i < obj->tri_amount)
 	{

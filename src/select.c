@@ -104,6 +104,7 @@ static void	raycast_face_selection(t_ray vec, t_level *level)
 	int		i;
 
 	i = 0;
+	hit = 0;
 	dist = FLT_MAX;
 	while (i < level->all.tri_amount)
 	{

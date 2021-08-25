@@ -37,12 +37,10 @@ void	opacity(t_cast_result *res, t_level *l, t_obj *obj, float opacity)
 
 t_color	sunlight(t_level *l, t_cast_result *res, t_color light)
 {
-	unsigned int	color;
 	float			res_brightness;
 	int				i;
 	t_ray			r;
 
-	color = 0;
 	if (vec_dot(res->normal, l->ui.sun_dir) < 0)
 		return (light);
 	r.dir.x = l->ui.sun_dir.x;
@@ -134,12 +132,10 @@ unsigned int	shader_wave(t_vec3 mod, t_vec3 *normal,
 							unsigned int col1, unsigned int col2)
 {
 	float	time;
-	float	oscillation;
 	float	res;
 	float	tmp;
 
 	time = SDL_GetTicks() / 1000.0;
-	oscillation = (sin(time) + 1) / 2;
 	tmp = 2 * M_PI / 6 * (sin(mod.z) / 5 + sin(mod.x) / 4 + mod.x + time);
 	tmp = sin(tmp);
 	res = fabs(tmp);

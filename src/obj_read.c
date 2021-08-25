@@ -164,6 +164,9 @@ static void	set_tri(char *str, t_vec3 *verts, t_vec2 *uvs, t_obj *obj, int i)
 	int		x;
 
 	j = 0;
+	tex_index.x = 0;
+	tex_index.y = 0;
+	tex_index.z = 0;
 	uv_index.x = 0;
 	uv_index.y = 0;
 	uv_index.z = 0;

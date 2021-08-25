@@ -115,7 +115,7 @@ static void	render(t_window *window, t_level *level, t_game_state *game_state)
 	SDL_RenderPresent(window->SDLrenderer);
 }
 
-int	main(void)
+int	main(int argc, char **argv)
 {
 	t_window		*window;
 	t_level			*level;
@@ -125,6 +125,8 @@ int	main(void)
 	unsigned int	render_time;
 	unsigned int	frame_time;
 
+	(void)argc;
+	(void)argv;
 	game_state = GAME_STATE_MAIN_MENU;
 	level = (t_level *)malloc(sizeof(t_level));
 	if (!level)
