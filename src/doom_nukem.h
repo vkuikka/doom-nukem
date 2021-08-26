@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/23 22:53:57 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/26 03:01:08 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,6 +86,7 @@
 # define NONFATAL_ERROR_FADEOUT_TIME_MS 666
 # define UI_ERROR_COLOR 0xff000000
 # define GIZMO_SCALE_DIVIDER 4
+# define UI_SLIDER_WIDTH 100
 # define UI_FONT_SIZE 13
 # define UI_EDITOR_SETTINGS_TEXT_COLOR 0x4444ffff
 # define UI_LEVEL_SETTINGS_TEXT_COLOR 0xffffffff
@@ -416,6 +417,7 @@ typedef struct s_ui_state
 	int					ssp_visual;
 	struct s_vec3		gizmo_pos;
 	float				gizmo_dist_from_screen;
+	unsigned int		*color_slider_colors;
 
 	char				*directory;
 	int					find_dir;
@@ -670,6 +672,7 @@ int						button(int *var, char *text);
 void					int_slider(int *var, char *str, int min, int max);
 void					float_slider(float *var, char *str, float min,
 							float max);
+void					color_slider(unsigned int *var, char *str);
 int						call(char *str, void (*f)(t_level *), t_level *level);
 void					file_browser(char *str, char *extension,
 							void (*f)(t_level *, char *));
@@ -678,9 +681,11 @@ void					file_save(char *str, char *extension,
 void					text_input(char *str, t_level *level);
 void					find_closest_mouse(t_vec3 *vert, int *i, int *k);
 
-void	main_menu(t_level *level, unsigned int *pixels, t_game_state *game_state);
+unsigned int			chroma(t_bmp *img, int x, int y, int x_amount);
+void					main_menu(t_level *level, unsigned int *pixels,
+							t_game_state *game_state);
 void					main_menu_move_background(t_level *level);
-void				hud(t_level *level, unsigned int *pixels, t_game_state game_state);
+void					hud(t_level *level, unsigned int *pixels, t_game_state game_state);
 void					create_projectile(t_level *level, t_vec3 pos,
 							t_vec3 dir, t_enemy *enemy);
 

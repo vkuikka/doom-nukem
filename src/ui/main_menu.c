@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/19 18:51:47 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/24 23:33:28 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/26 12:03:38 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,12 +48,29 @@ static void	main_menu_text_background(t_rect rect, unsigned int *pixels)
 	}
 }
 
+static unsigned int	noise(unsigned int color, float probability, float amount)
+{
+	unsigned char	*rgb;
+
+	rgb = (unsigned char *)&color;
+	if (rand() < RAND_MAX * probability)
+	{
+		if ((int)(rgb[0] * amount))
+		{
+			rgb[3] += rand() % (int)(rgb[0] * amount);
+			rgb[2] += rand() % (int)(rgb[0] * amount);
+			rgb[1] += rand() % (int)(rgb[0] * amount);
+			rgb[0] += rand() % (int)(rgb[0] * amount);
+		}
+	}
+	return ((unsigned int)*(int *)rgb);
+}
+
 static unsigned int	black_and_white(unsigned int color, float amount)
 {
 	unsigned char	*rgb;
 	unsigned int	res;
 
-	amount = 1.0;
 	rgb = (unsigned char *)&color;
 	res = 0;
 	res += rgb[3];
@@ -66,7 +83,7 @@ static unsigned int	black_and_white(unsigned int color, float amount)
 	return ((unsigned int)*(int *)rgb);
 }
 
-static unsigned int	chroma(t_bmp *img, int x, int y, int x_amount)
+unsigned int	chroma(t_bmp *img, int x, int y, int x_amount)
 {
 	unsigned int	res_color;
 	unsigned char	*rgb_l;
@@ -91,33 +108,40 @@ static unsigned int	chroma(t_bmp *img, int x, int y, int x_amount)
 	return (res_color);
 }
 
-static void	main_menu_title(t_bmp *img, unsigned int *pixels)
+static void	fake_analog_signal(t_bmp *img, unsigned int *pixels, float amount)
 {
 	static int		disturbance_y = 0;
-	static float	x_amount = 0;
-	unsigned int	screen_x;
+	int				x_offset;
 	unsigned int	color;
-	t_ivec3			i;
+	t_ivec2			i;
 
-	x_amount += .02;
 	disturbance_y++;
 	disturbance_y = disturbance_y % img->height;
 	i.y = -1;
 	while (++i.y < img->height)
 	{
-		i.z = (rand() % (int)(3 + 6 * (1 + sinf(x_amount)))) - 6;
+		x_offset = (rand() % (int)(3 + 12 * amount)) - 6;
 		if (i.y > disturbance_y - 5 && i.y < disturbance_y + 5)
-			i.z = (rand() % 15) - 6;
+			x_offset = (rand() % 15) - 6;
 		i.x = -1;
 		while (++i.x < img->width)
 		{
-			screen_x = (RES_X / 2 - img->width / 2) + i.z + i.x;
-			color = chroma(img, i.x, i.y, i.z + 2);
-			if (disturbance_y < 6 && disturbance_y % 2)
-				color = black_and_white(color, 1.0);
-			pixels[screen_x + i.y * RES_X] = color;
+			color = chroma(img, i.x, i.y, x_offset + 2);
+			color = noise(color, amount / 8, .2);
+			if (amount > .9)
+				color = black_and_white(color, (amount - .9) / .1 * .7);
+			pixels[(RES_X / 2 - img->width / 2) + x_offset + i.x
+				+ i.y * RES_X] = color;
 		}
 	}
+}
+
+static void	main_menu_title(t_bmp *img, unsigned int *pixels)
+{
+	static float	amount = 0;
+
+	amount += .02;
+	fake_analog_signal(img, pixels, sinf(amount) / 2 + 0.5);
 }
 
 static int	mouse_collision(t_rect rect, t_level *level, unsigned int *pixels)

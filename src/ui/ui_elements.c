@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/13 12:51:47 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/21 03:02:43 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/26 08:25:54 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ t_ui_state	*get_ui_state(t_ui_state *get_state)
 	return (NULL);
 }
 
-static void	edit_slider_var(float *unit, t_ui_state *state)
+static int	edit_slider_var(float *unit, t_ui_state *state)
 {
 	int	x;
 	int	y;
@@ -43,7 +43,11 @@ static void	edit_slider_var(float *unit, t_ui_state *state)
 	if (state->mouse_location == MOUSE_LOCATION_UI && state->m1_drag
 		&& y >= state->ui_text_y_pos + 4 && y <= state->ui_text_y_pos + 15
 		&& x < 109 && x > 2)
+	{
 		*unit = (float)(x - 4) / (float)100;
+		return (TRUE);
+	}
+	return (FALSE);
 }
 
 static int	edit_call_var(t_ui_state *state, t_ivec2 size)
@@ -119,6 +123,24 @@ void	render_button_streaming(unsigned int *texture, int *var, int dy)
 	}
 }
 
+void	render_color_slider(unsigned int *texture,
+						int dy, unsigned int *colors)
+{
+	int	x;
+	int	y;
+
+	y = -1;
+	while (++y < 4)
+	{
+		x = 0;
+		while (x < UI_SLIDER_WIDTH)// + 6
+		{
+			button_pixel_put(x + 2, y + 6 + dy, colors[x], texture);
+			x++;
+		}
+	}
+}
+
 void	render_slider_streaming(unsigned int *texture,
 											float unit, int dy)
 {
@@ -129,7 +151,7 @@ void	render_slider_streaming(unsigned int *texture,
 	while (++y < 4)
 	{
 		x = 0;
-		while (x < 106)
+		while (x < UI_SLIDER_WIDTH + 6)
 		{
 			button_pixel_put(x + 2, y + 6 + dy, 0x404040ff, texture);
 			x++;
@@ -142,7 +164,7 @@ void	render_slider_streaming(unsigned int *texture,
 		while (x < 6)
 		{
 			button_pixel_put(
-				x + 2 + (100 * unit), y + 2 + dy, 0x666666ff, texture);
+				x + 2 + (UI_SLIDER_WIDTH * unit), y + 2 + dy, 0x666666ff, texture);
 			x++;
 		}
 		y++;
@@ -227,6 +249,27 @@ void	float_slider(float *var, char *str, float min, float max)
 	edit_slider_var(&unit, state);
 	unit = clamp(unit, 0, 1);
 	*var = min + ((max - min) * unit);
+	state->ui_text_y_pos += UI_ELEMENT_HEIGHT;
+}
+
+void	color_slider(unsigned int *var, char *str)
+{
+	t_window	*window;
+	t_ui_state	*state;
+	float		unit;
+
+	window = get_window(NULL);
+	state = get_ui_state(NULL);
+	if (str)
+		text(str);
+	state->ui_text_x_offset = 14;
+	render_color_slider(window->ui_texture_pixels,
+		state->ui_text_y_pos, state->color_slider_colors);
+	if (edit_slider_var(&unit, state))
+	{
+		unit = clamp(unit, 0, 1);
+		*var = state->color_slider_colors[(int)(unit * (UI_SLIDER_WIDTH - 1))];
+	}
 	state->ui_text_y_pos += UI_ELEMENT_HEIGHT;
 }
 

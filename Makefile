@@ -6,7 +6,7 @@
 #    By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/12/08 13:46:11 by vkuikka           #+#    #+#              #
-#    Updated: 2021/08/23 22:40:41 by rpehkone         ###   ########.fr        #
+#    Updated: 2021/08/26 02:59:46 by rpehkone         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,7 +16,8 @@ SRC = main.c input.c game_logic.c color.c culling.c culling_occlusion.c vectors.
 SRC_UI = door_editor.c gizmo.c hud.c light_editor.c main_menu.c nonfatal_error.c ui_config.c ui_elements.c ui.c uv_editor.c
 LIB = libft/libft.a -L x86_64-w64-mingw32/lib/
 INCLUDE = libft/includes -I ./ -I src/ -I x86_64-w64-mingw32/include/ -I x86_64-w64-mingw32/include/SDL2
-VIEWMODEL_FILES = ak_0.bmp ak_1.bmp ak_2.bmp ak_3.bmp ak_4.bmp ak_5.bmp ak_6.bmp ak_7.bmp ak_8.bmp ak_9.bmp
+VIEWMODEL_FILES =
+#ak_0.bmp ak_1.bmp ak_2.bmp ak_3.bmp ak_4.bmp ak_5.bmp ak_6.bmp ak_7.bmp ak_8.bmp ak_9.bmp
 VIEWMODEL=$(addprefix viewmodel/, $(VIEWMODEL_FILES))
 EMBED_FILES = title.bmp skybox.obj digital.ttf Roboto-Medium.ttf
 EMBED_FILES += $(VIEWMODEL)

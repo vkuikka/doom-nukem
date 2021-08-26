@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/21 23:40:18 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/26 07:51:52 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -507,6 +507,8 @@ void	ui_level_settings(t_level *level)
 	float_slider(&level->player.projectile_scale,
 		"Player projectile scale: ", 0, 1.5);
 	button(&level->ui.fog, "fog");
+	if (level->ui.fog)
+		color_slider(&level->ui.fog_color, NULL);
 	button(&level->ui.backface_culling, "backface & occlusion culling (O(n^2)) (Horrible trash)");
 	button(&level->ui.distance_culling, "distance culling");
 	sprintf(buf, "render distance: %.1fm", level->ui.render_distance);

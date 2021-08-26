@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/06 08:50:56 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/23 20:43:48 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/26 08:06:59 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -210,6 +210,31 @@ static void	init_ui_settings(t_level *level)
 	ui->spray_size = 3;
 }
 
+static void	init_color_slider(t_level *level)
+{
+	unsigned int	i;
+	unsigned int	red;
+	unsigned int	grn;
+	unsigned int	blu;
+
+	level->ui.state.color_slider_colors = (unsigned int*)malloc
+		(sizeof(unsigned int) * UI_SLIDER_WIDTH);
+	i = 0;
+	while (i < UI_SLIDER_WIDTH)
+	{
+		float pos;
+		pos = i / (float)UI_SLIDER_WIDTH * M_PI * 2;
+		red = 0xff * ((sin(pos + (M_PI * 2 * ((1.0 / 3) * 1))) + 1) / 2);
+		grn = 0xff * ((sin(pos + (M_PI * 2 * ((1.0 / 3) * 2))) + 1) / 2);
+		blu = 0xff * ((sin(pos + (M_PI * 2 * ((1.0 / 3) * 3))) + 1) / 2);
+		red = red << 8 * 3;
+		grn = grn << 8 * 2;
+		blu = blu << 8 * 1;
+		level->ui.state.color_slider_colors[i] = red + grn + blu + 0xff;
+		i++;
+	}
+}
+
 void	init_ui(t_window *window, t_level *level)
 {
 	int	width;
@@ -228,4 +253,5 @@ void	init_ui(t_window *window, t_level *level)
 		ft_error("failed to lock texture\n");
 	get_ui_state(&level->ui.state);
 	get_window(window);
+	init_color_slider(level);
 }
