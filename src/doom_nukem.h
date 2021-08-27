@@ -95,7 +95,6 @@
 # define UI_ELEMENT_HEIGHT 14
 # define UI_PADDING 2
 # define UI_PADDING_4 4
-# define UV_EDITOR_Y_OFFSET UI_ELEMENT_HEIGHT + UI_PADDING * 2
 # define UI_LEVEL_BAKED_COLOR 0x33aa33ff
 # define UI_LEVEL_BAKING_COLOR 0xccaa33ff
 # define UI_LEVEL_NOT_BAKED_COLOR 0xcc3333ff
@@ -105,7 +104,6 @@
 # define SERIALIZE_INITIAL_BUFFER_SIZE 666
 # define OCCLUSION_CULLING_FLOAT_ERROR_MAGIC_NUMBER 10
 
-# define AUDIO_VOLUME_INIT MIX_MAX_VOLUME / 10
 # define AUDIO_MUSIC "Audio/Music/str4E.ogg"
 # define AUDIO_GUNSHOT "Audio/SoundEffects/gunshot.wav"
 # define AUDIO_GUNSHOT_CHANNEL 0
@@ -225,10 +223,12 @@ typedef struct s_ray
 	struct s_vec3		dir;
 }						t_ray;
 
+// pos = world position in 3d
+// txtr = texture position in 2d
 typedef struct s_vert
 {
-	struct s_vec3		pos; // world position in 3d
-	struct s_vec2		txtr; // texture position in 2d
+	struct s_vec3		pos;
+	struct s_vec2		txtr;
 	int					selected;
 }						t_vert;
 
@@ -248,6 +248,7 @@ typedef struct s_projectile
 	float				damage;
 }						t_projectile;
 
+// projectile_speed = 0 -> no projectile
 typedef struct s_enemy
 {
 	struct s_vec3		dir;
@@ -258,18 +259,21 @@ typedef struct s_enemy
 	float				remaining_health;
 	float				attack_range;
 	float				attack_frequency;
-	float				projectile_speed; // 0 = no projectile
+	float				projectile_speed;
 	float				projectile_scale;
 	float				attack_damage;
 	float				current_attack_delay;
 }						t_enemy;
 
+// verts = vertex coordinates of 3d triangle
+// v0v1 = vector between vertices 1 and 0
+// v0v2 = vector between vertices 2 and 0
 typedef struct s_tri
 {
 	int					index;
-	struct s_vert		verts[4]; // vertex coordinates of 3d triangle
-	struct s_vec3		v0v1; // vector between vertices 1 and 0
-	struct s_vec3		v0v2; // vector between vertices 2 and 0
+	struct s_vert		verts[4];
+	struct s_vec3		v0v1;
+	struct s_vec3		v0v2;
 	struct s_vec3		normal;
 	int					isenemy;
 	struct s_enemy		*enemy;
@@ -294,10 +298,12 @@ typedef struct s_tri
 	// int					*reflection_culling_mask;
 }						t_tri;
 
+// tris = array of triangles that make the object
+// tri_amount = amount of triangles
 typedef struct s_obj
 {
-	struct s_tri		*tris; // array of triangles that make the object
-	int					tri_amount; // amount of triangles
+	struct s_tri		*tris;
+	int					tri_amount;
 }						t_obj;
 
 typedef struct s_skybox
@@ -307,14 +313,16 @@ typedef struct s_skybox
 	struct s_obj		visible;
 }						t_skybox;
 
+// look_side = angle for looking to the side
+// look_up = angle for looking up and down
 typedef struct s_camera
 {
 	t_vec3				up;
 	t_vec3				side;
 	t_vec3				front;
 	t_vec3				pos;
-	float				look_side; // side look angle
-	float				look_up; // up and down look angle
+	float				look_side;
+	float				look_up;
 	float				lon;
 	float				lat;
 	float				fov_y;
@@ -590,190 +598,191 @@ typedef struct s_buffer
 	size_t				size;
 }						t_buffer;
 
-void					vec_normalize(t_vec3 *vec);
-float					vec_dot(t_vec3 ve1, t_vec3 ve2);
-float					vec_length(t_vec3 vec);
-void					vec_sub(t_vec3 *res, t_vec3 ve1, t_vec3 ve2);
-void					vec_add(t_vec3 *res, t_vec3 ve1, t_vec3 ve2);
-void					vec_cross(t_vec3 *res, t_vec3 u, t_vec3 v);
-void					vec_rot(t_vec3 *res, t_vec3 ve1, float ang);
-int						vec_cmp(t_vec3 ve1, t_vec3 ve2);
-void					vec_avg(t_vec3 *res, t_vec3 ve1, t_vec3 ve2);
-float					vec_angle(t_vec3 v1, t_vec3 v2);
-void					vec_mult(t_vec3 *res, float mult);
-void					vec_div(t_vec3 *res, float div);
-t_vec3					vec_interpolate(t_vec3 a, t_vec3 b, float f);
-float					lerp(float a, float b, float f);
-float					vec2_length(t_vec2 vec);
-void					vec2_avg(t_vec2 *res, t_vec2 ve1, t_vec2 ve2);
-void					vec2_sub(t_vec2 *res, t_vec2 ve1, t_vec2 ve2);
-void					vec2_add(t_vec2 *res, t_vec2 ve1, t_vec2 ve2);
-void					vec2_mult(t_vec2 *res, float mult);
+void			vec_normalize(t_vec3 *vec);
+float			vec_dot(t_vec3 ve1, t_vec3 ve2);
+float			vec_length(t_vec3 vec);
+void			vec_sub(t_vec3 *res, t_vec3 ve1, t_vec3 ve2);
+void			vec_add(t_vec3 *res, t_vec3 ve1, t_vec3 ve2);
+void			vec_cross(t_vec3 *res, t_vec3 u, t_vec3 v);
+void			vec_rot(t_vec3 *res, t_vec3 ve1, float ang);
+int				vec_cmp(t_vec3 ve1, t_vec3 ve2);
+void			vec_avg(t_vec3 *res, t_vec3 ve1, t_vec3 ve2);
+float			vec_angle(t_vec3 v1, t_vec3 v2);
+void			vec_mult(t_vec3 *res, float mult);
+void			vec_div(t_vec3 *res, float div);
+t_vec3			vec_interpolate(t_vec3 a, t_vec3 b, float f);
+float			lerp(float a, float b, float f);
+float			vec2_length(t_vec2 vec);
+void			vec2_avg(t_vec2 *res, t_vec2 ve1, t_vec2 ve2);
+void			vec2_sub(t_vec2 *res, t_vec2 ve1, t_vec2 ve2);
+void			vec2_add(t_vec2 *res, t_vec2 ve1, t_vec2 ve2);
+void			vec2_mult(t_vec2 *res, float mult);
 
-void					init_window(t_window **window);
-t_level					*init_level(void);
+void			init_window(t_window **window);
+t_level			*init_level(void);
 
-void					screen_space_partition(t_level *level);
-void					init_screen_space_partition(t_level *level);
-int						get_ssp(t_ivec2 pixel);
-int						get_ssp_coordinate(int coord, int horizontal);
+void			screen_space_partition(t_level *level);
+void			init_screen_space_partition(t_level *level);
+int				get_ssp(t_ivec2 pixel);
+int				get_ssp_coordinate(int coord, int horizontal);
 
-void					read_input(t_window *window, t_level *level,
-							t_game_state *game_state);
-void					game_logic(t_level *level, t_game_state *game_state);
-int						init_raycast(void *t);
-float					cast_face(t_tri t, t_ray ray, t_cast_result *res);
-float					cast_all(t_ray vec, t_level *level, int *index);
-void					fill_pixels(unsigned int *grid, int pixel_gap,
-							int blur, int smooth);
-unsigned int			crossfade(unsigned int color1, unsigned int color2,
-							unsigned int fade, unsigned int alpha);
-void					face_color(float u, float v, t_tri t,
-							t_cast_result *res);
-void					wireframe(unsigned int *texture, t_level *level);
-void					camera_offset(t_vec3 *vertex, t_camera *cam);
-SDL_Color				get_sdl_color(unsigned int color);
+void			read_input(t_window *window, t_level *level,
+					t_game_state *game_state);
+void			game_logic(t_level *level, t_game_state *game_state);
+int				init_raycast(void *t);
+float			cast_face(t_tri t, t_ray ray, t_cast_result *res);
+float			cast_all(t_ray vec, t_level *level, int *index);
+void			fill_pixels(unsigned int *grid, int pixel_gap,
+					int blur, int smooth);
+unsigned int	crossfade(unsigned int color1, unsigned int color2,
+					unsigned int fade, unsigned int alpha);
+void			face_color(float u, float v, t_tri t,
+					t_cast_result *res);
+void			wireframe(unsigned int *texture, t_level *level);
+void			camera_offset(t_vec3 *vertex, t_camera *cam);
+SDL_Color		get_sdl_color(unsigned int color);
 
-void					load_obj(char *filename, t_obj *obj);
-t_bmp					bmp_read(char *str);
+void			load_obj(char *filename, t_obj *obj);
+t_bmp			bmp_read(char *str);
 
-void					culling(t_level *level);
-int						occlusion_culling(t_tri tri, t_level *level);
-void					init_culling(t_level *level);
-void					free_culling(t_level *level);
-void					reflection_culling(t_level *level, int i);
-void					find_quads(t_obj *obj);
-void					set_fourth_vertex(t_tri *a);
+void			culling(t_level *level);
+int				occlusion_culling(t_tri tri, t_level *level);
+void			init_culling(t_level *level);
+void			free_culling(t_level *level);
+void			reflection_culling(t_level *level, int i);
+void			find_quads(t_obj *obj);
+void			set_fourth_vertex(t_tri *a);
 
-void					rotate_vertex(float angle, t_vec3 *vertex, int axis);
-void					rot_cam(t_vec3 *cam, const float lon, const float lat);
+void			rotate_vertex(float angle, t_vec3 *vertex, int axis);
+void			rot_cam(t_vec3 *cam, const float lon, const float lat);
 
-char					*get_current_directory(void);
-void					path_up_dir(char *path);
-void					go_in_dir(char *path, char *folder);
-void					loop_directory(char *directory, void *data,
-							void (*f)(int, char *, void *));
+char			*get_current_directory(void);
+void			path_up_dir(char *path);
+void			go_in_dir(char *path, char *folder);
+void			loop_directory(char *directory, void *data,
+					void (*f)(int, char *, void *));
 
-void					init_enemy(t_tri *face);
-void					init_ui(t_window *window, t_level *level);
-void					init_player(t_enemy *player);
-void					init_audio(t_level *level);
-void					ui_render(t_window *window, t_level *level);
-void					set_text_color(int color);
-void					text(char *text);
-int						button(int *var, char *text);
-void					int_slider(int *var, char *str, int min, int max);
-void					float_slider(float *var, char *str, float min,
-							float max);
-int						call(char *str, void (*f)(t_level *), t_level *level);
-void					file_browser(char *str, char *extension,
-							void (*f)(t_level *, char *));
-void					file_save(char *str, char *extension,
-							void (*f)(t_level *, char *));
-void					text_input(char *str, t_level *level);
-void					find_closest_mouse(t_vec3 *vert, int *i, int *k);
+void			init_enemy(t_tri *face);
+void			init_ui(t_window *window, t_level *level);
+void			init_player(t_enemy *player);
+void			init_audio(t_level *level);
+void			ui_render(t_window *window, t_level *level);
+void			set_text_color(int color);
+void			text(char *text);
+int				button(int *var, char *text);
+void			int_slider(int *var, char *str, int min, int max);
+void			float_slider(float *var, char *str, float min,
+					float max);
+int				call(char *str, void (*f)(t_level *), t_level *level);
+void			file_browser(char *str, char *extension,
+					void (*f)(t_level *, char *));
+void			file_save(char *str, char *extension,
+					void (*f)(t_level *, char *));
+void			text_input(char *str, t_level *level);
+void			find_closest_mouse(t_vec3 *vert, int *i, int *k);
 
-void	main_menu(t_level *level, unsigned int *pixels, t_game_state *game_state);
-void					main_menu_move_background(t_level *level);
-void				hud(t_level *level, unsigned int *pixels, t_game_state game_state);
-void					create_projectile(t_level *level, t_vec3 pos,
-							t_vec3 dir, t_enemy *enemy);
+void			main_menu(t_level *level, unsigned int *pixels, t_game_state *game_state);
+void			main_menu_move_background(t_level *level);
+void			hud(t_level *level, unsigned int *pixels, t_game_state game_state);
+void			create_projectile(t_level *level, t_vec3 pos,
+					t_vec3 dir, t_enemy *enemy);
 
-void					uv_editor(t_level *level, unsigned int *pixels);
-void					enable_uv_editor(t_level *level);
-void					gizmo_render(t_level *level, unsigned int *pixels);
-void					gizmo(t_level *level);
-void					obj_editor_input(t_level *level, t_vec3 move_amount);
+void			uv_editor(t_level *level, unsigned int *pixels);
+void			enable_uv_editor(t_level *level);
+void			gizmo_render(t_level *level, unsigned int *pixels);
+void			gizmo(t_level *level);
+void			obj_editor_input(t_level *level, t_vec3 move_amount);
 
-void					player_movement(t_level *level,
-							t_game_state game_state);
+void			player_movement(t_level *level,
+					t_game_state game_state);
 
-void					enemies_update_physics(t_level *level);
-void					enemies_update_sprites(t_level *level);
+void			enemies_update_physics(t_level *level);
+void			enemies_update_sprites(t_level *level);
 
-void					fog(unsigned int *color, float dist, unsigned int fog_color,
-							t_level *level);
-int						skybox(t_level *l, t_cast_result res);
+void			fog(unsigned int *color, float dist, unsigned int fog_color,
+					t_level *level);
+int				skybox(t_level *l, t_cast_result res);
 
-void					opacity(t_cast_result *res, t_level *l, t_obj *obj,
-							float opacity);
-void					reflection(t_cast_result *res, t_level *l, t_obj *obj);
-unsigned int			shader_wave(t_vec3 mod, t_vec3 *normal,
-							unsigned int col1, unsigned int col2);
-unsigned int			shader_rule30(t_vec3 pos);
-t_color					sunlight(t_level *l, t_cast_result *res, t_color light);
+void			opacity(t_cast_result *res, t_level *l, t_obj *obj,
+					float opacity);
+void			reflection(t_cast_result *res, t_level *l, t_obj *obj);
+unsigned int	shader_wave(t_vec3 mod, t_vec3 *normal,
+					unsigned int col1, unsigned int col2);
+unsigned int	shader_rule30(t_vec3 pos);
+t_color			sunlight(t_level *l, t_cast_result *res, t_color light);
 
-void					select_face(t_camera *cam, t_level *level,
-							int x, int y);
-void					deselect_all_faces(t_level *level);
+void			select_face(t_camera *cam, t_level *level,
+					int x, int y);
+void			deselect_all_faces(t_level *level);
 
-void					save_level(t_level *level);
-void					open_level(t_level *level, char *filename);
+void			save_level(t_level *level);
+void			open_level(t_level *level, char *filename);
 
-void					cast_all_color(t_level *l, t_obj *obj,
-							t_cast_result *res);
-int						cull_behind(t_vec3 dir, t_vec3 pos, t_tri tri);
-int						cull_ahead(t_vec3 dir, t_vec3 pos, t_tri tri);
+void			cast_all_color(t_level *l, t_obj *obj,
+					t_cast_result *res);
+int				cull_behind(t_vec3 dir, t_vec3 pos, t_tri tri);
+int				cull_ahead(t_vec3 dir, t_vec3 pos, t_tri tri);
 
-void					fix_uv_overlap(t_level *level);
-int						tri_uv_intersect(t_tri t1, t_tri t2);
-int						point_in_tri(t_vec2 pt,
-							t_vec2 v1, t_vec2 v2, t_vec2 v3);
-void					toggle_selection_all(t_level *level);
-void					add_face(t_level *level);
-void					remove_faces(t_level *level);
-void					nonfatal_error(t_level *level, char *message);
-t_ivec2					put_text(char *text, t_window *window,
-							SDL_Texture *texture, t_ivec2 pos);
-void					set_new_face(t_level *level, t_vec3 pos, t_vec3 dir,
-							float scale);
+void			fix_uv_overlap(t_level *level);
+int				tri_uv_intersect(t_tri t1, t_tri t2);
+int				point_in_tri(t_vec2 pt,
+					t_vec2 v1, t_vec2 v2, t_vec2 v3);
+void			toggle_selection_all(t_level *level);
+void			add_face(t_level *level);
+void			remove_faces(t_level *level);
+void			nonfatal_error(t_level *level, char *message);
+t_ivec2			put_text(char *text, t_window *window,
+					SDL_Texture *texture, t_ivec2 pos);
+void			set_new_face(t_level *level, t_vec3 pos, t_vec3 dir,
+					float scale);
 
-void					door_animate(t_level *level);
-void					door_put_text(t_level *level);
-void					add_new_door(t_level *level);
-void					delete_door(t_level *level);
-void					door_activate(t_level *level);
-void					set_door_pos_1(t_level *level);
-void					set_door_pos_2(t_level *level);
-void					enable_door_editor(t_level *level);
-void					find_selected_door_index(t_level *level);
-void					door_activation_move(t_level *level,
-							t_vec3 move_amount);
-t_color					lights(t_level *l, t_cast_result *res, t_vec3 normal);
-unsigned int			brightness(unsigned int color1, t_color new);
-int						nothing_selected(t_level *level);
-void					light_put_text(t_level *level);
-void					enable_light_editor(t_level *level);
-void					add_light(t_level *level);
-void					move_light(t_level *level, t_vec3 move_amount);
-void					select_light(t_level *level, int x, int y);
-void					delete_light(t_level *level);
-void					set_fourth_vertex_uv(t_tri *a);
-void					start_bake(t_level *level);
-t_vec3					get_normal(int vec);
-void					handle_audio(t_level *level, t_game_state *game_state);
-int						is_player_in_air(t_level *level, float height);
-void					spray(t_camera cam, t_level *level);
-void					set_obj(t_level *level, char *filename);
-void					set_texture(t_level *level, char *filename);
-void					set_normal_map(t_level *level, char *filename);
-void					set_skybox(t_level *level, char *filename);
-void					set_spray(t_level *level, char *filename);
-void					set_win_pos(t_level *level);
-void					set_spawn_pos(t_level *level);
-void					set_menu_pos_1(t_level *level);
-void					set_menu_pos_2(t_level *level);
-void					nonfatal_error(t_level *level, char *message);
-void					ui_render_nonfatal_errors(t_level *level);
-t_ui_state				*get_ui_state(t_ui_state *get_state);
-t_window				*get_window(t_window *get_window);
-t_ivec2					render_text(char *text, int x, int y);
-void					render_text_3d(char *str, t_vec3 pos,
-							unsigned int color, t_level *level);
-void					button_pixel_put(int x, int y, int color, unsigned int *texture);
-void					ui(t_window *window, t_level *level, t_game_state *game_state);
-void					render_ssp_visual_background(unsigned int *texture);
-void					render_ssp_visual_text(t_level *level);
-void					ui_render_background(t_window *window, t_level *level);
+void			door_animate(t_level *level);
+void			door_put_text(t_level *level);
+void			add_new_door(t_level *level);
+void			delete_door(t_level *level);
+void			door_activate(t_level *level);
+void			set_door_pos_1(t_level *level);
+void			set_door_pos_2(t_level *level);
+void			enable_door_editor(t_level *level);
+void			find_selected_door_index(t_level *level);
+void			door_activation_move(t_level *level,
+					t_vec3 move_amount);
+t_color			lights(t_level *l, t_cast_result *res, t_vec3 normal);
+unsigned int	brightness(unsigned int color1, t_color new);
+int				nothing_selected(t_level *level);
+void			light_put_text(t_level *level);
+void			enable_light_editor(t_level *level);
+void			add_light(t_level *level);
+void			move_light(t_level *level, t_vec3 move_amount);
+void			select_light(t_level *level, int x, int y);
+void			delete_light(t_level *level);
+void			set_fourth_vertex_uv(t_tri *a);
+void			start_bake(t_level *level);
+t_vec3			get_normal(int vec);
+void			handle_audio(t_level *level, t_game_state *game_state);
+int				is_player_in_air(t_level *level, float height);
+void			spray(t_camera cam, t_level *level);
+void			set_obj(t_level *level, char *filename);
+void			set_texture(t_level *level, char *filename);
+void			set_normal_map(t_level *level, char *filename);
+void			set_skybox(t_level *level, char *filename);
+void			set_spray(t_level *level, char *filename);
+void			set_win_pos(t_level *level);
+void			set_spawn_pos(t_level *level);
+void			set_menu_pos_1(t_level *level);
+void			set_menu_pos_2(t_level *level);
+void			nonfatal_error(t_level *level, char *message);
+void			ui_render_nonfatal_errors(t_level *level);
+t_ui_state		*get_ui_state(t_ui_state *get_state);
+t_window		*get_window(t_window *get_window);
+t_ivec2			render_text(char *text, int x, int y);
+void			render_text_3d(char *str, t_vec3 pos,
+					unsigned int color, t_level *level);
+void			button_pixel_put(int x, int y, int color,
+					unsigned int *texture);
+void			ui(t_window *window, t_level *level, t_game_state *game_state);
+void			render_ssp_visual_background(unsigned int *texture);
+void			render_ssp_visual_text(t_level *level);
+void			ui_render_background(t_window *window, t_level *level);
 
 #endif
