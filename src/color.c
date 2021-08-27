@@ -175,9 +175,6 @@ void	fill_pixels(unsigned int *grid, int gap, int blur, int smooth)
 	int	color;
 	int	x;
 	int	y;
-	static int *asd = NULL;
-	if (!asd)
-		asd = malloc(4 * RES_X * RES_Y);
 
 	y = 0;
 	if (blur)
@@ -201,32 +198,6 @@ void	fill_pixels(unsigned int *grid, int gap, int blur, int smooth)
 			}
 			else
 				grid[x + (y * RES_X)] = color;
-			x++;
-		}
-		y++;
-	}
-	y = 0;
-	while (y < RES_Y)
-	{
-		x = 0;
-		while (x < RES_X)
-		{
-			t_bmp tmp;
-			tmp.width = RES_X;
-			tmp.height = RES_X;
-			tmp.image = (int *)grid;
-			asd[x + (y * RES_X)] = chroma(&tmp, x, y, 6);
-			x++;
-		}
-		y++;
-	}
-	y = 0;
-	while (y < RES_Y)
-	{
-		x = 0;
-		while (x < RES_X)
-		{
-			grid[x + (y * RES_X)] = asd[x + (y * RES_X)];
 			x++;
 		}
 		y++;

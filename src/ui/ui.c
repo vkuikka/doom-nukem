@@ -182,22 +182,19 @@ void	init_ui_state(t_level *level)
 	go_in_dir(level->ui.state.directory, "level");
 }
 
-static void	init_ui_settings(t_level *level)
+static void	init_ui_settings(t_editor_ui *ui)
 {
-	t_editor_ui	*ui;
-
-	ui = &level->ui;
 	ui->noclip = TRUE;
 	ui->blur = FALSE;
 	ui->smooth_pixels = FALSE;
 	ui->backface_culling = TRUE;
+	// ui->occlusion_culling = TRUE;
 	ui->distance_culling = FALSE;
 	ui->wireframe = FALSE;
 	ui->wireframe_on_top = TRUE;
 	ui->wireframe_culling_visual = TRUE;
 	ui->render_distance = 20;
 	ui->raycast_quality = NOISE_QUALITY_LIMIT - 1;
-	ui->fog_color = 0xddddddff;
 	ui->fov = M_PI / 2;
 	ui->sun_color.r = 1;
 	ui->sun_color.g = 1;
@@ -208,6 +205,29 @@ static void	init_ui_settings(t_level *level)
 	vec_normalize(&ui->sun_dir);
 	ui->spray_from_view = 1;
 	ui->spray_size = 3;
+	ui->fog_color.brightness = 0.5;
+	ui->fog_color.pos = 1;
+	ui->fog_color.color = 0xffffffff;
+}
+
+static void	init_color_slider_brightness(t_level *level)
+{
+	unsigned int	brightness;
+	unsigned int	i;
+
+	level->ui.state.color_slider_brightness = (unsigned int*)malloc
+		(sizeof(unsigned int) * UI_SLIDER_WIDTH);
+	if (!level->ui.state.color_slider_brightness)
+		ft_error("color slider memory allocation failed");
+	i = 0;
+	while (i < UI_SLIDER_WIDTH)
+	{
+		brightness = 0xff * (i / (float)UI_SLIDER_WIDTH);
+		level->ui.state.color_slider_brightness[i]
+			= (brightness << 3 * 8) + (brightness << 2 * 8)
+			+ (brightness << 1 * 8) + 0xff;
+		i++;
+	}
 }
 
 static void	init_color_slider(t_level *level)
@@ -216,13 +236,15 @@ static void	init_color_slider(t_level *level)
 	unsigned int	red;
 	unsigned int	grn;
 	unsigned int	blu;
+	float			pos;
 
 	level->ui.state.color_slider_colors = (unsigned int*)malloc
 		(sizeof(unsigned int) * UI_SLIDER_WIDTH);
+	if (!level->ui.state.color_slider_colors)
+		ft_error("color slider memory allocation failed");
 	i = 0;
 	while (i < UI_SLIDER_WIDTH)
 	{
-		float pos;
 		pos = i / (float)UI_SLIDER_WIDTH * M_PI * 2;
 		red = 0xff * ((sin(pos + (M_PI * 2 * ((1.0 / 3) * 1))) + 1) / 2);
 		grn = 0xff * ((sin(pos + (M_PI * 2 * ((1.0 / 3) * 2))) + 1) / 2);
@@ -244,7 +266,7 @@ void	init_ui(t_window *window, t_level *level)
 	window->ui_texture = SDL_CreateTexture(window->SDLrenderer,
 			SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING,
 			RES_X, RES_Y);
-	init_ui_settings(level);
+	init_ui_settings(&level->ui);
 	init_ui_state(level);
 	SDL_SetTextureBlendMode(window->text_texture, SDL_BLENDMODE_BLEND);
 	SDL_SetTextureBlendMode(window->ui_texture, SDL_BLENDMODE_BLEND);
@@ -254,4 +276,5 @@ void	init_ui(t_window *window, t_level *level)
 	get_ui_state(&level->ui.state);
 	get_window(window);
 	init_color_slider(level);
+	init_color_slider_brightness(level);
 }

@@ -162,7 +162,7 @@ int	raycast(void *data_pointer)
 					r, t->level, &t->level->ssp[get_ssp_index(x, y)], &res);
 				if (t->level->ui.fog)
 					res.color = fog(res.color, res.dist,
-							t->level->ui.fog_color, t->level);
+							t->level->ui.fog_color.color, t->level);
 				t->window->frame_buffer[x + (y * RES_X)]
 					= (res.color >> 8 << 8) + 0xff;
 				t->window->depth_buffer[x + (y * RES_X)] = res.dist;

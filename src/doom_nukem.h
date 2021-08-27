@@ -199,6 +199,13 @@ typedef struct s_ivec2
 	int					y;
 }						t_ivec2;
 
+typedef struct s_color_slider
+{
+	float				pos;
+	float				brightness;
+	unsigned int		color;
+}						t_color_slider;
+
 typedef struct s_color
 {
 	float				r;
@@ -418,6 +425,7 @@ typedef struct s_ui_state
 	struct s_vec3		gizmo_pos;
 	float				gizmo_dist_from_screen;
 	unsigned int		*color_slider_colors;
+	unsigned int		*color_slider_brightness;
 
 	char				*directory;
 	int					find_dir;
@@ -443,7 +451,7 @@ typedef struct s_editor_ui
 	int					fog;
 	int					blur;
 	int					smooth_pixels;
-	unsigned int		fog_color;
+	t_color_slider		fog_color;
 	int					show_quads;
 	int					pause_culling_position;
 	int					backface_culling;
@@ -672,7 +680,7 @@ int						button(int *var, char *text);
 void					int_slider(int *var, char *str, int min, int max);
 void					float_slider(float *var, char *str, float min,
 							float max);
-void					color_slider(unsigned int *var, char *str);
+void					color_slider(t_color_slider *var, char *str);
 int						call(char *str, void (*f)(t_level *), t_level *level);
 void					file_browser(char *str, char *extension,
 							void (*f)(t_level *, char *));
@@ -681,7 +689,6 @@ void					file_save(char *str, char *extension,
 void					text_input(char *str, t_level *level);
 void					find_closest_mouse(t_vec3 *vert, int *i, int *k);
 
-unsigned int			chroma(t_bmp *img, int x, int y, int x_amount);
 void					main_menu(t_level *level, unsigned int *pixels,
 							t_game_state *game_state);
 void					main_menu_move_background(t_level *level);

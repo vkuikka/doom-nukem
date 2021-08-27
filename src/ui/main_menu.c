@@ -83,7 +83,7 @@ static unsigned int	black_and_white(unsigned int color, float amount)
 	return ((unsigned int)*(int *)rgb);
 }
 
-unsigned int	chroma(t_bmp *img, int x, int y, int x_amount)
+static unsigned int	chroma(t_bmp *img, int x, int y, int x_amount)
 {
 	unsigned int	res_color;
 	unsigned char	*rgb_l;
