@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/18 01:03:26 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/08/28 00:19:31 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,7 +143,7 @@ void	update_screen_space_vertices(t_level *level)
 				int		next;
 				int		next2;
 				next = (int[3]){1, 3, 2}[k];
-				next2 = (int[3]){1, 3, 2}[(k + 1) % 3];
+				next2 = (int[3]){1, 3, 2}[(k + 3) % 3];
 				start = level->visible.tris[i].verts[next].pos;
 				stop = level->visible.tris[i].verts[next2].pos;
 				camera_offset(&start, &level->cam);
