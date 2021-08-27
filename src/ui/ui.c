@@ -188,7 +188,7 @@ static void	init_ui_settings(t_editor_ui *ui)
 	ui->blur = FALSE;
 	ui->smooth_pixels = FALSE;
 	ui->backface_culling = TRUE;
-	// ui->occlusion_culling = TRUE;
+	ui->occlusion_culling = FALSE;
 	ui->distance_culling = FALSE;
 	ui->wireframe = FALSE;
 	ui->wireframe_on_top = TRUE;
@@ -205,8 +205,9 @@ static void	init_ui_settings(t_editor_ui *ui)
 	vec_normalize(&ui->sun_dir);
 	ui->spray_from_view = 1;
 	ui->spray_size = 3;
-	ui->fog_color.brightness = 0.5;
-	ui->fog_color.pos = 1;
+	ui->fog_color.hue = 1;
+	ui->fog_color.saturation = 1;
+	ui->fog_color.lightness = 0.5;
 	ui->fog_color.color = 0xffffffff;
 }
 

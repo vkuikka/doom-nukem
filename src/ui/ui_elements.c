@@ -266,9 +266,9 @@ void	float_slider(float *var, char *str, float min, float max)
 }
 
 /*
-b (brightness) input range -1, 1
+b (lightness) input range -1, 1
 */
-static unsigned int	set_brightness(unsigned int color, float b)
+static unsigned int	set_lightness(unsigned int color, float b)
 {
 	unsigned char	*rgb;
 	int				i;
@@ -287,7 +287,38 @@ static unsigned int	set_brightness(unsigned int color, float b)
 	return (color);
 }
 
-void	color_slider(t_color_slider *var, char *str)
+static unsigned int	set_saturation(unsigned int color, float s)
+{
+	unsigned char	*rgb;
+	unsigned int	avg;
+	int				i;
+
+	rgb = (unsigned char *)&color;
+	avg = (rgb[1] + rgb[2] + rgb[3]) / 3;
+	avg *= 1.0 - s;
+	i = 1;
+	while (i < 4)
+	{
+		rgb[i] = rgb[i] * s + avg;
+		i++;
+	}
+	return (color);
+}
+
+void	hsl_update_color(t_color_hsl *c)
+{
+	unsigned char	*rgb;
+
+	rgb = (unsigned char *)&c->color;
+	rgb[3] = 0xff * ((sin((c->hue * M_PI * 2) + (M_PI * 2 * ((1.0 / 3) * 1))) + 1) / 2);
+	rgb[2] = 0xff * ((sin((c->hue * M_PI * 2) + (M_PI * 2 * ((1.0 / 3) * 2))) + 1) / 2);
+	rgb[1] = 0xff * ((sin((c->hue * M_PI * 2) + (M_PI * 2 * ((1.0 / 3) * 3))) + 1) / 2);
+	rgb[0] = 0xff;
+	c->color = set_lightness(c->color, c->lightness);
+	c->color = set_saturation(c->color, c->saturation);
+}
+
+void	color_slider(t_color_hsl *var, char *str)
 {
 	t_window	*window;
 	t_ui_state	*state;
@@ -297,18 +328,21 @@ void	color_slider(t_color_slider *var, char *str)
 	if (str)
 		text(str);
 	state->ui_text_x_offset = 14;
-	render_color_slider(window->ui_texture_pixels, var->pos,
+	render_color_slider(window->ui_texture_pixels, var->hue,
 		state->ui_text_y_pos, state->color_slider_colors);
-	if (edit_slider_var(&var->pos, state))
-		var->pos = clamp(var->pos, 0, 1);
+	edit_slider_var(&var->hue, state);
 	state->ui_text_y_pos += UI_ELEMENT_HEIGHT;
-	render_color_slider(window->ui_texture_pixels, var->brightness,
+	render_color_slider(window->ui_texture_pixels, var->saturation,
 		state->ui_text_y_pos, state->color_slider_brightness);
-	if (edit_slider_var(&var->brightness, state))
-		var->brightness = clamp(var->brightness, 0, 1);
+	edit_slider_var(&var->saturation, state);
 	state->ui_text_y_pos += UI_ELEMENT_HEIGHT;
-	var->color = state->color_slider_colors[(int)(var->pos * (UI_SLIDER_WIDTH - 1))];
-	var->color = set_brightness(var->color, var->brightness * 2 - 1);
+	var->lightness = (var->lightness + 1) / 2;
+	render_color_slider(window->ui_texture_pixels, var->lightness,
+		state->ui_text_y_pos, state->color_slider_brightness);
+	edit_slider_var(&var->lightness, state);
+	var->lightness = var->lightness * 2 - 1;
+	state->ui_text_y_pos += UI_ELEMENT_HEIGHT;
+	hsl_update_color(var);
 }
 
 void	file_save(char *str, char *extension, void (*f)(t_level *, char *))

@@ -509,7 +509,10 @@ void	ui_level_settings(t_level *level)
 	button(&level->ui.fog, "fog");
 	if (level->ui.fog)
 		color_slider(&level->ui.fog_color, NULL);
-	button(&level->ui.backface_culling, "backface & occlusion culling (O(n^2)) (Horrible trash)");
+	button(&level->ui.backface_culling, "backface culling");
+	if (level->ui.backface_culling)
+		button(&level->ui.occlusion_culling,
+			"occlusion culling (O(n^2)) (Horrible trash)");
 	button(&level->ui.distance_culling, "distance culling");
 	sprintf(buf, "render distance: %.1fm", level->ui.render_distance);
 	float_slider(&level->ui.render_distance, buf, 2, 50);

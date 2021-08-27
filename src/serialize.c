@@ -128,6 +128,7 @@ void	deserialize_settings(t_level *level, t_buffer *buf)
 	deserialize_int(&level->ui.fog, buf);
 	deserialize_int((int *)&level->ui.fog_color.color, buf);
 	deserialize_int(&level->ui.backface_culling, buf);
+	deserialize_int(&level->ui.occlusion_culling, buf);
 	deserialize_int(&level->ui.distance_culling, buf);
 	deserialize_float(&level->ui.render_distance, buf);
 	deserialize_color(&level->ui.sun_color, buf);
@@ -141,6 +142,7 @@ void	serialize_settings(t_level *level, t_buffer *buf)
 	serialize_int(level->ui.fog, buf);
 	serialize_int(level->ui.fog_color.color, buf);
 	serialize_int(level->ui.backface_culling, buf);
+	serialize_int(level->ui.occlusion_culling, buf);
 	serialize_int(level->ui.distance_culling, buf);
 	serialize_float(level->ui.render_distance, buf);
 	serialize_color(level->ui.sun_color, buf);

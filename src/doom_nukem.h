@@ -199,12 +199,16 @@ typedef struct s_ivec2
 	int					y;
 }						t_ivec2;
 
-typedef struct s_color_slider
+//hue        0, 1
+//saturation 0, 1
+//lightness -1, 1
+typedef struct s_color_hsl
 {
-	float				pos;
-	float				brightness;
+	float				hue;
+	float				saturation;
+	float				lightness;
 	unsigned int		color;
-}						t_color_slider;
+}						t_color_hsl;
 
 typedef struct s_color
 {
@@ -451,10 +455,11 @@ typedef struct s_editor_ui
 	int					fog;
 	int					blur;
 	int					smooth_pixels;
-	t_color_slider		fog_color;
+	t_color_hsl			fog_color;
 	int					show_quads;
 	int					pause_culling_position;
 	int					backface_culling;
+	int					occlusion_culling;
 	int					distance_culling;
 	float				render_distance;
 	float				fov;
@@ -680,7 +685,7 @@ int						button(int *var, char *text);
 void					int_slider(int *var, char *str, int min, int max);
 void					float_slider(float *var, char *str, float min,
 							float max);
-void					color_slider(t_color_slider *var, char *str);
+void					color_slider(t_color_hsl	 *var, char *str);
 int						call(char *str, void (*f)(t_level *), t_level *level);
 void					file_browser(char *str, char *extension,
 							void (*f)(t_level *, char *));
