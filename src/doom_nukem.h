@@ -125,6 +125,7 @@
 #  include <sys/syslimits.h>//for PATH_MAX && NAME_MAX
 #  include <sys/stat.h>
 #  include <arpa/inet.h>
+#  include <mach-o/dyld.h> //for _NSGetExecutablePath
 # elif _WIN32
 #  define WIN32_LEAN_AND_MEAN
 #  include <windows.h>
