@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   2d_intersect.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: alcohen <alcohen@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/26 15:15:59 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/21 23:44:02 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/28 23:03:51 by alcohen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,18 +46,20 @@ int	point_in_tri(t_vec2 pt, t_vec2 v1, t_vec2 v2, t_vec2 v3)
 // 	return (FALSE);
 // }
 
+// https://www.geeksforgeeks.org/orientation-3-ordered-points/
+// Returns 0 (colinear, point is on the line (not segment)),
+// 		   1 (clockwise) or 2 (counter-clockwise)
 static int	line_orientation(t_vec2 p, t_vec2 q, t_vec2 r)
 {
 	float	val;
 
-	// https://www.geeksforgeeks.org/orientation-3-ordered-points/
 	val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);
 	if (val == 0)
-		return (0); // colinear (point is on the line (not segment) this is prob useless)
+		return (0);
 	if (val > 0)
-		return (1); // clockwise
+		return (1);
 	else
-		return (2); // counter clockwise
+		return (2);
 }
 
 /*

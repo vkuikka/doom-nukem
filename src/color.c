@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   color.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: alcohen <alcohen@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/21 17:32:09 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/23 00:30:55 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/08/28 23:07:10 by alcohen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -164,13 +164,15 @@ int	smooth_color(unsigned int *pixels, int gap, int x, int y)
 	{
 		re1 = pixels[dx + dy * RES_X];
 		re2 = pixels[dx + (dy + gap) * RES_X];
-		return (crossfade(re1 >> 8, re2 >> 8, y % gap / (float)gap * 0xff, 0xff));
+		return (crossfade(re1 >> 8, re2 >> 8, y % gap
+				/ (float)gap * 0xff, 0xff));
 	}
 	if (y >= RES_Y - gap)
 	{
 		re1 = pixels[dx + dy * RES_X];
 		re2 = pixels[dx + gap + dy * RES_X];
-		return (crossfade(re1 >> 8, re2 >> 8, x % gap / (float)gap * 0xff, 0xff));
+		return (crossfade(re1 >> 8, re2 >> 8, x % gap
+				/ (float)gap * 0xff, 0xff));
 	}
 	re1 = pixels[dx + dy * RES_X];
 	re2 = pixels[dx + (dy + gap) * RES_X];
@@ -258,28 +260,34 @@ void	face_color(float u, float v, t_tri t, t_cast_result *res)
 	float	w;
 
 	w = 1 - u - v;
-	x = ((t.verts[0].txtr.x * res->texture->width * w +
-			t.verts[1].txtr.x * res->texture->width * v +
-			t.verts[2].txtr.x * res->texture->width * u) /
-			(float)(u + v + w));
-	y = ((t.verts[0].txtr.y * res->texture->height * w +
-			t.verts[1].txtr.y * res->texture->height * v +
-			t.verts[2].txtr.y * res->texture->height * u) /
-			(float)(u + v + w));
+	x = ((t.verts[0].txtr.x * res->texture->width * w
+				+ t.verts[1].txtr.x * res->texture->width * v
+				+ t.verts[2].txtr.x * res->texture->width * u)
+			/ (float)(u + v + w));
+	y = ((t.verts[0].txtr.y * res->texture->height * w
+				+ t.verts[1].txtr.y * res->texture->height * v
+				+ t.verts[2].txtr.y * res->texture->height * u)
+			/ (float)(u + v + w));
 	wrap_coords(&x, &y, res->texture->width, res->texture->height);
 	res->color = res->texture->image[x + (y * res->texture->width)];
 	if (res->spray_overlay && res->spray_overlay[x + y * res->texture->width])
 		res->color = res->spray_overlay[x + y * res->texture->width];
 	if (res->baked && !res->raytracing)
-		res->color = brightness(res->color >> 8, res->baked[x + y * res->texture->width]) + (res->color << 24 >> 24);
+		res->color = brightness(
+				res->color >> 8, res->baked[x + y * res->texture->width])
+			+ (res->color << 24 >> 24);
 	if (!res->normal_map)
 		return ;
-	x = ((t.verts[0].txtr.x * res->normal_map->width * w +
-			t.verts[1].txtr.x * res->normal_map->width * v +
-			t.verts[2].txtr.x * res->normal_map->width * u) / (float)(u + v + w));
-	y = ((t.verts[0].txtr.y * res->normal_map->height * w +
-			t.verts[1].txtr.y * res->normal_map->height * v +
-			t.verts[2].txtr.y * res->normal_map->height * u) / (float)(u + v + w));
+	x = ((t.verts[0].txtr.x * res->normal_map->width * w
+				+ t.verts[1].txtr.x * res->normal_map->width * v
+				+ t.verts[2].txtr.x * res->normal_map->width * u)
+			/ (float)(u + v + w));
+	y = ((t.verts[0].txtr.y * res->normal_map->height * w
+				+ t.verts[1].txtr.y * res->normal_map->height * v
+				+ t.verts[2].txtr.y * res->normal_map->height * u)
+			/ (float)(u + v + w));
 	wrap_coords(&x, &y, res->normal_map->width, res->normal_map->height);
-	res->normal = get_normal(res->normal_map->image[x + (y * res->normal_map->width)]);
+	res->normal = get_normal(
+			res->normal_map->image[x + (y * res->normal_map->width)]
+			);
 }

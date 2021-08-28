@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   doom_nukem.h                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: alcohen <alcohen@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/23 00:28:56 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/08/28 22:36:40 by alcohen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -681,9 +681,11 @@ void			file_save(char *str, char *extension,
 void			text_input(char *str, t_level *level);
 void			find_closest_mouse(t_vec3 *vert, int *i, int *k);
 
-void			main_menu(t_level *level, unsigned int *pixels, t_game_state *game_state);
+void			main_menu(t_level *level, unsigned int *pixels,
+					t_game_state *game_state);
 void			main_menu_move_background(t_level *level);
-void			hud(t_level *level, unsigned int *pixels, t_game_state game_state);
+void			hud(t_level *level, unsigned int *pixels,
+					t_game_state game_state);
 void			create_projectile(t_level *level, t_vec3 pos,
 					t_vec3 dir, t_enemy *enemy);
 

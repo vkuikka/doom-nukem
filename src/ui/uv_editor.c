@@ -28,7 +28,9 @@ static void	uv_pixel_put(int x, int y, int color, unsigned int *texture)
 static float	get_texture_scale(t_bmp *img)
 {
 	if (img->width < img->height)
-		return ((float)(RES_Y - (UI_ELEMENT_HEIGHT + UI_PADDING * 2)) / img->height);
+		return ((float)
+			(RES_Y - (UI_ELEMENT_HEIGHT + UI_PADDING * 2)) / img->height
+		);
 	else
 		return ((float)RES_X / 2 / img->width);
 }
