@@ -28,7 +28,9 @@ static void	uv_pixel_put(int x, int y, int color, unsigned int *texture)
 static float	get_texture_scale(t_bmp *img)
 {
 	if (img->width < img->height)
-		return ((float)(RES_Y - UV_EDITOR_Y_OFFSET) / img->height);
+		return ((float)
+			(RES_Y - (UI_ELEMENT_HEIGHT + UI_PADDING * 2)) / img->height
+		);
 	else
 		return ((float)RES_X / 2 / img->width);
 }
@@ -348,7 +350,7 @@ void	uv_editor(t_level *level, unsigned int *pixels)
 
 	image_scale = get_texture_scale(&level->texture) * level->ui.state.uv_zoom;
 	offset.x = level->ui.state.uv_pos.x;
-	offset.y = UV_EDITOR_Y_OFFSET + level->ui.state.uv_pos.y;
+	offset.y = (UI_ELEMENT_HEIGHT + UI_PADDING * 2) + level->ui.state.uv_pos.y;
 	offset.x += RES_X / 4;
 	offset.y += RES_Y / 2;
 	offset.x -= level->texture.width * image_scale / 2;

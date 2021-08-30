@@ -152,8 +152,8 @@ void	init_audio(t_level *l)
 {
 	if (Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 8, 4096) < 0)
 		ft_error("Failed to initialize SDL_Mixer");
-	l->audio.music_volume = AUDIO_VOLUME_INIT;
-	l->audio.sound_effect_volume = AUDIO_VOLUME_INIT;
+	l->audio.music_volume = MIX_MAX_VOLUME / 10;
+	l->audio.sound_effect_volume = MIX_MAX_VOLUME / 10;
 	Mix_VolumeMusic(l->audio.music_volume);
 	Mix_Volume(-1, l->audio.sound_effect_volume);
 	l->audio.music = Mix_LoadMUS(AUDIO_MUSIC);
