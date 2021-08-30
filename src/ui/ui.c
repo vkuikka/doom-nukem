@@ -207,7 +207,7 @@ static void	init_ui_settings(t_editor_ui *ui)
 	ui->spray_size = 3;
 	ui->fog_color.hue = 1;
 	ui->fog_color.saturation = 1;
-	ui->fog_color.lightness = 0.5;
+	ui->fog_color.lightness = 0;
 	ui->fog_color.color = 0xffffffff;
 }
 

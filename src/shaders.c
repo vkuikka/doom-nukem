@@ -87,20 +87,26 @@ t_color	lights(t_level *l, t_cast_result *res, t_vec3 normal)
 			{
 				vec_normalize(&diff);
 				result.r += (1.0 - dist / l->lights[i].radius)
+					* l->lights[i].power
 					* l->lights[i].color.r * -vec_dot(diff, res->normal);
 				result.g += (1.0 - dist / l->lights[i].radius)
+					* l->lights[i].power
 					* l->lights[i].color.g * -vec_dot(diff, res->normal);
 				result.b += (1.0 - dist / l->lights[i].radius)
+					* l->lights[i].power
 					* l->lights[i].color.b * -vec_dot(diff, res->normal);
 			}
 			else if (cast_all(ray, l, NULL) >= vec_length(diff) - 0.1)
 			{
 				vec_normalize(&diff);
 				result.r += (1.0 - dist / l->lights[i].radius)
+					* l->lights[i].power
 					* l->lights[i].color.r * -vec_dot(diff, res->normal);
 				result.g += (1.0 - dist / l->lights[i].radius)
+					* l->lights[i].power
 					* l->lights[i].color.g * -vec_dot(diff, res->normal);
 				result.b += (1.0 - dist / l->lights[i].radius)
+					* l->lights[i].power
 					* l->lights[i].color.b * -vec_dot(diff, res->normal);
 			}
 		}

@@ -109,15 +109,23 @@ void	serialize_vec3(t_vec3 vec, t_buffer *buf)
 	serialize_float(vec.z, buf);
 }
 
-void	deserialize_color(t_color *color, t_buffer *buf)
+void	deserialize_color(t_color_hsl *color, t_buffer *buf)
 {
+	deserialize_float(&color->hue, buf);
+	deserialize_float(&color->saturation, buf);
+	deserialize_float(&color->lightness, buf);
+	deserialize_int(&color->color, buf);
 	deserialize_float(&color->r, buf);
 	deserialize_float(&color->g, buf);
 	deserialize_float(&color->b, buf);
 }
 
-void	serialize_color(t_color color, t_buffer *buf)
+void	serialize_color(t_color_hsl color, t_buffer *buf)
 {
+	serialize_float(color.hue, buf);
+	serialize_float(color.saturation, buf);
+	serialize_float(color.lightness, buf);
+	serialize_int(color.color, buf);
 	serialize_float(color.r, buf);
 	serialize_float(color.g, buf);
 	serialize_float(color.b, buf);
@@ -533,6 +541,7 @@ void	deserialize_lights(t_level *level, t_buffer *buf)
 		deserialize_vec3(&level->lights[i].pos, buf);
 		deserialize_color(&level->lights[i].color, buf);
 		deserialize_float(&level->lights[i].radius, buf);
+		deserialize_float(&level->lights[i].power, buf);
 		i++;
 	}
 }
@@ -548,6 +557,7 @@ void	serialize_lights(t_level *level, t_buffer *buf)
 		serialize_vec3(level->lights[i].pos, buf);
 		serialize_color(level->lights[i].color, buf);
 		serialize_float(level->lights[i].radius, buf);
+		serialize_float(level->lights[i].power, buf);
 		i++;
 	}
 }

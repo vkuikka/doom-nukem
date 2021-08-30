@@ -78,7 +78,7 @@ void	init_level(t_level *level)
 	level->cam.look_side = 0;
 	level->cam.look_up = 0;
 	level->main_menu_anim_time = 2;
-	level->world_brightness = 0.15;
+	level->world_brightness = 0.5;
 	level->texture = bmp_read("out.bmp");
 	level->baked = (t_color *)malloc(sizeof(t_color)
 			* (level->texture.width * level->texture.height));

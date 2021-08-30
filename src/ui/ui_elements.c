@@ -42,9 +42,9 @@ static int	edit_slider_var(float *unit, t_ui_state *state)
 	SDL_GetMouseState(&x, &y);
 	if (state->mouse_location == MOUSE_LOCATION_UI && state->m1_drag
 		&& y >= state->ui_text_y_pos + 4 && y <= state->ui_text_y_pos + 15
-		&& x < 109 && x > 2)
+		&& x < UI_SLIDER_WIDTH - 2 && x >= 2)
 	{
-		*unit = (float)(x - 4) / (float)100;
+		*unit = (float)(x - 2) / (float)(UI_SLIDER_WIDTH - UI_SLIDER_BUTTON_WIDTH);
 		return (TRUE);
 	}
 	return (FALSE);
@@ -133,7 +133,7 @@ void	render_color_slider(unsigned int *texture, float pos,
 	while (++y < 4)
 	{
 		x = 0;
-		while (x < UI_SLIDER_WIDTH)// + 6
+		while (x < UI_SLIDER_WIDTH)
 		{
 			button_pixel_put(x + 2, y + 6 + dy, colors[x], texture);
 			x++;
@@ -143,10 +143,10 @@ void	render_color_slider(unsigned int *texture, float pos,
 	while (y < 12)
 	{
 		x = 0;
-		while (x < 6)
+		while (x <= UI_SLIDER_BUTTON_WIDTH)
 		{
 			button_pixel_put(
-				x + 2 + (UI_SLIDER_WIDTH * pos), y + 2 + dy, 0x666666ff, texture);
+				x + 2 + ((UI_SLIDER_WIDTH - UI_SLIDER_BUTTON_WIDTH) * pos), y + 2 + dy, 0x666666ff, texture);
 			x++;
 		}
 		y++;
@@ -163,7 +163,7 @@ void	render_slider_streaming(unsigned int *texture,
 	while (++y < 4)
 	{
 		x = 0;
-		while (x < UI_SLIDER_WIDTH + 6)
+		while (x < UI_SLIDER_WIDTH)
 		{
 			button_pixel_put(x + 2, y + 6 + dy, 0x404040ff, texture);
 			x++;
@@ -173,15 +173,14 @@ void	render_slider_streaming(unsigned int *texture,
 	while (y < 12)
 	{
 		x = 0;
-		while (x < 6)
+		while (x <= UI_SLIDER_BUTTON_WIDTH)
 		{
 			button_pixel_put(
-				x + 2 + (UI_SLIDER_WIDTH * unit), y + 2 + dy, 0x666666ff, texture);
+				x + 2 + ((UI_SLIDER_WIDTH - UI_SLIDER_BUTTON_WIDTH) * unit), y + 2 + dy, 0x666666ff, texture);
 			x++;
 		}
 		y++;
 	}
-
 }
 
 void	text(char *str)
@@ -316,6 +315,9 @@ void	hsl_update_color(t_color_hsl *c)
 	rgb[0] = 0xff;
 	c->color = set_lightness(c->color, c->lightness);
 	c->color = set_saturation(c->color, c->saturation);
+	c->r = rgb[3] / (float)0xff;
+	c->g = rgb[2] / (float)0xff;
+	c->b = rgb[1] / (float)0xff;
 }
 
 void	color_slider(t_color_hsl *var, char *str)

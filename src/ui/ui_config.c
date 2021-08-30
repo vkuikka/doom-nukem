@@ -414,25 +414,15 @@ void	ui_single_light_settings(t_level *level)
 {
 	char	buf[100];
 
+	color_slider(&level->lights[level->selected_light_index - 1].color, "light color");
 	sprintf(buf, "radius: %.2f",
 		level->lights[level->selected_light_index - 1].radius);
 	float_slider(&level->lights[level->selected_light_index - 1].radius,
 		buf, .1, 20);
-	sprintf(buf, "red: %.2f",
-		level->lights[level->selected_light_index - 1].color.r);
-	float_slider(
-		&level->lights[level->selected_light_index - 1].color.r,
-		buf, 0, 5);
-	sprintf(buf, "green: %.2f",
-		level->lights[level->selected_light_index - 1].color.g);
-	float_slider(
-		&level->lights[level->selected_light_index - 1].color.g,
-		buf, 0, 5);
-	sprintf(buf, "blue: %.2f",
-		level->lights[level->selected_light_index - 1].color.b);
-	float_slider(
-		&level->lights[level->selected_light_index - 1].color.b,
-		buf, 0, 5);
+	sprintf(buf, "power: %.2f",
+		level->lights[level->selected_light_index - 1].power);
+	float_slider(&level->lights[level->selected_light_index - 1].power,
+		buf, .1, 5);
 	call("delete light", &delete_light, level);
 }
 
@@ -445,12 +435,7 @@ void	ui_level_light_settings(t_level *level)
 	sprintf(buf, "skybox brightness: %.2f (0 = sync)",
 		level->skybox_brightness);
 	float_slider(&level->skybox_brightness, buf, 0, 1);
-	sprintf(buf, "sun red: %.2f", level->ui.sun_color.r);
-	float_slider(&level->ui.sun_color.r, buf, 0, 1);
-	sprintf(buf, "sun green: %.2f", level->ui.sun_color.g);
-	float_slider(&level->ui.sun_color.g, buf, 0, 1);
-	sprintf(buf, "sun blue: %.2f", level->ui.sun_color.b);
-	float_slider(&level->ui.sun_color.b, buf, 0, 1);
+	color_slider(&level->ui.sun_color, "sun color");
 	sprintf(buf, "sun dir: (%.2f, %.2f, %.2f)", level->ui.sun_dir.x,
 		level->ui.sun_dir.y, level->ui.sun_dir.z);
 	text(buf);

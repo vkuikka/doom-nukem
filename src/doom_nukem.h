@@ -87,6 +87,7 @@
 # define UI_ERROR_COLOR 0xff000000
 # define GIZMO_SCALE_DIVIDER 4
 # define UI_SLIDER_WIDTH 100
+# define UI_SLIDER_BUTTON_WIDTH 5
 # define UI_FONT_SIZE 13
 # define UI_EDITOR_SETTINGS_TEXT_COLOR 0x4444ffff
 # define UI_LEVEL_SETTINGS_TEXT_COLOR 0xffffffff
@@ -207,7 +208,10 @@ typedef struct s_color_hsl
 	float				hue;
 	float				saturation;
 	float				lightness;
-	unsigned int		color;
+	int					color;
+	float				r;
+	float				g;
+	float				b;
 }						t_color_hsl;
 
 typedef struct s_color
@@ -467,7 +471,7 @@ typedef struct s_editor_ui
 	int					spray_from_view;
 	float				spray_size;
 
-	t_color				sun_color;
+	t_color_hsl			sun_color;
 	struct s_vec3		sun_dir;
 	float				horizontal_velocity;
 
@@ -481,8 +485,9 @@ typedef struct s_editor_ui
 typedef struct s_light
 {
 	t_vec3				pos;
-	t_color				color;
+	t_color_hsl			color;
 	float				radius;
+	float				power;
 }						t_light;
 
 typedef struct s_player_pos
@@ -642,6 +647,7 @@ float					cast_face(t_tri t, t_ray ray, t_cast_result *res);
 float					cast_all(t_ray vec, t_level *level, int *index);
 void					fill_pixels(unsigned int *grid, int pixel_gap,
 							int blur, int smooth);
+void					hsl_update_color(t_color_hsl *c);
 unsigned int			crossfade(unsigned int color1, unsigned int color2,
 							unsigned int fade, unsigned int alpha);
 void					face_color(float u, float v, t_tri t,
