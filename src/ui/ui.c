@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/06 08:50:56 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/26 08:06:59 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/31 12:26:04 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -211,26 +211,6 @@ static void	init_ui_settings(t_editor_ui *ui)
 	ui->fog_color.color = 0xffffffff;
 }
 
-static void	init_color_slider_brightness(t_level *level)
-{
-	unsigned int	brightness;
-	unsigned int	i;
-
-	level->ui.state.color_slider_brightness = (unsigned int*)malloc
-		(sizeof(unsigned int) * UI_SLIDER_WIDTH);
-	if (!level->ui.state.color_slider_brightness)
-		ft_error("color slider memory allocation failed");
-	i = 0;
-	while (i < UI_SLIDER_WIDTH)
-	{
-		brightness = 0xff * (i / (float)UI_SLIDER_WIDTH);
-		level->ui.state.color_slider_brightness[i]
-			= (brightness << 3 * 8) + (brightness << 2 * 8)
-			+ (brightness << 1 * 8) + 0xff;
-		i++;
-	}
-}
-
 static void	init_color_slider(t_level *level)
 {
 	unsigned int	i;
@@ -239,9 +219,9 @@ static void	init_color_slider(t_level *level)
 	unsigned int	blu;
 	float			pos;
 
-	level->ui.state.color_slider_colors = (unsigned int*)malloc
+	level->ui.state.color_slider_hue_colors = (unsigned int*)malloc
 		(sizeof(unsigned int) * UI_SLIDER_WIDTH);
-	if (!level->ui.state.color_slider_colors)
+	if (!level->ui.state.color_slider_hue_colors)
 		ft_error("color slider memory allocation failed");
 	i = 0;
 	while (i < UI_SLIDER_WIDTH)
@@ -253,7 +233,7 @@ static void	init_color_slider(t_level *level)
 		red = red << 8 * 3;
 		grn = grn << 8 * 2;
 		blu = blu << 8 * 1;
-		level->ui.state.color_slider_colors[i] = red + grn + blu + 0xff;
+		level->ui.state.color_slider_hue_colors[i] = red + grn + blu + 0xff;
 		i++;
 	}
 }
@@ -277,5 +257,4 @@ void	init_ui(t_window *window, t_level *level)
 	get_ui_state(&level->ui.state);
 	get_window(window);
 	init_color_slider(level);
-	init_color_slider_brightness(level);
 }

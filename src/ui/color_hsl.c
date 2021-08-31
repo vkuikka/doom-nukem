@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/31 09:13:43 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/31 09:13:52 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/31 12:35:59 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 /*
 b (lightness) input range -1, 1
 */
-static unsigned int	set_lightness(unsigned int color, float b)
+unsigned int	set_lightness(unsigned int color, float b)
 {
 	unsigned char	*rgb;
 	int				i;
@@ -34,7 +34,7 @@ static unsigned int	set_lightness(unsigned int color, float b)
 	return (color);
 }
 
-static unsigned int	set_saturation(unsigned int color, float s)
+unsigned int	set_saturation(unsigned int color, float s)
 {
 	unsigned char	*rgb;
 	unsigned int	avg;
@@ -61,6 +61,7 @@ void	hsl_update_color(t_color_hsl *c)
 	rgb[2] = 0xff * ((sin((c->hue * M_PI * 2) + (M_PI * 2 * ((1.0 / 3) * 2))) + 1) / 2);
 	rgb[1] = 0xff * ((sin((c->hue * M_PI * 2) + (M_PI * 2 * ((1.0 / 3) * 3))) + 1) / 2);
 	rgb[0] = 0xff;
+	c->rgb_hue = c->color;
 	c->color = set_lightness(c->color, c->lightness);
 	c->color = set_saturation(c->color, c->saturation);
 	c->r = rgb[3] / (float)0xff;

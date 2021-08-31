@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/26 03:01:08 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/31 12:35:34 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -208,6 +208,7 @@ typedef struct s_color_hsl
 	float				hue;
 	float				saturation;
 	float				lightness;
+	unsigned			rgb_hue;
 	int					color;
 	float				r;
 	float				g;
@@ -432,8 +433,7 @@ typedef struct s_ui_state
 	int					ssp_visual;
 	struct s_vec3		gizmo_pos;
 	float				gizmo_dist_from_screen;
-	unsigned int		*color_slider_colors;
-	unsigned int		*color_slider_brightness;
+	unsigned int		*color_slider_hue_colors;
 
 	char				*directory;
 	int					find_dir;
@@ -648,6 +648,8 @@ float					cast_all(t_ray vec, t_level *level, int *index);
 void					fill_pixels(unsigned int *grid, int pixel_gap,
 							int blur, int smooth);
 void					hsl_update_color(t_color_hsl *c);
+unsigned int			set_saturation(unsigned int color, float s);
+unsigned int			set_lightness(unsigned int color, float b);
 unsigned int			crossfade(unsigned int color1, unsigned int color2,
 							unsigned int fade, unsigned int alpha);
 void					face_color(float u, float v, t_tri t,
