@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/31 12:35:34 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/31 14:29:16 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -629,6 +629,7 @@ void					vec2_avg(t_vec2 *res, t_vec2 ve1, t_vec2 ve2);
 void					vec2_sub(t_vec2 *res, t_vec2 ve1, t_vec2 ve2);
 void					vec2_add(t_vec2 *res, t_vec2 ve1, t_vec2 ve2);
 void					vec2_mult(t_vec2 *res, float mult);
+float					clamp(float var, float min, float max);
 
 void					init_window(t_window **window);
 void					init_embedded(t_level *level);
