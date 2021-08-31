@@ -171,12 +171,13 @@ static int	reflection_backface(t_tri t1, t_tri t2)
 	return (0);
 }
 
+// Order: left, right, top, bottom
 static void	calculate_side_normals(t_vec3 normal[4], t_vec3 corner[4])
 {
-	vec_cross(&normal[0], corner[2], corner[0]); // left
-	vec_cross(&normal[1], corner[1], corner[3]); // right
-	vec_cross(&normal[2], corner[0], corner[1]); // top
-	vec_cross(&normal[3], corner[3], corner[2]); // bot
+	vec_cross(&normal[0], corner[2], corner[0]);
+	vec_cross(&normal[1], corner[1], corner[3]);
+	vec_cross(&normal[2], corner[0], corner[1]);
+	vec_cross(&normal[3], corner[3], corner[2]);
 }
 
 void	shadow_face_culling(t_level *level, int i)
@@ -394,29 +395,29 @@ void	init_culling(t_level *level)
 		level->all.tris[i].reflection_obj_all = (t_obj *)malloc(sizeof(t_obj));
 		if (!level->all.tris[i].reflection_obj_all)
 			ft_error("culling malloc fail");
-		level->all.tris[i].reflection_obj_all->tris =
-			(t_tri *)malloc(sizeof(t_tri) * level->all.tri_amount);
+		level->all.tris[i].reflection_obj_all->tris
+			= (t_tri *)malloc(sizeof(t_tri) * level->all.tri_amount);
 		if (!level->all.tris[i].reflection_obj_all->tris)
 			ft_error("culling malloc fail");
 		level->all.tris[i].reflection_obj_all->tri_amount = 0;
-		level->all.tris[i].reflection_obj_first_bounce =
-			(t_obj *)malloc(sizeof(t_obj));
+		level->all.tris[i].reflection_obj_first_bounce
+			= (t_obj *)malloc(sizeof(t_obj));
 		if (!level->all.tris[i].reflection_obj_first_bounce)
 			ft_error("culling malloc fail");
-		level->all.tris[i].reflection_obj_first_bounce->tris =
-			(t_tri *)malloc(sizeof(t_tri) * level->all.tri_amount);
+		level->all.tris[i].reflection_obj_first_bounce->tris
+			= (t_tri *)malloc(sizeof(t_tri) * level->all.tri_amount);
 		if (!level->all.tris[i].reflection_obj_first_bounce->tris)
 			ft_error("culling malloc fail");
 		level->all.tris[i].reflection_obj_first_bounce->tri_amount = 0;
 		level->all.tris[i].opacity_obj_all = (t_obj *)malloc(sizeof(t_obj));
-		level->all.tris[i].opacity_obj_all->tris =
-			(t_tri *)malloc(sizeof(t_tri) * level->all.tri_amount);
+		level->all.tris[i].opacity_obj_all->tris
+			= (t_tri *)malloc(sizeof(t_tri) * level->all.tri_amount);
 		if (!level->all.tris[i].opacity_obj_all->tris)
 			ft_error("culling malloc fail");
 		level->all.tris[i].opacity_obj_all->tri_amount = 0;
 		level->all.tris[i].shadow_faces = (t_obj *)malloc(sizeof(t_obj));
-		level->all.tris[i].shadow_faces->tris =
-			(t_tri *)malloc(sizeof(t_tri) * level->all.tri_amount);
+		level->all.tris[i].shadow_faces->tris
+			= (t_tri *)malloc(sizeof(t_tri) * level->all.tri_amount);
 		if (!level->all.tris[i].shadow_faces->tris)
 			ft_error("culling malloc fail");
 		level->all.tris[i].shadow_faces->tri_amount = 0;

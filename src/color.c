@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/21 17:32:09 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/26 01:46:59 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/31 14:47:30 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,12 +49,16 @@ unsigned int	brightness(unsigned int color1, t_color new)
 	return ((newr << 8 * 3) + (newg << 8 * 2) + (newb << 8 * 1));
 }
 
-int	skybox(t_level *l, t_obj *obj, t_ray r)
+int	skybox(t_level *l, t_cast_result res)
 {
-	t_cast_result	res;
 	t_color			tmp;
+	t_obj			*obj;
 	int				i;
 
+	if (res.reflection_depth)
+		obj = &l->sky.all;
+	else
+		obj = &l->sky.visible;
 	if (l->skybox_brightness != 0)
 	{
 		tmp.r = l->skybox_brightness;
@@ -68,9 +72,9 @@ int	skybox(t_level *l, t_obj *obj, t_ray r)
 		tmp.b = l->ui.sun_color.b + l->world_brightness;
 	}
 	res.color = 0;
-	r.pos.x = 0;
-	r.pos.y = 0;
-	r.pos.z = 0;
+	res.ray.pos.x = 0;
+	res.ray.pos.y = 0;
+	res.ray.pos.z = 0;
 	res.texture = &l->sky.img;
 	res.normal_map = NULL;
 	res.baked = NULL;
@@ -79,7 +83,7 @@ int	skybox(t_level *l, t_obj *obj, t_ray r)
 	i = 0;
 	while (i < obj->tri_amount)
 	{
-		if (0 < cast_face(obj->tris[i], r, &res))
+		if (0 < cast_face(obj->tris[i], res.ray, &res))
 		{
 			face_color(res.uv.x, res.uv.y, obj->tris[i], &res);
 			res.color = brightness(res.color >> 8, tmp) + 0xff;
@@ -90,7 +94,7 @@ int	skybox(t_level *l, t_obj *obj, t_ray r)
 	return (res.color);
 }
 
-int	fog(int color, float dist, unsigned int fog_color, t_level *level)
+void	fog(unsigned int *color, float dist, unsigned int fog_color, t_level *level)
 {
 	float	fade;
 
@@ -99,9 +103,10 @@ int	fog(int color, float dist, unsigned int fog_color, t_level *level)
 		fade = (dist + 1) / (level->ui.render_distance - 1);
 		if (fade > 1)
 			fade = 1;
-		return (crossfade(color >> 8, fog_color >> 8, 0xff * fade, 0xff));
+		*color = crossfade(*color >> 8, fog_color >> 8, 0xff * fade, 0xff);
 	}
-	return (fog_color);
+	else
+		*color = fog_color;
 }
 
 void	blur_pixels(unsigned int *color, int gap)
@@ -153,13 +158,15 @@ int	smooth_color(unsigned int *pixels, int gap, int x, int y)
 	{
 		re1 = pixels[dx + dy * RES_X];
 		re2 = pixels[dx + (dy + gap) * RES_X];
-		return (crossfade(re1 >> 8, re2 >> 8, y % gap / (float)gap * 0xff, 0xff));
+		return (crossfade(re1 >> 8, re2 >> 8, y % gap
+				/ (float)gap * 0xff, 0xff));
 	}
 	if (y >= RES_Y - gap)
 	{
 		re1 = pixels[dx + dy * RES_X];
 		re2 = pixels[dx + gap + dy * RES_X];
-		return (crossfade(re1 >> 8, re2 >> 8, x % gap / (float)gap * 0xff, 0xff));
+		return (crossfade(re1 >> 8, re2 >> 8, x % gap
+				/ (float)gap * 0xff, 0xff));
 	}
 	re1 = pixels[dx + dy * RES_X];
 	re2 = pixels[dx + (dy + gap) * RES_X];
@@ -247,28 +254,34 @@ void	face_color(float u, float v, t_tri t, t_cast_result *res)
 	float	w;
 
 	w = 1 - u - v;
-	x = ((t.verts[0].txtr.x * res->texture->width * w +
-			t.verts[1].txtr.x * res->texture->width * v +
-			t.verts[2].txtr.x * res->texture->width * u) /
-			(float)(u + v + w));
-	y = ((t.verts[0].txtr.y * res->texture->height * w +
-			t.verts[1].txtr.y * res->texture->height * v +
-			t.verts[2].txtr.y * res->texture->height * u) /
-			(float)(u + v + w));
+	x = ((t.verts[0].txtr.x * res->texture->width * w
+				+ t.verts[1].txtr.x * res->texture->width * v
+				+ t.verts[2].txtr.x * res->texture->width * u)
+			/ (float)(u + v + w));
+	y = ((t.verts[0].txtr.y * res->texture->height * w
+				+ t.verts[1].txtr.y * res->texture->height * v
+				+ t.verts[2].txtr.y * res->texture->height * u)
+			/ (float)(u + v + w));
 	wrap_coords(&x, &y, res->texture->width, res->texture->height);
 	res->color = res->texture->image[x + (y * res->texture->width)];
 	if (res->spray_overlay && res->spray_overlay[x + y * res->texture->width])
 		res->color = res->spray_overlay[x + y * res->texture->width];
 	if (res->baked && !res->raytracing)
-		res->color = brightness(res->color >> 8, res->baked[x + y * res->texture->width]) + (res->color << 24 >> 24);
+		res->color = brightness(
+				res->color >> 8, res->baked[x + y * res->texture->width])
+			+ (res->color << 24 >> 24);
 	if (!res->normal_map)
 		return ;
-	x = ((t.verts[0].txtr.x * res->normal_map->width * w +
-			t.verts[1].txtr.x * res->normal_map->width * v +
-			t.verts[2].txtr.x * res->normal_map->width * u) / (float)(u + v + w));
-	y = ((t.verts[0].txtr.y * res->normal_map->height * w +
-			t.verts[1].txtr.y * res->normal_map->height * v +
-			t.verts[2].txtr.y * res->normal_map->height * u) / (float)(u + v + w));
+	x = ((t.verts[0].txtr.x * res->normal_map->width * w
+				+ t.verts[1].txtr.x * res->normal_map->width * v
+				+ t.verts[2].txtr.x * res->normal_map->width * u)
+			/ (float)(u + v + w));
+	y = ((t.verts[0].txtr.y * res->normal_map->height * w
+				+ t.verts[1].txtr.y * res->normal_map->height * v
+				+ t.verts[2].txtr.y * res->normal_map->height * u)
+			/ (float)(u + v + w));
 	wrap_coords(&x, &y, res->normal_map->width, res->normal_map->height);
-	res->normal = get_normal(res->normal_map->image[x + (y * res->normal_map->width)]);
+	res->normal = get_normal(
+			res->normal_map->image[x + (y * res->normal_map->width)]
+			);
 }

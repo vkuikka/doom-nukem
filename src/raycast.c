@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/12 11:37:35 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/31 14:51:04 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,27 +24,10 @@ void	rot_cam(t_vec3 *cam, const float lon, const float lat)
 	cam->z = radius * sin(phi) * sin(lon);
 }
 
-static void	raytrace(t_cast_result *res, t_obj *obj, t_ray r, t_level *l)
+static void	trace_bounce(t_cast_result *res, t_obj *obj, t_level *l)
 {
 	float	opacity_value;
-	t_vec3	face_normal;
-	t_color	light;
-	t_vec3	tmp;
 
-	vec_add(&tmp, r.dir, r.pos);
-	face_normal = l->all.tris[res->face_index].normal;
-	vec_normalize(&res->normal);
-	res->ray = r;
-	if (l->all.tris[res->face_index].shader == 1)
-		res->color = shader_wave(tmp, &res->normal, 0x070C5A, 0x020540);
-	if (l->all.tris[res->face_index].shader == 2)
-		res->color = shader_rule30(tmp);
-	else if (!res->baked || res->raytracing)
-	{
-		light = sunlight(l, res, lights(l, res, face_normal));
-		res->color
-			= brightness(res->color >> 8, light) + (res->color << 24 >> 24);
-	}
 	if (l->all.tris[res->face_index].reflectivity
 		&& res->reflection_depth < REFLECTION_DEPTH)
 	{
@@ -65,110 +48,137 @@ static void	raytrace(t_cast_result *res, t_obj *obj, t_ray r, t_level *l)
 	}
 }
 
-void	cast_all_color(t_ray r, t_level *l, t_obj *obj, t_cast_result *res)
+static void	raytrace(t_cast_result *res, t_obj *obj, t_level *l)
 {
-	float	dist;
+	t_vec3	face_normal;
+	t_color	light;
+	t_vec3	tmp;
+
+	vec_add(&tmp, res->ray.dir, res->ray.pos);
+	face_normal = l->all.tris[res->face_index].normal;
+	vec_normalize(&res->normal);
+	if (l->all.tris[res->face_index].shader == 1)
+		res->color = shader_wave(tmp, &res->normal, 0x070C5A, 0x020540);
+	if (l->all.tris[res->face_index].shader == 2)
+		res->color = shader_rule30(tmp);
+	else if (!res->baked || res->raytracing)
+	{
+		light = sunlight(l, res, lights(l, res, face_normal));
+		res->color
+			= brightness(res->color >> 8, light) + (res->color << 24 >> 24);
+	}
+	trace_bounce(res, obj, l);
+}
+
+static int	cast_loop(t_obj *obj, t_cast_result *res)
+{
 	float	tmp_dist;
+	float	min_dist;
 	int		new_hit;
 	int		i;
 	t_vec2	uv;
 
-	dist = FLT_MAX;
 	i = 0;
+	min_dist = FLT_MAX;
 	new_hit = -1;
 	while (i < obj->tri_amount)
 	{
-		tmp_dist = cast_face(obj->tris[i], r, res);
-		if (0 < tmp_dist && tmp_dist < dist
+		tmp_dist = cast_face(obj->tris[i], res->ray, res);
+		if (0 < tmp_dist && tmp_dist < min_dist
 			&& obj->tris[i].index != res->face_index)
 		{
-			dist = tmp_dist;
+			min_dist = tmp_dist;
 			new_hit = i;
 			uv = res->uv;
 		}
 		i++;
 	}
-	res->dist = dist;
+	res->uv = uv;
+	res->dist = min_dist;
+	return (new_hit);
+}
+
+void	cast_all_color(t_level *l, t_obj *obj, t_cast_result *res)
+{
+	int		new_hit;
+
+	new_hit = cast_loop(obj, res);
 	if (new_hit == -1)
-	{
-		if (res->reflection_depth)
-			res->color = skybox(l, &l->sky.all, r);
-		else
-			res->color = skybox(l, &l->sky.visible, r);
-	}
+		res->color = skybox(l, *res);
 	else
 	{
-		res->uv = uv;
 		res->face_index = obj->tris[new_hit].index;
 		face_color(res->uv.x, res->uv.y, obj->tris[new_hit], res);
-		vec_mult(&r.dir, dist);
-		vec_add(&r.pos, r.pos, r.dir);
-		raytrace(res, obj, r, l);
+		vec_mult(&res->ray.dir, res->dist);
+		vec_add(&res->ray.pos, res->ray.pos, res->ray.dir);
+		raytrace(res, obj, l);
 	}
 }
 
-int	raycast(void *data_pointer)
+t_ray	ray_set(t_camera *cam, float fov, t_ivec2 xy)
 {
-	int				rand_amount;
-	int				pixel_gap;
-	float			fov_x;
-	t_camera		*cam;
-	t_cast_result	res;
-	t_rthread		*t;
-	t_ray			r;
-	float			xm;
-	float			ym;
-	int				x;
-	int				y;
+	t_ray	res;
+	float	xm;
+	float	ym;
 
-	t = data_pointer;
-	cam = &t->level->cam;
-	pixel_gap = t->level->ui.raycast_quality;
-	rand_amount = 0;
-	if (t->level->ui.raycast_quality >= NOISE_QUALITY_LIMIT)
+	xm = fov * ((float)RES_X / RES_Y);
+	ym = fov;
+	xm = xm / RES_X * xy.x - xm / 2;
+	ym = ym / RES_Y * xy.y - ym / 2;
+	res.dir.x = cam->front.x + cam->up.x * ym + cam->side.x * xm;
+	res.dir.y = cam->front.y + cam->up.y * ym + cam->side.y * xm;
+	res.dir.z = cam->front.z + cam->up.z * ym + cam->side.z * xm;
+	res.pos = cam->pos;
+	return (res);
+}
+
+void	cast_result_set(t_cast_result *res, t_level *level)
+{
+	res->raytracing = level->ui.raytracing;
+	res->normal_map = &level->normal_map;
+	res->texture = &level->texture;
+	res->spray_overlay = level->spray_overlay;
+	if (level->bake_status != BAKE_NOT_BAKED)
+		res->baked = level->baked;
+	else
+		res->baked = NULL;
+	res->reflection_depth = 0;
+	res->face_index = -1;
+}
+
+void	raycast(t_level *level, t_window *window, int thread_id)
+{
+	t_cast_result	res;
+	t_ivec2			xy;
+
+	xy.x = thread_id;
+	while (xy.x < RES_X)
 	{
-		srand(SDL_GetTicks());
-		rand_amount = 2;
-	}
-	r.pos.x = cam->pos.x;
-	r.pos.y = cam->pos.y;
-	r.pos.z = cam->pos.z;
-	fov_x = t->level->ui.fov * ((float)RES_X / RES_Y);
-	x = t->id;
-	while (x < RES_X)
-	{
-		y = -1;
-		while (++y < RES_Y)
+		xy.y = -1;
+		while (++xy.y < RES_Y)
 		{
-			if ((!rand_amount || rand() % rand_amount)
-				&& !(x % pixel_gap) && !(y % pixel_gap))
+			if (!(xy.x % level->ui.raycast_quality)
+				&& !(xy.y % level->ui.raycast_quality))
 			{
-				ym = t->level->ui.fov / RES_Y * y - t->level->ui.fov / 2;
-				xm = fov_x / RES_X * x - fov_x / 2;
-				r.dir.x = cam->front.x + cam->up.x * ym + cam->side.x * xm;
-				r.dir.y = cam->front.y + cam->up.y * ym + cam->side.y * xm;
-				r.dir.z = cam->front.z + cam->up.z * ym + cam->side.z * xm;
-				res.raytracing = t->level->ui.raytracing;
-				res.normal_map = &t->level->normal_map;
-				res.texture = &t->level->texture;
-				res.spray_overlay = t->level->spray_overlay;
-				if (t->level->bake_status != BAKE_NOT_BAKED)
-					res.baked = t->level->baked;
-				else
-					res.baked = NULL;
-				res.reflection_depth = 0;
-				res.face_index = -1;
-				cast_all_color(
-					r, t->level, &t->level->ssp[get_ssp_index(x, y)], &res);
-				if (t->level->ui.fog)
-					res.color = fog(res.color, res.dist,
-							t->level->ui.fog_color.color, t->level);
-				t->window->frame_buffer[x + (y * RES_X)]
+				res.ray = ray_set(&level->cam, level->ui.fov, xy);
+				cast_result_set(&res, level);
+				cast_all_color(level, &level->ssp[get_ssp(xy)], &res);
+				if (level->ui.fog)
+					fog(&res.color, res.dist, level->ui.fog_color.color, level);
+				window->frame_buffer[xy.x + (xy.y * RES_X)]
 					= (res.color >> 8 << 8) + 0xff;
-				t->window->depth_buffer[x + (y * RES_X)] = res.dist;
+				window->depth_buffer[xy.x + (xy.y * RES_X)] = res.dist;
 			}
 		}
-		x += THREAD_AMOUNT;
+		xy.x += THREAD_AMOUNT;
 	}
+}
+
+int	init_raycast(void *data_pointer)
+{
+	t_rthread	*thread;
+
+	thread = data_pointer;
+	raycast(thread->level, thread->window, thread->id);
 	return (0);
 }

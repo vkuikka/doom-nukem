@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/23 22:50:36 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/31 14:51:18 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ static void	render_raycast(t_window *window, t_level *level)
 			thread_data[i]->id = i;
 			thread_data[i]->level = level;
 			thread_data[i]->window = window;
-			threads[i] = SDL_CreateThread(raycast, "asd",
+			threads[i] = SDL_CreateThread(init_raycast, "asd",
 					(void *)thread_data[i]);
 			i++;
 		}
@@ -67,12 +67,14 @@ static void	render_raycast(t_window *window, t_level *level)
 	SDL_RenderCopy(window->SDLrenderer, window->texture, NULL, NULL);
 }
 
-static void	render_raster(t_window *window, t_level *level, t_game_state *game_state)
+static void	render_raster(t_window *window, t_level *level,
+							t_game_state *game_state)
 {
 	int	dummy_for_sdl;
 
-	if (SDL_LockTexture(window->raster_texture, NULL, (void **)&window->raster_texture_pixels,
-			&dummy_for_sdl) != 0)
+	if (SDL_LockTexture(window->raster_texture, NULL,
+			(void **)&window->raster_texture_pixels, &dummy_for_sdl
+		) != 0)
 		ft_error("failed to lock texture\n");
 	ft_memset(window->raster_texture_pixels, 0, RES_X * RES_Y * sizeof(int));
 	if (*game_state == GAME_STATE_EDITOR)
@@ -85,7 +87,8 @@ static void	render_raster(t_window *window, t_level *level, t_game_state *game_s
 	return ;
 }
 
-static void	render_ui(t_window *window, t_level *level, t_game_state *game_state)
+static void	render_ui(t_window *window, t_level *level,
+						t_game_state *game_state)
 {
 	int	dummy_for_sdl;
 

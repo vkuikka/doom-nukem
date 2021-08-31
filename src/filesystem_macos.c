@@ -14,8 +14,8 @@
 
 char	*get_current_directory(void)
 {
-	int		path_max_size;
-	char	*str;
+	uint32_t	path_max_size;
+	char		*str;
 
 	str = (char *)malloc(sizeof(char) * PATH_MAX);
 	if (!str)
