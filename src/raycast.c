@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   raycast.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/01 13:38:19 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/08/31 14:51:04 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -164,7 +164,7 @@ void	raycast(t_level *level, t_window *window, int thread_id)
 				cast_result_set(&res, level);
 				cast_all_color(level, &level->ssp[get_ssp(xy)], &res);
 				if (level->ui.fog)
-					fog(&res.color, res.dist, level->ui.fog_color, level);
+					fog(&res.color, res.dist, level->ui.fog_color.color, level);
 				window->frame_buffer[xy.x + (xy.y * RES_X)]
 					= (res.color >> 8 << 8) + 0xff;
 				window->depth_buffer[xy.x + (xy.y * RES_X)] = res.dist;

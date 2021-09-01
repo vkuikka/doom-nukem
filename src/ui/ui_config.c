@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/21 23:40:18 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/01 11:14:29 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -317,6 +317,7 @@ void	ui_render_settings(t_level *level)
 	sprintf(buf, "render scale: %d (%.0f%%)", ui->raycast_quality,
 		100.0 / (float)ui->raycast_quality);
 	int_slider(&ui->raycast_quality, buf, 1, 20);
+	int_slider(&ui->chromatic_abberation, "chroma", 0, 30);
 	fov_angle = ui->fov + 0.01;
 	fov_angle *= 180.0 / M_PI;
 	sprintf(buf, "fov: %d", (int)fov_angle);
@@ -386,11 +387,9 @@ void	ui_door_settings(t_level *level)
 
 void	ui_door_editor(t_level *level)
 {
-	t_editor_ui	*ui;
 	int			selected;
 	int			i;
 
-	ui = &level->ui;
 	if (call("close door editor", NULL, level))
 		level->ui.state.ui_location = UI_LOCATION_MAIN;
 	find_selected_door_index(level);
@@ -416,25 +415,15 @@ void	ui_single_light_settings(t_level *level)
 {
 	char	buf[100];
 
+	color_slider(&level->lights[level->selected_light_index - 1].color, "light color");
 	sprintf(buf, "radius: %.2f",
 		level->lights[level->selected_light_index - 1].radius);
 	float_slider(&level->lights[level->selected_light_index - 1].radius,
 		buf, .1, 20);
-	sprintf(buf, "red: %.2f",
-		level->lights[level->selected_light_index - 1].color.r);
-	float_slider(
-		&level->lights[level->selected_light_index - 1].color.r,
-		buf, 0, 5);
-	sprintf(buf, "green: %.2f",
-		level->lights[level->selected_light_index - 1].color.g);
-	float_slider(
-		&level->lights[level->selected_light_index - 1].color.g,
-		buf, 0, 5);
-	sprintf(buf, "blue: %.2f",
-		level->lights[level->selected_light_index - 1].color.b);
-	float_slider(
-		&level->lights[level->selected_light_index - 1].color.b,
-		buf, 0, 5);
+	sprintf(buf, "power: %.2f",
+		level->lights[level->selected_light_index - 1].power);
+	float_slider(&level->lights[level->selected_light_index - 1].power,
+		buf, .1, 5);
 	call("delete light", &delete_light, level);
 }
 
@@ -447,12 +436,7 @@ void	ui_level_light_settings(t_level *level)
 	sprintf(buf, "skybox brightness: %.2f (0 = sync)",
 		level->skybox_brightness);
 	float_slider(&level->skybox_brightness, buf, 0, 1);
-	sprintf(buf, "sun red: %.2f", level->ui.sun_color.r);
-	float_slider(&level->ui.sun_color.r, buf, 0, 1);
-	sprintf(buf, "sun green: %.2f", level->ui.sun_color.g);
-	float_slider(&level->ui.sun_color.g, buf, 0, 1);
-	sprintf(buf, "sun blue: %.2f", level->ui.sun_color.b);
-	float_slider(&level->ui.sun_color.b, buf, 0, 1);
+	color_slider(&level->ui.sun_color, "sun color");
 	sprintf(buf, "sun dir: (%.2f, %.2f, %.2f)", level->ui.sun_dir.x,
 		level->ui.sun_dir.y, level->ui.sun_dir.z);
 	text(buf);
@@ -465,9 +449,7 @@ void	ui_level_light_settings(t_level *level)
 void	ui_light_editor(t_level *level)
 {
 	char		buf[100];
-	t_editor_ui	*ui;
 
-	ui = &level->ui;
 	if (level->bake_status == BAKE_NOT_BAKED)
 	{
 		set_text_color(UI_LEVEL_NOT_BAKED_COLOR);
@@ -511,7 +493,12 @@ void	ui_level_settings(t_level *level)
 	float_slider(&level->player.projectile_scale,
 		"Player projectile scale: ", 0, 1.5);
 	button(&level->ui.fog, "fog");
-	button(&level->ui.backface_culling, "backface & occlusion culling");
+	if (level->ui.fog)
+		color_slider(&level->ui.fog_color, NULL);
+	button(&level->ui.backface_culling, "backface culling");
+	if (level->ui.backface_culling)
+		button(&level->ui.occlusion_culling,
+			"occlusion culling (O(n^2)) (Horrible trash)");
 	button(&level->ui.distance_culling, "distance culling");
 	sprintf(buf, "render distance: %.1fm", level->ui.render_distance);
 	float_slider(&level->ui.render_distance, buf, 2, 50);

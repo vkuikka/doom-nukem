@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alcohen <alcohen@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/28 22:52:58 by alcohen          ###   ########.fr       */
+/*   Updated: 2021/09/01 13:16:23 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,43 +26,28 @@ static void	update_camera(t_level *l)
 static void	render_raycast(t_window *window, t_level *level)
 {
 	SDL_Thread	*threads[THREAD_AMOUNT];
-	t_rthread	**thread_data;
+	t_rthread	thread_data[THREAD_AMOUNT];
 	int			dummy_for_sdl;
 	int			i;
 
-	if (SDL_LockTexture(window->texture, NULL, (void **)&window->frame_buffer,
-			&dummy_for_sdl) != 0)
+	if (SDL_LockTexture(window->texture, NULL,
+			(void **)&window->frame_buffer, &dummy_for_sdl) != 0)
 		ft_error("failed to lock texture\n");
-	if (!level->ui.wireframe || (level->ui.wireframe
-			&& level->ui.wireframe_on_top))
+	i = -1;
+	while (++i < THREAD_AMOUNT)
 	{
-		i = 0;
-		thread_data = (t_rthread **)malloc(sizeof(t_rthread *) * THREAD_AMOUNT);
-		if (!thread_data)
-			ft_error("memory allocation failed\n");
-		while (i < THREAD_AMOUNT)
-		{
-			thread_data[i] = (t_rthread *)malloc(sizeof(t_rthread));
-			if (!thread_data[i])
-				ft_error("memory allocation failed\n");
-			thread_data[i]->id = i;
-			thread_data[i]->level = level;
-			thread_data[i]->window = window;
-			threads[i] = SDL_CreateThread(init_raycast, "asd",
-					(void *)thread_data[i]);
-			i++;
-		}
-		i = 0;
-		while (i < THREAD_AMOUNT)
-		{
-			SDL_WaitThread(threads[i], &dummy_for_sdl);
-			free(thread_data[i]);
-			i++;
-		}
-		free(thread_data);
-		fill_pixels(window->frame_buffer, level->ui.raycast_quality,
-			level->ui.blur, level->ui.smooth_pixels);
+		thread_data[i].id = i;
+		thread_data[i].level = level;
+		thread_data[i].window = window;
+		threads[i] = SDL_CreateThread(init_raycast, "asd",
+				(void *)&thread_data[i]);
 	}
+	i = -1;
+	while (++i < THREAD_AMOUNT)
+		SDL_WaitThread(threads[i], &dummy_for_sdl);
+	fill_pixels(window->frame_buffer, level->ui.raycast_quality,
+		level->ui.blur, level->ui.smooth_pixels);
+	chromatic_abberation(window->frame_buffer, level->ui.chromatic_abberation);
 	SDL_UnlockTexture(window->texture);
 	SDL_RenderCopy(window->SDLrenderer, window->texture, NULL, NULL);
 }
@@ -109,13 +94,18 @@ static void	render_ui(t_window *window, t_level *level,
 static void	render(t_window *window, t_level *level, t_game_state *game_state)
 {
 	SDL_RenderClear(window->SDLrenderer);
-	render_raycast(window, level);
-	render_raster(window, level, game_state);
+	if (level->level_initialized)
+	{
+		if (!level->ui.wireframe
+			|| (level->ui.wireframe && level->ui.wireframe_on_top))
+			render_raycast(window, level);
+		render_raster(window, level, game_state);
+	}
 	render_ui(window, level, game_state);
 	SDL_RenderPresent(window->SDLrenderer);
 }
 
-int	main(void)
+int	main(int argc, char **argv)
 {
 	t_window		*window;
 	t_level			*level;
@@ -125,16 +115,31 @@ int	main(void)
 	unsigned int	render_time;
 	unsigned int	frame_time;
 
+	(void)argc;
+	(void)argv;
 	game_state = GAME_STATE_MAIN_MENU;
-	game_state = GAME_STATE_EDITOR; // remove
-	level = init_level();
+	level = (t_level *)malloc(sizeof(t_level));
+	if (!level)
+		ft_error("memory allocation failed\n");
+	ft_bzero(level, sizeof(t_level));
+	init_embedded(level);
 	init_audio(level);
 	init_window(&window);
 	init_ui(window, level);
-	init_screen_space_partition(level);
-	init_culling(level);
-	init_player(&level->player);
-	open_level(level, "level/demo.doom-nukem");
+
+		//remove
+		open_level(level, "level/demo.doom-nukem");
+		game_state = GAME_STATE_EDITOR;
+		level->cam.pos = level->spawn_pos.pos;
+		level->cam.look_side = level->spawn_pos.look_side;
+		level->cam.look_up = level->spawn_pos.look_up;
+		//remove
+
+	while (!level->level_initialized)
+	{
+		read_input(window, level, &game_state);
+		render(window, level, &game_state);
+	}
 	while (1)
 	{
 		frame_time = SDL_GetTicks();

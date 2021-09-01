@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   color.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alcohen <alcohen@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/21 17:32:09 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/28 23:07:10 by alcohen          ###   ########.fr       */
+/*   Updated: 2021/08/31 14:47:30 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,12 +46,6 @@ unsigned int	brightness(unsigned int color1, t_color new)
 		newg = 0xff;
 	if (newb > 0xff)
 		newb = 0xff;
-	if (newr < 0)
-		newr = 0;
-	if (newg < 0)
-		newg = 0;
-	if (newb < 0)
-		newb = 0;
 	return ((newr << 8 * 3) + (newg << 8 * 2) + (newb << 8 * 1));
 }
 

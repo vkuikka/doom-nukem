@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   doom_nukem.h                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/31 20:48:47 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/01 13:23:34 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,6 +86,8 @@
 # define NONFATAL_ERROR_FADEOUT_TIME_MS 666
 # define UI_ERROR_COLOR 0xff000000
 # define GIZMO_SCALE_DIVIDER 4
+# define UI_SLIDER_WIDTH 100
+# define UI_SLIDER_BUTTON_WIDTH 5
 # define UI_FONT_SIZE 13
 # define UI_EDITOR_SETTINGS_TEXT_COLOR 0x4444ffff
 # define UI_LEVEL_SETTINGS_TEXT_COLOR 0xffffffff
@@ -198,6 +200,21 @@ typedef struct s_ivec2
 	int					x;
 	int					y;
 }						t_ivec2;
+
+//hue        0, 1
+//saturation 0, 1
+//lightness -1, 1
+typedef struct s_color_hsl
+{
+	float				hue;
+	float				saturation;
+	float				lightness;
+	unsigned			rgb_hue;
+	int					color;
+	float				r;
+	float				g;
+	float				b;
+}						t_color_hsl;
 
 typedef struct s_color
 {
@@ -427,6 +444,7 @@ typedef struct s_ui_state
 	int					ssp_visual;
 	struct s_vec3		gizmo_pos;
 	float				gizmo_dist_from_screen;
+	unsigned int		*color_slider_hue_colors;
 
 	char				*directory;
 	int					find_dir;
@@ -451,11 +469,13 @@ typedef struct s_editor_ui
 	int					wireframe_culling_visual;
 	int					fog;
 	int					blur;
+	int					chromatic_abberation;
 	int					smooth_pixels;
-	unsigned int		fog_color;
+	t_color_hsl			fog_color;
 	int					show_quads;
 	int					pause_culling_position;
 	int					backface_culling;
+	int					occlusion_culling;
 	int					distance_culling;
 	float				render_distance;
 	float				fov;
@@ -463,7 +483,7 @@ typedef struct s_editor_ui
 	int					spray_from_view;
 	float				spray_size;
 
-	t_color				sun_color;
+	t_color_hsl			sun_color;
 	struct s_vec3		sun_dir;
 	float				horizontal_velocity;
 
@@ -477,8 +497,9 @@ typedef struct s_editor_ui
 typedef struct s_light
 {
 	t_vec3				pos;
-	t_color				color;
+	t_color_hsl			color;
 	float				radius;
+	float				power;
 }						t_light;
 
 typedef struct s_player_pos
@@ -503,6 +524,7 @@ typedef struct s_level
 	float				bake_progress;
 	struct s_skybox		sky;
 	struct s_camera		cam;
+	int					level_initialized;
 	struct s_editor_ui	ui;
 	struct s_all_doors	doors;
 	struct s_light		*lights;
@@ -619,9 +641,11 @@ void			vec2_avg(t_vec2 *res, t_vec2 ve1, t_vec2 ve2);
 void			vec2_sub(t_vec2 *res, t_vec2 ve1, t_vec2 ve2);
 void			vec2_add(t_vec2 *res, t_vec2 ve1, t_vec2 ve2);
 void			vec2_mult(t_vec2 *res, float mult);
+float			clamp(float var, float min, float max);
 
 void			init_window(t_window **window);
-t_level			*init_level(void);
+void			init_embedded(t_level *level);
+void			init_level(t_level *level);
 
 void			screen_space_partition(t_level *level);
 void			init_screen_space_partition(t_level *level);
@@ -638,6 +662,9 @@ void			fill_pixels(unsigned int *grid, int pixel_gap,
 					int blur, int smooth);
 unsigned int	crossfade(unsigned int color1, unsigned int color2,
 					unsigned int fade, unsigned int alpha);
+unsigned int	set_lightness(unsigned int color, float b);
+unsigned int	set_saturation(unsigned int color, float s);
+void			hsl_update_color(t_color_hsl *c);
 void			face_color(float u, float v, t_tri t,
 					t_cast_result *res);
 void			wireframe(unsigned int *texture, t_level *level);
@@ -645,7 +672,11 @@ void			camera_offset(t_vec3 *vertex, t_camera *cam);
 SDL_Color		get_sdl_color(unsigned int color);
 
 void			load_obj(char *filename, t_obj *obj);
+void			load_obj_from_memory(unsigned char *data,
+					unsigned int size, t_obj *obj);
 t_bmp			bmp_read(char *str);
+t_bmp			bmp_read_from_memory(unsigned char *data,
+					unsigned int size);
 
 void			culling(t_level *level);
 int				occlusion_culling(t_tri tri, t_level *level);
@@ -675,6 +706,7 @@ int				button(int *var, char *text);
 void			int_slider(int *var, char *str, int min, int max);
 void			float_slider(float *var, char *str, float min,
 					float max);
+void			color_slider(t_color_hsl *var, char *str);
 int				call(char *str, void (*f)(t_level *), t_level *level);
 void			file_browser(char *str, char *extension,
 					void (*f)(t_level *, char *));
@@ -688,6 +720,8 @@ void			main_menu(t_level *level, unsigned int *pixels,
 void			main_menu_move_background(t_level *level);
 void			hud(t_level *level, unsigned int *pixels,
 					t_game_state game_state);
+void			fake_analog_signal(t_bmp *img, unsigned int *pixels, float amount);
+void			chromatic_abberation(unsigned int *pixels, int amount);
 void			create_projectile(t_level *level, t_vec3 pos,
 					t_vec3 dir, t_enemy *enemy);
 

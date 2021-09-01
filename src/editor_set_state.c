@@ -29,7 +29,17 @@ void	set_obj(t_level *level, char *filename)
 void	set_texture(t_level *level, char *filename)
 {
 	free(level->texture.image);
+	free(level->baked);
+	free(level->spray_overlay);
 	level->texture = bmp_read(filename);
+	level->baked = (t_color *)malloc(sizeof(t_color)
+		* (level->texture.width * level->texture.height));
+	level->spray_overlay = (unsigned int *)malloc(sizeof(unsigned int)
+			* (level->texture.width * level->texture.height));
+	if (!level->spray_overlay || !level->baked)
+		ft_error("memory allocation failed\n");
+	ft_bzero(level->spray_overlay,
+		level->texture.width * level->texture.height * 4);
 }
 
 void	set_normal_map(t_level *level, char *filename)

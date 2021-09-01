@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/06 08:50:56 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/21 23:33:33 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/31 12:26:04 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -182,40 +182,19 @@ void	init_ui_state(t_level *level)
 	go_in_dir(level->ui.state.directory, "level");
 }
 
-static void	init_fonts(t_editor_ui *ui)
+static void	init_ui_settings(t_editor_ui *ui)
 {
-	TTF_Init();
-	ui->editor_font = TTF_OpenFont("embed/Roboto-Medium.ttf", UI_FONT_SIZE);
-	ui->hud_font = TTF_OpenFont("embed/digital.ttf", HUD_FONT_SIZE);
-	ui->main_menu_font = TTF_OpenFont("embed/Roboto-Medium.ttf",
-			MAIN_MENU_FONT_SIZE);
-	ui->win_lose_font = TTF_OpenFont("embed/Roboto-Medium.ttf",
-			HUD_GAME_EVENT_FONT_SIZE);
-	if (!ui->editor_font || !ui->hud_font
-		|| !ui->main_menu_font || !ui->win_lose_font)
-	{
-		printf("TTF_OpenFont: %s\n", TTF_GetError());
-		ft_error("font open fail");
-	}
-}
-
-static void	init_ui_settings(t_level *level)
-{
-	t_editor_ui	*ui;
-
-	ui = &level->ui;
-	ft_bzero(ui, sizeof(t_editor_ui));
 	ui->noclip = TRUE;
 	ui->blur = FALSE;
 	ui->smooth_pixels = FALSE;
 	ui->backface_culling = TRUE;
+	ui->occlusion_culling = FALSE;
 	ui->distance_culling = FALSE;
 	ui->wireframe = FALSE;
 	ui->wireframe_on_top = TRUE;
 	ui->wireframe_culling_visual = TRUE;
 	ui->render_distance = 20;
 	ui->raycast_quality = NOISE_QUALITY_LIMIT - 1;
-	ui->fog_color = 0xddddddff;
 	ui->fov = M_PI / 2;
 	ui->sun_color.r = 1;
 	ui->sun_color.g = 1;
@@ -226,25 +205,56 @@ static void	init_ui_settings(t_level *level)
 	vec_normalize(&ui->sun_dir);
 	ui->spray_from_view = 1;
 	ui->spray_size = 3;
+	ui->fog_color.hue = 1;
+	ui->fog_color.saturation = 1;
+	ui->fog_color.lightness = 0;
+	ui->fog_color.color = 0xffffffff;
+}
+
+static void	init_color_slider(t_level *level)
+{
+	unsigned int	i;
+	unsigned int	red;
+	unsigned int	grn;
+	unsigned int	blu;
+	float			pos;
+
+	level->ui.state.color_slider_hue_colors = (unsigned int*)malloc
+		(sizeof(unsigned int) * UI_SLIDER_WIDTH);
+	if (!level->ui.state.color_slider_hue_colors)
+		ft_error("color slider memory allocation failed");
+	i = 0;
+	while (i < UI_SLIDER_WIDTH)
+	{
+		pos = i / (float)UI_SLIDER_WIDTH * M_PI * 2;
+		red = 0xff * ((sin(pos + (M_PI * 2 * ((1.0 / 3) * 1))) + 1) / 2);
+		grn = 0xff * ((sin(pos + (M_PI * 2 * ((1.0 / 3) * 2))) + 1) / 2);
+		blu = 0xff * ((sin(pos + (M_PI * 2 * ((1.0 / 3) * 3))) + 1) / 2);
+		red = red << 8 * 3;
+		grn = grn << 8 * 2;
+		blu = blu << 8 * 1;
+		level->ui.state.color_slider_hue_colors[i] = red + grn + blu + 0xff;
+		i++;
+	}
 }
 
 void	init_ui(t_window *window, t_level *level)
 {
-	int				width;
+	int	width;
 
 	window->text_texture = SDL_CreateTexture(window->SDLrenderer,
 			SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, RES_X, RES_Y);
 	window->ui_texture = SDL_CreateTexture(window->SDLrenderer,
 			SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING,
 			RES_X, RES_Y);
-	init_ui_settings(level);
+	init_ui_settings(&level->ui);
 	init_ui_state(level);
 	SDL_SetTextureBlendMode(window->text_texture, SDL_BLENDMODE_BLEND);
 	SDL_SetTextureBlendMode(window->ui_texture, SDL_BLENDMODE_BLEND);
 	if (SDL_LockTexture(window->ui_texture, NULL,
 			(void **)&window->ui_texture_pixels, &width) != 0)
 		ft_error("failed to lock texture\n");
-	init_fonts(&level->ui);
 	get_ui_state(&level->ui.state);
 	get_window(window);
+	init_color_slider(level);
 }

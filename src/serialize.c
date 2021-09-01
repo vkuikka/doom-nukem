@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/06 14:13:02 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/21 23:46:04 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/23 23:03:27 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,12 +23,19 @@ void	reserve_space(t_buffer *buf, size_t bytes)
 	}
 }
 
+// IMPORTANT!!
+// Gcc assumes that your program will never access variables though pointers of different type.
+// This assumption is called strict-aliasing and allows the compiler to make some optimizations.
+// Strict-aliasing rule says that a char* and void* can point at any type.
 float	ntoh_float(float value)
 {
-	int	temp;
+	int		temp;
+	void	*cast;
 
-	temp = ntohl(*(unsigned int *)&value);
-	return (*(float *)&temp);
+	cast = &value;
+	temp = ntohl(*(unsigned int *)cast);
+	cast = &temp;
+	return (*(float *)cast);
 }
 
 void	deserialize_float(float *x, t_buffer *buf)
@@ -42,10 +49,13 @@ void	deserialize_float(float *x, t_buffer *buf)
 
 float	hton_float(float value)
 {
-	int	temp;
+	int		temp;
+	void	*cast;
 
-	temp = htonl(*(unsigned int *)&value);
-	return (*(float *)&temp);
+	cast = &value;
+	temp = htonl(*(unsigned int *)cast);
+	cast = &temp;
+	return (*(float *)cast);
 }
 
 void	serialize_float(float x, t_buffer *buf)
@@ -99,15 +109,23 @@ void	serialize_vec3(t_vec3 vec, t_buffer *buf)
 	serialize_float(vec.z, buf);
 }
 
-void	deserialize_color(t_color *color, t_buffer *buf)
+void	deserialize_color(t_color_hsl *color, t_buffer *buf)
 {
+	deserialize_float(&color->hue, buf);
+	deserialize_float(&color->saturation, buf);
+	deserialize_float(&color->lightness, buf);
+	deserialize_int(&color->color, buf);
 	deserialize_float(&color->r, buf);
 	deserialize_float(&color->g, buf);
 	deserialize_float(&color->b, buf);
 }
 
-void	serialize_color(t_color color, t_buffer *buf)
+void	serialize_color(t_color_hsl color, t_buffer *buf)
 {
+	serialize_float(color.hue, buf);
+	serialize_float(color.saturation, buf);
+	serialize_float(color.lightness, buf);
+	serialize_int(color.color, buf);
 	serialize_float(color.r, buf);
 	serialize_float(color.g, buf);
 	serialize_float(color.b, buf);
@@ -116,8 +134,9 @@ void	serialize_color(t_color color, t_buffer *buf)
 void	deserialize_settings(t_level *level, t_buffer *buf)
 {
 	deserialize_int(&level->ui.fog, buf);
-	deserialize_int((int *)&level->ui.fog_color, buf);
+	deserialize_int((int *)&level->ui.fog_color.color, buf);
 	deserialize_int(&level->ui.backface_culling, buf);
+	deserialize_int(&level->ui.occlusion_culling, buf);
 	deserialize_int(&level->ui.distance_culling, buf);
 	deserialize_float(&level->ui.render_distance, buf);
 	deserialize_color(&level->ui.sun_color, buf);
@@ -129,8 +148,9 @@ void	deserialize_settings(t_level *level, t_buffer *buf)
 void	serialize_settings(t_level *level, t_buffer *buf)
 {
 	serialize_int(level->ui.fog, buf);
-	serialize_int(level->ui.fog_color, buf);
+	serialize_int(level->ui.fog_color.color, buf);
 	serialize_int(level->ui.backface_culling, buf);
+	serialize_int(level->ui.occlusion_culling, buf);
 	serialize_int(level->ui.distance_culling, buf);
 	serialize_float(level->ui.render_distance, buf);
 	serialize_color(level->ui.sun_color, buf);
@@ -521,6 +541,7 @@ void	deserialize_lights(t_level *level, t_buffer *buf)
 		deserialize_vec3(&level->lights[i].pos, buf);
 		deserialize_color(&level->lights[i].color, buf);
 		deserialize_float(&level->lights[i].radius, buf);
+		deserialize_float(&level->lights[i].power, buf);
 		i++;
 	}
 }
@@ -536,6 +557,7 @@ void	serialize_lights(t_level *level, t_buffer *buf)
 		serialize_vec3(level->lights[i].pos, buf);
 		serialize_color(level->lights[i].color, buf);
 		serialize_float(level->lights[i].radius, buf);
+		serialize_float(level->lights[i].power, buf);
 		i++;
 	}
 }
@@ -598,6 +620,7 @@ void	deserialize_level(t_level *level, t_buffer *buf)
 		ft_error("memory allocation failed\n");
 	init_screen_space_partition(level);
 	init_culling(level);
+	level->level_initialized = TRUE;
 }
 
 void	serialize_level(t_level *level, t_buffer *buf)

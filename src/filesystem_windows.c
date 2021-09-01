@@ -59,7 +59,7 @@ void	path_up_dir(char *path)
 		path[i] = '\0';
 }
 
-void	loop_directory(char *directory, void *data,
+void	loop_directory(char *directory, void *funcdata,
 					void (*f)(int, char *, void *))
 {
 	WIN32_FIND_DATA	data;
@@ -74,10 +74,10 @@ void	loop_directory(char *directory, void *data,
 	{
 		if (data.cFileName[0] != '.')
 		{
-			if (data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY())
-				(*f)(1, data.cFileName, data);
+			if (data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+				(*f)(1, data.cFileName, funcdata);
 			else
-				(*f)(0, data.cFileName, data);
+				(*f)(0, data.cFileName, funcdata);
 		}
 	}
 	FindClose(dir);

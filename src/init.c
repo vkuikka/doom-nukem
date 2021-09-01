@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   init.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/08 14:38:45 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/31 20:49:33 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/01 13:22:48 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
+#include "embed.h"
 
 SDL_Texture	*empty_texture(SDL_Renderer *renderer)
 {
@@ -27,16 +28,47 @@ SDL_Texture	*empty_texture(SDL_Renderer *renderer)
 	return (texture);
 }
 
-t_level	*init_level(void)
+static void	init_fonts(t_editor_ui *ui)
 {
-	t_level	*level;
-	int		i;
-	char	viewmodel_name[] = "embed/viewmodel/ak_0.bmp";
+	SDL_RWops*	mem;
 
-	level = (t_level *)malloc(sizeof(t_level));
-	if (!level)
-		ft_error("memory allocation failed\n");
-	ft_bzero(level, sizeof(t_level));
+	TTF_Init();
+	mem = SDL_RWFromMem((void *)&embed_digital_ttf[0], (int)embed_digital_ttf_len);
+	ui->hud_font = TTF_OpenFontRW(mem, 1, HUD_FONT_SIZE);
+	mem = SDL_RWFromMem((void *)&embed_Roboto_Medium_ttf[0], (int)embed_Roboto_Medium_ttf_len);
+	ui->editor_font = TTF_OpenFontRW(mem, 1, UI_FONT_SIZE);
+	mem = SDL_RWFromMem((void *)&embed_Roboto_Medium_ttf[0], (int)embed_Roboto_Medium_ttf_len);
+	ui->main_menu_font = TTF_OpenFontRW(mem, 1, MAIN_MENU_FONT_SIZE);
+	mem = SDL_RWFromMem((void *)&embed_Roboto_Medium_ttf[0], (int)embed_Roboto_Medium_ttf_len);
+	ui->win_lose_font = TTF_OpenFontRW(mem, 1, HUD_GAME_EVENT_FONT_SIZE);
+	if (!ui->editor_font || !ui->hud_font
+		|| !ui->main_menu_font || !ui->win_lose_font)
+	{
+		printf("TTF_OpenFont: %s\n", TTF_GetError());
+		ft_error("font open fail");
+	}
+}
+
+void	init_embedded(t_level *level)
+{
+	level->main_menu_title = bmp_read_from_memory(&embed_title_bmp[0], embed_title_bmp_len);
+	// level->viewmodel[0] = bmp_read_from_memory(&embed_viewmodel_ak_0_bmp[0], embed_viewmodel_ak_0_bmp_len);
+	// level->viewmodel[1] = bmp_read_from_memory(&embed_viewmodel_ak_1_bmp[0], embed_viewmodel_ak_1_bmp_len);
+	// level->viewmodel[2] = bmp_read_from_memory(&embed_viewmodel_ak_2_bmp[0], embed_viewmodel_ak_2_bmp_len);
+	// level->viewmodel[3] = bmp_read_from_memory(&embed_viewmodel_ak_3_bmp[0], embed_viewmodel_ak_3_bmp_len);
+	// level->viewmodel[4] = bmp_read_from_memory(&embed_viewmodel_ak_4_bmp[0], embed_viewmodel_ak_4_bmp_len);
+	// level->viewmodel[5] = bmp_read_from_memory(&embed_viewmodel_ak_5_bmp[0], embed_viewmodel_ak_5_bmp_len);
+	// level->viewmodel[6] = bmp_read_from_memory(&embed_viewmodel_ak_6_bmp[0], embed_viewmodel_ak_6_bmp_len);
+	// level->viewmodel[7] = bmp_read_from_memory(&embed_viewmodel_ak_7_bmp[0], embed_viewmodel_ak_7_bmp_len);
+	// level->viewmodel[8] = bmp_read_from_memory(&embed_viewmodel_ak_8_bmp[0], embed_viewmodel_ak_8_bmp_len);
+	// level->viewmodel[9] = bmp_read_from_memory(&embed_viewmodel_ak_9_bmp[0], embed_viewmodel_ak_9_bmp_len);
+	load_obj_from_memory(&embed_skybox_obj[0], embed_skybox_obj_len, &level->sky.all);
+	load_obj_from_memory(&embed_skybox_obj[0], embed_skybox_obj_len, &level->sky.visible);
+	init_fonts(&level->ui);
+}
+
+void	init_level(t_level *level)
+{
 	level->player_health = PLAYER_HEALTH_MAX;
 	level->player_ammo = PLAYER_AMMO_MAX;
 	level->win_dist = INITIAL_LEVEL_WIN_DIST;
@@ -46,7 +78,7 @@ t_level	*init_level(void)
 	level->cam.look_side = 0;
 	level->cam.look_up = 0;
 	level->main_menu_anim_time = 2;
-	level->world_brightness = 0.15;
+	level->world_brightness = 0.5;
 	level->texture = bmp_read("out.bmp");
 	level->baked = (t_color *)malloc(sizeof(t_color)
 			* (level->texture.width * level->texture.height));
@@ -60,23 +92,19 @@ t_level	*init_level(void)
 		level->texture.width * level->texture.height * 4);
 	level->bake_status = BAKE_NOT_BAKED;
 	level->normal_map = bmp_read("normal.bmp");
-	load_obj("embed/skybox.obj", &level->sky.all);
-	load_obj("embed/skybox.obj", &level->sky.visible);
 	level->sky.img = bmp_read("skybox.bmp");
 	level->spray = bmp_read("spray.bmp");
-	level->main_menu_title = bmp_read("embed/title.bmp");
-	i = 0;
-	while (i < VIEWMODEL_FRAMES)
-	{
-		viewmodel_name[19] = '0' + i;
-		level->viewmodel[i] = bmp_read(viewmodel_name);
-		i++;
-	}
 	level->visible.tris = (t_tri *)malloc(sizeof(t_tri)
 			* level->all.tri_amount);
 	if (!level->visible.tris)
 		ft_error("memory allocation failed\n");
-	return (level);
+	load_obj("level/ship.obj", &level->all);
+	level->visible.tris
+		= (t_tri *)malloc(sizeof(t_tri) * level->all.tri_amount);
+	if (!level->visible.tris)
+		ft_error("memory allocation failed\n");
+	init_screen_space_partition(level);
+	init_culling(level);
 }
 
 void	init_window(t_window **window)

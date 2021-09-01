@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/12 11:37:23 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/23 00:17:25 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -164,6 +164,9 @@ static void	set_tri(char *str, t_vec3 *verts, t_vec2 *uvs, t_obj *obj, int i)
 	int		x;
 
 	j = 0;
+	tex_index.x = 0;
+	tex_index.y = 0;
+	tex_index.z = 0;
 	uv_index.x = 0;
 	uv_index.y = 0;
 	uv_index.z = 0;
@@ -215,9 +218,8 @@ static void	set_tri(char *str, t_vec3 *verts, t_vec2 *uvs, t_obj *obj, int i)
 	obj->tris[i].verts[2].pos.z = -verts[tex_index.z].z;
 }
 
-void	load_obj(char *filename, t_obj *obj)
+static void	load_obj_internal(char **file, t_obj *obj)
 {
-	char	**file;
 	int		i;
 	int		tri_amount;
 	t_vec3	*verts;
@@ -226,7 +228,6 @@ void	load_obj(char *filename, t_obj *obj)
 
 	i = 0;
 	tri_amount = 0;
-	file = file2d(filename);
 	while (file[i])
 	{
 		if (!ft_strncmp(file[i], "f ", 2))
@@ -251,10 +252,8 @@ void	load_obj(char *filename, t_obj *obj)
 			obj->tris[j].reflectivity = 0;
 			j++;
 		}
-		free(file[i]);
 		i++;
 	}
-	free(file);
 	free(verts);
 	free(uvs);
 	find_quads(obj);
@@ -269,4 +268,70 @@ void	load_obj(char *filename, t_obj *obj)
 		vec_normalize(&obj->tris[i].normal);
 		i++;
 	}
+}
+
+void	load_obj(char *filename, t_obj *obj)
+{
+	char	**file;
+	int		i;
+
+	file = file2d(filename);
+	load_obj_internal(file, obj);
+	i = 0;
+	while (file[i])
+	{
+		free(file[i]);
+		i++;
+	}
+	free(file);
+}
+
+void	load_obj_from_memory(unsigned char *data,
+					unsigned int size, t_obj *obj)
+{
+	unsigned int	i;
+	unsigned int	k;
+	unsigned int	len;
+	char			**file;
+
+	i = 0;
+	k = 0;
+	while (i < size)
+	{
+		if ((char)data[i] == '\n')
+			k++;
+		i++;
+	}
+	file = (char **)malloc(sizeof(char *) * (k + 1));
+	if (!file)
+		ft_error("memory allocation failed");
+	file[k] = NULL;
+	i = 0;
+	k = 0;
+	len = 0;
+	while (i < size)
+	{
+		if ((char)data[i] == '\n')
+		{
+			if (len)
+				len--;
+			file[k] = (char *)malloc(sizeof(char) * (len + 1));
+			if (!file[k])
+				ft_error("memory allocation failed");
+			ft_strncpy(file[k], (char *)&data[i - len], len);
+			file[k][len] = '\0';
+			len = 0;
+			k++;
+		}
+		len++;
+		i++;
+	}
+	load_obj_internal(file, obj);
+	i = 0;
+	while (file[i])
+	{
+		free(file[i]);
+		i++;
+	}
+	free(file);
 }

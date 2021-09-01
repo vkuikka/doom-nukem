@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   shaders.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/31 16:52:44 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/24 18:38:27 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/08/31 14:46:56 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,12 +37,10 @@ void	opacity(t_cast_result *res, t_level *l, t_obj *obj, float opacity)
 
 t_color	sunlight(t_level *l, t_cast_result *res, t_color light)
 {
-	unsigned int	color;
 	float			res_brightness;
 	int				i;
 	t_ray			r;
 
-	color = 0;
 	if (vec_dot(res->normal, l->ui.sun_dir) < 0)
 		return (light);
 	r.dir.x = l->ui.sun_dir.x;
@@ -92,9 +90,9 @@ t_color	lights(t_level *l, t_cast_result *res, t_vec3 normal)
 				|| cast_all(ray, l, NULL) >= vec_length(diff) - 0.1))
 		{
 			vec_normalize(&diff);
-			col.r += dist * l->lights[i].color.r * -vec_dot(diff, res->normal);
-			col.g += dist * l->lights[i].color.g * -vec_dot(diff, res->normal);
-			col.b += dist * l->lights[i].color.b * -vec_dot(diff, res->normal);
+			col.r += dist * l->lights[i].power * l->lights[i].color.r * -vec_dot(diff, res->normal);
+			col.g += dist * l->lights[i].power * l->lights[i].color.g * -vec_dot(diff, res->normal);
+			col.b += dist * l->lights[i].power * l->lights[i].color.b * -vec_dot(diff, res->normal);
 		}
 	}
 	return (col);
@@ -120,12 +118,10 @@ unsigned int	shader_wave(t_vec3 mod, t_vec3 *normal,
 							unsigned int col1, unsigned int col2)
 {
 	float	time;
-	float	oscillation;
 	float	res;
 	float	tmp;
 
 	time = SDL_GetTicks() / 1000.0;
-	oscillation = (sin(time) + 1) / 2;
 	tmp = 2 * M_PI / 6 * (sin(mod.z) / 5 + sin(mod.x) / 4 + mod.x + time);
 	tmp = sin(tmp);
 	res = fabs(tmp);

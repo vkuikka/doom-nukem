@@ -515,7 +515,7 @@ void	culling(t_level *level)
 		}
 	}
 	level->visible.tri_amount = visible_amount;
-	if (level->ui.backface_culling)
+	if (level->ui.backface_culling && level->ui.occlusion_culling)
 	{
 		visible_amount = 0;
 		i = -1;

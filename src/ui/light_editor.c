@@ -108,10 +108,12 @@ void	add_light(t_level *level)
 	vec_add(&level->lights[level->light_amount - 1].pos,
 		level->cam.pos,
 		level->cam.front);
-	level->lights[level->light_amount - 1].color.r = 1;
-	level->lights[level->light_amount - 1].color.g = 1;
-	level->lights[level->light_amount - 1].color.b = 1;
+	level->lights[level->light_amount - 1].color.hue = 1;
+	level->lights[level->light_amount - 1].color.saturation = 1;
+	level->lights[level->light_amount - 1].color.lightness = 1;
+	hsl_update_color(&level->lights[level->light_amount - 1].color);
 	level->lights[level->light_amount - 1].radius = 10;
+	level->lights[level->light_amount - 1].power = 1;
 	level->bake_status = BAKE_NOT_BAKED;
 }
 

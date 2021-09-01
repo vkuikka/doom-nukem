@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main_menu.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/19 18:51:47 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/31 20:53:08 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/01 13:22:43 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,25 +50,10 @@ static void	main_menu_text_background(t_rect rect, unsigned int *pixels)
 
 static void	main_menu_title(t_bmp *img, unsigned int *pixels)
 {
-	int	x;
-	int	y;
+	static float	amount = 0;
 
-	y = 0;
-	while (y < RES_Y && y < img->height)
-	{
-		x = 0;
-		while (x < RES_X)
-		{
-			if (x >= 0 && y >= 0 && x < RES_X && y < RES_Y)
-			{
-				pixels[x + (y * RES_X)]
-					= img->image[(int)(((float)x / RES_X) * img->width)
-					+ (y * img->width)];
-			}
-			x++;
-		}
-		y++;
-	}
+	amount += .02;
+	fake_analog_signal(img, pixels, sinf(amount) / 2 + 0.5);
 }
 
 static int	mouse_collision(t_rect rect, t_level *level, unsigned int *pixels)
@@ -115,7 +100,7 @@ void	main_menu_move_background(t_level *level)
 		level->main_menu_anim_start_time = SDL_GetTicks();
 }
 
-void	main_menu_buttons_1(t_game_state *game_state, int *state_changed,
+void	main_menu_buttons_level(t_game_state *game_state, int *state_changed,
 						t_level *level, unsigned int *pixels)
 {
 	t_rect	rect;
@@ -137,6 +122,13 @@ void	main_menu_buttons_1(t_game_state *game_state, int *state_changed,
 		*game_state = GAME_STATE_EDITOR;
 		*state_changed = TRUE;
 	}
+}
+
+void	main_menu_buttons_other(t_game_state *game_state, int *state_changed,
+						t_level *level, unsigned int *pixels)
+{
+	t_rect	rect;
+
 	rect = main_menu_button_text("select level", 2);
 	if (mouse_collision(rect, level, pixels))
 	{
@@ -144,19 +136,14 @@ void	main_menu_buttons_1(t_game_state *game_state, int *state_changed,
 		ft_strcpy(level->ui.state.extension, ".doom-nukem");
 		level->ui.state.open_file = &open_level;
 	}
-}
-
-void	main_menu_buttons_2(t_game_state *game_state, int *state_changed,
-						t_level *level, unsigned int *pixels)
-{
-	t_rect	rect;
-
-	rect = main_menu_button_text("new level", 3);
+	rect = main_menu_button_text("create level", 3);
 	if (mouse_collision(rect, level, pixels))
 	{
+		init_level(level);
 		level->ui.noclip = TRUE;
 		*game_state = GAME_STATE_EDITOR;
 		*state_changed = TRUE;
+		level->level_initialized = TRUE;
 	}
 	rect = main_menu_button_text("settings", 4);
 	if (mouse_collision(rect, level, pixels))
@@ -174,8 +161,9 @@ void	main_menu(t_level *level, unsigned int *pixels,
 	set_text_color(MAIN_MENU_FONT_COLOR);
 	main_menu_title(&level->main_menu_title, pixels);
 	state_changed = FALSE;
-	main_menu_buttons_1(game_state, &state_changed, level, pixels);
-	main_menu_buttons_2(game_state, &state_changed, level, pixels);
+	if (level->level_initialized)
+		main_menu_buttons_level(game_state, &state_changed, level, pixels);
+	main_menu_buttons_other(game_state, &state_changed, level, pixels);
 	if (state_changed)
 	{
 		level->cam.pos = level->spawn_pos.pos;
