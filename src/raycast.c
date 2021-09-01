@@ -41,7 +41,7 @@ static void	trace_bounce(t_cast_result *res, t_obj *obj, t_level *l)
 	opacity_value = 1.0 - (res->color << 24 >> 24) / (float)0xff;
 	if (!opacity_value)
 		opacity_value = l->all.tris[res->face_index].opacity;
-	if (opacity_value)
+	if (opacity_value && res->reflection_depth < REFLECTION_DEPTH)
 	{
 		res->reflection_depth++;
 		opacity(res, l, obj, opacity_value);
