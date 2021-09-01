@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/01 13:16:23 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/01 14:43:15 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,6 +126,7 @@ int	main(int argc, char **argv)
 	init_audio(level);
 	init_window(&window);
 	init_ui(window, level);
+	init_player(&level->player);
 
 		//remove
 		open_level(level, "level/demo.doom-nukem");
