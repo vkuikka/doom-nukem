@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/01 11:56:09 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/01 12:25:47 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -719,6 +719,7 @@ void			main_menu_move_background(t_level *level);
 void			hud(t_level *level, unsigned int *pixels,
 					t_game_state game_state);
 void			fake_analog_signal(t_bmp *img, unsigned int *pixels, float amount);
+void			chromatic_abberation(unsigned int *pixels, int amount);
 void			create_projectile(t_level *level, t_vec3 pos,
 					t_vec3 dir, t_enemy *enemy);
 

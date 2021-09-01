@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/01 11:45:40 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/01 12:26:40 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,7 @@ static void	render_raycast(t_window *window, t_level *level)
 		SDL_WaitThread(threads[i], &dummy_for_sdl);
 	fill_pixels(window->frame_buffer, level->ui.raycast_quality,
 		level->ui.blur, level->ui.smooth_pixels);
+	chromatic_abberation(window->frame_buffer, level->ui.chromatic_abberation);
 	SDL_UnlockTexture(window->texture);
 	SDL_RenderCopy(window->SDLrenderer, window->texture, NULL, NULL);
 }

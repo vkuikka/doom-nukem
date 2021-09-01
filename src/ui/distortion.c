@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/01 12:02:04 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/01 12:02:07 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/01 12:33:35 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ static unsigned int	black_and_white(unsigned int color, float amount)
 	return ((unsigned int)*(int *)rgb);
 }
 
-static unsigned int	chroma(t_bmp *img, int x, int y, int x_amount)
+static unsigned int	chroma_px(t_bmp *img, int x, int y, int x_amount)
 {
 	unsigned int	res_color;
 	unsigned char	*rgb_l;
@@ -72,6 +72,30 @@ static unsigned int	chroma(t_bmp *img, int x, int y, int x_amount)
 	return (res_color);
 }
 
+void	chromatic_abberation(unsigned int *pixels, int amount)
+{
+	t_bmp	tmp;
+	int		buf[RES_X * RES_Y];
+	int		x;
+	int		y;
+
+	tmp.width = RES_X;
+	tmp.height = RES_Y;
+	tmp.image = &buf[0];
+	ft_memcpy(&buf[0], pixels, sizeof(int) * RES_X * RES_Y);
+	y = 0;
+	while (y < RES_Y)
+	{
+		x = 0;
+		while (x < RES_X)
+		{
+			pixels[x + y * RES_X] = chroma_px(&tmp, x, y, amount);
+			x++;
+		}
+		y++;
+	}
+}
+
 void	fake_analog_signal(t_bmp *img, unsigned int *pixels, float amount)
 {
 	static int		disturbance_y = 0;
@@ -90,7 +114,7 @@ void	fake_analog_signal(t_bmp *img, unsigned int *pixels, float amount)
 		i.x = -1;
 		while (++i.x < img->width)
 		{
-			color = chroma(img, i.x, i.y, x_offset + 2);
+			color = chroma_px(img, i.x, i.y, x_offset + 2);
 			color = noise(color, amount / 8, .2);
 			if (amount > .9)
 				color = black_and_white(color, (amount - .9) / .1 * .7);
