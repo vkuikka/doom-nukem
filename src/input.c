@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   input.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/10 22:39:12 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/13 23:49:46 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/08/31 20:49:59 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -167,7 +167,7 @@ static void	keyboard_input(t_window *window, t_level *level, SDL_Event event,
 			level->ui.state.ui_location = UI_LOCATION_MAIN;
 			level->win_start_time = 0;
 			level->death_start_time = 0;
-			Mix_PlayMusic(level->audio.music, -1);
+			Mix_PlayMusic(level->audio.title_music, -1);
 		}
 	}
 	else if (event.key.keysym.scancode == SDL_SCANCODE_R)

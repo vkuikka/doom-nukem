@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/01 12:25:47 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/01 13:23:34 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,7 +106,8 @@
 # define SERIALIZE_INITIAL_BUFFER_SIZE 666
 # define OCCLUSION_CULLING_FLOAT_ERROR_MAGIC_NUMBER 10
 
-# define AUDIO_MUSIC "Audio/Music/str4E.ogg"
+# define AUDIO_GAME_MUSIC "Audio/Music/d_e1m1.ogg"
+# define AUDIO_TITLE_MUSIC "Audio/Music/d_e1m2.ogg"
 # define AUDIO_GUNSHOT "Audio/SoundEffects/gunshot.wav"
 # define AUDIO_GUNSHOT_CHANNEL 0
 # define AUDIO_JUMP "Audio/SoundEffects/jump.wav"
@@ -115,7 +116,7 @@
 # define AUDIO_RELOAD_CHANNEL 2
 # define AUDIO_DOOR "Audio/SoundEffects/door.wav"
 # define AUDIO_DOOR_CHANNEL 3
-# define AUDIO_DEATH "Audio/SoundEffects/osrsDeath.wav"
+# define AUDIO_DEATH "Audio/SoundEffects/d_death.ogg"
 # define AUDIO_DEATH_CHANNEL -1
 
 # include <math.h>
@@ -147,7 +148,8 @@ typedef struct s_audio
 {
 	float				music_volume;
 	float				sound_effect_volume;
-	Mix_Music			*music;
+	Mix_Music			*title_music;
+	Mix_Music			*game_music;
 	Mix_Chunk			*gunshot;
 	Mix_Chunk			*jump;
 	int					played_jump_sound;

@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/19 18:51:47 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/01 11:51:20 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/01 13:22:43 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,6 +113,7 @@ void	main_menu_buttons_level(t_game_state *game_state, int *state_changed,
 		*state_changed = TRUE;
 		level->player_health = PLAYER_HEALTH_MAX;
 		level->player_ammo = PLAYER_AMMO_MAX;
+		Mix_PlayMusic(level->audio.game_music, -1);
 	}
 	rect = main_menu_button_text("edit level", 1);
 	if (mouse_collision(rect, level, pixels))

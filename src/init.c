@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/08 14:38:45 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/24 03:01:28 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/01 13:22:48 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -184,9 +184,12 @@ void	init_audio(t_level *l)
 	l->audio.sound_effect_volume = MIX_MAX_VOLUME / 10;
 	Mix_VolumeMusic(l->audio.music_volume);
 	Mix_Volume(-1, l->audio.sound_effect_volume);
-	l->audio.music = Mix_LoadMUS(AUDIO_MUSIC);
-	if (!l->audio.music)
-		ft_error(AUDIO_MUSIC);
+	l->audio.game_music = Mix_LoadMUS(AUDIO_GAME_MUSIC);
+	if (!l->audio.game_music)
+		ft_error(AUDIO_GAME_MUSIC);
+	l->audio.title_music = Mix_LoadMUS(AUDIO_TITLE_MUSIC);
+	if (!l->audio.title_music)
+		ft_error(AUDIO_TITLE_MUSIC);
 	l->audio.jump = Mix_LoadWAV(AUDIO_JUMP);
 	if (!l->audio.jump)
 		ft_error(AUDIO_JUMP);
