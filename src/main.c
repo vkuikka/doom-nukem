@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/01 12:26:40 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/01 13:16:23 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,17 +126,20 @@ int	main(int argc, char **argv)
 	init_audio(level);
 	init_window(&window);
 	init_ui(window, level);
+
+		//remove
+		open_level(level, "level/demo.doom-nukem");
+		game_state = GAME_STATE_EDITOR;
+		level->cam.pos = level->spawn_pos.pos;
+		level->cam.look_side = level->spawn_pos.look_side;
+		level->cam.look_up = level->spawn_pos.look_up;
+		//remove
+
 	while (!level->level_initialized)
 	{
 		read_input(window, level, &game_state);
 		render(window, level, &game_state);
 	}
-
-	// init_screen_space_partition(level);
-	// level = init_level();
-	// init_culling(level);
-	// init_player(&level->player);
-	// open_level(level, "level/demo.doom-nukem");
 	while (1)
 	{
 		frame_time = SDL_GetTicks();
