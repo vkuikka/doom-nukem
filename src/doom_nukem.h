@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/31 14:59:28 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/01 11:11:44 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -467,6 +467,7 @@ typedef struct s_editor_ui
 	int					wireframe_culling_visual;
 	int					fog;
 	int					blur;
+	int					chromatic_abberation;
 	int					smooth_pixels;
 	t_color_hsl			fog_color;
 	int					show_quads;

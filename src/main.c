@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/31 14:51:18 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/01 11:45:40 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,43 +26,27 @@ static void	update_camera(t_level *l)
 static void	render_raycast(t_window *window, t_level *level)
 {
 	SDL_Thread	*threads[THREAD_AMOUNT];
-	t_rthread	**thread_data;
+	t_rthread	thread_data[THREAD_AMOUNT];
 	int			dummy_for_sdl;
 	int			i;
 
-	if (SDL_LockTexture(window->texture, NULL, (void **)&window->frame_buffer,
-			&dummy_for_sdl) != 0)
+	if (SDL_LockTexture(window->texture, NULL,
+			(void **)&window->frame_buffer, &dummy_for_sdl) != 0)
 		ft_error("failed to lock texture\n");
-	if (!level->ui.wireframe || (level->ui.wireframe
-			&& level->ui.wireframe_on_top))
+	i = -1;
+	while (++i < THREAD_AMOUNT)
 	{
-		i = 0;
-		thread_data = (t_rthread **)malloc(sizeof(t_rthread *) * THREAD_AMOUNT);
-		if (!thread_data)
-			ft_error("memory allocation failed\n");
-		while (i < THREAD_AMOUNT)
-		{
-			thread_data[i] = (t_rthread *)malloc(sizeof(t_rthread));
-			if (!thread_data[i])
-				ft_error("memory allocation failed\n");
-			thread_data[i]->id = i;
-			thread_data[i]->level = level;
-			thread_data[i]->window = window;
-			threads[i] = SDL_CreateThread(init_raycast, "asd",
-					(void *)thread_data[i]);
-			i++;
-		}
-		i = 0;
-		while (i < THREAD_AMOUNT)
-		{
-			SDL_WaitThread(threads[i], &dummy_for_sdl);
-			free(thread_data[i]);
-			i++;
-		}
-		free(thread_data);
-		fill_pixels(window->frame_buffer, level->ui.raycast_quality,
-			level->ui.blur, level->ui.smooth_pixels);
+		thread_data[i].id = i;
+		thread_data[i].level = level;
+		thread_data[i].window = window;
+		threads[i] = SDL_CreateThread(init_raycast, "asd",
+				(void *)&thread_data[i]);
 	}
+	i = -1;
+	while (++i < THREAD_AMOUNT)
+		SDL_WaitThread(threads[i], &dummy_for_sdl);
+	fill_pixels(window->frame_buffer, level->ui.raycast_quality,
+		level->ui.blur, level->ui.smooth_pixels);
 	SDL_UnlockTexture(window->texture);
 	SDL_RenderCopy(window->SDLrenderer, window->texture, NULL, NULL);
 }
@@ -111,7 +95,9 @@ static void	render(t_window *window, t_level *level, t_game_state *game_state)
 	SDL_RenderClear(window->SDLrenderer);
 	if (level->level_initialized)
 	{
-		render_raycast(window, level);
+		if (!level->ui.wireframe
+			|| (level->ui.wireframe && level->ui.wireframe_on_top))
+			render_raycast(window, level);
 		render_raster(window, level, game_state);
 	}
 	render_ui(window, level, game_state);
