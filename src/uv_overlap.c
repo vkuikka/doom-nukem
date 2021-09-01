@@ -200,7 +200,6 @@ void	move_uv(t_tri *t1, int t1_index, t_level *l)
 				ft_error("memory allocation failed");
 			l->texture.height *= 2;
 			l->normal_map.height *= 2;
-			l->spray.height *= 2;
 			div_every_uv(l);
 			diff.y /= 2.0;
 		}
