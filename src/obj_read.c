@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/23 00:17:25 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/02 14:19:35 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,8 @@ static char	**file2d(char *filename)
 
 	i = 0;
 	fd = open(filename, O_RDONLY);
+	if (fd < 2)
+		return (NULL);
 	while (get_next_line(fd, &line))
 	{
 		free(line);
@@ -29,12 +31,11 @@ static char	**file2d(char *filename)
 	free(line);
 	close(fd);
 	file = (char **)malloc(sizeof(char *) * (i + 1));
+	if (!file)
+		return (NULL);
 	fd = open(filename, O_RDONLY);
 	if (fd < 2)
-	{
-		printf("%s\n", filename);
-		ft_error("^: no such obj\n");
-	}
+		return (NULL);
 	i = 0;
 	while (get_next_line(fd, &line))
 	{
@@ -69,9 +70,9 @@ static void	set_uv_vert(char **file, int i, t_vec2 *vert)
 static t_vec2	*load_uvs(char **file)
 {
 	int		i;
+	int		j;
 	int		uv_amount;
 	t_vec2	*res;
-	int		j;
 
 	i = 0;
 	uv_amount = 0;
@@ -156,20 +157,12 @@ static t_vec3	*load_verts(char **file)
 	return (res);
 }
 
-static void	set_tri(char *str, t_vec3 *verts, t_vec2 *uvs, t_obj *obj, int i)
+void	read_indices(char *str, t_ivec3 *tex_index, t_ivec3 *uv_index)
 {
-	t_ivec3	tex_index;
-	t_ivec3	uv_index;
 	int		j;
 	int		x;
 
 	j = 0;
-	tex_index.x = 0;
-	tex_index.y = 0;
-	tex_index.z = 0;
-	uv_index.x = 0;
-	uv_index.y = 0;
-	uv_index.z = 0;
 	while (str[j] != ' ')
 		j++;
 	j++;
@@ -177,85 +170,114 @@ static void	set_tri(char *str, t_vec3 *verts, t_vec2 *uvs, t_obj *obj, int i)
 	while (++x < 3)
 	{
 		if (x == 0)
-			tex_index.x = atoi(&str[j]) - 1;
+			tex_index->x = atoi(&str[j]) - 1;
 		else if (x == 1)
-			tex_index.y = atoi(&str[j]) - 1;
+			tex_index->y = atoi(&str[j]) - 1;
 		else if (x == 2)
-			tex_index.z = atoi(&str[j]) - 1;
+			tex_index->z = atoi(&str[j]) - 1;
 		while (str[j] && ft_isdigit(str[j]))
 			j++;
 		if (str[j] == '/')
 		{
 			j++;
 			if (x == 0)
-				uv_index.x = atoi(&str[j]) - 1;
+				uv_index->x = atoi(&str[j]) - 1;
 			else if (x == 1)
-				uv_index.y = atoi(&str[j]) - 1;
+				uv_index->y = atoi(&str[j]) - 1;
 			else if (x == 2)
-				uv_index.z = atoi(&str[j]) - 1;
+				uv_index->z = atoi(&str[j]) - 1;
 			while (str[j] && str[j] != ' ')
 				j++;
 		}
 		j++;
 	}
-	if (uvs)
-	{
-		obj->tris[i].verts[0].txtr.x = uvs[uv_index.x].x;
-		obj->tris[i].verts[0].txtr.y = uvs[uv_index.x].y;
-		obj->tris[i].verts[1].txtr.x = uvs[uv_index.y].x;
-		obj->tris[i].verts[1].txtr.y = uvs[uv_index.y].y;
-		obj->tris[i].verts[2].txtr.x = uvs[uv_index.z].x;
-		obj->tris[i].verts[2].txtr.y = uvs[uv_index.z].y;
-	}
-	obj->tris[i].verts[0].pos.x = verts[tex_index.x].x;
-	obj->tris[i].verts[0].pos.y = -verts[tex_index.x].y;
-	obj->tris[i].verts[0].pos.z = -verts[tex_index.x].z;
-	obj->tris[i].verts[1].pos.x = verts[tex_index.y].x;
-	obj->tris[i].verts[1].pos.y = -verts[tex_index.y].y;
-	obj->tris[i].verts[1].pos.z = -verts[tex_index.y].z;
-	obj->tris[i].verts[2].pos.x = verts[tex_index.z].x;
-	obj->tris[i].verts[2].pos.y = -verts[tex_index.z].y;
-	obj->tris[i].verts[2].pos.z = -verts[tex_index.z].z;
 }
 
-static void	load_obj_internal(char **file, t_obj *obj)
+static int	set_tri(char *str, t_vec3 *verts, t_vec2 *uvs, t_tri *tri)
+{
+	t_ivec3	tex_index;
+	t_ivec3	uv_index;
+
+	tex_index = (t_ivec3){0, 0, 0};
+	uv_index = (t_ivec3){0, 0, 0};
+	read_indices(str, &tex_index, &uv_index);
+	if (uvs)
+	{
+		tri->verts[0].txtr.x = uvs[uv_index.x].x;
+		tri->verts[0].txtr.y = uvs[uv_index.x].y;
+		tri->verts[1].txtr.x = uvs[uv_index.y].x;
+		tri->verts[1].txtr.y = uvs[uv_index.y].y;
+		tri->verts[2].txtr.x = uvs[uv_index.z].x;
+		tri->verts[2].txtr.y = uvs[uv_index.z].y;
+	}
+	tri->verts[0].pos.x = verts[tex_index.x].x;
+	tri->verts[0].pos.y = -verts[tex_index.x].y;
+	tri->verts[0].pos.z = -verts[tex_index.x].z;
+	tri->verts[1].pos.x = verts[tex_index.y].x;
+	tri->verts[1].pos.y = -verts[tex_index.y].y;
+	tri->verts[1].pos.z = -verts[tex_index.y].z;
+	tri->verts[2].pos.x = verts[tex_index.z].x;
+	tri->verts[2].pos.y = -verts[tex_index.z].y;
+	tri->verts[2].pos.z = -verts[tex_index.z].z;
+	return (TRUE);
+}
+
+static int	obj_set_all_tris(char **file, t_obj *obj)
 {
 	int		i;
-	int		tri_amount;
+	int		j;
 	t_vec3	*verts;
 	t_vec2	*uvs;
-	int		j;
 
-	i = 0;
-	tri_amount = 0;
-	while (file[i])
-	{
-		if (!ft_strncmp(file[i], "f ", 2))
-			tri_amount++;
-		i++;
-	}
-	obj->tris = (t_tri *)malloc(sizeof(t_tri) * tri_amount);
-	if (!obj->tris)
-		ft_error("memory allocation failed\n");
-	obj->tri_amount = tri_amount;
 	verts = load_verts(file);
+	if (!verts)
+		return (FALSE);
 	uvs = load_uvs(file);
 	i = 0;
 	j = 0;
 	while (file[i])
 	{
-		if (!ft_strncmp(file[i], "f ", 2))
+		if (file[i][0] == 'f' && file[i][1] == ' ')
 		{
-			ft_bzero(&obj->tris[j], sizeof(t_tri));
-			set_tri(file[i], verts, uvs, obj, j);
-			obj->tris[j].opacity = 0;
-			obj->tris[j].reflectivity = 0;
+			if (!set_tri(file[i], verts, uvs, &obj->tris[j]))
+				return (FALSE);
 			j++;
 		}
 		i++;
 	}
 	free(verts);
 	free(uvs);
+	return (TRUE);
+}
+
+static int	obj_get_face_amount(char **file)
+{
+	int	i;
+	int	res;
+
+	i = 0;
+	res = 0;
+	while (file[i])
+	{
+		if (!ft_strncmp(file[i], "f ", 2))
+			res++;
+		i++;
+	}
+	return (res);
+}
+
+static int	load_obj_internal(char **file, t_obj *obj)
+{
+	int		i;
+
+	i = 0;
+	obj->tri_amount = obj_get_face_amount(file);
+	obj->tris = (t_tri *)malloc(sizeof(t_tri) * obj->tri_amount);
+	if (!obj->tris)
+		ft_error("memory allocation failed\n");
+	ft_bzero(obj->tris, sizeof(t_tri) * obj->tri_amount);
+	if (!obj_set_all_tris(file, obj))
+		return (FALSE);
 	find_quads(obj);
 	i = 0;
 	while (i < obj->tri_amount)
@@ -268,15 +290,19 @@ static void	load_obj_internal(char **file, t_obj *obj)
 		vec_normalize(&obj->tris[i].normal);
 		i++;
 	}
+	return (TRUE);
 }
 
-void	load_obj(char *filename, t_obj *obj)
+int	load_obj(char *filename, t_obj *obj)
 {
 	char	**file;
 	int		i;
 
 	file = file2d(filename);
-	load_obj_internal(file, obj);
+	if (!file)
+		return (FALSE);
+	if (!load_obj_internal(file, obj))
+		return (FALSE);
 	i = 0;
 	while (file[i])
 	{
@@ -284,6 +310,7 @@ void	load_obj(char *filename, t_obj *obj)
 		i++;
 	}
 	free(file);
+	return (TRUE);
 }
 
 void	load_obj_from_memory(unsigned char *data,

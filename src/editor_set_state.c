@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   editor_set_state.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/11 15:51:06 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/12 16:27:14 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/02 12:31:06 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,17 @@
 
 void	set_obj(t_level *level, char *filename)
 {
+	t_obj tmp;
+
+	if (!load_obj(filename, &tmp))
+	{
+		nonfatal_error(level, "failed to read object file");
+		return ;
+	}
 	free_culling(level);
 	free(level->all.tris);
 	free(level->visible.tris);
-	load_obj(filename, &level->all);
+	level->all = tmp;
 	level->visible.tris
 		= (t_tri *)malloc(sizeof(t_tri) * level->all.tri_amount);
 	if (!level->visible.tris)
