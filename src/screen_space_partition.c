@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   screen_space_partition.c                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/09 12:03:36 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/22 23:55:09 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/02 19:39:21 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,12 @@
 
 int	get_ssp(t_ivec2 pixel)
 {
-	return ((int)((float)pixel.x / RES_X * SSP_MAX_X)
-			+ (int)((float)pixel.y / RES_Y * SSP_MAX_Y) * SSP_MAX_X);
+	int	x;
+	int	y;
+
+	x = (float)pixel.x / RES_X * SSP_MAX_X;
+	y = (float)pixel.y / RES_Y * SSP_MAX_Y;
+	return (x + y * SSP_MAX_X);
 }
 
 int	get_ssp_coordinate(int coord, int horizontal)
@@ -32,28 +36,24 @@ static void	calculate_corner_vectors(t_vec3 result[2], t_camera c,
 	float	xm;
 
 	if (horizontal)
-	{
 		ym = c.fov_y / RES_Y * RES_Y - c.fov_y / 2;
+	if (horizontal)
 		xm = c.fov_x / RES_X * px - c.fov_x / 2;
-	}
-	else
-	{
+	if (!horizontal)
 		ym = c.fov_y / RES_Y * px - c.fov_y / 2;
+	if (!horizontal)
 		xm = c.fov_x / RES_X * RES_X - c.fov_x / 2;
-	}
 	result[0].x = c.front.x + c.up.x * ym + c.side.x * xm;
 	result[0].y = c.front.y + c.up.y * ym + c.side.y * xm;
 	result[0].z = c.front.z + c.up.z * ym + c.side.z * xm;
 	if (horizontal)
-	{
 		ym = c.fov_y / RES_Y * 0 - c.fov_y / 2;
+	if (horizontal)
 		xm = c.fov_x / RES_X * px - c.fov_x / 2;
-	}
-	else
-	{
+	if (!horizontal)
 		ym = c.fov_y / RES_Y * px - c.fov_y / 2;
+	if (!horizontal)
 		xm = c.fov_x / RES_X * 0 - c.fov_x / 2;
-	}
 	result[1].x = c.front.x + c.up.x * ym + c.side.x * xm;
 	result[1].y = c.front.y + c.up.y * ym + c.side.y * xm;
 	result[1].z = c.front.z + c.up.z * ym + c.side.z * xm;
@@ -212,13 +212,10 @@ static void	find_ssp_index(t_tri *tri, t_level *level)
 	x = get_ssp_coordinate(x_bounds[0], 1);
 	while (x <= get_ssp_coordinate(x_bounds[1], 1))
 	{
-		y = get_ssp_coordinate(y_bounds[0], 0);
-		while (y <= get_ssp_coordinate(y_bounds[1], 0))
-		{
+		y = get_ssp_coordinate(y_bounds[0], 0) - 1;
+		while (++y <= get_ssp_coordinate(y_bounds[1], 0))
 			level->ssp[x + y * SSP_MAX_X]
 				.tris[level->ssp[x + y * SSP_MAX_X].tri_amount++] = *tri;
-			y++;
-		}
 		x++;
 	}
 }
