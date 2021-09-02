@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/31 18:32:46 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/12 11:37:44 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/02 19:53:23 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,8 +36,6 @@ void	find_closest_mouse(t_vec3 *vert, int *i, int *k)
 	static float	nearest_len = -1;
 	static int		nearest_tri_index = -1;
 	static int		nearest_vert_index = -1;
-	float			len;
-	t_vec2			test;
 	int				x;
 	int				y;
 
@@ -48,19 +46,15 @@ void	find_closest_mouse(t_vec3 *vert, int *i, int *k)
 		nearest_vert_index = -1;
 		nearest_tri_index = -1;
 		nearest_len = -1;
-		return ;
 	}
-	if (vert->z < 0)
+	if (!vert || vert->z < 0)
 		return ;
 	SDL_GetMouseState(&x, &y);
-	test.x = vert->x;
-	test.y = vert->y;
-	test.x -= x;
-	test.y -= y;
-	len = vec2_length(test);
-	if (len < nearest_len || nearest_len == -1)
+	if (vec2_length((t_vec2){vert->x - x, vert->y - y}) < nearest_len
+		|| nearest_len == -1)
 	{
-		nearest_len = len;
+		nearest_len
+			= vec2_length((t_vec2){vert->x - x, vert->y - y});
 		nearest_tri_index = *i;
 		nearest_vert_index = *k;
 	}
@@ -70,9 +64,8 @@ static void	update_closest_vertex(t_level *level)
 {
 	int		i;
 	int		k;
-	int		o;
-	int		p;
 	int		new_state;
+	t_ivec2	o;
 	t_vec3	pos;
 
 	find_closest_mouse(NULL, &i, &k);
@@ -81,17 +74,17 @@ static void	update_closest_vertex(t_level *level)
 	{
 		new_state = level->all.tris[i].verts[k].selected == 0;
 		pos = level->all.tris[i].verts[k].pos;
-		o = 0;
-		while (o < level->all.tri_amount)
+		o.x = 0;
+		while (o.x < level->all.tri_amount)
 		{
-			p = 0;
-			while (p < 3 + level->all.tris[o].isquad)
+			o.y = 0;
+			while (o.y < 3 + level->all.tris[o.x].isquad)
 			{
-				if (vec_cmp(level->all.tris[o].verts[p].pos, pos))
-					level->all.tris[o].verts[p].selected = new_state;
-				p++;
+				if (vec_cmp(level->all.tris[o.x].verts[o.y].pos, pos))
+					level->all.tris[o.x].verts[o.y].selected = new_state;
+				o.y++;
 			}
-			o++;
+			o.x++;
 		}
 	}
 }
