@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/01 13:23:34 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/02 10:21:11 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,7 @@
 # define SPRAY_LINE_PRECISION 2
 # define SPRAY_MAX_DIST 15
 # define SPRAY_FROM_VIEW_SIZE 0.5
+# define FIND_QUADS_FLOAT_ERROR 0.0001
 
 # define TRUE 1
 # define FALSE 0
@@ -103,7 +104,7 @@
 
 # define UV_PADDING 3
 
-# define SERIALIZE_INITIAL_BUFFER_SIZE 666
+# define SERIALIZE_INITIAL_BUFFER_SIZE 512
 # define OCCLUSION_CULLING_FLOAT_ERROR_MAGIC_NUMBER 10
 
 # define AUDIO_GAME_MUSIC "Audio/Music/d_e1m1.ogg"
