@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/11 15:51:06 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/02 12:31:06 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/02 16:25:39 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 void	set_obj(t_level *level, char *filename)
 {
-	t_obj tmp;
+	t_obj	tmp;
 
 	if (!load_obj(filename, &tmp))
 	{
@@ -40,7 +40,7 @@ void	set_texture(t_level *level, char *filename)
 	free(level->spray_overlay);
 	level->texture = bmp_read(filename);
 	level->baked = (t_color *)malloc(sizeof(t_color)
-		* (level->texture.width * level->texture.height));
+			* (level->texture.width * level->texture.height));
 	level->spray_overlay = (unsigned int *)malloc(sizeof(unsigned int)
 			* (level->texture.width * level->texture.height));
 	if (!level->spray_overlay || !level->baked)
