@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/01 11:14:29 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/02 03:54:41 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -415,7 +415,8 @@ void	ui_single_light_settings(t_level *level)
 {
 	char	buf[100];
 
-	color_slider(&level->lights[level->selected_light_index - 1].color, "light color");
+	color_slider(&level->lights[level->selected_light_index - 1].color,
+		"light color");
 	sprintf(buf, "radius: %.2f",
 		level->lights[level->selected_light_index - 1].radius);
 	float_slider(&level->lights[level->selected_light_index - 1].radius,
@@ -471,6 +472,21 @@ void	ui_light_editor(t_level *level)
 		ui_single_light_settings(level);
 }
 
+void	ui_level_set_var(t_level *level)
+{
+	char	buf[100];
+
+	sprintf(buf, "win distance: %.2fm", level->win_dist);
+	float_slider(&level->win_dist, buf, 1, 40);
+	call("set win position", &set_win_pos, level);
+	call("set spawn position", &set_spawn_pos, level);
+	call("set menu position 1", &set_menu_pos_1, level);
+	call("set menu position 2", &set_menu_pos_2, level);
+	sprintf(buf, "main menu animation time %ds",
+		level->main_menu_anim_time);
+	int_slider((int *)&level->main_menu_anim_time, buf, 2, 50);
+}
+
 void	ui_level_settings(t_level *level)
 {
 	char	buf[100];
@@ -481,15 +497,7 @@ void	ui_level_settings(t_level *level)
 	file_browser("select normal map", ".bmp", &set_normal_map);
 	file_browser("select skybox", ".bmp", &set_skybox);
 	call("add face", &add_face, level);
-	call("set win position", &set_win_pos, level);
-	sprintf(buf, "win distance: %.2fm", level->win_dist);
-	float_slider(&level->win_dist, buf, 1, 40);
-	call("set spawn position", &set_spawn_pos, level);
-	call("set menu position 1", &set_menu_pos_1, level);
-	call("set menu position 2", &set_menu_pos_2, level);
-	sprintf(buf, "main menu animation time %ds",
-		level->main_menu_anim_time);
-	int_slider((int *)&level->main_menu_anim_time, buf, 2, 50);
+	ui_level_set_var(level);
 	float_slider(&level->player.projectile_scale,
 		"Player projectile scale: ", 0, 1.5);
 	button(&level->ui.fog, "fog");

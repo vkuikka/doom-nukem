@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/06 08:50:56 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/31 12:26:04 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/02 03:55:34 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -219,7 +219,7 @@ static void	init_color_slider(t_level *level)
 	unsigned int	blu;
 	float			pos;
 
-	level->ui.state.color_slider_hue_colors = (unsigned int*)malloc
+	level->ui.state.color_slider_hue_colors = (unsigned int *)malloc
 		(sizeof(unsigned int) * UI_SLIDER_WIDTH);
 	if (!level->ui.state.color_slider_hue_colors)
 		ft_error("color slider memory allocation failed");

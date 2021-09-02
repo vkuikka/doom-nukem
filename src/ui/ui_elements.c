@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/13 12:51:47 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/31 12:39:19 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/02 04:05:50 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,8 @@ static int	edit_slider_var(float *unit, t_ui_state *state)
 		&& y >= state->ui_text_y_pos + 4 && y <= state->ui_text_y_pos + 15
 		&& x < UI_SLIDER_WIDTH - 2 && x >= 2)
 	{
-		*unit = (float)(x - 2) / (float)(UI_SLIDER_WIDTH - UI_SLIDER_BUTTON_WIDTH);
+		*unit = (float)(x - 2)
+			/ (float)(UI_SLIDER_WIDTH - UI_SLIDER_BUTTON_WIDTH);
 		return (TRUE);
 	}
 	return (FALSE);
@@ -145,8 +146,8 @@ void	render_color_slider(unsigned int *texture, float pos,
 		x = 0;
 		while (x <= UI_SLIDER_BUTTON_WIDTH)
 		{
-			button_pixel_put(
-				x + 2 + ((UI_SLIDER_WIDTH - UI_SLIDER_BUTTON_WIDTH) * pos), y + 2 + dy, 0x666666ff, texture);
+			button_pixel_put(x + 2 + ((UI_SLIDER_WIDTH - UI_SLIDER_BUTTON_WIDTH)
+					* pos), y + 2 + dy, 0x666666ff, texture);
 			x++;
 		}
 		y++;
@@ -175,8 +176,8 @@ void	render_slider_streaming(unsigned int *texture,
 		x = 0;
 		while (x <= UI_SLIDER_BUTTON_WIDTH)
 		{
-			button_pixel_put(
-				x + 2 + ((UI_SLIDER_WIDTH - UI_SLIDER_BUTTON_WIDTH) * unit), y + 2 + dy, 0x666666ff, texture);
+			button_pixel_put(x + 2 + ((UI_SLIDER_WIDTH - UI_SLIDER_BUTTON_WIDTH)
+					* unit), y + 2 + dy, 0x666666ff, texture);
 			x++;
 		}
 		y++;
