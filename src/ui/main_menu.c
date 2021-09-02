@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/19 18:51:47 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/02 11:12:23 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/02 19:18:11 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,6 +111,7 @@ void	main_menu_buttons_level(t_game_state *game_state, int *state_changed,
 	{
 		*game_state = GAME_STATE_INGAME;
 		*state_changed = TRUE;
+		level->ui.noclip = FALSE;
 		level->player_health = PLAYER_HEALTH_MAX;
 		level->player_ammo = PLAYER_AMMO_MAX;
 		Mix_PlayMusic(level->audio.game_music, -1);

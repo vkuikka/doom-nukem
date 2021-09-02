@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/02 16:24:52 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/02 19:14:45 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -736,8 +736,7 @@ void			gizmo_render(t_level *level, unsigned int *pixels);
 void			gizmo(t_level *level);
 void			obj_editor_input(t_level *level, t_vec3 move_amount);
 
-void			player_movement(t_level *level,
-					t_game_state game_state);
+void			player_movement(t_level *level);
 
 void			enemies_update_physics(t_level *level);
 void			enemies_update_sprites(t_level *level);
