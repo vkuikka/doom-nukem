@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/01 14:43:15 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/02 12:12:51 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,15 +105,52 @@ static void	render(t_window *window, t_level *level, t_game_state *game_state)
 	SDL_RenderPresent(window->SDLrenderer);
 }
 
+static void	tick_forward(t_level *level, t_game_state *game_state)
+{
+	if (*game_state == GAME_STATE_MAIN_MENU)
+		main_menu_move_background(level);
+	else
+	{
+		if (*game_state != GAME_STATE_EDITOR)
+			game_logic(level, game_state);
+		if (*game_state != GAME_STATE_DEAD)
+			player_movement(level, *game_state);
+	}
+	update_camera(level);
+	door_animate(level);
+	enemies_update_sprites(level);
+}
+
+static void	dnukem(t_window *window, t_level *level, t_game_state game_state)
+{
+	unsigned int	ssp_time;
+	unsigned int	cull_time;
+	unsigned int	render_time;
+	unsigned int	frame_time;
+
+	while (1)
+	{
+		frame_time = SDL_GetTicks();
+		read_input(window, level, &game_state);
+		tick_forward(level, &game_state);
+		cull_time = SDL_GetTicks();
+		culling(level);
+		level->ui.cull_time = SDL_GetTicks() - cull_time;
+		ssp_time = SDL_GetTicks();
+		screen_space_partition(level);
+		level->ui.ssp_time = SDL_GetTicks() - ssp_time;
+		render_time = SDL_GetTicks();
+		render(window, level, &game_state);
+		level->ui.render_time = SDL_GetTicks() - render_time;
+		level->ui.frame_time = SDL_GetTicks() - frame_time;
+	}
+}
+
 int	main(int argc, char **argv)
 {
 	t_window		*window;
 	t_level			*level;
 	t_game_state	game_state;
-	unsigned int	ssp_time;
-	unsigned int	cull_time;
-	unsigned int	render_time;
-	unsigned int	frame_time;
 
 	(void)argc;
 	(void)argv;
@@ -128,44 +165,18 @@ int	main(int argc, char **argv)
 	init_ui(window, level);
 	init_player(&level->player);
 
-		//remove
-		open_level(level, "level/demo.doom-nukem");
-		game_state = GAME_STATE_EDITOR;
-		level->cam.pos = level->spawn_pos.pos;
-		level->cam.look_side = level->spawn_pos.look_side;
-		level->cam.look_up = level->spawn_pos.look_up;
-		//remove
+	//remove
+	open_level(level, "level/demo.doom-nukem");
+	game_state = GAME_STATE_EDITOR;
+	level->cam.pos = level->spawn_pos.pos;
+	level->cam.look_side = level->spawn_pos.look_side;
+	level->cam.look_up = level->spawn_pos.look_up;
+	//remove
 
 	while (!level->level_initialized)
 	{
 		read_input(window, level, &game_state);
 		render(window, level, &game_state);
 	}
-	while (1)
-	{
-		frame_time = SDL_GetTicks();
-		read_input(window, level, &game_state);
-		if (game_state == GAME_STATE_MAIN_MENU)
-			main_menu_move_background(level);
-		else
-		{
-			if (game_state != GAME_STATE_EDITOR)
-				game_logic(level, &game_state);
-			if (game_state != GAME_STATE_DEAD)
-				player_movement(level, game_state);
-		}
-		update_camera(level);
-		door_animate(level);
-		enemies_update_sprites(level);
-		cull_time = SDL_GetTicks();
-		culling(level);
-		level->ui.cull_time = SDL_GetTicks() - cull_time;
-		ssp_time = SDL_GetTicks();
-		screen_space_partition(level);
-		level->ui.ssp_time = SDL_GetTicks() - ssp_time;
-		render_time = SDL_GetTicks();
-		render(window, level, &game_state);
-		level->ui.render_time = SDL_GetTicks() - render_time;
-		level->ui.frame_time = SDL_GetTicks() - frame_time;
-	}
+	dnukem(window, level, game_state);
 }
