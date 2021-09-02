@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/02 13:43:50 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/02 16:15:02 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -672,6 +672,9 @@ void			wireframe(unsigned int *texture, t_level *level);
 void			camera_offset(t_vec3 *vertex, t_camera *cam);
 SDL_Color		get_sdl_color(unsigned int color);
 
+char			**file2d(char *filename);
+char			**file2d_from_memory(unsigned char *data, unsigned int size);
+void			free_file2d(char **file);
 int				load_obj(char *filename, t_obj *obj);
 void			load_obj_from_memory(unsigned char *data,
 					unsigned int size, t_obj *obj);
