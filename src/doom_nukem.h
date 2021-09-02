@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/02 10:21:11 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/02 11:12:15 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -646,7 +646,7 @@ float			clamp(float var, float min, float max);
 
 void			init_window(t_window **window);
 void			init_embedded(t_level *level);
-void			init_level(t_level *level);
+void			create_default_level(t_level *level);
 
 void			screen_space_partition(t_level *level);
 void			init_screen_space_partition(t_level *level);

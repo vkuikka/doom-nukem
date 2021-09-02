@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/08 14:38:45 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/01 13:22:48 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/02 11:27:38 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,16 +30,20 @@ SDL_Texture	*empty_texture(SDL_Renderer *renderer)
 
 static void	init_fonts(t_editor_ui *ui)
 {
-	SDL_RWops*	mem;
+	SDL_RWops	*mem;
 
 	TTF_Init();
-	mem = SDL_RWFromMem((void *)&embed_digital_ttf[0], (int)embed_digital_ttf_len);
+	mem = SDL_RWFromMem((void *)&embed_digital_ttf[0],
+			(int)embed_digital_ttf_len);
 	ui->hud_font = TTF_OpenFontRW(mem, 1, HUD_FONT_SIZE);
-	mem = SDL_RWFromMem((void *)&embed_Roboto_Medium_ttf[0], (int)embed_Roboto_Medium_ttf_len);
+	mem = SDL_RWFromMem((void *)&embed_Roboto_Medium_ttf[0],
+			(int)embed_Roboto_Medium_ttf_len);
 	ui->editor_font = TTF_OpenFontRW(mem, 1, UI_FONT_SIZE);
-	mem = SDL_RWFromMem((void *)&embed_Roboto_Medium_ttf[0], (int)embed_Roboto_Medium_ttf_len);
+	mem = SDL_RWFromMem((void *)&embed_Roboto_Medium_ttf[0],
+			(int)embed_Roboto_Medium_ttf_len);
 	ui->main_menu_font = TTF_OpenFontRW(mem, 1, MAIN_MENU_FONT_SIZE);
-	mem = SDL_RWFromMem((void *)&embed_Roboto_Medium_ttf[0], (int)embed_Roboto_Medium_ttf_len);
+	mem = SDL_RWFromMem((void *)&embed_Roboto_Medium_ttf[0],
+			(int)embed_Roboto_Medium_ttf_len);
 	ui->win_lose_font = TTF_OpenFontRW(mem, 1, HUD_GAME_EVENT_FONT_SIZE);
 	if (!ui->editor_font || !ui->hud_font
 		|| !ui->main_menu_font || !ui->win_lose_font)
@@ -49,25 +53,46 @@ static void	init_fonts(t_editor_ui *ui)
 	}
 }
 
+static void	init_embedded_viewmodel(t_level *level)
+{
+	unsigned int	size;
+
+	size = embed_viewmodel_ak_0_bmp_len;
+	level->viewmodel[0]
+		= bmp_read_from_memory(&embed_viewmodel_ak_0_bmp[0], size);
+	// level->viewmodel[1]
+	// 	= bmp_read_from_memory(&embed_viewmodel_ak_1_bmp[0], size);
+	// level->viewmodel[2]
+	// 	= bmp_read_from_memory(&embed_viewmodel_ak_2_bmp[0], size);
+	// level->viewmodel[3]
+	// 	= bmp_read_from_memory(&embed_viewmodel_ak_3_bmp[0], size);
+	// level->viewmodel[4]
+	// 	= bmp_read_from_memory(&embed_viewmodel_ak_4_bmp[0], size);
+	// level->viewmodel[5]
+	// 	= bmp_read_from_memory(&embed_viewmodel_ak_5_bmp[0], size);
+	// level->viewmodel[6]
+	// 	= bmp_read_from_memory(&embed_viewmodel_ak_6_bmp[0], size);
+	// level->viewmodel[7]
+	// 	= bmp_read_from_memory(&embed_viewmodel_ak_7_bmp[0], size);
+	// level->viewmodel[8]
+	// 	= bmp_read_from_memory(&embed_viewmodel_ak_8_bmp[0], size);
+	// level->viewmodel[9]
+	// 	= bmp_read_from_memory(&embed_viewmodel_ak_9_bmp[0], size);
+}
+
 void	init_embedded(t_level *level)
 {
-	level->main_menu_title = bmp_read_from_memory(&embed_title_bmp[0], embed_title_bmp_len);
-	// level->viewmodel[0] = bmp_read_from_memory(&embed_viewmodel_ak_0_bmp[0], embed_viewmodel_ak_0_bmp_len);
-	// level->viewmodel[1] = bmp_read_from_memory(&embed_viewmodel_ak_1_bmp[0], embed_viewmodel_ak_1_bmp_len);
-	// level->viewmodel[2] = bmp_read_from_memory(&embed_viewmodel_ak_2_bmp[0], embed_viewmodel_ak_2_bmp_len);
-	// level->viewmodel[3] = bmp_read_from_memory(&embed_viewmodel_ak_3_bmp[0], embed_viewmodel_ak_3_bmp_len);
-	// level->viewmodel[4] = bmp_read_from_memory(&embed_viewmodel_ak_4_bmp[0], embed_viewmodel_ak_4_bmp_len);
-	// level->viewmodel[5] = bmp_read_from_memory(&embed_viewmodel_ak_5_bmp[0], embed_viewmodel_ak_5_bmp_len);
-	// level->viewmodel[6] = bmp_read_from_memory(&embed_viewmodel_ak_6_bmp[0], embed_viewmodel_ak_6_bmp_len);
-	// level->viewmodel[7] = bmp_read_from_memory(&embed_viewmodel_ak_7_bmp[0], embed_viewmodel_ak_7_bmp_len);
-	// level->viewmodel[8] = bmp_read_from_memory(&embed_viewmodel_ak_8_bmp[0], embed_viewmodel_ak_8_bmp_len);
-	// level->viewmodel[9] = bmp_read_from_memory(&embed_viewmodel_ak_9_bmp[0], embed_viewmodel_ak_9_bmp_len);
-	load_obj_from_memory(&embed_skybox_obj[0], embed_skybox_obj_len, &level->sky.all);
-	load_obj_from_memory(&embed_skybox_obj[0], embed_skybox_obj_len, &level->sky.visible);
+	level->main_menu_title
+		= bmp_read_from_memory(&embed_title_bmp[0], embed_title_bmp_len);
+	init_embedded_viewmodel(level);
+	load_obj_from_memory(&embed_skybox_obj[0], embed_skybox_obj_len,
+		&level->sky.all);
+	load_obj_from_memory(&embed_skybox_obj[0], embed_skybox_obj_len,
+		&level->sky.visible);
 	init_fonts(&level->ui);
 }
 
-void	init_level(t_level *level)
+static void	level_default_settings(t_level *level)
 {
 	level->player_health = PLAYER_HEALTH_MAX;
 	level->player_ammo = PLAYER_AMMO_MAX;
@@ -79,6 +104,11 @@ void	init_level(t_level *level)
 	level->cam.look_up = 0;
 	level->main_menu_anim_time = 2;
 	level->world_brightness = 0.5;
+}
+
+void	create_default_level(t_level *level)
+{
+	level_default_settings(level);
 	level->texture = bmp_read("out.bmp");
 	level->baked = (t_color *)malloc(sizeof(t_color)
 			* (level->texture.width * level->texture.height));
@@ -94,10 +124,6 @@ void	init_level(t_level *level)
 	level->normal_map = bmp_read("normal.bmp");
 	level->sky.img = bmp_read("skybox.bmp");
 	level->spray = bmp_read("spray.bmp");
-	level->visible.tris = (t_tri *)malloc(sizeof(t_tri)
-			* level->all.tri_amount);
-	if (!level->visible.tris)
-		ft_error("memory allocation failed\n");
 	load_obj("level/ship.obj", &level->all);
 	level->visible.tris
 		= (t_tri *)malloc(sizeof(t_tri) * level->all.tri_amount);
@@ -200,9 +226,7 @@ void	init_audio(t_level *l)
 	if (!l->audio.reload)
 		ft_error(AUDIO_RELOAD);
 	l->audio.death = Mix_LoadWAV(AUDIO_DEATH);
-	if (!l->audio.death)
-		ft_error(AUDIO_DEATH);
 	l->audio.door = Mix_LoadWAV(AUDIO_DOOR);
-	if (!l->audio.door)
-		ft_error(AUDIO_DOOR);
+	if (!l->audio.death || !l->audio.door)
+		ft_error(AUDIO_DOOR" or "AUDIO_DEATH" error");
 }

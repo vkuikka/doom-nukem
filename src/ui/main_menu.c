@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/19 18:51:47 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/01 13:22:43 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/02 11:12:23 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,7 +139,7 @@ void	main_menu_buttons_other(t_game_state *game_state, int *state_changed,
 	rect = main_menu_button_text("create level", 3);
 	if (mouse_collision(rect, level, pixels))
 	{
-		init_level(level);
+		create_default_level(level);
 		level->ui.noclip = TRUE;
 		*game_state = GAME_STATE_EDITOR;
 		*state_changed = TRUE;
