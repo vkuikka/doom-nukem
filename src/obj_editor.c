@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/22 23:13:42 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/12 11:37:16 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/03 07:37:02 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,23 +14,20 @@
 
 void	transform_quad(t_tri *tri, t_vec3 dir)
 {
-	int		quadmoved;
 	t_vec3	tmp;
 	int		k;
 
 	k = -1;
 	while (++k < 3 + tri->isquad)
 	{
-		quadmoved = 0;
-		if (k == 3 && quadmoved)
-			return ;
 		if (tri->verts[k].selected)
 		{
 			vec_add(&tri->verts[k].pos, tri->verts[k].pos, dir);
 			if (k < 3 && tri->isquad)
 			{
 				set_fourth_vertex(tri);
-				quadmoved = 1;
+				if (k == 2)
+					return ;
 			}
 			else if (k == 3)
 			{
@@ -44,39 +41,38 @@ void	transform_quad(t_tri *tri, t_vec3 dir)
 	}
 }
 
-void	move_selected(t_level *level, t_vec3 dir)
+void	tri_optimize(t_tri *tri)
+{
+	vec_sub(&tri->v0v2, tri->verts[1].pos, tri->verts[0].pos);
+	vec_sub(&tri->v0v1, tri->verts[2].pos, tri->verts[0].pos);
+}
+
+void	move_selected(t_level *l, t_vec3 dir)
 {
 	int	amount;
 	int	i;
 	int	k;
 
 	i = -1;
-	while (++i < level->all.tri_amount)
+	while (++i < l->all.tri_amount)
 	{
 		amount = 0;
 		k = -1;
-		while (++k < 3 + level->all.tris[i].isquad)
-			if (level->all.tris[i].verts[k].selected)
+		while (++k < 3 + l->all.tris[i].isquad)
+			if (l->all.tris[i].verts[k].selected)
 				amount++;
-		if (level->ui.vertex_select_mode && level->all.tris[i].isquad
-			&& amount != 4)
-			transform_quad(&level->all.tris[i], dir);
+		if (l->ui.vertex_select_mode && l->all.tris[i].isquad && amount != 4)
+			transform_quad(&l->all.tris[i], dir);
 		else
 		{
 			k = -1;
-			while (++k < 3 + level->all.tris[i].isquad)
-				if (level->all.tris[i].selected
-					|| (level->ui.vertex_select_mode
-						&& level->all.tris[i].verts[k].selected))
-					vec_add(&level->all.tris[i].verts[k].pos,
-						level->all.tris[i].verts[k].pos, dir);
+			while (++k < 3 + l->all.tris[i].isquad)
+				if (l->all.tris[i].selected || (l->ui.vertex_select_mode
+						&& l->all.tris[i].verts[k].selected))
+					vec_add(&l->all.tris[i].verts[k].pos,
+						l->all.tris[i].verts[k].pos, dir);
 		}
-		vec_sub(&level->all.tris[i].v0v2,
-			level->all.tris[i].verts[1].pos,
-			level->all.tris[i].verts[0].pos);
-		vec_sub(&level->all.tris[i].v0v1,
-			level->all.tris[i].verts[2].pos,
-			level->all.tris[i].verts[0].pos);
+		tri_optimize(&l->all.tris[i]);
 	}
 }
 
@@ -167,12 +163,27 @@ void	add_face(t_level *level)
 	init_culling(level);
 }
 
+void	remove_tri(t_level *level, int i)
+{
+	int	k;
+
+	if (level->all.tris[i].enemy)
+		free(level->all.tris[i].enemy);
+	if (level->all.tris[i].projectile)
+		free(level->all.tris[i].projectile);
+	k = i - 1;
+	while (++k < level->all.tri_amount - 1)
+	{
+		level->all.tris[k] = level->all.tris[k + 1];
+		level->all.tris[k].index = k;
+	}
+}
+
 void	remove_faces(t_level *level)
 {
 	int	amount;
 	int	original_amount;
 	int	i;
-	int	k;
 
 	free_culling(level);
 	amount = level->all.tri_amount;
@@ -181,28 +192,16 @@ void	remove_faces(t_level *level)
 	while (++i < level->all.tri_amount)
 	{
 		if (level->all.tris[i].selected)
-		{
-			if (level->all.tris[i].enemy)
-				free(level->all.tris[i].enemy);
-			if (level->all.tris[i].projectile)
-				free(level->all.tris[i].projectile);
-			k = i - 1;
-			while (++k < level->all.tri_amount - 1)
-			{
-				level->all.tris[k] = level->all.tris[k + 1];
-				level->all.tris[k].index = k;
-			}
+			remove_tri(level, i);
+		if (level->all.tris[i].selected)
 			amount--;
-		}
 	}
 	level->all.tri_amount = amount;
 	level->all.tris = (t_tri *)ft_realloc(level->all.tris,
 			sizeof(t_tri) * original_amount, sizeof(t_tri) * amount);
-	if (!level->all.tris)
-		ft_error("memory allocation failed");
 	level->visible.tris = (t_tri *)ft_realloc(level->visible.tris,
 			sizeof(t_tri) * original_amount, sizeof(t_tri) * amount);
-	if (!level->visible.tris)
+	if (!level->visible.tris || !level->all.tris)
 		ft_error("memory allocation failed");
 	init_screen_space_partition(level);
 	init_culling(level);

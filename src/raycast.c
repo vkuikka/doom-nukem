@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/03 06:28:20 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/03 07:13:57 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,8 @@ static void	trace_bounce(t_cast_result *res, t_obj *obj, t_level *l)
 			reflection(res, l,
 				&l->all.tris[res->face_index].reflection_obj_first_bounce);
 		else
-			reflection(res, l, &l->all.tris[res->face_index].reflection_obj_all);
+			reflection(res, l,
+				&l->all.tris[res->face_index].reflection_obj_all);
 	}
 	opacity_value = 1.0 - (res->color << 24 >> 24) / (float)0xff;
 	if (!opacity_value)
