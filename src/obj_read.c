@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/02 16:15:11 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/03 05:58:39 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -246,6 +246,7 @@ static int	load_obj_internal(char **file, t_obj *obj)
 	i = 0;
 	while (i < obj->tri_amount)
 	{
+		obj->tris[i].index = i;
 		vec_sub(&obj->tris[i].v0v2, obj->tris[i].verts[1].pos,
 			obj->tris[i].verts[0].pos);
 		vec_sub(&obj->tris[i].v0v1, obj->tris[i].verts[2].pos,

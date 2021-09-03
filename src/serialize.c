@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/06 14:13:02 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/02 16:33:51 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/03 06:52:03 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -324,6 +324,7 @@ void	deserialize_obj(t_obj *obj, t_buffer *buf)
 	while (i < obj->tri_amount)
 	{
 		deserialize_tri(&obj->tris[i], buf);
+		obj->tris[i].index = i;
 		i++;
 	}
 }

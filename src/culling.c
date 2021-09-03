@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   culling.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/20 17:50:56 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/04/28 20:59:58 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/03 07:03:07 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,13 +72,10 @@ static int	fov_culling(t_vec3 side_normal[4], t_vec3 pos, t_tri tri)
 			return (1);
 		i++;
 	}
-	i = 0;
-	while (i < 4)
-	{
+	i = -1;
+	while (++i < 4)
 		if (out[0][i] && out[1][i] && out[2][i] && out[3][i])
 			return (0);
-		i++;
-	}
 	return (1);
 }
 
@@ -232,13 +229,13 @@ void	shadow_face_culling(t_level *level, int i)
 					&& cull_behind(v[3], target.verts[3].pos,
 						level->all.tris[k])))
 			{
-				level->all.tris[i].shadow_faces->tris[amount]
+				level->all.tris[i].shadow_faces.tris[amount]
 					= level->all.tris[k];
 				amount++;
 			}
 		}
 	}
-	level->all.tris[i].shadow_faces->tri_amount = amount;
+	level->all.tris[i].shadow_faces.tri_amount = amount;
 }
 
 void	reflection_culling_first_bounce(t_level *level, int i)
@@ -252,55 +249,54 @@ void	reflection_culling_first_bounce(t_level *level, int i)
 	int		k;
 
 	ft_memset(&avg_dir, 0, sizeof(t_vec3));
-	if (level->all.tris[i].reflectivity)
+	if (!level->all.tris[i].reflectivity)
+		return ;
+	level->all.tris[i].reflection_obj_first_bounce.tri_amount = 0;
+	k = -1;
+	while (++k < 3 + level->all.tris[i].isquad)
+		vec_add(&avg_dir, avg_dir, level->all.tris[i].verts[k].pos);
+	vec_div(&avg_dir, 3 + level->all.tris[i].isquad);
+	vec_sub(&avg_dir, avg_dir, level->cam.pos);
+	normal = level->all.tris[i].normal;
+	vec_mult(&normal, vec_dot(avg_dir, normal));
+	pos = level->cam.pos;
+	vec_add(&pos, pos, normal);
+	vec_add(&pos, pos, normal);
+	avg_dir = level->cam.front;
+	normal = level->all.tris[i].normal;
+	vec_mult(&normal, vec_dot(avg_dir, normal) * -2);
+	vec_add(&avg_dir, avg_dir, normal);
+	corner[0] = level->all.tris[i].verts[0].pos;
+	corner[1] = level->all.tris[i].verts[1].pos;
+	corner[2] = level->all.tris[i].verts[2].pos;
+	corner[3] = level->all.tris[i].verts[3].pos;
+	vec_sub(&corner[0], pos, corner[0]);
+	vec_sub(&corner[1], pos, corner[1]);
+	vec_sub(&corner[2], pos, corner[2]);
+	vec_sub(&corner[3], pos, corner[3]);
+	vec_normalize(&corner[0]);
+	vec_normalize(&corner[1]);
+	vec_normalize(&corner[2]);
+	vec_normalize(&corner[3]);
+	calculate_side_normals(side_normals, corner);
+	if (!level->all.tris[i].isquad)
+		side_normals[3] = side_normals[0];
+	amount = 0;
+	k = -1;
+	while (++k < level->all.tris[i].reflection_obj_all.tri_amount)
 	{
-		level->all.tris[i].reflection_obj_first_bounce->tri_amount = 0;
-		k = -1;
-		while (++k < 3 + level->all.tris[i].isquad)
-			vec_add(&avg_dir, avg_dir, level->all.tris[i].verts[k].pos);
-		vec_div(&avg_dir, 3 + level->all.tris[i].isquad);
-		vec_sub(&avg_dir, avg_dir, level->cam.pos);
-		normal = level->all.tris[i].normal;
-		vec_mult(&normal, vec_dot(avg_dir, normal));
-		pos = level->cam.pos;
-		vec_add(&pos, pos, normal);
-		vec_add(&pos, pos, normal);
-		avg_dir = level->cam.front;
-		normal = level->all.tris[i].normal;
-		vec_mult(&normal, vec_dot(avg_dir, normal) * -2);
-		vec_add(&avg_dir, avg_dir, normal);
-		corner[0] = level->all.tris[i].verts[0].pos;
-		corner[1] = level->all.tris[i].verts[1].pos;
-		corner[2] = level->all.tris[i].verts[2].pos;
-		corner[3] = level->all.tris[i].verts[3].pos;
-		vec_sub(&corner[0], pos, corner[0]);
-		vec_sub(&corner[1], pos, corner[1]);
-		vec_sub(&corner[2], pos, corner[2]);
-		vec_sub(&corner[3], pos, corner[3]);
-		vec_normalize(&corner[0]);
-		vec_normalize(&corner[1]);
-		vec_normalize(&corner[2]);
-		vec_normalize(&corner[3]);
-		calculate_side_normals(side_normals, corner);
-		if (!level->all.tris[i].isquad)
-			side_normals[3] = side_normals[0];
-		amount = 0;
-		k = -1;
-		while (++k < level->all.tris[i].reflection_obj_all->tri_amount)
+		if ((level->all.tris[i].reflection_obj_all.tris[k].isgrid
+				|| cull_behind(avg_dir, pos,
+					level->all.tris[i].reflection_obj_all.tris[k]))
+			&& fov_culling(side_normals, pos,
+				level->all.tris[i].reflection_obj_all.tris[k]))
 		{
-			if ((level->all.tris[i].reflection_obj_all->tris[k].isgrid
-					|| cull_behind(avg_dir, pos,
-						level->all.tris[i].reflection_obj_all->tris[k]))
-				&& fov_culling(side_normals, pos,
-					level->all.tris[i].reflection_obj_all->tris[k]))
-			{
-				level->all.tris[i].reflection_obj_first_bounce->tris[amount]
-					= level->all.tris[i].reflection_obj_all->tris[k];
-				amount++;
-			}
+			level->all.tris[i].reflection_obj_first_bounce.tris[amount]
+				= level->all.tris[i].reflection_obj_all.tris[k];
+			amount++;
 		}
-		level->all.tris[i].reflection_obj_first_bounce->tri_amount = amount;
 	}
+	level->all.tris[i].reflection_obj_first_bounce.tri_amount = amount;
 }
 
 void	reflection_culling(t_level *level, int i)
@@ -309,30 +305,26 @@ void	reflection_culling(t_level *level, int i)
 	int		amount;
 	int		k;
 
-	if (level->all.tris[i].reflectivity)
+	if (!level->all.tris[i].reflectivity)
+		return ;
+	level->all.tris[i].reflection_obj_all.tri_amount = 0;
+	ft_memset(&avg, 0, sizeof(t_vec3));
+	k = -1;
+	while (++k < 3 + level->all.tris[i].isquad)
+		vec_add(&avg, avg, level->all.tris[i].verts[k].pos);
+	vec_div(&avg, 3 + level->all.tris[i].isquad);
+	amount = 0;
+	k = -1;
+	while (++k < level->all.tri_amount)
 	{
-		level->all.tris[i].reflection_obj_all->tri_amount = 0;
-		ft_memset(&avg, 0, sizeof(t_vec3));
-		k = -1;
-		while (++k < 3 + level->all.tris[i].isquad)
-			vec_add(&avg, avg, level->all.tris[i].verts[k].pos);
-		vec_div(&avg, 3 + level->all.tris[i].isquad);
-		amount = 0;
-		k = -1;
-		while (++k < level->all.tri_amount)
-		{
-			if ((level->all.tris[k].isenemy || level->all.tris[k].isgrid
-					|| cull_behind(level->all.tris[i].normal,
-						avg, level->all.tris[k]))
-				&& reflection_backface(level->all.tris[k], level->all.tris[i]))
-			{
-				level->all.tris[i].reflection_obj_all->tris[amount]
-					= level->all.tris[k];
-				amount++;
-			}
-		}
-		level->all.tris[i].reflection_obj_all->tri_amount = amount;
+		if ((level->all.tris[k].isenemy || level->all.tris[k].isgrid
+				|| cull_behind(level->all.tris[i].normal,
+					avg, level->all.tris[k]))
+			&& reflection_backface(level->all.tris[k], level->all.tris[i]))
+			level->all.tris[i].reflection_obj_all.tris[amount++]
+				= level->all.tris[k];
 	}
+	level->all.tris[i].reflection_obj_all.tri_amount = amount;
 }
 
 void	opacity_culling(t_level *level, int i)
@@ -341,28 +333,27 @@ void	opacity_culling(t_level *level, int i)
 	int		amount;
 	int		k;
 
-	level->all.tris[i].opacity_obj_all->tri_amount = 0;
+	level->all.tris[i].opacity_obj_all.tri_amount = 0;
 	ft_memset(&avg, 0, sizeof(t_vec3));
 	k = -1;
 	while (++k < 3 + level->all.tris[i].isquad)
 		vec_add(&avg, avg, level->all.tris[i].verts[k].pos);
 	vec_div(&avg, 3 + level->all.tris[i].isquad);
 	amount = 0;
-	k = 0;
-	while (k < level->all.tri_amount)
+	k = -1;
+	while (++k < level->all.tri_amount)
 	{
 		if ((level->all.tris[k].isenemy || level->all.tris[k].isgrid
 				|| cull_ahead(level->all.tris[i].normal,
 					avg, level->all.tris[k]))
 			&& backface_culling(level->cam.pos, level->all.tris[k]))
 		{
-			level->all.tris[i].opacity_obj_all->tris[amount]
+			level->all.tris[i].opacity_obj_all.tris[amount]
 				= level->all.tris[k];
 			amount++;
 		}
-		k++;
 	}
-	level->all.tris[i].opacity_obj_all->tri_amount = amount;
+	level->all.tris[i].opacity_obj_all.tri_amount = amount;
 }
 
 void	free_culling(t_level *level)
@@ -372,14 +363,10 @@ void	free_culling(t_level *level)
 	i = 0;
 	while (i < level->all.tri_amount)
 	{
-		free(level->all.tris[i].reflection_obj_all->tris);
-		free(level->all.tris[i].reflection_obj_all);
-		free(level->all.tris[i].reflection_obj_first_bounce->tris);
-		free(level->all.tris[i].reflection_obj_first_bounce);
-		free(level->all.tris[i].opacity_obj_all->tris);
-		free(level->all.tris[i].opacity_obj_all);
-		free(level->all.tris[i].shadow_faces->tris);
-		free(level->all.tris[i].shadow_faces);
+		free(level->all.tris[i].reflection_obj_all.tris);
+		free(level->all.tris[i].reflection_obj_first_bounce.tris);
+		free(level->all.tris[i].opacity_obj_all.tris);
+		free(level->all.tris[i].shadow_faces.tris);
 		i++;
 	}
 }
@@ -391,36 +378,19 @@ void	init_culling(t_level *level)
 	i = -1;
 	while (++i < level->all.tri_amount)
 	{
-		level->all.tris[i].index = i;
-		level->all.tris[i].reflection_obj_all = (t_obj *)malloc(sizeof(t_obj));
-		if (!level->all.tris[i].reflection_obj_all)
-			ft_error("culling malloc fail");
-		level->all.tris[i].reflection_obj_all->tris
+		level->all.tris[i].reflection_obj_all.tris
 			= (t_tri *)malloc(sizeof(t_tri) * level->all.tri_amount);
-		if (!level->all.tris[i].reflection_obj_all->tris)
-			ft_error("culling malloc fail");
-		level->all.tris[i].reflection_obj_all->tri_amount = 0;
-		level->all.tris[i].reflection_obj_first_bounce
-			= (t_obj *)malloc(sizeof(t_obj));
-		if (!level->all.tris[i].reflection_obj_first_bounce)
-			ft_error("culling malloc fail");
-		level->all.tris[i].reflection_obj_first_bounce->tris
+		level->all.tris[i].reflection_obj_first_bounce.tris
 			= (t_tri *)malloc(sizeof(t_tri) * level->all.tri_amount);
-		if (!level->all.tris[i].reflection_obj_first_bounce->tris)
-			ft_error("culling malloc fail");
-		level->all.tris[i].reflection_obj_first_bounce->tri_amount = 0;
-		level->all.tris[i].opacity_obj_all = (t_obj *)malloc(sizeof(t_obj));
-		level->all.tris[i].opacity_obj_all->tris
+		level->all.tris[i].opacity_obj_all.tris
 			= (t_tri *)malloc(sizeof(t_tri) * level->all.tri_amount);
-		if (!level->all.tris[i].opacity_obj_all->tris)
-			ft_error("culling malloc fail");
-		level->all.tris[i].opacity_obj_all->tri_amount = 0;
-		level->all.tris[i].shadow_faces = (t_obj *)malloc(sizeof(t_obj));
-		level->all.tris[i].shadow_faces->tris
+		level->all.tris[i].shadow_faces.tris
 			= (t_tri *)malloc(sizeof(t_tri) * level->all.tri_amount);
-		if (!level->all.tris[i].shadow_faces->tris)
+		if (!level->all.tris[i].reflection_obj_first_bounce.tris
+			|| !level->all.tris[i].opacity_obj_all.tris
+			|| !level->all.tris[i].reflection_obj_all.tris
+			|| !level->all.tris[i].shadow_faces.tris)
 			ft_error("culling malloc fail");
-		level->all.tris[i].shadow_faces->tri_amount = 0;
 	}
 	i = -1;
 	while (++i < level->all.tri_amount)
@@ -480,59 +450,56 @@ static void	skybox_culling(t_level *level, t_camera *cam,
 	level->sky.visible.tri_amount = visible_amount;
 }
 
-void	culling(t_level *level)
+static void	indirect_culling(t_level *l)
 {
-	t_vec3		corner[4];
-	t_vec3		side_normals[4];
-	t_camera	*cam;
-	int			visible_amount;
-	int			i;
+	int	i;
+	int	visible_amount;
 
-	cam = &level->cam;
-	calculate_corner_vectors(corner, cam);
-	calculate_side_normals(side_normals, corner);
-	skybox_culling(level, cam, side_normals);
 	visible_amount = 0;
 	i = -1;
-	while (++i < level->all.tri_amount)
+	while (++i < l->visible.tri_amount)
 	{
-		if (level->all.tris[i].selected)
-			reflection_culling(level, i);
-		if (level->all.tris[i].isgrid
-			|| (cull_behind(cam->front, cam->pos, level->all.tris[i])
-				&& fov_culling(side_normals, cam->pos, level->all.tris[i])
-				&& (!level->ui.distance_culling
-					|| level->all.tris[i].disable_distance_culling
-					|| distance_culling(
-						level->all.tris[i], cam->pos,
-						level->ui.render_distance))
-				&& (!level->ui.backface_culling
-					|| level->all.tris[i].disable_backface_culling
-					|| backface_culling(cam->pos, level->all.tris[i]))))
+		if (l->visible.tris[i].isgrid
+			|| !l->ui.backface_culling || !l->ui.occlusion_culling
+			|| occlusion_culling(l->visible.tris[i], l))
 		{
-			level->visible.tris[visible_amount] = level->all.tris[i];
+			if (l->visible.tris[i].selected)
+				reflection_culling(l, l->visible.tris[i].index);
+			reflection_culling_first_bounce(l, l->visible.tris[i].index);
+			if (l->baked != BAKE_BAKED)
+				shadow_face_culling(l, l->visible.tris[i].index);
+			opacity_culling(l, l->visible.tris[i].index);
+			l->visible.tris[visible_amount] = l->visible.tris[i];
 			visible_amount++;
 		}
 	}
-	level->visible.tri_amount = visible_amount;
-	if (level->ui.backface_culling && level->ui.occlusion_culling)
+	l->visible.tri_amount = visible_amount;
+}
+
+void	culling(t_level *l)
+{
+	t_vec3		corner[4];
+	t_vec3		side_normals[4];
+	int			i;
+
+	calculate_corner_vectors(corner, &l->cam);
+	calculate_side_normals(side_normals, corner);
+	skybox_culling(l, &l->cam, side_normals);
+	l->visible.tri_amount = 0;
+	i = -1;
+	while (++i < l->all.tri_amount)
 	{
-		visible_amount = 0;
-		i = -1;
-		while (++i < level->visible.tri_amount)
-		{
-			if (level->visible.tris[i].isgrid
-				|| occlusion_culling(level->visible.tris[i], level))
-			{
-				reflection_culling_first_bounce(level,
-					level->visible.tris[i].index);
-				if (level->baked != BAKE_BAKED)
-					shadow_face_culling(level, level->visible.tris[i].index);
-				opacity_culling(level, level->visible.tris[i].index);
-				level->visible.tris[visible_amount] = level->visible.tris[i];
-				visible_amount++;
-			}
-		}
+		if (l->all.tris[i].isgrid
+			|| (cull_behind(l->cam.front, l->cam.pos, l->all.tris[i])
+				&& fov_culling(side_normals, l->cam.pos, l->all.tris[i])
+				&& (!l->ui.distance_culling
+					|| l->all.tris[i].disable_distance_culling
+					|| distance_culling(l->all.tris[i], l->cam.pos,
+						l->ui.render_distance))
+				&& (!l->ui.backface_culling
+					|| l->all.tris[i].disable_backface_culling
+					|| backface_culling(l->cam.pos, l->all.tris[i]))))
+			l->visible.tris[l->visible.tri_amount++] = l->all.tris[i];
 	}
-	level->visible.tri_amount = visible_amount;
+	indirect_culling(l);
 }

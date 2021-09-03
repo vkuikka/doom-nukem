@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/03 02:57:44 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/03 06:26:30 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -158,8 +158,8 @@ static void	ui_confing_face_settings(t_level *level,
 		sprintf(buf,
 			"reflectivity: %.0f%% (%d mirror %d first bounce)",
 			100 * tri->reflectivity,
-			tri->reflection_obj_all->tri_amount,
-			tri->reflection_obj_first_bounce->tri_amount);
+			tri->reflection_obj_all.tri_amount,
+			tri->reflection_obj_first_bounce.tri_amount);
 	float_slider(&tri->reflectivity, buf, 0, 1);
 	ui_confing_face_render_settings(tri);
 	if (tri->isenemy)

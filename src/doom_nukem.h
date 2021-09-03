@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/02 19:14:45 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/03 06:05:41 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -285,6 +285,14 @@ typedef struct s_enemy
 	float				current_attack_delay;
 }						t_enemy;
 
+// tris = array of triangles that make the object
+// tri_amount = amount of triangles
+typedef struct s_obj
+{
+	struct s_tri		*tris;
+	int					tri_amount;
+}						t_obj;
+
 // verts = vertex coordinates of 3d triangle
 // v0v1 = vector between vertices 1 and 0
 // v0v2 = vector between vertices 2 and 0
@@ -309,22 +317,14 @@ typedef struct s_tri
 	float				refractivity;
 	int					shader;
 	int					selected;
-	struct s_obj		*opacity_obj_all;
-	struct s_obj		*reflection_obj_all;
-	struct s_obj		*reflection_obj_first_bounce;
-	struct s_obj		*shadow_faces;
+	t_obj				opacity_obj_all;
+	t_obj				reflection_obj_all;
+	t_obj				reflection_obj_first_bounce;
+	t_obj				shadow_faces;
 	// int					breakable;
 	// int					broken;
 	// int					*reflection_culling_mask;
 }						t_tri;
-
-// tris = array of triangles that make the object
-// tri_amount = amount of triangles
-typedef struct s_obj
-{
-	struct s_tri		*tris;
-	int					tri_amount;
-}						t_obj;
 
 typedef struct s_skybox
 {

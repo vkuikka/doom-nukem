@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/31 16:52:44 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/31 14:46:56 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/03 06:28:56 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ void	opacity(t_cast_result *res, t_level *l, t_obj *obj, float opacity)
 		vec_mult(&normal.dir, vec_dot(transparent.ray.dir, normal.dir)
 			* l->all.tris[res->face_index].refractivity);
 		vec_add(&transparent.ray.dir, transparent.ray.dir, normal.dir);
-		cast_all_color(l, l->all.tris[res->face_index].opacity_obj_all,
+		cast_all_color(l, &l->all.tris[res->face_index].opacity_obj_all,
 			&transparent);
 	}
 	res->color = crossfade((unsigned int)res->color >> 8,
@@ -48,9 +48,9 @@ t_color	sunlight(t_level *l, t_cast_result *res, t_color light)
 	r.dir.z = l->ui.sun_dir.z;
 	r.pos = res->ray.pos;
 	i = 0;
-	while (i < l->all.tris[res->face_index].shadow_faces->tri_amount)
+	while (i < l->all.tris[res->face_index].shadow_faces.tri_amount)
 	{
-		if (0 < cast_face(l->all.tris[res->face_index].shadow_faces->tris[i],
+		if (0 < cast_face(l->all.tris[res->face_index].shadow_faces.tris[i],
 				r, NULL))
 			return (light);
 		i++;
