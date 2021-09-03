@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/02 03:54:41 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/03 02:57:44 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -521,14 +521,14 @@ void	ui_editor(t_level *level)
 	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
 	button(&ui->noclip, "noclip");
 	button(&ui->wireframe, "wireframe");
-	button(&ui->raytracing, "raytrace lights");
-	button(&ui->vertex_select_mode, "vertex select mode");
 	if (ui->wireframe)
 	{
 		button(&ui->wireframe_on_top, "wireframe on top");
 		button(&ui->show_quads, "quad visualize");
 		button(&ui->wireframe_culling_visual, "culling visualize");
 	}
+	button(&ui->raytracing, "raytrace lights");
+	button(&ui->vertex_select_mode, "vertex select mode");
 	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
 	call("edit uv", &enable_uv_editor, level);
 	call("edit doors", &enable_door_editor, level);
