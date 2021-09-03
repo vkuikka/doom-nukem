@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/06 23:29:24 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/21 23:40:58 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/03 04:05:03 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -153,10 +153,10 @@ t_door	*alloc_new_door(t_level *level)
 	int		selected;
 	int		i;
 
+	level->doors.door_amount++;
 	level->doors.door = (t_door *)ft_realloc(level->doors.door,
 			sizeof(t_door) * level->doors.door_amount,
 			sizeof(t_door) * level->doors.door_amount + 1);
-	level->doors.door_amount++;
 	if (!level->doors.door)
 		ft_error("memory allocation failed\n");
 	door = &level->doors.door[level->doors.door_amount - 1];
