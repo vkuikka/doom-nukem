@@ -6,20 +6,14 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/10 01:23:16 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/22 22:26:08 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/04 22:31:52 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
 
-static void	player_input(t_level *level, t_vec3 *wishdir, float *height)
+static void	input_wasd(t_vec3 *wishdir, const Uint8 *keys)
 {
-	const Uint8	*keys;
-
-	keys = SDL_GetKeyboardState(NULL);
-	ft_bzero(wishdir, sizeof(t_vec3));
-	if (level->ui.state.text_input_enable)
-		return ;
 	if (keys[SDL_SCANCODE_W])
 		wishdir->z += 1;
 	if (keys[SDL_SCANCODE_S])
@@ -28,6 +22,10 @@ static void	player_input(t_level *level, t_vec3 *wishdir, float *height)
 		wishdir->x -= 1;
 	if (keys[SDL_SCANCODE_D])
 		wishdir->x += 1;
+}
+
+static void	input_uv(t_level *level, const Uint8 *keys)
+{
 	if (level->ui.state.ui_location == UI_LOCATION_UV_EDITOR)
 	{
 		if (keys[SDL_SCANCODE_LEFT])
@@ -50,6 +48,18 @@ static void	player_input(t_level *level, t_vec3 *wishdir, float *height)
 		if (keys[SDL_SCANCODE_RIGHT])
 			level->cam.look_side += 0.04;
 	}
+}
+
+static void	player_input(t_level *level, t_vec3 *wishdir, float *height)
+{
+	const Uint8	*keys;
+
+	keys = SDL_GetKeyboardState(NULL);
+	ft_bzero(wishdir, sizeof(t_vec3));
+	if (level->ui.state.text_input_enable)
+		return ;
+	input_wasd(wishdir, keys);
+	input_uv(level, keys);
 	if (keys[SDL_SCANCODE_SPACE])
 		wishdir->y -= 1;
 	if (keys[SDL_SCANCODE_LSHIFT] && level->ui.noclip)
@@ -75,9 +85,7 @@ static int	player_collision(t_vec3 *vel, t_vec3 *pos, t_level *level,
 
 	dist = 0;
 	r.pos = *pos;
-	r.dir.x = 0;
-	r.dir.y = 1;
-	r.dir.z = 0;
+	r.dir = (t_vec3){0, 1, 0};
 	dist = cast_all(r, level, &index);
 	if (dist != FLT_MAX && dist <= height) // set height to ground
 		pos->y -= height - dist;
