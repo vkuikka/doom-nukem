@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/10 01:23:16 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/06 15:09:15 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/06 15:48:07 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -187,10 +187,10 @@ void	air_movement(t_vec3 *wishdir, t_vec3 *vel, float delta_time)
 		wishdir->x /= length;
 		wishdir->z /= length;
 		speed = fmax(vel->x * wishdir->x + vel->z * wishdir->z, 0);
-		addspeed = RUN_SPEED - speed;
+		addspeed = 1 - speed;
 		if (addspeed < 0)
 			return ;
-		accelspeed = AIR_ACCEL * delta_time * RUN_SPEED;
+		accelspeed = AIR_ACCEL * delta_time;
 		if (accelspeed > addspeed)
 			accelspeed = addspeed;
 		vel->x += accelspeed * wishdir->x;
