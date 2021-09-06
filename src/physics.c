@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/10 01:23:16 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/04 23:23:36 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/06 15:05:14 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -178,19 +178,23 @@ void	air_movement(t_vec3 *wishdir, t_vec3 *vel, float delta_time)
 {
 	float	length;
 	float	speed;
+	float	addspeed;
+	float	accelspeed;
 
-	(void)delta_time;//fix this was to fix compiler unised warning
 	if (wishdir->x || wishdir->z)
 	{
 		length = sqrt(wishdir->x * wishdir->x + wishdir->z * wishdir->z);
 		wishdir->x /= length;
 		wishdir->z /= length;
-		speed = fmax(AIR_ACCEL
-				- (vel->x * wishdir->x + vel->z * wishdir->z), 0);
-		wishdir->x *= speed;
-		wishdir->z *= speed;
-		vel->x += wishdir->x;
-		vel->z += wishdir->z;
+		speed = fmax(vel->x * wishdir->x + vel->z * wishdir->z, 0);
+		addspeed = RUN_SPEED - speed;
+		if (addspeed < 0)
+			return;
+		accelspeed = AIR_ACCEL * delta_time * RUN_SPEED;
+		if (accelspeed > addspeed)
+			accelspeed = addspeed;
+		vel->x += accelspeed * wishdir->x;
+		vel->z += accelspeed * wishdir->z;
 	}
 }
 
