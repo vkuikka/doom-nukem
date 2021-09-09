@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   doom_nukem.h                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/01 13:23:34 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/06 15:49:59 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@
 # define NOCLIP_SPEED 50.0
 # define GRAVITY 12		//	m/s^2
 # define JUMP_SPEED 5	//	m/s
-# define AIR_ACCEL .3	//	m/s^2
+# define AIR_ACCEL 8	//	m/s^2
 # define MOVE_ACCEL 70	//	m/s^2
 # define RUN_SPEED 10	//	m/s
 # define WALK_SPEED 4	//	m/s
