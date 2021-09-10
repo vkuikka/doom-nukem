@@ -179,4 +179,5 @@ int	main(int argc, char **argv)
 		render(window, level, &game_state);
 	}
 	dnukem(window, level, game_state);
+	return (0);
 }

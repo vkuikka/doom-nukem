@@ -36,7 +36,10 @@ all: $(NAME)
 $(NAME):
 #@make -C libft
 ifeq ($(OS),Windows_NT)
-	gcc $(FLAGS) -O3  $(FILES) src/filesystem_windows.c $(LIB) -I $(INCLUDE) -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf -lSDL2_mixer -lws2_32 -o $(NAME)
+	$(foreach file, $(EMBED), wsl bash -c "xxd -i $(file) >> embed.h"&)
+	move embed.h src/embed.h
+	-gcc $(FLAGS) -O3 $(FILES) src/filesystem_windows.c $(LIB) -I $(INCLUDE) -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf -lSDL2_mixer -lws2_32 -o $(NAME)
+	del src\embed.h
 else
 	$(foreach file, $(EMBED), xxd -i $(file) >> embed.h;)
 	-gcc $(FLAGS) -O3 -fsanitize=address $(SDL_HEADER) $(SDL_FRAMEWORKS) -F ./ $(FILES) src/filesystem_macos.c $(LIB) -I $(INCLUDE) -o $(NAME) -rpath @executable_path
