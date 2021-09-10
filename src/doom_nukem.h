@@ -179,6 +179,7 @@ typedef struct s_window
 	SDL_Texture			*text_texture;
 	SDL_Texture			*ui_texture;
 	unsigned int		*ui_texture_pixels;
+	unsigned int		*buf;
 }						t_window;
 
 typedef struct s_rect
@@ -726,7 +727,7 @@ void			hud(t_level *level, unsigned int *pixels,
 					t_game_state game_state);
 void			fake_analog_signal(t_bmp *img, unsigned int *pixels,
 					float amount);
-void			chromatic_abberation(unsigned int *pixels, int amount);
+void			chromatic_abberation(unsigned int *pixels, unsigned int *buf, int amount);
 void			create_projectile(t_level *level, t_vec3 pos,
 					t_vec3 dir, t_enemy *enemy);
 

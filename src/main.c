@@ -47,7 +47,7 @@ static void	render_raycast(t_window *window, t_level *level)
 		SDL_WaitThread(threads[i], &dummy_for_sdl);
 	fill_pixels(window->frame_buffer, level->ui.raycast_quality,
 		level->ui.blur, level->ui.smooth_pixels);
-	chromatic_abberation(window->frame_buffer, level->ui.chromatic_abberation);
+	chromatic_abberation(window->frame_buffer, window->buf, level->ui.chromatic_abberation);
 	SDL_UnlockTexture(window->texture);
 	SDL_RenderCopy(window->SDLrenderer, window->texture, NULL, NULL);
 }

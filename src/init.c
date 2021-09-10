@@ -155,8 +155,10 @@ void	init_window(t_window **window)
 	window[0]->frame_buffer = NULL;
 	window[0]->depth_buffer
 		= (float *)malloc(sizeof(float) * (RES_X * RES_Y));
-	if (!window[0]->depth_buffer)
-		ft_error("memory allocation failed\n");
+	window[0]->buf
+		= (unsigned int *)malloc(sizeof(unsigned int) * (RES_X * RES_Y));
+	if (!window[0]->depth_buffer || !window[0]->buf)
+		ft_error("init window memory allocation failed\n");
 }
 
 void	init_enemy(t_tri *face)
