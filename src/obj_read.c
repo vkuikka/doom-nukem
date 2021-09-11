@@ -47,6 +47,8 @@ static t_vec2	*load_uvs(char **file)
 			uv_amount++;
 		i++;
 	}
+	if (!uv_amount)
+		return (NULL);
 	res = (t_vec2 *)malloc(sizeof(t_vec2) * uv_amount);
 	if (!res)
 		ft_error("memory allocation failed\n");
@@ -104,6 +106,8 @@ static t_vec3	*load_verts(char **file)
 			ver_amount++;
 		i++;
 	}
+	if (!ver_amount)
+		return (NULL);
 	res = (t_vec3 *)malloc(sizeof(t_vec3) * ver_amount);
 	if (!res)
 		ft_error("memory allocation failed\n");
@@ -197,6 +201,8 @@ static int	obj_set_all_tris(char **file, t_obj *obj)
 	if (!verts)
 		return (FALSE);
 	uvs = load_uvs(file);
+	if (!uvs)
+		return (FALSE);
 	i = 0;
 	j = 0;
 	while (file[i])
@@ -237,8 +243,8 @@ static int	load_obj_internal(char **file, t_obj *obj)
 	i = 0;
 	obj->tri_amount = obj_get_face_amount(file);
 	obj->tris = (t_tri *)malloc(sizeof(t_tri) * obj->tri_amount);
-	if (!obj->tris)
-		ft_error("memory allocation failed\n");
+	if (!obj->tris || !obj->tri_amount)
+		return (FALSE);
 	ft_bzero(obj->tris, sizeof(t_tri) * obj->tri_amount);
 	if (!obj_set_all_tris(file, obj))
 		return (FALSE);
@@ -281,9 +287,10 @@ int	load_obj(char *filename, t_obj *obj)
 void	load_obj_from_memory(unsigned char *data,
 					unsigned int size, t_obj *obj)
 {
-	char			**file;
+	char	**file;
 
 	file = file2d_from_memory(data, size);
-	load_obj_internal(file, obj);
+	if (!load_obj_internal(file, obj))
+		ft_error("obj memory read fail");
 	free_file2d(file);
 }

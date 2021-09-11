@@ -238,7 +238,7 @@ void	shadow_face_culling(t_level *level, int i)
 	level->all.tris[i].shadow_faces.tri_amount = amount;
 }
 
-void	reflection_culling_first_bounce(t_level *level, int i)
+static void	reflection_culling_first_bounce(t_level *level, int i)
 {
 	t_vec3	avg_dir;
 	t_vec3	pos;
@@ -249,8 +249,6 @@ void	reflection_culling_first_bounce(t_level *level, int i)
 	int		k;
 
 	ft_memset(&avg_dir, 0, sizeof(t_vec3));
-	if (!level->all.tris[i].reflectivity)
-		return ;
 	level->all.tris[i].reflection_obj_first_bounce.tri_amount = 0;
 	k = -1;
 	while (++k < 3 + level->all.tris[i].isquad)
@@ -465,10 +463,12 @@ static void	indirect_culling(t_level *l)
 		{
 			if (l->visible.tris[i].selected)
 				reflection_culling(l, l->visible.tris[i].index);
-			reflection_culling_first_bounce(l, l->visible.tris[i].index);
-			if (l->baked != BAKE_BAKED)
+			if (l->visible.tris[i].reflectivity)
+				reflection_culling_first_bounce(l, l->visible.tris[i].index);
+			if (l->bake_status == BAKE_NOT_BAKED)
 				shadow_face_culling(l, l->visible.tris[i].index);
-			opacity_culling(l, l->visible.tris[i].index);
+			if (l->visible.tris[i].opacity)
+				opacity_culling(l, l->visible.tris[i].index);
 			l->visible.tris[visible_amount] = l->visible.tris[i];
 			visible_amount++;
 		}
