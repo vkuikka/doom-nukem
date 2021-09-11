@@ -18,7 +18,7 @@ void	set_obj(t_level *level, char *filename)
 
 	if (!load_obj(filename, &tmp))
 	{
-		nonfatal_error(level, "failed to read object file");
+		nonfatal_error("failed to read object file");
 		return ;
 	}
 	free_culling(level);

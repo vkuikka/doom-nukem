@@ -563,43 +563,30 @@ typedef struct s_rthread
 
 typedef struct __attribute__((__packed__)) s_bmp_fileheader
 {
-	unsigned char		fileMarker1;
-	unsigned char		fileMarker2;
-	unsigned int		bfSize;
-	uint16_t			unused1;
-	uint16_t			unused2;
-	unsigned int		imageDataOffset;
+	char		fileMarker1;
+	char		fileMarker2;
+	int16_t		bfSize;
+	int16_t		bfFill1;
+	int16_t		bfReserved1;
+	int16_t		bfReserved2;
+	int16_t		bfOffBits;
+	int16_t		bfFill2;
 }						t_bmp_fileheader;
 
 typedef struct __attribute__((__packed__)) s_bmp_infoheader
 {
-	unsigned int		biSize;
+	int					biSize;
 	int					width;
 	int					height;
-	uint16_t			planes;
-	uint16_t			bitPix;
-	unsigned int		biCompression;
-	unsigned int		biSizeImage;
+	int16_t				planes;
+	int16_t				bitPix;
+	int					biCompression;
+	int					biSizeImage;
 	int					biXPelsPerMeter;
 	int					biYPelsPerMeter;
-	unsigned int		biClrUsed;
-	unsigned int		biClrImportant;
+	int					biClrUsed;
+	int					biClrImportant;
 }						t_bmp_infoheader;
-
-typedef struct __attribute__((__packed__)) s_bmp_pixel_32
-{
-	unsigned char		b;
-	unsigned char		g;
-	unsigned char		r;
-	unsigned char		a;
-}						t_bmp_pixel_32;
-
-typedef struct __attribute__((__packed__)) s_bmp_pixel_24
-{
-	unsigned char		b;
-	unsigned char		g;
-	unsigned char		r;
-}						t_bmp_pixel_24;
 
 typedef struct s_cast_result
 {
@@ -773,7 +760,6 @@ int				point_in_tri(t_vec2 pt,
 void			toggle_selection_all(t_level *level);
 void			add_face(t_level *level);
 void			remove_faces(t_level *level);
-void			nonfatal_error(t_level *level, char *message);
 t_ivec2			put_text(char *text, t_window *window,
 					SDL_Texture *texture, t_ivec2 pos);
 void			set_new_face(t_level *level, t_vec3 pos, t_vec3 dir,
@@ -814,10 +800,11 @@ void			set_win_pos(t_level *level);
 void			set_spawn_pos(t_level *level);
 void			set_menu_pos_1(t_level *level);
 void			set_menu_pos_2(t_level *level);
-void			nonfatal_error(t_level *level, char *message);
+void			nonfatal_error(char *message);
 void			ui_render_nonfatal_errors(t_level *level);
 t_ui_state		*get_ui_state(t_ui_state *get_state);
 t_window		*get_window(t_window *get_window);
+t_level			*get_level(t_level *get_level);
 t_ivec2			render_text(char *text, int x, int y);
 void			render_text_3d(char *str, t_vec3 pos,
 					unsigned int color, t_level *level);

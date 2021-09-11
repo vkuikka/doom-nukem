@@ -12,6 +12,17 @@
 
 #include "doom_nukem.h"
 
+t_level	*get_level(t_level *get_level)
+{
+	static t_level	*level = NULL;
+
+	if (get_level)
+		level = get_level;
+	else
+		return (level);
+	return (NULL);
+}
+
 t_window	*get_window(t_window *get_window)
 {
 	static t_window	*window = NULL;

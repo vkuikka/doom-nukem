@@ -12,10 +12,12 @@
 
 #include "doom_nukem.h"
 
-void	nonfatal_error(t_level *level, char *message)
+void	nonfatal_error(char *message)
 {
-	int	i;
+	t_level	*level;
+	int		i;
 
+	level = get_level(NULL);
 	level->ui.state.error_amount++;
 	i = level->ui.state.error_amount;
 	level->ui.state.error_start_time = (unsigned int *)realloc(

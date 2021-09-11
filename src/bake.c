@@ -220,7 +220,7 @@ void	start_bake(t_level *level)
 	if (level->texture.width != level->normal_map.width
 		|| level->texture.height != level->normal_map.height)
 	{
-		nonfatal_error(level, "texture and normal map are not same size");
+		nonfatal_error("texture and normal map are not same size");
 		return ;
 	}
 	if (level->baked_size.x != level->texture.width

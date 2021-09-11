@@ -256,5 +256,6 @@ void	init_ui(t_window *window, t_level *level)
 		ft_error("failed to lock texture\n");
 	get_ui_state(&level->ui.state);
 	get_window(window);
+	get_level(level);
 	init_color_slider(level);
 }

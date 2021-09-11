@@ -146,7 +146,7 @@ static void	ui_go_back(t_level *level, t_game_state *game_state)
 {
 	if (level->bake_status == BAKE_BAKING)
 	{
-		nonfatal_error(level, "cancel baking first (press baking button)");
+		nonfatal_error("cancel baking first (press baking button)");
 		return ;
 	}
 	level->ui.main_menu = MAIN_MENU_LOCATION_MAIN;
