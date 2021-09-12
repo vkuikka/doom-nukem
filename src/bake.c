@@ -191,7 +191,8 @@ int	bake(void *d)
 		tri++;
 		l->bake_progress = 100 * (float)tri / (float)l->all.tri_amount;
 	}
-	l->bake_status = BAKE_BAKED;
+	if (l->bake_status != BAKE_NOT_BAKED)
+		l->bake_status = BAKE_BAKED;
 	return (1);
 }
 

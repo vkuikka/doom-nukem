@@ -65,7 +65,8 @@ static void	render_raster(t_window *window, t_level *level,
 	if (*game_state == GAME_STATE_EDITOR)
 	{
 		wireframe(window->raster_texture_pixels, level);
-		gizmo_render(level, window->raster_texture_pixels);
+		if (level->ui.state.gizmo_active)
+			gizmo_render(level, window->raster_texture_pixels);
 	}
 	SDL_UnlockTexture(window->raster_texture);
 	SDL_RenderCopy(window->SDLrenderer, window->raster_texture, NULL, NULL);

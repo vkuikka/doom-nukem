@@ -437,6 +437,7 @@ typedef struct s_ui_state
 	char				*save_filename;
 	int					text_input_enable;
 	int					ssp_visual;
+	int					gizmo_active;
 	struct s_vec3		gizmo_pos;
 	float				gizmo_dist_from_screen;
 	unsigned int		*color_slider_hue_colors;

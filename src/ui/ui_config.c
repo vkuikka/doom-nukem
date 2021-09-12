@@ -416,6 +416,8 @@ void	ui_single_light_settings(t_level *level)
 	char	buf[100];
 	int		changed;
 
+	if (!level->selected_light_index)
+		return ;
 	changed = 0;
 	changed += color_slider(&level->lights[level->selected_light_index - 1].color,
 		"light color");
@@ -465,7 +467,8 @@ void	ui_light_editor(t_level *level)
 	{
 		set_text_color(UI_LEVEL_NOT_BAKED_COLOR);
 		sprintf(buf, "bake lighting");
-		call(buf, start_bake, level);
+		if (call(buf, start_bake, level))
+			level->selected_light_index = 0;
 	}
 	else if (level->bake_status == BAKE_BAKED)
 	{
@@ -476,11 +479,13 @@ void	ui_light_editor(t_level *level)
 	}
 	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
 	if (call("close light editor", NULL, level))
+	{
 		level->ui.state.ui_location = UI_LOCATION_MAIN;
+		level->selected_light_index = 0;
+	}
 	ui_level_light_settings(level);
 	call("add light", &add_light, level);
-	if (level->selected_light_index)
-		ui_single_light_settings(level);
+	ui_single_light_settings(level);
 }
 
 void	ui_level_set_var(t_level *level)
@@ -556,12 +561,13 @@ void	ui_baking(t_level *level)
 {
 	char	buf[100];
 
-	button(&level->ui.noclip, "noclip");
-	button(&level->ui.wireframe, "wireframe");
 	sprintf(buf, "baking: %.3f%%", level->bake_progress);
 	set_text_color(UI_LEVEL_BAKING_COLOR);
 	if (call(buf, NULL, level))
 		level->bake_status = BAKE_NOT_BAKED;
+	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
+	button(&level->ui.noclip, "noclip");
+	button(&level->ui.wireframe, "wireframe");
 }
 
 void	select_editor_ui(t_level *level)

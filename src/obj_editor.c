@@ -100,8 +100,10 @@ void	obj_editor_input(t_level *level, t_vec3 move_amount)
 			}
 		}
 	}
+	level->ui.state.gizmo_active = FALSE;
 	if (!selected_vert_amount)
 		return ;
+	level->ui.state.gizmo_active = TRUE;
 	vec_div(&avg, selected_vert_amount);
 	level->ui.state.gizmo_pos = avg;
 	move_selected(level, move_amount);

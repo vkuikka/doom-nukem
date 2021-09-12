@@ -66,7 +66,7 @@ static void	set_mouse_input_location_3d_space(t_level *level, int x, int y)
 		if (level->ui.state.ui_location == UI_LOCATION_LIGHT_EDITOR)
 		{
 			level->ui.state.mouse_location = MOUSE_LOCATION_LIGHT_EDITOR;
-			if (level->ui.state.m1_click)
+			if (level->ui.state.m1_click && level->bake_status != BAKE_BAKING)
 				select_light(level, x, y);
 		}
 		else
