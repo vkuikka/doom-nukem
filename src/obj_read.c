@@ -267,21 +267,16 @@ static int	load_obj_internal(char **file, t_obj *obj)
 int	load_obj(char *filename, t_obj *obj)
 {
 	char	**file;
-	int		i;
+	int		res;
 
 	file = file2d(filename);
 	if (!file)
 		return (FALSE);
+	res = TRUE;
 	if (!load_obj_internal(file, obj))
-		return (FALSE);
-	i = 0;
-	while (file[i])
-	{
-		free(file[i]);
-		i++;
-	}
-	free(file);
-	return (TRUE);
+		res = FALSE;
+	free_file2d(file);
+	return (res);
 }
 
 void	load_obj_from_memory(unsigned char *data,
