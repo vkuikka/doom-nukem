@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/22 23:13:42 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/03 07:37:02 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/12 22:09:32 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,6 +76,20 @@ void	move_selected(t_level *l, t_vec3 dir)
 	}
 }
 
+static void	obj_editor_input_move(t_level *level, t_vec3 move_amount,
+			t_vec3 avg, int selected_vert_amount)
+{
+	level->ui.state.gizmo_active = TRUE;
+	vec_div(&avg, selected_vert_amount);
+	level->ui.state.gizmo_pos = avg;
+	move_selected(level, move_amount);
+	if (!vec_cmp(move_amount, (t_vec3){0, 0, 0}))
+	{
+		static_culling(level);
+		level->bake_status = BAKE_NOT_BAKED;
+	}
+}
+
 void	obj_editor_input(t_level *level, t_vec3 move_amount)
 {
 	t_vec3	avg;
@@ -101,17 +115,8 @@ void	obj_editor_input(t_level *level, t_vec3 move_amount)
 		}
 	}
 	level->ui.state.gizmo_active = FALSE;
-	if (!selected_vert_amount)
-		return ;
-	level->ui.state.gizmo_active = TRUE;
-	vec_div(&avg, selected_vert_amount);
-	level->ui.state.gizmo_pos = avg;
-	move_selected(level, move_amount);
-	if (!vec_cmp(move_amount, (t_vec3){0, 0, 0}))
-	{
-		static_culling(level);
-		level->bake_status = BAKE_NOT_BAKED;
-	}
+	if (selected_vert_amount)
+		obj_editor_input_move(level, move_amount, avg, selected_vert_amount);
 }
 
 void	set_new_face_pos(t_obj *obj, int i, t_vec3 avg, float scale)

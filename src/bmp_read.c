@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/23 06:39:33 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/12 21:11:56 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,11 +25,12 @@ static void	bmp_set(t_bmp *img, int *tmp)
 		x = 0;
 		while (x < img->width)
 		{
-			rgb = (unsigned char *)&tmp[(img->height - y - 1) * img->width + x];
-			c = (rgb[0] << 8 * 1) +
-			(rgb[1] << 8 * 2) +
-			(rgb[2] << 8 * 3) +
-			(rgb[3] << 8 * 0);
+			rgb = (unsigned char *)&tmp[((img->height - y - 1) * img->width)
+				+ x];
+			c = (rgb[0] << 8 * 1)
+				+ (rgb[1] << 8 * 2)
+				+ (rgb[2] << 8 * 3)
+				+ (rgb[3] << 8 * 0);
 			img->image[y * img->width + x] = c;
 			x++;
 		}

@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/20 17:50:56 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/03 07:03:07 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/12 23:15:57 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -388,14 +388,6 @@ void	init_culling(t_level *level)
 			|| !level->all.tris[i].shadow_faces.tris)
 			ft_error("culling malloc fail");
 	}
-	i = -1;
-	while (++i < level->all.tri_amount)
-	{
-		if (level->all.tris[i].reflectivity)
-			reflection_culling(level, i);
-		if (level->all.tris[i].opacity)
-			opacity_culling(level, i);
-	}
 	static_culling(level);
 }
 
@@ -456,14 +448,12 @@ void	static_culling(t_level *l)
 	i = 0;
 	while (i < l->all.tri_amount)
 	{
-		if (l->all.tris[i].isgrid || !l->ui.backface_culling)
-		{
-			if (l->all.tris[i].reflectivity)
-				reflection_culling(l, l->all.tris[i].index);
+		if (l->all.tris[i].reflectivity)
+			reflection_culling(l, l->all.tris[i].index);
+		if (0)
 			shadow_face_culling(l, l->all.tris[i].index);
-			if (l->all.tris[i].opacity)
-				opacity_culling(l, l->all.tris[i].index);
-		}
+		if (l->all.tris[i].opacity)
+			opacity_culling(l, l->all.tris[i].index);
 		i++;
 	}
 }

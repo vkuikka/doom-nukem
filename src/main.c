@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/02 19:15:07 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/12 22:18:52 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,11 +27,10 @@ static void	render_raycast(t_window *window, t_level *level)
 {
 	SDL_Thread	*threads[THREAD_AMOUNT];
 	t_rthread	thread_data[THREAD_AMOUNT];
-	int			dummy_for_sdl;
 	int			i;
 
 	if (SDL_LockTexture(window->texture, NULL,
-			(void **)&window->frame_buffer, &dummy_for_sdl) != 0)
+			(void **)&window->frame_buffer, &(int){0}) != 0)
 		ft_error("failed to lock texture\n");
 	i = -1;
 	while (++i < THREAD_AMOUNT)
@@ -44,10 +43,11 @@ static void	render_raycast(t_window *window, t_level *level)
 	}
 	i = -1;
 	while (++i < THREAD_AMOUNT)
-		SDL_WaitThread(threads[i], &dummy_for_sdl);
+		SDL_WaitThread(threads[i], &(int){0});
 	fill_pixels(window->frame_buffer, level->ui.raycast_quality,
 		level->ui.blur, level->ui.smooth_pixels);
-	chromatic_abberation(window->frame_buffer, window->buf, level->ui.chromatic_abberation);
+	chromatic_abberation(window->frame_buffer, window->buf,
+		level->ui.chromatic_abberation);
 	SDL_UnlockTexture(window->texture);
 	SDL_RenderCopy(window->SDLrenderer, window->texture, NULL, NULL);
 }

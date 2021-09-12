@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/03 06:26:30 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/12 21:04:07 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -419,16 +419,19 @@ void	ui_single_light_settings(t_level *level)
 	if (!level->selected_light_index)
 		return ;
 	changed = 0;
-	changed += color_slider(&level->lights[level->selected_light_index - 1].color,
-		"light color");
+	changed += color_slider(
+			&level->lights[level->selected_light_index - 1].color,
+			"light color");
 	sprintf(buf, "radius: %.2f",
 		level->lights[level->selected_light_index - 1].radius);
-	changed += float_slider(&level->lights[level->selected_light_index - 1].radius,
-		buf, .1, 20);
+	changed += float_slider(
+			&level->lights[level->selected_light_index - 1].radius,
+			buf, .1, 20);
 	sprintf(buf, "power: %.2f",
 		level->lights[level->selected_light_index - 1].power);
-	changed += float_slider(&level->lights[level->selected_light_index - 1].power,
-		buf, .1, 5);
+	changed += float_slider(
+			&level->lights[level->selected_light_index - 1].power,
+			buf, .1, 5);
 	call("delete light", &delete_light, level);
 	if (changed)
 		level->bake_status = BAKE_NOT_BAKED;

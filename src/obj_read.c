@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/03 05:58:39 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/12 23:04:05 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,20 +33,17 @@ static void	set_uv_vert(char **file, int i, t_vec2 *vert)
 
 static t_vec2	*load_uvs(char **file)
 {
-	int		i;
-	int		j;
 	int		uv_amount;
 	t_vec2	*res;
+	int		j;
+	int		i;
 
 	i = 0;
 	uv_amount = 0;
 	res = NULL;
 	while (file[i])
-	{
-		if (!ft_strncmp(file[i], "vt ", 3))
+		if (!ft_strncmp(file[i++], "vt ", 3))
 			uv_amount++;
-		i++;
-	}
 	if (!uv_amount)
 		return (NULL);
 	res = (t_vec2 *)malloc(sizeof(t_vec2) * uv_amount);
@@ -57,10 +54,7 @@ static t_vec2	*load_uvs(char **file)
 	while (file[i])
 	{
 		if (!ft_strncmp(file[i], "vt ", 3))
-		{
-			set_uv_vert(file, i, &res[j]);
-			j++;
-		}
+			set_uv_vert(file, i, &res[j++]);
 		i++;
 	}
 	return (res);
@@ -93,19 +87,16 @@ static void	set_vert(char **file, int i, t_vec3 *vert)
 
 static t_vec3	*load_verts(char **file)
 {
-	int		i;
 	int		ver_amount;
 	t_vec3	*res;
 	int		j;
+	int		i;
 
 	i = 0;
 	ver_amount = 0;
 	while (file[i])
-	{
-		if (!ft_strncmp(file[i], "v ", 2))
+		if (!ft_strncmp(file[i++], "v ", 2))
 			ver_amount++;
-		i++;
-	}
 	if (!ver_amount)
 		return (NULL);
 	res = (t_vec3 *)malloc(sizeof(t_vec3) * ver_amount);
@@ -116,13 +107,23 @@ static t_vec3	*load_verts(char **file)
 	while (file[i])
 	{
 		if (!ft_strncmp(file[i], "v ", 2))
-		{
-			set_vert(file, i, &res[j]);
-			j++;
-		}
+			set_vert(file, i, &res[j++]);
 		i++;
 	}
 	return (res);
+}
+
+static void	read_uv_indices(char *str, t_ivec3 *uv_index, int *j, int x)
+{
+	(*j)++;
+	if (x == 0)
+		uv_index->x = atoi(&str[*j]) - 1;
+	else if (x == 1)
+		uv_index->y = atoi(&str[*j]) - 1;
+	else if (x == 2)
+		uv_index->z = atoi(&str[*j]) - 1;
+	while (str[*j] && str[*j] != ' ')
+		(*j)++;
 }
 
 void	read_indices(char *str, t_ivec3 *tex_index, t_ivec3 *uv_index)
@@ -146,17 +147,7 @@ void	read_indices(char *str, t_ivec3 *tex_index, t_ivec3 *uv_index)
 		while (str[j] && ft_isdigit(str[j]))
 			j++;
 		if (str[j] == '/')
-		{
-			j++;
-			if (x == 0)
-				uv_index->x = atoi(&str[j]) - 1;
-			else if (x == 1)
-				uv_index->y = atoi(&str[j]) - 1;
-			else if (x == 2)
-				uv_index->z = atoi(&str[j]) - 1;
-			while (str[j] && str[j] != ' ')
-				j++;
-		}
+			read_uv_indices(str, uv_index, &j, x);
 		j++;
 	}
 }
@@ -208,11 +199,8 @@ static int	obj_set_all_tris(char **file, t_obj *obj)
 	while (file[i])
 	{
 		if (file[i][0] == 'f' && file[i][1] == ' ')
-		{
-			if (!set_tri(file[i], verts, uvs, &obj->tris[j]))
+			if (!set_tri(file[i], verts, uvs, &obj->tris[j++]))
 				return (FALSE);
-			j++;
-		}
 		i++;
 	}
 	free(verts);

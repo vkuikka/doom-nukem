@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/13 12:51:47 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/02 04:05:50 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/12 21:07:26 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,7 +135,7 @@ void	render_button_streaming(unsigned int *texture, int *var, int dy)
 	}
 }
 
-void	render_color_slider(unsigned int *texture, float pos,
+static void	render_color_slider(t_window *window, float pos,
 						int dy, unsigned int *colors)
 {
 	int	x;
@@ -144,12 +144,10 @@ void	render_color_slider(unsigned int *texture, float pos,
 	y = -1;
 	while (++y < 4)
 	{
-		x = 0;
-		while (x < UI_SLIDER_WIDTH)
-		{
-			button_pixel_put(x + 2, y + 6 + dy, colors[x], texture);
-			x++;
-		}
+		x = -1;
+		while (++x < UI_SLIDER_WIDTH)
+			button_pixel_put(x + 2, y + 6 + dy, colors[x],
+				window->ui_texture_pixels);
 	}
 	y = 0;
 	while (y < 12)
@@ -157,8 +155,9 @@ void	render_color_slider(unsigned int *texture, float pos,
 		x = 0;
 		while (x <= UI_SLIDER_BUTTON_WIDTH)
 		{
-			button_pixel_put(x + 2 + ((UI_SLIDER_WIDTH - UI_SLIDER_BUTTON_WIDTH)
-					* pos), y + 2 + dy, 0x666666ff, texture);
+			button_pixel_put(x + 2
+				+ (int)((UI_SLIDER_WIDTH - UI_SLIDER_BUTTON_WIDTH)
+					* pos), y + 2 + dy, 0x666666ff, window->ui_texture_pixels);
 			x++;
 		}
 		y++;
@@ -174,12 +173,9 @@ void	render_slider_streaming(unsigned int *texture,
 	y = -1;
 	while (++y < 4)
 	{
-		x = 0;
-		while (x < UI_SLIDER_WIDTH)
-		{
+		x = -1;
+		while (++x < UI_SLIDER_WIDTH)
 			button_pixel_put(x + 2, y + 6 + dy, 0x404040ff, texture);
-			x++;
-		}
 	}
 	y = 0;
 	while (y < 12)
@@ -187,7 +183,8 @@ void	render_slider_streaming(unsigned int *texture,
 		x = 0;
 		while (x <= UI_SLIDER_BUTTON_WIDTH)
 		{
-			button_pixel_put(x + 2 + ((UI_SLIDER_WIDTH - UI_SLIDER_BUTTON_WIDTH)
+			button_pixel_put(x + 2
+				+ (int)((UI_SLIDER_WIDTH - UI_SLIDER_BUTTON_WIDTH)
 					* unit), y + 2 + dy, 0x666666ff, texture);
 			x++;
 		}
@@ -308,26 +305,24 @@ void	generate_color_slider_lightness(unsigned int *res, int color)
 
 int	color_slider(t_color_hsl *var, char *str)
 {
-	t_window		*window;
 	t_ui_state		*state;
 	unsigned int	colors[UI_SLIDER_WIDTH];
 	int				res;
 
-	window = get_window(NULL);
 	state = get_ui_state(NULL);
 	text(str);
-	render_color_slider(window->ui_texture_pixels, var->hue,
+	render_color_slider(get_window(NULL), var->hue,
 		state->ui_text_y_pos, state->color_slider_hue_colors);
 	res = edit_slider_var(&var->hue, state);
 	state->ui_text_y_pos += UI_ELEMENT_HEIGHT;
 	generate_color_slider_saturation(&colors[0], var->rgb_hue);
-	render_color_slider(window->ui_texture_pixels, var->saturation,
+	render_color_slider(get_window(NULL), var->saturation,
 		state->ui_text_y_pos, &colors[0]);
 	res += edit_slider_var(&var->saturation, state);
 	state->ui_text_y_pos += UI_ELEMENT_HEIGHT;
 	var->lightness = (var->lightness + 1) / 2;
 	generate_color_slider_lightness(&colors[0], var->rgb_hue);
-	render_color_slider(window->ui_texture_pixels, var->lightness,
+	render_color_slider(get_window(NULL), var->lightness,
 		state->ui_text_y_pos, &colors[0]);
 	res += edit_slider_var(&var->lightness, state);
 	var->lightness = var->lightness * 2 - 1;

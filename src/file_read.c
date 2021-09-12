@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 15:15:43 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/02 16:14:56 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/12 21:17:35 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,4 +71,3 @@ char	**file2d_from_memory(unsigned char *data, unsigned int size)
 	memcpy(file, data, size);
 	return (file2d_internal(file, (long)size));
 }
-
