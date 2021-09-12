@@ -414,37 +414,47 @@ void	ui_door_editor(t_level *level)
 void	ui_single_light_settings(t_level *level)
 {
 	char	buf[100];
+	int		changed;
 
-	color_slider(&level->lights[level->selected_light_index - 1].color,
+	changed = 0;
+	changed += color_slider(&level->lights[level->selected_light_index - 1].color,
 		"light color");
 	sprintf(buf, "radius: %.2f",
 		level->lights[level->selected_light_index - 1].radius);
-	float_slider(&level->lights[level->selected_light_index - 1].radius,
+	changed += float_slider(&level->lights[level->selected_light_index - 1].radius,
 		buf, .1, 20);
 	sprintf(buf, "power: %.2f",
 		level->lights[level->selected_light_index - 1].power);
-	float_slider(&level->lights[level->selected_light_index - 1].power,
+	changed += float_slider(&level->lights[level->selected_light_index - 1].power,
 		buf, .1, 5);
 	call("delete light", &delete_light, level);
+	if (changed)
+		level->bake_status = BAKE_NOT_BAKED;
 }
 
 void	ui_level_light_settings(t_level *level)
 {
 	char	buf[100];
+	int		changed;
 
+	changed = 0;
 	sprintf(buf, "world brightness: %.2f", level->world_brightness);
-	float_slider(&level->world_brightness, buf, 0, 1);
+	changed += float_slider(&level->world_brightness, buf, 0, 1);
 	sprintf(buf, "skybox brightness: %.2f (0 = sync)",
 		level->skybox_brightness);
-	float_slider(&level->skybox_brightness, buf, 0, 1);
-	color_slider(&level->ui.sun_color, "sun color");
+	changed += float_slider(&level->skybox_brightness, buf, 0, 1);
+	changed += color_slider(&level->ui.sun_color, "sun color");
 	sprintf(buf, "sun dir: (%.2f, %.2f, %.2f)", level->ui.sun_dir.x,
 		level->ui.sun_dir.y, level->ui.sun_dir.z);
 	text(buf);
-	float_slider(&level->ui.sun_dir.x, NULL, -1, 1);
-	float_slider(&level->ui.sun_dir.y, NULL, -1, 1);
-	float_slider(&level->ui.sun_dir.z, NULL, -1, 1);
-	vec_normalize(&level->ui.sun_dir);
+	changed += float_slider(&level->ui.sun_dir.x, NULL, -1, 1);
+	changed += float_slider(&level->ui.sun_dir.y, NULL, -1, 1);
+	changed += float_slider(&level->ui.sun_dir.z, NULL, -1, 1);
+	if (changed)
+	{
+		vec_normalize(&level->ui.sun_dir);
+		level->bake_status = BAKE_NOT_BAKED;
+	}
 }
 
 void	ui_light_editor(t_level *level)
@@ -461,7 +471,8 @@ void	ui_light_editor(t_level *level)
 	{
 		set_text_color(UI_LEVEL_BAKED_COLOR);
 		sprintf(buf, "lighting baked");
-		call(buf, start_bake, level);
+		if (call(buf, NULL, level))
+			level->bake_status = BAKE_NOT_BAKED;
 	}
 	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
 	if (call("close light editor", NULL, level))

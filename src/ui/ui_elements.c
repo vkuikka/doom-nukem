@@ -234,11 +234,12 @@ float	clamp(float var, float min, float max)
 	return (var);
 }
 
-void	int_slider(int *var, char *str, int min, int max)
+int	int_slider(int *var, char *str, int min, int max)
 {
 	t_window	*window;
 	t_ui_state	*state;
 	float		unit;
+	int			res;
 
 	window = get_window(NULL);
 	if (str)
@@ -250,17 +251,19 @@ void	int_slider(int *var, char *str, int min, int max)
 	unit = (float)*var / (float)(max - min);
 	render_slider_streaming(window->ui_texture_pixels, unit,
 		state->ui_text_y_pos);
-	edit_slider_var(&unit, state);
+	res = edit_slider_var(&unit, state);
 	unit = clamp(unit, 0, 1);
 	*var = min + ((max - min) * unit);
 	state->ui_text_y_pos += UI_ELEMENT_HEIGHT;
+	return (res);
 }
 
-void	float_slider(float *var, char *str, float min, float max)
+int	float_slider(float *var, char *str, float min, float max)
 {
 	t_window	*window;
 	t_ui_state	*state;
 	float		unit;
+	int			res;
 
 	window = get_window(NULL);
 	if (str)
@@ -272,10 +275,11 @@ void	float_slider(float *var, char *str, float min, float max)
 	unit = (float)*var / (float)(max - min);
 	render_slider_streaming(window->ui_texture_pixels, unit,
 		state->ui_text_y_pos);
-	edit_slider_var(&unit, state);
+	res = edit_slider_var(&unit, state);
 	unit = clamp(unit, 0, 1);
 	*var = min + ((max - min) * unit);
 	state->ui_text_y_pos += UI_ELEMENT_HEIGHT;
+	return (res);
 }
 
 void	generate_color_slider_saturation(unsigned int *res, int color)
@@ -302,32 +306,34 @@ void	generate_color_slider_lightness(unsigned int *res, int color)
 	}
 }
 
-void	color_slider(t_color_hsl *var, char *str)
+int	color_slider(t_color_hsl *var, char *str)
 {
 	t_window		*window;
 	t_ui_state		*state;
 	unsigned int	colors[UI_SLIDER_WIDTH];
+	int				res;
 
 	window = get_window(NULL);
 	state = get_ui_state(NULL);
 	text(str);
 	render_color_slider(window->ui_texture_pixels, var->hue,
 		state->ui_text_y_pos, state->color_slider_hue_colors);
-	edit_slider_var(&var->hue, state);
+	res = edit_slider_var(&var->hue, state);
 	state->ui_text_y_pos += UI_ELEMENT_HEIGHT;
 	generate_color_slider_saturation(&colors[0], var->rgb_hue);
 	render_color_slider(window->ui_texture_pixels, var->saturation,
 		state->ui_text_y_pos, &colors[0]);
-	edit_slider_var(&var->saturation, state);
+	res += edit_slider_var(&var->saturation, state);
 	state->ui_text_y_pos += UI_ELEMENT_HEIGHT;
 	var->lightness = (var->lightness + 1) / 2;
 	generate_color_slider_lightness(&colors[0], var->rgb_hue);
 	render_color_slider(window->ui_texture_pixels, var->lightness,
 		state->ui_text_y_pos, &colors[0]);
-	edit_slider_var(&var->lightness, state);
+	res += edit_slider_var(&var->lightness, state);
 	var->lightness = var->lightness * 2 - 1;
 	state->ui_text_y_pos += UI_ELEMENT_HEIGHT;
 	hsl_update_color(var);
+	return (res);
 }
 
 void	file_save(char *str, char *extension, void (*f)(t_level *, char *))

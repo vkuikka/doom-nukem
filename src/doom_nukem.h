@@ -674,6 +674,7 @@ void			culling(t_level *level);
 int				occlusion_culling(t_tri tri, t_level *level);
 void			init_culling(t_level *level);
 void			free_culling(t_level *level);
+void			static_culling(t_level *l);
 void			reflection_culling(t_level *level, int i);
 void			find_quads(t_obj *obj);
 void			set_fourth_vertex(t_tri *a);
@@ -695,10 +696,10 @@ void			ui_render(t_window *window, t_level *level);
 void			set_text_color(int color);
 void			text(char *text);
 int				button(int *var, char *text);
-void			int_slider(int *var, char *str, int min, int max);
-void			float_slider(float *var, char *str, float min,
+int				int_slider(int *var, char *str, int min, int max);
+int				float_slider(float *var, char *str, float min,
 					float max);
-void			color_slider(t_color_hsl *var, char *str);
+int				color_slider(t_color_hsl *var, char *str);
 int				call(char *str, void (*f)(t_level *), t_level *level);
 void			file_browser(char *str, char *extension,
 					void (*f)(t_level *, char *));

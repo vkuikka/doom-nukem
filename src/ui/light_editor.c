@@ -68,6 +68,8 @@ void	move_light(t_level *level, t_vec3 move_amount)
 		level->ui.state.gizmo_pos
 			= level->lights[level->selected_light_index - 1].pos;
 	}
+	if (!vec_cmp(move_amount, (t_vec3){0, 0, 0}))
+		level->bake_status = BAKE_NOT_BAKED;
 }
 
 void	delete_light(t_level *level)

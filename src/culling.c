@@ -303,8 +303,6 @@ void	reflection_culling(t_level *level, int i)
 	int		amount;
 	int		k;
 
-	if (!level->all.tris[i].reflectivity)
-		return ;
 	level->all.tris[i].reflection_obj_all.tri_amount = 0;
 	ft_memset(&avg, 0, sizeof(t_vec3));
 	k = -1;
@@ -393,9 +391,12 @@ void	init_culling(t_level *level)
 	i = -1;
 	while (++i < level->all.tri_amount)
 	{
-		reflection_culling(level, i);
-		opacity_culling(level, i);
+		if (level->all.tris[i].reflectivity)
+			reflection_culling(level, i);
+		if (level->all.tris[i].opacity)
+			opacity_culling(level, i);
 	}
+	static_culling(level);
 }
 
 static void	calculate_corner_vectors(t_vec3 corner[4], t_camera *cam)
@@ -448,30 +449,44 @@ static void	skybox_culling(t_level *level, t_camera *cam,
 	level->sky.visible.tri_amount = visible_amount;
 }
 
+void	static_culling(t_level *l)
+{
+	int	i;
+
+	i = 0;
+	while (i < l->all.tri_amount)
+	{
+		if (l->all.tris[i].isgrid || !l->ui.backface_culling)
+		{
+			if (l->all.tris[i].reflectivity)
+				reflection_culling(l, l->all.tris[i].index);
+			shadow_face_culling(l, l->all.tris[i].index);
+			if (l->all.tris[i].opacity)
+				opacity_culling(l, l->all.tris[i].index);
+		}
+		i++;
+	}
+}
+
 static void	indirect_culling(t_level *l)
 {
 	int	i;
 	int	visible_amount;
 
 	visible_amount = 0;
-	i = -1;
-	while (++i < l->visible.tri_amount)
+	i = 0;
+	while (i < l->visible.tri_amount)
 	{
 		if (l->visible.tris[i].isgrid
 			|| !l->ui.backface_culling || !l->ui.occlusion_culling
 			|| occlusion_culling(l->visible.tris[i], l))
 		{
-			if (l->visible.tris[i].selected)
-				reflection_culling(l, l->visible.tris[i].index);
 			if (l->visible.tris[i].reflectivity)
 				reflection_culling_first_bounce(l, l->visible.tris[i].index);
-			if (l->bake_status == BAKE_NOT_BAKED)
-				shadow_face_culling(l, l->visible.tris[i].index);
-			if (l->visible.tris[i].opacity)
-				opacity_culling(l, l->visible.tris[i].index);
 			l->visible.tris[visible_amount] = l->visible.tris[i];
 			visible_amount++;
 		}
+		i++;
 	}
 	l->visible.tri_amount = visible_amount;
 }

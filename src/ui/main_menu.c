@@ -60,6 +60,8 @@ static int	mouse_collision(t_rect rect, t_level *level, unsigned int *pixels)
 {
 	t_ivec2	mouse;
 
+	if (level->ui.state.ui_max_width < rect.w + rect.x)
+		level->ui.state.ui_max_width = rect.w + rect.x;
 	SDL_GetMouseState(&mouse.x, &mouse.y);
 	if (mouse.x >= rect.x && mouse.x < rect.x + rect.w
 		&& mouse.y >= rect.y && mouse.y < rect.y + rect.h)
@@ -162,6 +164,7 @@ void	main_menu(t_level *level, unsigned int *pixels,
 	set_text_color(MAIN_MENU_FONT_COLOR);
 	main_menu_title(&level->main_menu_title, pixels);
 	state_changed = FALSE;
+	level->ui.state.ui_max_width = 0;
 	if (level->level_initialized)
 		main_menu_buttons_level(game_state, &state_changed, level, pixels);
 	main_menu_buttons_other(game_state, &state_changed, level, pixels);

@@ -100,9 +100,16 @@ void	obj_editor_input(t_level *level, t_vec3 move_amount)
 			}
 		}
 	}
+	if (!selected_vert_amount)
+		return ;
 	vec_div(&avg, selected_vert_amount);
 	level->ui.state.gizmo_pos = avg;
 	move_selected(level, move_amount);
+	if (!vec_cmp(move_amount, (t_vec3){0, 0, 0}))
+	{
+		static_culling(level);
+		level->bake_status = BAKE_NOT_BAKED;
+	}
 }
 
 void	set_new_face_pos(t_obj *obj, int i, t_vec3 avg, float scale)
