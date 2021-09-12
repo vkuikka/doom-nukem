@@ -204,31 +204,50 @@ void	init_player(t_enemy *player)
 	player->projectile_uv[2].y = 1;
 }
 
+static void	init_audio_effects(t_level *l)
+{
+	SDL_RWops	*rw;
+
+	rw = SDL_RWFromMem(embed_audio_effects_d_death_ogg,
+						embed_audio_effects_d_death_ogg_len);
+	l->audio.death = Mix_LoadWAV_RW(rw, 1);
+	rw = SDL_RWFromMem(embed_audio_effects_jump_wav,
+						embed_audio_effects_jump_wav_len);
+	l->audio.jump = Mix_LoadWAV_RW(rw, 1);
+	rw = SDL_RWFromMem(embed_audio_effects_gunshot_wav,
+						embed_audio_effects_gunshot_wav_len);
+	l->audio.gunshot = Mix_LoadWAV_RW(rw, 1);
+	rw = SDL_RWFromMem(embed_audio_effects_reload_wav,
+						embed_audio_effects_reload_wav_len);
+	l->audio.reload = Mix_LoadWAV_RW(rw, 1);
+	rw = SDL_RWFromMem(embed_audio_effects_door_wav,
+						embed_audio_effects_door_wav_len);
+	l->audio.door = Mix_LoadWAV_RW(rw, 1);
+	if (!l->audio.reload || !l->audio.gunshot || !l->audio.jump
+		|| !l->audio.death || !l->audio.door)
+		ft_error("audio effects init error");
+}
+
 void	init_audio(t_level *l)
 {
+	SDL_RWops	*rw;
+
 	if (Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 8, 4096) < 0)
-		ft_error("Failed to initialize SDL_Mixer");
+	{
+		nonfatal_error("Failed to initialize audio");
+		return ;
+	}
 	l->audio.music_volume = MIX_MAX_VOLUME / 10;
 	l->audio.sound_effect_volume = MIX_MAX_VOLUME / 10;
 	Mix_VolumeMusic(l->audio.music_volume);
 	Mix_Volume(-1, l->audio.sound_effect_volume);
-	l->audio.game_music = Mix_LoadMUS(AUDIO_GAME_MUSIC);
-	if (!l->audio.game_music)
-		ft_error(AUDIO_GAME_MUSIC);
-	l->audio.title_music = Mix_LoadMUS(AUDIO_TITLE_MUSIC);
-	if (!l->audio.title_music)
-		ft_error(AUDIO_TITLE_MUSIC);
-	l->audio.jump = Mix_LoadWAV(AUDIO_JUMP);
-	if (!l->audio.jump)
-		ft_error(AUDIO_JUMP);
-	l->audio.gunshot = Mix_LoadWAV(AUDIO_GUNSHOT);
-	if (!l->audio.gunshot)
-		ft_error(AUDIO_GUNSHOT);
-	l->audio.reload = Mix_LoadWAV(AUDIO_RELOAD);
-	if (!l->audio.reload)
-		ft_error(AUDIO_RELOAD);
-	l->audio.death = Mix_LoadWAV(AUDIO_DEATH);
-	l->audio.door = Mix_LoadWAV(AUDIO_DOOR);
-	if (!l->audio.death || !l->audio.door)
-		ft_error(AUDIO_DOOR" or "AUDIO_DEATH" error");
+	rw = SDL_RWFromMem(embed_audio_music_main_menu_ogg,
+						embed_audio_music_main_menu_ogg_len);
+	l->audio.title_music = Mix_LoadMUS_RW(rw, 1);
+	rw = SDL_RWFromMem(embed_audio_music_ingame_ogg,
+						embed_audio_music_ingame_ogg_len);
+	l->audio.game_music = Mix_LoadMUS_RW(rw, 1);
+	if (!l->audio.game_music || !l->audio.title_music)
+		ft_error("audio init error");
+	init_audio_effects(l);
 }

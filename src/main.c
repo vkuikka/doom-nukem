@@ -159,9 +159,9 @@ int	main(int argc, char **argv)
 	if (!level)
 		ft_error("memory allocation failed\n");
 	ft_bzero(level, sizeof(t_level));
-	init_audio(level);
 	init_window(&window);
 	init_ui(window, level);
+	init_audio(level);
 	init_embedded(level);
 	init_player(&level->player);
 
