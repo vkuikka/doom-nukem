@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/26 19:56:07 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/20 23:06:25 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/13 18:06:34 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -200,9 +200,9 @@ void	gizmo_drag(t_level *level, t_vec3 x, t_vec3 y, t_vec3 z)
 	else if (z.z > 0 && is_near(mouse.x, z.x, 9) && is_near(mouse.y, z.y, 9))
 	{
 		level->ui.state.mouse_location = MOUSE_LOCATION_GIZMO_Z;
-		drag_direction = 1;
+		drag_direction = -1;
 		if (vec_dot((t_vec3){-1, 0, 0}, level->cam.front) > 0)
-			drag_direction = -1;
+			drag_direction = 1;
 	}
 	gizmo_move_amount(level, mouse, drag_direction);
 }
