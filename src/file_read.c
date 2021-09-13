@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 15:15:43 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/12 21:17:35 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/13 17:44:15 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ char	**file2d(char *filename)
 		return (NULL);
 	size = lseek(fd, 0, SEEK_END);
 	lseek(fd, 0, SEEK_SET);
-	file = (char *)malloc(sizeof(char) * (size));
+	file = (char *)malloc(sizeof(char) * (size + 1));
 	size = read(fd, file, size);
 	file[size] = '\0';
 	close(fd);
