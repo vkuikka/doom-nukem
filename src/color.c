@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   color.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/21 17:32:09 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/02 17:14:14 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/13 20:47:28 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -299,4 +299,6 @@ void	face_color(float u, float v, t_tri t, t_cast_result *res)
 			+ (res->color << 24 >> 24);
 	if (res->normal_map)
 		normal_map(u, v, t, res);
+	else
+		res->normal = t.normal;
 }

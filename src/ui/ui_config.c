@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ui_config.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/12 21:04:07 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/13 20:57:23 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,7 @@ void	copy_tri_settings(t_tri *a, t_tri *b)
 	a->isenemy = b->isenemy;
 	a->isgrid = b->isgrid;
 	a->opacity = b->opacity;
+	a->opacity_precise = b->opacity_precise;
 	a->reflectivity = b->reflectivity;
 	a->refractivity = b->refractivity;
 	a->disable_distance_culling = b->disable_distance_culling;
@@ -125,6 +126,7 @@ static void	ui_confing_face_render_settings(t_tri *tri)
 	float_slider(&tri->opacity, buf, 0, 1);
 	if (tri->opacity)
 	{
+		button(&tri->opacity_precise, "precise opacity");
 		sprintf(buf, "refractive index: %.2f",
 			tri->refractivity);
 		float_slider(&tri->refractivity, buf, -1, 3);
@@ -548,6 +550,7 @@ void	ui_editor(t_level *level)
 	}
 	button(&ui->raytracing, "raytrace lights");
 	button(&ui->vertex_select_mode, "vertex select mode");
+	call("cull static", &static_culling, level);
 	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
 	call("edit uv", &enable_uv_editor, level);
 	call("edit doors", &enable_door_editor, level);

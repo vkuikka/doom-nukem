@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   doom_nukem.h                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/12 23:41:30 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/13 20:35:52 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -311,13 +311,11 @@ typedef struct s_tri
 	float				refractivity;
 	int					shader;
 	int					selected;
+	int					opacity_precise;
 	t_obj				opacity_obj_all;
 	t_obj				reflection_obj_all;
 	t_obj				reflection_obj_first_bounce;
 	t_obj				shadow_faces;
-	// int					breakable;
-	// int					broken;
-	// int					*reflection_culling_mask;
 }						t_tri;
 
 typedef struct s_skybox

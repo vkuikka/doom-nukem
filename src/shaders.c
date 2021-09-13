@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   shaders.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/31 16:52:44 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/03 15:55:45 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/13 20:00:54 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,8 @@ void	opacity(t_cast_result *res, t_level *l, t_obj *obj, float opacity)
 	t_ray			normal;
 
 	transparent = *res;
+	transparent.dist = 0;
+	vec_normalize(&transparent.ray.dir);
 	if (l->all.tris[res->face_index].refractivity == 0)
 		cast_all_color(l, obj, &transparent);
 	else
@@ -27,12 +29,17 @@ void	opacity(t_cast_result *res, t_level *l, t_obj *obj, float opacity)
 		vec_mult(&normal.dir, vec_dot(transparent.ray.dir, normal.dir)
 			* l->all.tris[res->face_index].refractivity);
 		vec_add(&transparent.ray.dir, transparent.ray.dir, normal.dir);
-		cast_all_color(l, &l->all.tris[res->face_index].opacity_obj_all,
-			&transparent);
+		vec_normalize(&transparent.ray.dir);
+		if (l->all.tris[res->face_index].opacity_precise)
+			cast_all_color(l, &l->all.tris[res->face_index].opacity_obj_all,
+				&transparent);
+		else
+			cast_all_color(l, obj, &transparent);
 	}
 	res->color = crossfade((unsigned int)res->color >> 8,
 			(unsigned int)transparent.color >> 8,
 			opacity * 0xff, opacity * 0xff);
+	res->dist += transparent.dist;
 }
 
 t_color	sunlight(t_level *l, t_cast_result *res, t_color light)
@@ -48,13 +55,14 @@ t_color	sunlight(t_level *l, t_cast_result *res, t_color light)
 	r.dir.z = l->ui.sun_dir.z;
 	r.pos = res->ray.pos;
 	i = 0;
-	while (i < l->all.tris[res->face_index].shadow_faces.tri_amount)
-	{
-		if (0 < cast_face(l->all.tris[res->face_index].shadow_faces.tris[i],
-				r, NULL))
-			return (light);
-		i++;
-	}
+	if (res->raytracing)
+		while (i < l->all.tris[res->face_index].shadow_faces.tri_amount)
+		{
+			if (0 < cast_face(l->all.tris[res->face_index].shadow_faces.tris[i],
+					r, NULL))
+				return (light);
+			i++;
+		}
 	res_brightness = vec_dot(res->normal, l->ui.sun_dir);
 	light.r += res_brightness * l->ui.sun_color.r;
 	light.g += res_brightness * l->ui.sun_color.g;
@@ -107,10 +115,13 @@ void	reflection(t_cast_result *res, t_level *l, t_obj *obj)
 	normal.dir = res->normal;
 	vec_mult(&normal.dir, vec_dot(reflection.ray.dir, normal.dir) * -2);
 	vec_add(&reflection.ray.dir, reflection.ray.dir, normal.dir);
+	vec_normalize(&reflection.ray.dir);
+	reflection.dist = 0;
 	cast_all_color(l, obj, &reflection);
 	res->color = crossfade((unsigned int)res->color >> 8, reflection.color >> 8,
 			l->all.tris[res->face_index].reflectivity * 0xff,
 			(unsigned int)res->color << 24 >> 24);
+	res->dist += reflection.dist;
 }
 
 unsigned int	shader_wave(t_vec3 mod, t_vec3 *normal,

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   culling.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/20 17:50:56 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/12 23:15:57 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/13 20:54:21 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ int	cull_behind(t_vec3 dir, t_vec3 pos, t_tri tri)
 	return (FALSE);
 }
 
-static int	fov_culling(t_vec3 side_normal[4], t_vec3 pos, t_tri tri)
+static int	frustrum_culling(t_vec3 side_normal[4], t_vec3 pos, t_tri tri)
 {
 	t_vec3	end;
 	int		out[4][4];
@@ -79,34 +79,39 @@ static int	fov_culling(t_vec3 side_normal[4], t_vec3 pos, t_tri tri)
 	return (1);
 }
 
+void	distance_minmax(float *min, float *max, t_tri tri, t_vec3 pos)
+{
+	t_vec3	diff;
+	float	tmp;
+	int		i;
+
+	i = 0;
+	*min = FLT_MAX;
+	*max = 0;
+	while (i < 3 + tri.isquad)
+	{
+		vec_sub(&diff, tri.verts[i].pos, pos);
+		tmp = vec_length(diff);
+		if (tmp < *min)
+			*min = tmp;
+		if (tmp > *max)
+			*max = tmp;
+		i++;
+	}
+}
+
 static int	distance_culling(t_tri tri, t_vec3 player, float render_distance)
 {
-	t_vec3	v;
 	float	min;
 	float	max;
 	float	len;
-	t_vec3	v1v2;
-	t_vec3	v0v3;
-	t_vec3	v1v3;
-	int		i;
+	t_vec3	tmp_vec;
 
-	min = FLT_MAX;
-	max = 0;
-	i = 0;
-	while (i < 3 + tri.isquad)
-	{
-		vec_sub(&v, tri.verts[i].pos, player);
-		len = vec_length(v);
-		if (len < min)
-			min = len;
-		if (len > max)
-			max = len;
-		i++;
-	}
+	distance_minmax(&min, &max, tri, player);
 	if (min < render_distance)
 		return (1);
-	vec_sub(&v1v2, tri.verts[2].pos, tri.verts[1].pos);
-	min = vec_length(v1v2);
+	vec_sub(&tmp_vec, tri.verts[2].pos, tri.verts[1].pos);
+	min = vec_length(tmp_vec);
 	len = vec_length(tri.v0v1);
 	if (len < min)
 		len = min;
@@ -115,15 +120,8 @@ static int	distance_culling(t_tri tri, t_vec3 player, float render_distance)
 		len = min;
 	if (tri.isquad)
 	{
-		vec_sub(&v0v3, tri.verts[3].pos, tri.verts[0].pos);
-		vec_sub(&v1v3, tri.verts[3].pos, tri.verts[1].pos);
-		min = vec_length(v0v3);
-		if (len < min)
-			len = min;
-		min = vec_length(v1v2);
-		if (len < min)
-			len = min;
-		min = vec_length(v1v3);
+		vec_sub(&tmp_vec, tri.verts[3].pos, tri.verts[0].pos);
+		min = vec_length(tmp_vec);
 		if (len < min)
 			len = min;
 	}
@@ -180,18 +178,13 @@ static void	calculate_side_normals(t_vec3 normal[4], t_vec3 corner[4])
 void	shadow_face_culling(t_level *level, int i)
 {
 	t_tri	target;
-	t_vec3	avg;
 	t_vec3	tmp[2];
 	t_vec3	v[4];
 	int		amount;
 	int		k;
 
-	ft_memset(&avg, 0, sizeof(t_vec3));
 	target = level->all.tris[i];
 	k = -1;
-	while (++k < 3 + target.isquad)
-		vec_add(&avg, avg, target.verts[k].pos);
-	vec_div(&avg, 3 + target.isquad);
 	tmp[0] = level->ui.sun_dir;
 	vec_sub(&tmp[1], target.verts[0].pos, target.verts[1].pos);
 	vec_cross(&v[0], tmp[1], tmp[0]);
@@ -217,8 +210,8 @@ void	shadow_face_culling(t_level *level, int i)
 	k = -1;
 	while (++k < level->all.tri_amount)
 	{
-		if (k != i
-			&& cull_behind(level->all.tris[i].normal, avg, level->all.tris[k]))
+		if (k != i && cull_behind(level->all.tris[i].normal,
+				target.verts[0].pos, level->all.tris[k]))
 		{
 			if (level->all.tris[k].isgrid || target.isgrid
 				|| (cull_behind(v[0], target.verts[0].pos, level->all.tris[k])
@@ -286,7 +279,7 @@ static void	reflection_culling_first_bounce(t_level *level, int i)
 		if ((level->all.tris[i].reflection_obj_all.tris[k].isgrid
 				|| cull_behind(avg_dir, pos,
 					level->all.tris[i].reflection_obj_all.tris[k]))
-			&& fov_culling(side_normals, pos,
+			&& frustrum_culling(side_normals, pos,
 				level->all.tris[i].reflection_obj_all.tris[k]))
 		{
 			level->all.tris[i].reflection_obj_first_bounce.tris[amount]
@@ -323,31 +316,26 @@ void	reflection_culling(t_level *level, int i)
 	level->all.tris[i].reflection_obj_all.tri_amount = amount;
 }
 
-void	opacity_culling(t_level *level, int i)
+void	opacity_culling(t_level *level, int i, t_obj *obj)
 {
-	t_vec3	avg;
 	int		amount;
 	int		k;
 
 	level->all.tris[i].opacity_obj_all.tri_amount = 0;
-	ft_memset(&avg, 0, sizeof(t_vec3));
-	k = -1;
-	while (++k < 3 + level->all.tris[i].isquad)
-		vec_add(&avg, avg, level->all.tris[i].verts[k].pos);
-	vec_div(&avg, 3 + level->all.tris[i].isquad);
 	amount = 0;
-	k = -1;
-	while (++k < level->all.tri_amount)
+	k = 0;
+	while (k < obj->tri_amount)
 	{
-		if ((level->all.tris[k].isenemy || level->all.tris[k].isgrid
+		if ((obj->tris[k].isenemy || obj->tris[k].isgrid
 				|| cull_ahead(level->all.tris[i].normal,
-					avg, level->all.tris[k]))
-			&& backface_culling(level->cam.pos, level->all.tris[k]))
+					level->all.tris[i].verts[0].pos, obj->tris[k]))
+			&& backface_culling(level->cam.pos, obj->tris[k]))
 		{
 			level->all.tris[i].opacity_obj_all.tris[amount]
-				= level->all.tris[k];
+				= obj->tris[k];
 			amount++;
 		}
+		k++;
 	}
 	level->all.tris[i].opacity_obj_all.tri_amount = amount;
 }
@@ -430,7 +418,7 @@ static void	skybox_culling(t_level *level, t_camera *cam,
 	{
 		if (cull_behind(cam->front, (t_vec3){0, 0, 0},
 			level->sky.all.tris[i])
-			&& fov_culling(side_normals,
+			&& frustrum_culling(side_normals,
 				(t_vec3){0, 0, 0}, level->sky.all.tris[i]))
 		{
 			level->sky.visible.tris[visible_amount] = level->sky.all.tris[i];
@@ -452,33 +440,12 @@ void	static_culling(t_level *l)
 			reflection_culling(l, l->all.tris[i].index);
 		if (0)
 			shadow_face_culling(l, l->all.tris[i].index);
-		if (l->all.tris[i].opacity)
-			opacity_culling(l, l->all.tris[i].index);
+		if (l->all.tris[i].opacity
+			&& l->all.tris[i].opacity_precise
+			&& l->all.tris[i].refractivity < 0)
+			opacity_culling(l, l->all.tris[i].index, &l->all);
 		i++;
 	}
-}
-
-static void	indirect_culling(t_level *l)
-{
-	int	i;
-	int	visible_amount;
-
-	visible_amount = 0;
-	i = 0;
-	while (i < l->visible.tri_amount)
-	{
-		if (l->visible.tris[i].isgrid
-			|| !l->ui.backface_culling || !l->ui.occlusion_culling
-			|| occlusion_culling(l->visible.tris[i], l))
-		{
-			if (l->visible.tris[i].reflectivity)
-				reflection_culling_first_bounce(l, l->visible.tris[i].index);
-			l->visible.tris[visible_amount] = l->visible.tris[i];
-			visible_amount++;
-		}
-		i++;
-	}
-	l->visible.tri_amount = visible_amount;
 }
 
 void	culling(t_level *l)
@@ -496,15 +463,25 @@ void	culling(t_level *l)
 	{
 		if (l->all.tris[i].isgrid
 			|| (cull_behind(l->cam.front, l->cam.pos, l->all.tris[i])
-				&& fov_culling(side_normals, l->cam.pos, l->all.tris[i])
+				&& frustrum_culling(side_normals, l->cam.pos, l->all.tris[i])
 				&& (!l->ui.distance_culling
 					|| l->all.tris[i].disable_distance_culling
 					|| distance_culling(l->all.tris[i], l->cam.pos,
 						l->ui.render_distance))
 				&& (!l->ui.backface_culling
 					|| l->all.tris[i].disable_backface_culling
-					|| backface_culling(l->cam.pos, l->all.tris[i]))))
+					|| backface_culling(l->cam.pos, l->all.tris[i]))
+				&& (!l->ui.occlusion_culling || !l->ui.backface_culling
+					|| l->all.tris[i].opacity
+					|| occlusion_culling(l->all.tris[i], l))))
 			l->visible.tris[l->visible.tri_amount++] = l->all.tris[i];
 	}
-	indirect_culling(l);
+	i = -1;
+	while (++i < l->visible.tri_amount)
+		reflection_culling_first_bounce(l, l->visible.tris[i].index);
+	i = -1;
+	while (++i < l->visible.tri_amount)
+		if (l->visible.tris[i].opacity_precise
+			&& l->visible.tris[i].refractivity > 0)
+			opacity_culling(l, l->visible.tris[i].index, &l->visible);
 }
