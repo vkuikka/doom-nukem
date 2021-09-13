@@ -137,6 +137,27 @@ static void	render_button(unsigned int *texture, int *var, int dy)
 	}
 }
 
+static void	render_slider_button(unsigned int *texture, float pos,
+								int dy, int color)
+{
+	int	x;
+	int	y;
+
+	y = 0;
+	while (y < UI_SLIDER_BUTTON_HEIGHT)
+	{
+		x = 0;
+		while (x <= UI_SLIDER_BUTTON_WIDTH)
+		{
+			button_pixel_put(x + 2
+				+ (int)((UI_SLIDER_WIDTH - UI_SLIDER_BUTTON_WIDTH)
+					* pos), y + 2 + dy, color, texture);
+			x++;
+		}
+		y++;
+	}
+}
+
 static void	render_color_slider(t_window *window, float pos,
 						int dy, unsigned int *colors)
 {
@@ -151,47 +172,25 @@ static void	render_color_slider(t_window *window, float pos,
 			button_pixel_put(x + 2, y + 6 + dy, colors[x],
 				window->ui_texture_pixels);
 	}
-	y = 0;
-	while (y < 12)
-	{
-		x = 0;
-		while (x <= UI_SLIDER_BUTTON_WIDTH)
-		{
-			button_pixel_put(x + 2
-				+ (int)((UI_SLIDER_WIDTH - UI_SLIDER_BUTTON_WIDTH)
-					* pos), y + 2 + dy, 0x666666ff, window->ui_texture_pixels);
-			x++;
-		}
-		y++;
-	}
+	render_slider_button(window->ui_texture_pixels, pos, dy,
+							colors[(int)(pos * (UI_SLIDER_WIDTH - 1))]);
 }
 
-void	render_slider_streaming(unsigned int *texture,
-											float unit, int dy)
+static void	render_slider(unsigned int *texture, float pos, int dy, int color)
 {
 	int	x;
 	int	y;
+	int	color2;
 
+	color2 = set_lightness(color, -0.5);
 	y = -1;
 	while (++y < 4)
 	{
 		x = -1;
 		while (++x < UI_SLIDER_WIDTH)
-			button_pixel_put(x + 2, y + 6 + dy, 0x404040ff, texture);
+			button_pixel_put(x + 2, y + 6 + dy, color2, texture);
 	}
-	y = 0;
-	while (y < 12)
-	{
-		x = 0;
-		while (x <= UI_SLIDER_BUTTON_WIDTH)
-		{
-			button_pixel_put(x + 2
-				+ (int)((UI_SLIDER_WIDTH - UI_SLIDER_BUTTON_WIDTH)
-					* unit), y + 2 + dy, 0x666666ff, texture);
-			x++;
-		}
-		y++;
-	}
+	render_slider_button(texture, pos, dy, color);
 }
 
 void	text(char *str)
@@ -248,8 +247,8 @@ int	int_slider(int *var, char *str, int min, int max)
 	*var = clamp(*var, min, max);
 	*var -= min;
 	unit = (float)*var / (float)(max - min);
-	render_slider_streaming(window->ui_texture_pixels, unit,
-		state->ui_text_y_pos);
+	render_slider(window->ui_texture_pixels, unit,
+		state->ui_text_y_pos, state->ui_text_color);
 	res = edit_slider_var(&unit, state);
 	unit = clamp(unit, 0, 1);
 	*var = min + ((max - min) * unit);
@@ -272,8 +271,8 @@ int	float_slider(float *var, char *str, float min, float max)
 	*var = clamp(*var, min, max);
 	*var -= min;
 	unit = (float)*var / (float)(max - min);
-	render_slider_streaming(window->ui_texture_pixels, unit,
-		state->ui_text_y_pos);
+	render_slider(window->ui_texture_pixels, unit,
+		state->ui_text_y_pos, state->ui_text_color);
 	res = edit_slider_var(&unit, state);
 	unit = clamp(unit, 0, 1);
 	*var = min + ((max - min) * unit);
