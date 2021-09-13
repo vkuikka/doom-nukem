@@ -12,23 +12,6 @@
 
 #include "doom_nukem.h"
 
-static t_rect	main_menu_button_text(char *text, int index)
-{
-	t_rect	rect;
-	t_ivec2	res;
-
-	rect.x = MAIN_MENU_FONT_SIZE * 2;
-	rect.y = RES_Y / 2
-		+ ((MAIN_MENU_FONT_SIZE * MAIN_MENU_FONT_PADDING_MULTIPLIER)
-			* (index - (MAIN_MENU_BUTTON_AMOUNT / 2)));
-	res = render_text(text, rect.x, rect.y);
-	rect.w = res.x;
-	rect.h = res.y;
-	rect.x -= MAIN_MENU_FONT_SIZE / 4;
-	rect.w += MAIN_MENU_FONT_SIZE / 2;
-	return (rect);
-}
-
 static void	main_menu_text_background(t_rect rect, unsigned int *pixels)
 {
 	int	x;
@@ -56,21 +39,39 @@ static void	main_menu_title(t_bmp *img, unsigned int *pixels)
 	fake_analog_signal(img, pixels, sinf(amount) / 2 + 0.5);
 }
 
-static int	mouse_collision(t_rect rect, t_level *level, unsigned int *pixels)
+int	mouse_collision(t_rect rect, t_level *level)
 {
 	t_ivec2	mouse;
 
-	if (level->ui.state.ui_max_width < rect.w + rect.x)
-		level->ui.state.ui_max_width = rect.w + rect.x;
 	mouse = level->ui.state.mouse;
 	if (mouse.x >= rect.x && mouse.x < rect.x + rect.w
 		&& mouse.y >= rect.y && mouse.y < rect.y + rect.h)
+		return (TRUE);
+	return (FALSE);
+}
+
+static int	main_menu_button_text(char *text, int index,
+					t_level *level, unsigned int *pixels)
+{
+	t_rect	rect;
+	t_ivec2	res;
+
+	rect.x = MAIN_MENU_FONT_SIZE * 2;
+	rect.y = RES_Y / 2
+		+ ((MAIN_MENU_FONT_SIZE * MAIN_MENU_FONT_PADDING_MULTIPLIER)
+			* (index - (MAIN_MENU_BUTTON_AMOUNT / 2)));
+	res = render_text(text, rect.x, rect.y);
+	rect.w = res.x;
+	rect.h = res.y;
+	rect.x -= MAIN_MENU_FONT_SIZE / 4;
+	rect.w += MAIN_MENU_FONT_SIZE / 2;
+	if (mouse_collision(rect, level))
 	{
 		main_menu_text_background(rect, pixels);
 		if (level->ui.state.m1_click)
-			return (1);
+			return (TRUE);
 	}
-	return (0);
+	return (FALSE);
 }
 
 void	main_menu_move_background(t_level *level)
@@ -105,10 +106,7 @@ void	main_menu_move_background(t_level *level)
 void	main_menu_buttons_level(t_game_state *game_state, int *state_changed,
 						t_level *level, unsigned int *pixels)
 {
-	t_rect	rect;
-
-	rect = main_menu_button_text("play", 0);
-	if (mouse_collision(rect, level, pixels)
+	if (main_menu_button_text("play", 0, level, pixels)
 		&& level->bake_status != BAKE_BAKING)
 	{
 		*game_state = GAME_STATE_INGAME;
@@ -118,8 +116,7 @@ void	main_menu_buttons_level(t_game_state *game_state, int *state_changed,
 		level->player_ammo = PLAYER_AMMO_MAX;
 		Mix_PlayMusic(level->audio.game_music, -1);
 	}
-	rect = main_menu_button_text("edit level", 1);
-	if (mouse_collision(rect, level, pixels))
+	if (main_menu_button_text("edit level", 1, level, pixels))
 	{
 		level->ui.noclip = TRUE;
 		*game_state = GAME_STATE_EDITOR;
@@ -130,17 +127,13 @@ void	main_menu_buttons_level(t_game_state *game_state, int *state_changed,
 void	main_menu_buttons_other(t_game_state *game_state, int *state_changed,
 						t_level *level, unsigned int *pixels)
 {
-	t_rect	rect;
-
-	rect = main_menu_button_text("select level", 2);
-	if (mouse_collision(rect, level, pixels))
+	if (main_menu_button_text("select level", 2, level, pixels))
 	{
 		level->ui.main_menu = MAIN_MENU_LOCATION_LEVEL_SELECT;
 		ft_strcpy(level->ui.state.extension, ".doom-nukem");
 		level->ui.state.open_file = &open_level;
 	}
-	rect = main_menu_button_text("create level", 3);
-	if (mouse_collision(rect, level, pixels))
+	if (main_menu_button_text("create level", 3, level, pixels))
 	{
 		create_default_level(level);
 		level->ui.noclip = TRUE;
@@ -148,11 +141,8 @@ void	main_menu_buttons_other(t_game_state *game_state, int *state_changed,
 		*state_changed = TRUE;
 		level->level_initialized = TRUE;
 	}
-	rect = main_menu_button_text("settings", 4);
-	if (mouse_collision(rect, level, pixels))
-	{
+	if (main_menu_button_text("settings", 4, level, pixels))
 		level->ui.main_menu = MAIN_MENU_LOCATION_SETTINGS;
-	}
 }
 
 void	main_menu(t_level *level, unsigned int *pixels,
