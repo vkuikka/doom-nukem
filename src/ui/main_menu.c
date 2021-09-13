@@ -39,11 +39,8 @@ static void	main_menu_title(t_bmp *img, unsigned int *pixels)
 	fake_analog_signal(img, pixels, sinf(amount) / 2 + 0.5);
 }
 
-int	mouse_collision(t_rect rect, t_level *level)
+int	mouse_collision(t_rect rect, t_ivec2 mouse)
 {
-	t_ivec2	mouse;
-
-	mouse = level->ui.state.mouse;
 	if (mouse.x >= rect.x && mouse.x < rect.x + rect.w
 		&& mouse.y >= rect.y && mouse.y < rect.y + rect.h)
 		return (TRUE);
@@ -65,7 +62,7 @@ static int	main_menu_button_text(char *text, int index,
 	rect.h = res.y;
 	rect.x -= MAIN_MENU_FONT_SIZE / 4;
 	rect.w += MAIN_MENU_FONT_SIZE / 2;
-	if (mouse_collision(rect, level))
+	if (mouse_collision(rect, level->ui.state.mouse))
 	{
 		main_menu_text_background(rect, pixels);
 		if (level->ui.state.m1_click)

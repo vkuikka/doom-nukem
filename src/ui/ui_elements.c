@@ -62,15 +62,10 @@ static int	edit_slider_var(float *unit, t_ui_state *state)
 	return (FALSE);
 }
 
-static int	edit_call_var(t_ui_state *state, t_ivec2 size)
+static int	edit_call_var(t_ui_state *state, t_rect rect)
 {
-	int	x;
-	int	y;
-
-	SDL_GetMouseState(&x, &y);
 	if (state->mouse_location == MOUSE_LOCATION_UI && state->m1_click
-		&& x >= 3 && x <= size.x + 6 && y >= state->ui_text_y_pos + 4
-		&& y <= state->ui_text_y_pos + size.y + 2)
+		&& mouse_collision(rect, state->mouse))
 		return (TRUE);
 	return (FALSE);
 }
@@ -91,24 +86,30 @@ static int	edit_button_var(int *var, t_ui_state *state)
 	return (FALSE);
 }
 
-static void	render_call(int dy, t_ivec2 *size, int color)
+static t_rect	render_call(t_ivec2 *size, t_ui_state *state)
 {
 	t_window	*window;
+	t_rect		rect;
+	int			color;
 	int			x;
 	int			y;
 
 	window = get_window(NULL);
-	y = 0;
-	while (y < size->y - 1)
+	rect.x = state->ui_text_x_offset - 2;
+	rect.y = state->ui_text_y_pos + 1;
+	rect.w = size->x + 4;
+	rect.h = size->y - 1;
+	color = state->ui_text_color;
+	if (mouse_collision(rect, state->mouse))
+		color = set_lightness(color, -0.1);
+	y = rect.y - 1;
+	while (++y < rect.y + rect.h)
 	{
-		x = 0;
-		while (x < size->x + 4)
-		{
-			button_pixel_put(x + 2, y + 2 + dy, color, window->ui_texture_pixels);
-			x++;
-		}
-		y++;
+		x = rect.x - 1;
+		while (++x < rect.x + rect.w)
+			button_pixel_put(x, y, color, window->ui_texture_pixels);
 	}
+	return (rect);
 }
 
 static void	render_button(unsigned int *texture, int *var, int dy)
@@ -379,6 +380,7 @@ int	call(char *str, void (*f)(t_level *))
 	t_ui_state	*state;
 	t_level		*level;
 	t_ivec2		size;
+	t_rect		rect;
 	int			tmp;
 
 	state = get_ui_state(NULL);
@@ -387,11 +389,11 @@ int	call(char *str, void (*f)(t_level *))
 	tmp = state->ui_text_color;
 	state->ui_text_color = UI_BACKGROUND_COL;
 	size = render_text(str, 4, state->ui_text_y_pos);
+	state->ui_text_color = tmp;
 	if (state->ui_max_width < state->ui_text_x_offset + size.x)
 		state->ui_max_width = state->ui_text_x_offset + size.x;
-	state->ui_text_color = tmp;
-	render_call(state->ui_text_y_pos, &size, state->ui_text_color);
-	tmp = edit_call_var(state, size);
+	rect = render_call(&size, state);
+	tmp = edit_call_var(state, rect);
 	if (tmp && *f)
 		(*f)(level);
 	state->ui_text_y_pos += UI_ELEMENT_HEIGHT;

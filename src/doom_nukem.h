@@ -91,7 +91,7 @@
 # define UI_SLIDER_BUTTON_WIDTH 5
 # define UI_FONT_SIZE 13
 # define UI_EDITOR_SETTINGS_TEXT_COLOR 0x4444ffff
-# define UI_LEVEL_SETTINGS_TEXT_COLOR 0xffffffff
+# define UI_LEVEL_SETTINGS_TEXT_COLOR 0xccb0f5ff
 # define UI_INFO_TEXT_COLOR 0xff5500ff
 # define UI_FACE_SELECTION_TEXT_COLOR 0xffffffff
 # define UI_BACKGROUND_COL 0x222222bb
@@ -702,6 +702,7 @@ void			file_save(char *str, char *extension,
 					void (*f)(t_level *, char *));
 void			text_input(char *str, t_level *level);
 void			find_closest_mouse(t_vec3 *vert, int *i, int *k, t_ivec2 *mouse);
+int				mouse_collision(t_rect rect, t_ivec2 mouse);
 
 void			main_menu(t_level *level, unsigned int *pixels,
 					t_game_state *game_state);
