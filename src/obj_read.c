@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/12 23:04:05 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/13 18:09:16 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -193,7 +193,7 @@ static int	obj_set_all_tris(char **file, t_obj *obj)
 		return (FALSE);
 	uvs = load_uvs(file);
 	if (!uvs)
-		return (FALSE);
+		nonfatal_error("obj has no uv");
 	i = 0;
 	j = 0;
 	while (file[i])
