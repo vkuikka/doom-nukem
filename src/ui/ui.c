@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ui.c                                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/06 08:50:56 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/02 03:55:34 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/13 23:00:44 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -199,9 +199,7 @@ static void	init_ui_settings(t_editor_ui *ui)
 	ui->sun_color.r = 1;
 	ui->sun_color.g = 1;
 	ui->sun_color.b = 1;
-	ui->sun_dir.x = 1;
-	ui->sun_dir.y = -1;
-	ui->sun_dir.z = 1;
+	ui->sun_dir = (t_vec3){1, -1, 1};
 	vec_normalize(&ui->sun_dir);
 	ui->spray_from_view = 1;
 	ui->spray_size = 3;
@@ -209,6 +207,7 @@ static void	init_ui_settings(t_editor_ui *ui)
 	ui->fog_color.saturation = 1;
 	ui->fog_color.lightness = 0;
 	ui->fog_color.color = 0xffffffff;
+	ui->normal_map_disabled = FALSE;
 }
 
 static void	init_color_slider(t_level *level)

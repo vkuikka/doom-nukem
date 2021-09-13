@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/20 17:50:56 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/13 20:54:21 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/13 21:59:55 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -438,8 +438,7 @@ void	static_culling(t_level *l)
 	{
 		if (l->all.tris[i].reflectivity)
 			reflection_culling(l, l->all.tris[i].index);
-		if (0)
-			shadow_face_culling(l, l->all.tris[i].index);
+		shadow_face_culling(l, l->all.tris[i].index);
 		if (l->all.tris[i].opacity
 			&& l->all.tris[i].opacity_precise
 			&& l->all.tris[i].refractivity < 0)

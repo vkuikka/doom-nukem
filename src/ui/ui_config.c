@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/13 20:57:23 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/13 23:29:27 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -501,11 +501,11 @@ void	ui_level_set_var(t_level *level)
 	float_slider(&level->win_dist, buf, 1, 40);
 	call("set win position", &set_win_pos, level);
 	call("set spawn position", &set_spawn_pos, level);
-	call("set menu position 1", &set_menu_pos_1, level);
-	call("set menu position 2", &set_menu_pos_2, level);
 	sprintf(buf, "main menu animation time %ds",
 		level->main_menu_anim_time);
 	int_slider((int *)&level->main_menu_anim_time, buf, 2, 50);
+	call("set menu position 1", &set_menu_pos_1, level);
+	call("set menu position 2", &set_menu_pos_2, level);
 }
 
 void	ui_level_settings(t_level *level)
@@ -515,8 +515,11 @@ void	ui_level_settings(t_level *level)
 	call("edit lights", &enable_light_editor, level);
 	file_browser("select obj", ".obj", &set_obj);
 	file_browser("select texture", ".bmp", &set_texture);
-	file_browser("select normal map", ".bmp", &set_normal_map);
-	file_browser("select skybox", ".bmp", &set_skybox);
+	if (!level->ui.fog)
+		file_browser("select skybox", ".bmp", &set_skybox);
+	if (!level->ui.normal_map_disabled)
+		file_browser("select normal map", ".bmp", &set_normal_map);
+	button(&level->ui.normal_map_disabled, "disable normal map");
 	call("add face", &add_face, level);
 	ui_level_set_var(level);
 	float_slider(&level->player.projectile_scale,

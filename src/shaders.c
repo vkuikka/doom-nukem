@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/31 16:52:44 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/13 20:00:54 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/13 23:23:59 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,21 +48,19 @@ t_color	sunlight(t_level *l, t_cast_result *res, t_color light)
 	int				i;
 	t_ray			r;
 
-	if (vec_dot(res->normal, l->ui.sun_dir) < 0)
+	if (vec_dot(res->normal, l->ui.sun_dir) < 0
+		|| (l->ui.sun_color.r == 0
+			&& l->ui.sun_color.g == 0
+			&& l->ui.sun_color.b == 0))
 		return (light);
-	r.dir.x = l->ui.sun_dir.x;
-	r.dir.y = l->ui.sun_dir.y;
-	r.dir.z = l->ui.sun_dir.z;
+	r.dir = l->ui.sun_dir;
 	r.pos = res->ray.pos;
-	i = 0;
+	i = -1;
 	if (res->raytracing)
-		while (i < l->all.tris[res->face_index].shadow_faces.tri_amount)
-		{
+		while (++i < l->all.tris[res->face_index].shadow_faces.tri_amount)
 			if (0 < cast_face(l->all.tris[res->face_index].shadow_faces.tris[i],
 					r, NULL))
 				return (light);
-			i++;
-		}
 	res_brightness = vec_dot(res->normal, l->ui.sun_dir);
 	light.r += res_brightness * l->ui.sun_color.r;
 	light.g += res_brightness * l->ui.sun_color.g;

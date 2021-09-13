@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/13 20:23:40 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/13 22:51:22 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,7 +138,10 @@ t_ray	ray_set(t_camera *cam, float fov, t_ivec2 xy)
 void	cast_result_set(t_cast_result *res, t_level *level)
 {
 	res->raytracing = level->ui.raytracing;
-	res->normal_map = &level->normal_map;
+	if (!level->ui.normal_map_disabled)
+		res->normal_map = &level->normal_map;
+	else
+		res->normal_map = NULL;
 	res->texture = &level->texture;
 	res->spray_overlay = level->spray_overlay;
 	if (level->bake_status != BAKE_NOT_BAKED)

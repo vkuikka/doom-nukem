@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/13 20:35:52 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/13 22:49:24 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -476,6 +476,7 @@ typedef struct s_editor_ui
 	int					raytracing;
 	int					spray_from_view;
 	float				spray_size;
+	int					normal_map_disabled;
 
 	t_color_hsl			sun_color;
 	struct s_vec3		sun_dir;
