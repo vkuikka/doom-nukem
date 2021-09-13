@@ -6,14 +6,13 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/10 01:23:16 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/02 19:15:42 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/12 23:49:15 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
 
-static void	player_movement_input(const Uint8 *keys, t_level *level,
-				t_vec3 *wishdir, float *height)
+static void	input_player_movement(t_vec3 *wishdir, const Uint8 *keys)
 {
 	if (keys[SDL_SCANCODE_W])
 		wishdir->z += 1;
@@ -23,30 +22,10 @@ static void	player_movement_input(const Uint8 *keys, t_level *level,
 		wishdir->x -= 1;
 	if (keys[SDL_SCANCODE_D])
 		wishdir->x += 1;
-	if (keys[SDL_SCANCODE_SPACE])
-		wishdir->y -= 1;
-	if (keys[SDL_SCANCODE_LSHIFT] && level->ui.noclip)
-		wishdir->y += 1;
-	if (keys[SDL_SCANCODE_LCTRL] && !level->ui.noclip)
-	{
-		*height = CROUCHED_HEIGHT;
-		level->player.move_speed = CROUCH_SPEED;
-	}
-	else if (keys[SDL_SCANCODE_LSHIFT] && !level->ui.noclip)
-		level->player.move_speed = WALK_SPEED;
-	else if (!level->ui.noclip)
-		level->player.move_speed = RUN_SPEED;
 }
 
-static void	player_input(t_level *level, t_vec3 *wishdir, float *height)
+static void	input_uv(t_level *level, const Uint8 *keys)
 {
-	const Uint8	*keys;
-
-	ft_bzero(wishdir, sizeof(t_vec3));
-	if (level->ui.state.text_input_enable)
-		return ;
-	keys = SDL_GetKeyboardState(NULL);
-	player_movement_input(keys, level, wishdir, height);
 	if (level->ui.state.ui_location == UI_LOCATION_UV_EDITOR)
 	{
 		if (keys[SDL_SCANCODE_LEFT])
@@ -62,6 +41,38 @@ static void	player_input(t_level *level, t_vec3 *wishdir, float *height)
 		if (keys[SDL_SCANCODE_EQUALS] && level->ui.state.uv_zoom < 10)
 			level->ui.state.uv_zoom += 0.01;
 	}
+	else
+	{
+		if (keys[SDL_SCANCODE_LEFT])
+			level->cam.look_side -= 0.04;
+		if (keys[SDL_SCANCODE_RIGHT])
+			level->cam.look_side += 0.04;
+	}
+}
+
+static void	player_input(t_level *level, t_vec3 *wishdir, float *height)
+{
+	const Uint8	*keys;
+
+	keys = SDL_GetKeyboardState(NULL);
+	ft_bzero(wishdir, sizeof(t_vec3));
+	if (level->ui.state.text_input_enable)
+		return ;
+	input_player_movement(wishdir, keys);
+	input_uv(level, keys);
+	if (keys[SDL_SCANCODE_SPACE])
+		wishdir->y -= 1;
+	if (keys[SDL_SCANCODE_LSHIFT] && level->ui.noclip)
+		wishdir->y += 1;
+	if (keys[SDL_SCANCODE_LCTRL] && !level->ui.noclip)
+	{
+		*height = CROUCHED_HEIGHT;
+		level->player.move_speed = CROUCH_SPEED;
+	}
+	else if (keys[SDL_SCANCODE_LSHIFT] && !level->ui.noclip)
+		level->player.move_speed = WALK_SPEED;
+	else if (!level->ui.noclip)
+		level->player.move_speed = RUN_SPEED;
 }
 
 // first if player to ground
@@ -163,22 +174,42 @@ static int	vertical_movement(t_vec3 *wishdir, t_vec3 *vel, float delta_time,
 	return (0);
 }
 
-static void	air_movement(t_vec3 *wishdir, t_vec3 *vel)
+static void	air_movement(t_vec3 *wishdir, t_vec3 *vel, float delta_time)
 {
 	float	length;
 	float	speed;
+	float	addspeed;
+	float	accelspeed;
 
 	if (wishdir->x || wishdir->z)
 	{
 		length = sqrt(wishdir->x * wishdir->x + wishdir->z * wishdir->z);
 		wishdir->x /= length;
 		wishdir->z /= length;
-		speed = fmax(AIR_ACCEL
-				- (vel->x * wishdir->x + vel->z * wishdir->z), 0);
-		wishdir->x *= speed;
-		wishdir->z *= speed;
-		vel->x += wishdir->x;
-		vel->z += wishdir->z;
+		speed = fmax(vel->x * wishdir->x + vel->z * wishdir->z, 0);
+		addspeed = 1 - speed;
+		if (addspeed < 0)
+			return ;
+		accelspeed = AIR_ACCEL * delta_time;
+		if (accelspeed > addspeed)
+			accelspeed = addspeed;
+		vel->x += accelspeed * wishdir->x;
+		vel->z += accelspeed * wishdir->z;
+	}
+}
+
+void	horizontal_movement_no_input(t_vec3 *vel, float delta_time)
+{
+	if (fabs(vel->x * GROUND_FRICTION * delta_time) > fabs(vel->x)
+		|| fabs(vel->z * GROUND_FRICTION * delta_time) > fabs(vel->z))
+	{
+		vel->x = 0;
+		vel->z = 0;
+	}
+	else
+	{
+		vel->x -= vel->x * GROUND_FRICTION * delta_time;
+		vel->z -= vel->z * GROUND_FRICTION * delta_time;
 	}
 }
 
@@ -199,16 +230,21 @@ static void	horizontal_movement(t_vec3 *wishdir, t_vec3 *vel,
 		}
 	}
 	else
+		horizontal_movement_no_input(vel, delta_time);
+}
+
+void	apply_velocity(t_vec3 vel, float h, t_level *level, float delta_time)
+{
+	if (vel.x || vel.y || vel.z)
 	{
-		if (fabs(vel->x * GROUND_FRICTION * delta_time) > fabs(vel->x)
-			|| fabs(vel->z * GROUND_FRICTION * delta_time) > fabs(vel->z))
-			vel = &((t_vec3){0, vel->y, 0});
-		else
-		{
-			vel->x -= vel->x * GROUND_FRICTION * delta_time;
-			vel->z -= vel->z * GROUND_FRICTION * delta_time;
-		}
+		vec_mult(&vel, delta_time);
+		while (player_collision(&vel, &level->cam.pos, level, h))
+			;
+		vec_add(&level->cam.pos, level->cam.pos, vel);
+		vec_div(&vel, delta_time);
+		level->ui.horizontal_velocity = sqrt(vel.x * vel.x + vel.z * vel.z);
 	}
+	level->player_vel = vel;
 }
 
 static void	movement_physics(t_level *level, t_vec3 wishdir,
@@ -221,20 +257,11 @@ static void	movement_physics(t_level *level, t_vec3 wishdir,
 	in_air = is_player_in_air(level, height);
 	vertical_movement(&wishdir, &vel, delta_time, in_air);
 	if (in_air || wishdir.y)
-		air_movement(&wishdir, &vel);
+		air_movement(&wishdir, &vel, delta_time);
 	else
 		horizontal_movement(&wishdir, &vel, delta_time,
 			level->player.move_speed);
-	if (vel.x || vel.y || vel.z)
-	{
-		vec_mult(&vel, delta_time);
-		while (player_collision(&vel, &level->cam.pos, level, height))
-			;
-		vec_add(&level->cam.pos, level->cam.pos, vel);
-		vec_div(&vel, delta_time);
-		level->ui.horizontal_velocity = sqrt(vel.x * vel.x + vel.z * vel.z);
-	}
-	level->player_vel = vel;
+	apply_velocity(vel, height, level, delta_time);
 }
 
 void	player_movement(t_level *level)
