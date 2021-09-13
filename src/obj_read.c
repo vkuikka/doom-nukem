@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/13 18:09:16 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/13 18:10:48 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,11 +117,11 @@ static void	read_uv_indices(char *str, t_ivec3 *uv_index, int *j, int x)
 {
 	(*j)++;
 	if (x == 0)
-		uv_index->x = atoi(&str[*j]) - 1;
+		uv_index->x = ft_atoi(&str[*j]) - 1;
 	else if (x == 1)
-		uv_index->y = atoi(&str[*j]) - 1;
+		uv_index->y = ft_atoi(&str[*j]) - 1;
 	else if (x == 2)
-		uv_index->z = atoi(&str[*j]) - 1;
+		uv_index->z = ft_atoi(&str[*j]) - 1;
 	while (str[*j] && str[*j] != ' ')
 		(*j)++;
 }
@@ -139,11 +139,11 @@ void	read_indices(char *str, t_ivec3 *tex_index, t_ivec3 *uv_index)
 	while (++x < 3)
 	{
 		if (x == 0)
-			tex_index->x = atoi(&str[j]) - 1;
+			tex_index->x = ft_atoi(&str[j]) - 1;
 		else if (x == 1)
-			tex_index->y = atoi(&str[j]) - 1;
+			tex_index->y = ft_atoi(&str[j]) - 1;
 		else if (x == 2)
-			tex_index->z = atoi(&str[j]) - 1;
+			tex_index->z = ft_atoi(&str[j]) - 1;
 		while (str[j] && ft_isdigit(str[j]))
 			j++;
 		if (str[j] == '/')
