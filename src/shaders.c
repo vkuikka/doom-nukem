@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/31 16:52:44 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/31 14:46:56 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/03 15:55:45 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ void	opacity(t_cast_result *res, t_level *l, t_obj *obj, float opacity)
 		vec_mult(&normal.dir, vec_dot(transparent.ray.dir, normal.dir)
 			* l->all.tris[res->face_index].refractivity);
 		vec_add(&transparent.ray.dir, transparent.ray.dir, normal.dir);
-		cast_all_color(l, l->all.tris[res->face_index].opacity_obj_all,
+		cast_all_color(l, &l->all.tris[res->face_index].opacity_obj_all,
 			&transparent);
 	}
 	res->color = crossfade((unsigned int)res->color >> 8,
@@ -48,9 +48,9 @@ t_color	sunlight(t_level *l, t_cast_result *res, t_color light)
 	r.dir.z = l->ui.sun_dir.z;
 	r.pos = res->ray.pos;
 	i = 0;
-	while (i < l->all.tris[res->face_index].shadow_faces->tri_amount)
+	while (i < l->all.tris[res->face_index].shadow_faces.tri_amount)
 	{
-		if (0 < cast_face(l->all.tris[res->face_index].shadow_faces->tris[i],
+		if (0 < cast_face(l->all.tris[res->face_index].shadow_faces.tris[i],
 				r, NULL))
 			return (light);
 		i++;
@@ -72,7 +72,6 @@ static void	color_set(t_color *col, float value)
 t_color	lights(t_level *l, t_cast_result *res, t_vec3 normal)
 {
 	t_ray	ray;
-	t_vec3	diff;
 	float	dist;
 	t_color	col;
 	int		i;
@@ -81,18 +80,18 @@ t_color	lights(t_level *l, t_cast_result *res, t_vec3 normal)
 	color_set(&col, l->world_brightness);
 	while (++i < l->light_amount)
 	{
-		vec_sub(&diff, res->ray.pos, l->lights[i].pos);
-		dist = 1.0 - vec_length(diff) / l->lights[i].radius;
+		vec_sub(&ray.dir, res->ray.pos, l->lights[i].pos);
+		dist = 1.0 - vec_length(ray.dir) / l->lights[i].radius;
 		ray.pos = l->lights[i].pos;
-		ray.dir = diff;
-		if (dist > 0 && vec_dot(diff, res->normal) < 0
-			&& vec_dot(diff, normal) < 0 && (!res->raytracing
-				|| cast_all(ray, l, NULL) >= vec_length(diff) - 0.1))
+		if (dist > 0 && vec_dot(ray.dir, res->normal) < 0
+			&& vec_dot(ray.dir, normal) < 0 && (!res->raytracing
+				|| cast_all(ray, l, NULL) >= vec_length(ray.dir) - 0.1))
 		{
-			vec_normalize(&diff);
-			col.r += dist * l->lights[i].power * l->lights[i].color.r * -vec_dot(diff, res->normal);
-			col.g += dist * l->lights[i].power * l->lights[i].color.g * -vec_dot(diff, res->normal);
-			col.b += dist * l->lights[i].power * l->lights[i].color.b * -vec_dot(diff, res->normal);
+			vec_normalize(&ray.dir);
+			dist = dist * l->lights[i].power * -vec_dot(ray.dir, res->normal);
+			col.r += dist * l->lights[i].color.r;
+			col.g += dist * l->lights[i].color.g;
+			col.b += dist * l->lights[i].color.b;
 		}
 	}
 	return (col);
@@ -133,80 +132,50 @@ unsigned int	shader_wave(t_vec3 mod, t_vec3 *normal,
 	return (col1);
 }
 
+#define RULE_30_SIZE 99
+
+static char	*init_rule30(void)
+{
+	char	*cells;
+	int		x;
+	int		y;
+	int		i;
+
+	cells = (char *)malloc(sizeof(char) * RULE_30_SIZE * RULE_30_SIZE);
+	if (!cells)
+		ft_error("memory allocation failed");
+	ft_bzero(cells, RULE_30_SIZE * RULE_30_SIZE);
+	cells[RULE_30_SIZE / 2] = 1;
+	y = -1;
+	while (++y < RULE_30_SIZE - 1)
+	{
+		x = 0;
+		while (++x < RULE_30_SIZE - 1)
+		{
+			i = y * RULE_30_SIZE + x;
+			if ((cells[i - 1] == 1 && cells[i] == 0 && cells[i + 1] == 0)
+				|| (cells[i - 1] == 0 && cells[i] == 1)
+				|| (cells[i - 1] == 0 && cells[i] == 0 && cells[i + 1] == 1))
+				cells[((y + 1) * RULE_30_SIZE) + x] = 1;
+		}
+	}
+	return (cells);
+}
+
 unsigned int	shader_rule30(t_vec3 pos)
 {
-	static char	**cells = NULL;
-	static int	allocated = 0;
-	static int	started = 0;
-	int			size;
+	static char	*cells = NULL;
 	int			res;
 	int			x;
 	int			y;
 
-	size = 10000;
-	if (!started)
-	{
-		started = 1;
-		cells = (char **)malloc(sizeof(char *) * size);
-		if (!cells)
-			ft_error("memory allocation failed");
-		x = 0;
-		while (x < size)
-		{
-			cells[x] = (char *)malloc(sizeof(char) * size);
-			if (!cells[x])
-				ft_error("memory allocation failed");
-			ft_bzero(cells[x], size);
-			x++;
-		}
-		cells[0][size / 2] = 1;
-		y = -1;
-		while (++y < size - 1)
-		{
-			x = 0;
-			while (++x < size - 1)
-			{
-				if (cells[y][x - 1] == 1 && cells[y][x] == 1 &&
-					cells[y][x + 1] == 1)
-					cells[y + 1][x] = 0;
-				else if (cells[y][x - 1] == 1 && cells[y][x] == 1 &&
-							cells[y][x + 1] == 0)
-					cells[y + 1][x] = 0;
-				else if (cells[y][x - 1] == 1 && cells[y][x] == 0 &&
-							cells[y][x + 1] == 1)
-					cells[y + 1][x] = 0;
-				else if (cells[y][x - 1] == 1 && cells[y][x] == 0 &&
-							cells[y][x + 1] == 0)
-					cells[y + 1][x] = 1;
-				else if (cells[y][x - 1] == 0 && cells[y][x] == 1 &&
-							cells[y][x + 1] == 1)
-					cells[y + 1][x] = 1;
-				else if (cells[y][x - 1] == 0 && cells[y][x] == 1 &&
-							cells[y][x + 1] == 0)
-					cells[y + 1][x] = 1;
-				else if (cells[y][x - 1] == 0 && cells[y][x] == 0 &&
-							cells[y][x + 1] == 1)
-					cells[y + 1][x] = 1;
-				else if (cells[y][x - 1] == 0 && cells[y][x] == 0 &&
-							cells[y][x + 1] == 0)
-					cells[y + 1][x] = 0;
-				else
-					cells[y + 1][x] = 0;
-			}
-		}
-		allocated = 1;
-		return (0xff00ffff);
-	}
-	res = 0x000000ff;
-	if (allocated)
-	{
-		x = (int)pos.x + size / 2;
-		y = (int)pos.z;
-		if (x > 0 && x < size - 1 && y > 0 && y < size - 1)
-		{
-			if (cells[y][x])
-				res = 0xffffffff;
-		}
-	}
+	if (!cells)
+		cells = init_rule30();
+	res = 0xffffffff;
+	x = (int)(pos.x + RULE_30_SIZE / 2);
+	y = (int)(pos.z);
+	if (x > 0 && x < RULE_30_SIZE - 1 && pos.z >= 0.0 && y < RULE_30_SIZE - 1
+		&& cells[x + y * RULE_30_SIZE])
+		res = 0x000000ff;
 	return (res);
 }

@@ -6,54 +6,49 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/23 06:39:33 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/12 21:11:56 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
 
-void	set_24bit_rgb(t_bmp *res, FILE *img)
+static void	bmp_set(t_bmp *img, int *tmp)
 {
-	t_bmp_pixel_24	px;
+	unsigned char	*rgb;
 	int				x;
 	int				y;
+	int				c;
 
 	y = 0;
-	while (y < res->height)
+	while (y < img->height)
 	{
 		x = 0;
-		while (x < res->width)
+		while (x < img->width)
 		{
-			fread(&px, sizeof(unsigned char), sizeof(t_bmp_pixel_24), img);
-			res->image[(res->height - y - 1) *res->width + x]
-				= (((int)(px.r) & 0xff) << 24) + (((int)(px.g) & 0xff) << 16)
-				+ (((int)(px.b) & 0xff) << 8) + 0xff;
+			rgb = (unsigned char *)&tmp[((img->height - y - 1) * img->width)
+				+ x];
+			c = (rgb[0] << 8 * 1)
+				+ (rgb[1] << 8 * 2)
+				+ (rgb[2] << 8 * 3)
+				+ (rgb[3] << 8 * 0);
+			img->image[y * img->width + x] = c;
 			x++;
 		}
 		y++;
 	}
 }
 
-void	set_32bit_rgba(t_bmp *res, FILE *img)
+static int	bmp_error_check(t_bmp_fileheader fh, t_bmp_infoheader ih)
 {
-	t_bmp_pixel_32	px;
-	int				x;
-	int				y;
-
-	y = 0;
-	while (y < res->height)
-	{
-		x = 0;
-		while (x < res->width)
-		{
-			fread(&px, sizeof(unsigned char), sizeof(t_bmp_pixel_32), img);
-			res->image[(res->height - y - 1) *res->width + x]
-				= (((int)(px.r) & 0xff) << 24) + (((int)(px.g) & 0xff) << 16)
-				+ (((int)(px.b) & 0xff) << 8) + ((int)(px.a) & 0xff);
-			x++;
-		}
-		y++;
-	}
+	if (fh.fileMarker1 != 'B' && fh.fileMarker2 != 'M')
+		nonfatal_error("not bmp file");
+	else if (ih.bitPix != 32)
+		nonfatal_error("bmp read Unknown bmp image bit depth\n");
+	else if (ih.biCompression != 0)
+		nonfatal_error("invalid bmp settings (use provided ./texture.py)");
+	else
+		return (FALSE);
+	return (TRUE);
 }
 
 t_bmp	bmp_read(char *filename)
@@ -62,71 +57,27 @@ t_bmp	bmp_read(char *filename)
 	t_bmp_infoheader	ih;
 	FILE				*img;
 	t_bmp				res;
+	int					*tmp;
 
 	img = fopen(filename, "rb");
 	if (!img)
 		ft_error("bmp read file reading failed\n");
 	fread(&fh, sizeof(unsigned char), sizeof(t_bmp_fileheader), img);
 	fread(&ih, sizeof(unsigned char), sizeof(t_bmp_infoheader), img);
+	ft_bzero(&res, sizeof(t_bmp));
+	if (bmp_error_check(fh, ih))
+		return (res);
 	res.image = (int *)malloc(sizeof(int) * ih.width * ih.height);
-	if (!res.image)
-		ft_error("memory allocation failed\n");
+	tmp = (int *)malloc(sizeof(int) * ih.width * ih.height);
+	if (!res.image || !tmp)
+		ft_error("bmp memory allocation failed\n");
 	res.width = ih.width;
 	res.height = ih.height;
-	if (ih.bitPix == 32)
-		set_32bit_rgba(&res, img);
-	else if (ih.bitPix == 24)
-		set_24bit_rgb(&res, img);
-	else
-		ft_error("bmp read Unknown bmp image bit depth\n");
+	fread(tmp, sizeof(unsigned char), sizeof(int) * ih.width * ih.height, img);
+	bmp_set(&res, tmp);
+	free(tmp);
 	fclose(img);
 	return (res);
-}
-
-void	set_24bit_rgb_memory(t_bmp *res, unsigned char *data)
-{
-	t_bmp_pixel_24	px;
-	int				x;
-	int				y;
-
-	y = 0;
-	while (y < res->height)
-	{
-		x = 0;
-		while (x < res->width)
-		{
-			ft_memcpy(&px, data, sizeof(t_bmp_pixel_24));
-			data += sizeof(t_bmp_pixel_24);
-			res->image[(res->height - y - 1) *res->width + x]
-				= (((int)(px.r) & 0xff) << 24) + (((int)(px.g) & 0xff) << 16)
-				+ (((int)(px.b) & 0xff) << 8) + 0xff;
-			x++;
-		}
-		y++;
-	}
-}
-
-void	set_32bit_rgba_memory(t_bmp *res, unsigned char *data)
-{
-	t_bmp_pixel_32	px;
-	int				x;
-	int				y;
-
-	y = 0;
-	while (y < res->height)
-	{
-		x = 0;
-		while (x < res->width)
-		{
-			ft_memcpy(&px, data, sizeof(t_bmp_pixel_32));
-			data += sizeof(t_bmp_pixel_32);
-			res->image[(res->height - y - 1) *res->width + x]
-				= (((int)(px.r) & 0xff) << 24) + (((int)(px.g) & 0xff) << 16)
-				+ (((int)(px.b) & 0xff) << 8) + ((int)(px.a) & 0xff);
-			x++;
-		}
-		y++;
-	}
 }
 
 t_bmp	bmp_read_from_memory(unsigned char *data,
@@ -135,22 +86,24 @@ t_bmp	bmp_read_from_memory(unsigned char *data,
 	t_bmp_fileheader	fh;
 	t_bmp_infoheader	ih;
 	t_bmp				res;
+	int					*tmp;
 
 	(void)size;
 	ft_memcpy(&fh, data, sizeof(t_bmp_fileheader));
 	data += sizeof(t_bmp_fileheader);
 	ft_memcpy(&ih, data, sizeof(t_bmp_infoheader));
 	data += sizeof(t_bmp_infoheader);
+	ft_bzero(&res, sizeof(t_bmp));
+	if (bmp_error_check(fh, ih))
+		ft_error("bmp memory read failed\n");
 	res.image = (int *)malloc(sizeof(int) * ih.width * ih.height);
-	if (!res.image)
-		ft_error("memory allocation failed\n");
+	tmp = (int *)malloc(sizeof(int) * ih.width * ih.height);
+	if (!res.image || !tmp)
+		ft_error("bmp memory allocation failed\n");
 	res.width = ih.width;
 	res.height = ih.height;
-	if (ih.bitPix == 32)
-		set_32bit_rgba_memory(&res, data);
-	else if (ih.bitPix == 24)
-		set_24bit_rgb_memory(&res, data);
-	else
-		ft_error("bmp read Unknown bmp image bit depth\n");
+	ft_memcpy(tmp, data, sizeof(int) * ih.width * ih.height);
+	bmp_set(&res, tmp);
+	free(tmp);
 	return (res);
 }

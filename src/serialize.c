@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/06 14:13:02 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/23 23:03:27 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/03 06:52:03 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,10 +23,12 @@ void	reserve_space(t_buffer *buf, size_t bytes)
 	}
 }
 
-// IMPORTANT!!
-// Gcc assumes that your program will never access variables though pointers of different type.
-// This assumption is called strict-aliasing and allows the compiler to make some optimizations.
-// Strict-aliasing rule says that a char* and void* can point at any type.
+// Gcc assumes that your program will never access
+// variables though pointers of different type.
+// This assumption is called strict-aliasing and allows
+// the compiler to make some optimizations.
+// Strict-aliasing rule says that a char* and
+// void* can point at any type.
 float	ntoh_float(float value)
 {
 	int		temp;
@@ -322,6 +324,7 @@ void	deserialize_obj(t_obj *obj, t_buffer *buf)
 	while (i < obj->tri_amount)
 	{
 		deserialize_tri(&obj->tris[i], buf);
+		obj->tris[i].index = i;
 		i++;
 	}
 }
@@ -565,13 +568,12 @@ void	serialize_lights(t_level *level, t_buffer *buf)
 void	deserialize_level(t_level *level, t_buffer *buf)
 {
 	char	*str;
-	int		x;
-	int		y;
+	int		i;
 
 	str = deserialize_string(ft_strlen("doom-nukem"), buf);
 	if (ft_strcmp(str, "doom-nukem"))
 	{
-		nonfatal_error(level, "not valid doom-nukem map");
+		nonfatal_error("not valid doom-nukem map");
 		free(str);
 		return ;
 	}
@@ -589,17 +591,11 @@ void	deserialize_level(t_level *level, t_buffer *buf)
 			sizeof(unsigned) * level->texture.width * level->texture.height);
 	if (!level->spray_overlay)
 		ft_error("failed to allocate memory for file");
-	y = 0;
-	while (y < level->texture.height)
+	i = 0;
+	while (i < level->texture.height * level->texture.width)
 	{
-		x = 0;
-		while (x < level->texture.width)
-		{
-			deserialize_int((int *)&level->spray_overlay
-			[level->texture.width * y + x], buf);
-			x++;
-		}
-		y++;
+		deserialize_int((int *)&level->spray_overlay[i], buf);
+		i++;
 	}
 	free_culling(level);
 	free(level->all.tris);
@@ -625,8 +621,7 @@ void	deserialize_level(t_level *level, t_buffer *buf)
 
 void	serialize_level(t_level *level, t_buffer *buf)
 {
-	int	x;
-	int	y;
+	int	i;
 
 	serialize_string("doom-nukem", buf);
 	serialize_settings(level, buf);
@@ -634,17 +629,11 @@ void	serialize_level(t_level *level, t_buffer *buf)
 	serialize_bmp(&level->normal_map, buf);
 	serialize_bmp(&level->sky.img, buf);
 	serialize_bmp(&level->spray, buf);
-	y = 0;
-	while (y < level->texture.height)
+	i = 0;
+	while (i < level->texture.height * level->texture.width)
 	{
-		x = 0;
-		while (x < level->texture.width)
-		{
-			serialize_int(level->spray_overlay[level->texture.width * y + x],
-				buf);
-			x++;
-		}
-		y++;
+		serialize_int(level->spray_overlay[i], buf);
+		i++;
 	}
 	serialize_obj(&level->all, buf);
 	serialize_doors(level, buf);
@@ -674,7 +663,7 @@ void	save_file(t_level *level, t_buffer *buf)
 	hFile = CreateFile(filename1, GENERIC_WRITE, FILE_SHARE_READ,
 			NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hFile == INVALID_HANDLE_VALUE)
-		nonfatal_error(level, "failed to create file");
+		nonfatal_error("failed to create file");
 	else
 		WriteFile(hFile, buf->data, buf->next, &bytesWritten, NULL);
 	free(filename1);
@@ -717,9 +706,9 @@ void	save_file(t_level *level, t_buffer *buf)
 			S_IRGRP | S_IWGRP | S_IXGRP
 			| S_IRUSR | S_IWUSR | S_IXUSR);
 	if (fd < 3)
-		nonfatal_error(level, "failed to create file");
+		nonfatal_error("failed to create file");
 	else if (write(fd, buf->data, buf->next) != buf->next)
-		nonfatal_error(level, "failed to write file");
+		nonfatal_error("failed to write file");
 	free(filename1);
 	close(fd);
 }
@@ -750,7 +739,7 @@ void	save_level(t_level *level)
 	if (!level->ui.state.save_filename[0]
 		|| level->ui.state.save_filename[0] == '.')
 	{
-		nonfatal_error(level, "Invalid filename");
+		nonfatal_error("Invalid filename");
 		return ;
 	}
 	buf.data = malloc(SERIALIZE_INITIAL_BUFFER_SIZE);

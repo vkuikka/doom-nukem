@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/07 18:13:00 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/12 14:24:03 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/02 16:28:13 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,12 +29,9 @@ t_vec3	vec_interpolate(t_vec3 a, t_vec3 b, float f)
 
 void	vec_normalize(t_vec3 *vec)
 {
-	// float	tmp;
+	float	w;
 
-	// tmp = vec->x * vec->x + vec->y * vec->y + vec->z * vec->z;
-	// _mm_store_ss(&tmp, _mm_rsqrt_ss(_mm_load_ss(&tmp)));
-	// vec_mult(vec, tmp);
-	float w = sqrtf(vec->x * vec->x + vec->y * vec->y + vec->z * vec->z);
+	w = sqrtf(vec->x * vec->x + vec->y * vec->y + vec->z * vec->z);
 	vec->x /= w;
 	vec->y /= w;
 	vec->z /= w;
@@ -42,11 +39,6 @@ void	vec_normalize(t_vec3 *vec)
 
 float	vec_length(t_vec3 vec)
 {
-	// float	tmp;
-
-	// tmp = vec.x * vec.x + vec.y * vec.y + vec.z * vec.z;
-	// _mm_store_ss(&tmp, _mm_sqrt_ss(_mm_load_ss(&tmp)));
-	// return (tmp);
 	return (sqrtf(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z));
 }
 

@@ -60,14 +60,18 @@ void	select_light(t_level *level, int x, int y)
 
 void	move_light(t_level *level, t_vec3 move_amount)
 {
+	level->ui.state.gizmo_active = FALSE;
 	if (level->selected_light_index)
 	{
+		level->ui.state.gizmo_active = TRUE;
 		vec_add(&level->lights[level->selected_light_index - 1].pos,
 			level->lights[level->selected_light_index - 1].pos,
 			move_amount);
 		level->ui.state.gizmo_pos
 			= level->lights[level->selected_light_index - 1].pos;
 	}
+	if (!vec_cmp(move_amount, (t_vec3){0, 0, 0}))
+		level->bake_status = BAKE_NOT_BAKED;
 }
 
 void	delete_light(t_level *level)
@@ -99,6 +103,7 @@ void	delete_light(t_level *level)
 
 void	add_light(t_level *level)
 {
+	level->bake_status = BAKE_NOT_BAKED;
 	level->light_amount++;
 	level->lights = (t_light *)ft_realloc(level->lights,
 			sizeof(t_light) * level->light_amount - 1,

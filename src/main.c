@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/01 14:43:15 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/12 22:18:52 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,11 +27,10 @@ static void	render_raycast(t_window *window, t_level *level)
 {
 	SDL_Thread	*threads[THREAD_AMOUNT];
 	t_rthread	thread_data[THREAD_AMOUNT];
-	int			dummy_for_sdl;
 	int			i;
 
 	if (SDL_LockTexture(window->texture, NULL,
-			(void **)&window->frame_buffer, &dummy_for_sdl) != 0)
+			(void **)&window->frame_buffer, &(int){0}) != 0)
 		ft_error("failed to lock texture\n");
 	i = -1;
 	while (++i < THREAD_AMOUNT)
@@ -44,10 +43,11 @@ static void	render_raycast(t_window *window, t_level *level)
 	}
 	i = -1;
 	while (++i < THREAD_AMOUNT)
-		SDL_WaitThread(threads[i], &dummy_for_sdl);
+		SDL_WaitThread(threads[i], &(int){0});
 	fill_pixels(window->frame_buffer, level->ui.raycast_quality,
 		level->ui.blur, level->ui.smooth_pixels);
-	chromatic_abberation(window->frame_buffer, level->ui.chromatic_abberation);
+	chromatic_abberation(window->frame_buffer, window->buf,
+		level->ui.chromatic_abberation);
 	SDL_UnlockTexture(window->texture);
 	SDL_RenderCopy(window->SDLrenderer, window->texture, NULL, NULL);
 }
@@ -65,7 +65,8 @@ static void	render_raster(t_window *window, t_level *level,
 	if (*game_state == GAME_STATE_EDITOR)
 	{
 		wireframe(window->raster_texture_pixels, level);
-		gizmo_render(level, window->raster_texture_pixels);
+		if (level->ui.state.gizmo_active)
+			gizmo_render(level, window->raster_texture_pixels);
 	}
 	SDL_UnlockTexture(window->raster_texture);
 	SDL_RenderCopy(window->SDLrenderer, window->raster_texture, NULL, NULL);
@@ -105,58 +106,34 @@ static void	render(t_window *window, t_level *level, t_game_state *game_state)
 	SDL_RenderPresent(window->SDLrenderer);
 }
 
-int	main(int argc, char **argv)
+static void	tick_forward(t_level *level, t_game_state *game_state)
 {
-	t_window		*window;
-	t_level			*level;
-	t_game_state	game_state;
+	if (*game_state == GAME_STATE_MAIN_MENU)
+		main_menu_move_background(level);
+	else
+	{
+		if (*game_state != GAME_STATE_EDITOR)
+			game_logic(level, game_state);
+		if (*game_state != GAME_STATE_DEAD)
+			player_movement(level);
+	}
+	update_camera(level);
+	door_animate(level);
+	enemies_update_sprites(level);
+}
+
+static void	dnukem(t_window *window, t_level *level, t_game_state game_state)
+{
 	unsigned int	ssp_time;
 	unsigned int	cull_time;
 	unsigned int	render_time;
 	unsigned int	frame_time;
 
-	(void)argc;
-	(void)argv;
-	game_state = GAME_STATE_MAIN_MENU;
-	level = (t_level *)malloc(sizeof(t_level));
-	if (!level)
-		ft_error("memory allocation failed\n");
-	ft_bzero(level, sizeof(t_level));
-	init_embedded(level);
-	init_audio(level);
-	init_window(&window);
-	init_ui(window, level);
-	init_player(&level->player);
-
-		//remove
-		open_level(level, "level/demo.doom-nukem");
-		game_state = GAME_STATE_EDITOR;
-		level->cam.pos = level->spawn_pos.pos;
-		level->cam.look_side = level->spawn_pos.look_side;
-		level->cam.look_up = level->spawn_pos.look_up;
-		//remove
-
-	while (!level->level_initialized)
-	{
-		read_input(window, level, &game_state);
-		render(window, level, &game_state);
-	}
 	while (1)
 	{
 		frame_time = SDL_GetTicks();
 		read_input(window, level, &game_state);
-		if (game_state == GAME_STATE_MAIN_MENU)
-			main_menu_move_background(level);
-		else
-		{
-			if (game_state != GAME_STATE_EDITOR)
-				game_logic(level, &game_state);
-			if (game_state != GAME_STATE_DEAD)
-				player_movement(level, game_state);
-		}
-		update_camera(level);
-		door_animate(level);
-		enemies_update_sprites(level);
+		tick_forward(level, &game_state);
 		cull_time = SDL_GetTicks();
 		culling(level);
 		level->ui.cull_time = SDL_GetTicks() - cull_time;
@@ -168,4 +145,40 @@ int	main(int argc, char **argv)
 		level->ui.render_time = SDL_GetTicks() - render_time;
 		level->ui.frame_time = SDL_GetTicks() - frame_time;
 	}
+}
+
+int	main(int argc, char **argv)
+{
+	t_window		*window;
+	t_level			*level;
+	t_game_state	game_state;
+
+	(void)argc;
+	(void)argv;
+	game_state = GAME_STATE_MAIN_MENU;
+	level = (t_level *)malloc(sizeof(t_level));
+	if (!level)
+		ft_error("memory allocation failed\n");
+	ft_bzero(level, sizeof(t_level));
+	init_window(&window);
+	init_ui(window, level);
+	init_audio(level);
+	init_embedded(level);
+	init_player(&level->player);
+
+	//remove
+	open_level(level, "level/demo.doom-nukem");
+	game_state = GAME_STATE_EDITOR;
+	level->cam.pos = level->spawn_pos.pos;
+	level->cam.look_side = level->spawn_pos.look_side;
+	level->cam.look_up = level->spawn_pos.look_up;
+	//remove
+
+	while (!level->level_initialized)
+	{
+		read_input(window, level, &game_state);
+		render(window, level, &game_state);
+	}
+	dnukem(window, level, game_state);
+	return (0);
 }

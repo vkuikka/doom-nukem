@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   doom_nukem.h                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/06 15:49:59 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/12 23:41:30 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,7 @@
 # define SPRAY_LINE_PRECISION 2
 # define SPRAY_MAX_DIST 15
 # define SPRAY_FROM_VIEW_SIZE 0.5
+# define FIND_QUADS_FLOAT_ERROR 0.0001
 
 # define TRUE 1
 # define FALSE 0
@@ -103,20 +104,13 @@
 
 # define UV_PADDING 3
 
-# define SERIALIZE_INITIAL_BUFFER_SIZE 666
+# define SERIALIZE_INITIAL_BUFFER_SIZE 512
 # define OCCLUSION_CULLING_FLOAT_ERROR_MAGIC_NUMBER 10
 
-# define AUDIO_GAME_MUSIC "Audio/Music/d_e1m1.ogg"
-# define AUDIO_TITLE_MUSIC "Audio/Music/d_e1m2.ogg"
-# define AUDIO_GUNSHOT "Audio/SoundEffects/gunshot.wav"
 # define AUDIO_GUNSHOT_CHANNEL 0
-# define AUDIO_JUMP "Audio/SoundEffects/jump.wav"
 # define AUDIO_JUMP_CHANNEL 1
-# define AUDIO_RELOAD "Audio/SoundEffects/reload.wav"
 # define AUDIO_RELOAD_CHANNEL 2
-# define AUDIO_DOOR "Audio/SoundEffects/door.wav"
 # define AUDIO_DOOR_CHANNEL 3
-# define AUDIO_DEATH "Audio/SoundEffects/d_death.ogg"
 # define AUDIO_DEATH_CHANNEL -1
 
 # include <math.h>
@@ -178,6 +172,7 @@ typedef struct s_window
 	SDL_Texture			*text_texture;
 	SDL_Texture			*ui_texture;
 	unsigned int		*ui_texture_pixels;
+	unsigned int		*buf;
 }						t_window;
 
 typedef struct s_rect
@@ -209,7 +204,7 @@ typedef struct s_color_hsl
 	float				hue;
 	float				saturation;
 	float				lightness;
-	unsigned			rgb_hue;
+	unsigned int		rgb_hue;
 	int					color;
 	float				r;
 	float				g;
@@ -284,6 +279,14 @@ typedef struct s_enemy
 	float				current_attack_delay;
 }						t_enemy;
 
+// tris = array of triangles that make the object
+// tri_amount = amount of triangles
+typedef struct s_obj
+{
+	struct s_tri		*tris;
+	int					tri_amount;
+}						t_obj;
+
 // verts = vertex coordinates of 3d triangle
 // v0v1 = vector between vertices 1 and 0
 // v0v2 = vector between vertices 2 and 0
@@ -308,22 +311,14 @@ typedef struct s_tri
 	float				refractivity;
 	int					shader;
 	int					selected;
-	struct s_obj		*opacity_obj_all;
-	struct s_obj		*reflection_obj_all;
-	struct s_obj		*reflection_obj_first_bounce;
-	struct s_obj		*shadow_faces;
+	t_obj				opacity_obj_all;
+	t_obj				reflection_obj_all;
+	t_obj				reflection_obj_first_bounce;
+	t_obj				shadow_faces;
 	// int					breakable;
 	// int					broken;
 	// int					*reflection_culling_mask;
 }						t_tri;
-
-// tris = array of triangles that make the object
-// tri_amount = amount of triangles
-typedef struct s_obj
-{
-	struct s_tri		*tris;
-	int					tri_amount;
-}						t_obj;
 
 typedef struct s_skybox
 {
@@ -442,6 +437,7 @@ typedef struct s_ui_state
 	char				*save_filename;
 	int					text_input_enable;
 	int					ssp_visual;
+	int					gizmo_active;
 	struct s_vec3		gizmo_pos;
 	float				gizmo_dist_from_screen;
 	unsigned int		*color_slider_hue_colors;
@@ -561,43 +557,30 @@ typedef struct s_rthread
 
 typedef struct __attribute__((__packed__)) s_bmp_fileheader
 {
-	unsigned char		fileMarker1;
-	unsigned char		fileMarker2;
-	unsigned int		bfSize;
-	uint16_t			unused1;
-	uint16_t			unused2;
-	unsigned int		imageDataOffset;
+	char		fileMarker1;
+	char		fileMarker2;
+	int16_t		bfSize;
+	int16_t		bfFill1;
+	int16_t		bfReserved1;
+	int16_t		bfReserved2;
+	int16_t		bfOffBits;
+	int16_t		bfFill2;
 }						t_bmp_fileheader;
 
 typedef struct __attribute__((__packed__)) s_bmp_infoheader
 {
-	unsigned int		biSize;
+	int					biSize;
 	int					width;
 	int					height;
-	uint16_t			planes;
-	uint16_t			bitPix;
-	unsigned int		biCompression;
-	unsigned int		biSizeImage;
+	int16_t				planes;
+	int16_t				bitPix;
+	int					biCompression;
+	int					biSizeImage;
 	int					biXPelsPerMeter;
 	int					biYPelsPerMeter;
-	unsigned int		biClrUsed;
-	unsigned int		biClrImportant;
+	int					biClrUsed;
+	int					biClrImportant;
 }						t_bmp_infoheader;
-
-typedef struct __attribute__((__packed__)) s_bmp_pixel_32
-{
-	unsigned char		b;
-	unsigned char		g;
-	unsigned char		r;
-	unsigned char		a;
-}						t_bmp_pixel_32;
-
-typedef struct __attribute__((__packed__)) s_bmp_pixel_24
-{
-	unsigned char		b;
-	unsigned char		g;
-	unsigned char		r;
-}						t_bmp_pixel_24;
 
 typedef struct s_cast_result
 {
@@ -645,7 +628,7 @@ float			clamp(float var, float min, float max);
 
 void			init_window(t_window **window);
 void			init_embedded(t_level *level);
-void			init_level(t_level *level);
+void			create_default_level(t_level *level);
 
 void			screen_space_partition(t_level *level);
 void			init_screen_space_partition(t_level *level);
@@ -671,7 +654,10 @@ void			wireframe(unsigned int *texture, t_level *level);
 void			camera_offset(t_vec3 *vertex, t_camera *cam);
 SDL_Color		get_sdl_color(unsigned int color);
 
-void			load_obj(char *filename, t_obj *obj);
+char			**file2d(char *filename);
+char			**file2d_from_memory(unsigned char *data, unsigned int size);
+void			free_file2d(char **file);
+int				load_obj(char *filename, t_obj *obj);
 void			load_obj_from_memory(unsigned char *data,
 					unsigned int size, t_obj *obj);
 t_bmp			bmp_read(char *str);
@@ -682,6 +668,7 @@ void			culling(t_level *level);
 int				occlusion_culling(t_tri tri, t_level *level);
 void			init_culling(t_level *level);
 void			free_culling(t_level *level);
+void			static_culling(t_level *l);
 void			reflection_culling(t_level *level, int i);
 void			find_quads(t_obj *obj);
 void			set_fourth_vertex(t_tri *a);
@@ -703,10 +690,10 @@ void			ui_render(t_window *window, t_level *level);
 void			set_text_color(int color);
 void			text(char *text);
 int				button(int *var, char *text);
-void			int_slider(int *var, char *str, int min, int max);
-void			float_slider(float *var, char *str, float min,
+int				int_slider(int *var, char *str, int min, int max);
+int				float_slider(float *var, char *str, float min,
 					float max);
-void			color_slider(t_color_hsl *var, char *str);
+int				color_slider(t_color_hsl *var, char *str);
 int				call(char *str, void (*f)(t_level *), t_level *level);
 void			file_browser(char *str, char *extension,
 					void (*f)(t_level *, char *));
@@ -720,8 +707,9 @@ void			main_menu(t_level *level, unsigned int *pixels,
 void			main_menu_move_background(t_level *level);
 void			hud(t_level *level, unsigned int *pixels,
 					t_game_state game_state);
-void			fake_analog_signal(t_bmp *img, unsigned int *pixels, float amount);
-void			chromatic_abberation(unsigned int *pixels, int amount);
+void			fake_analog_signal(t_bmp *img, unsigned int *pixels,
+					float amount);
+void			chromatic_abberation(unsigned int *pixels, unsigned int *buf, int amount);
 void			create_projectile(t_level *level, t_vec3 pos,
 					t_vec3 dir, t_enemy *enemy);
 
@@ -731,8 +719,7 @@ void			gizmo_render(t_level *level, unsigned int *pixels);
 void			gizmo(t_level *level);
 void			obj_editor_input(t_level *level, t_vec3 move_amount);
 
-void			player_movement(t_level *level,
-					t_game_state game_state);
+void			player_movement(t_level *level);
 
 void			enemies_update_physics(t_level *level);
 void			enemies_update_sprites(t_level *level);
@@ -768,7 +755,6 @@ int				point_in_tri(t_vec2 pt,
 void			toggle_selection_all(t_level *level);
 void			add_face(t_level *level);
 void			remove_faces(t_level *level);
-void			nonfatal_error(t_level *level, char *message);
 t_ivec2			put_text(char *text, t_window *window,
 					SDL_Texture *texture, t_ivec2 pos);
 void			set_new_face(t_level *level, t_vec3 pos, t_vec3 dir,
@@ -809,10 +795,11 @@ void			set_win_pos(t_level *level);
 void			set_spawn_pos(t_level *level);
 void			set_menu_pos_1(t_level *level);
 void			set_menu_pos_2(t_level *level);
-void			nonfatal_error(t_level *level, char *message);
+void			nonfatal_error(char *message);
 void			ui_render_nonfatal_errors(t_level *level);
 t_ui_state		*get_ui_state(t_ui_state *get_state);
 t_window		*get_window(t_window *get_window);
+t_level			*get_level(t_level *get_level);
 t_ivec2			render_text(char *text, int x, int y);
 void			render_text_3d(char *str, t_vec3 pos,
 					unsigned int color, t_level *level);

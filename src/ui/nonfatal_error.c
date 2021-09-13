@@ -12,10 +12,12 @@
 
 #include "doom_nukem.h"
 
-void	nonfatal_error(t_level *level, char *message)
+void	nonfatal_error(char *message)
 {
-	int	i;
+	t_level	*level;
+	int		i;
 
+	level = get_level(NULL);
 	level->ui.state.error_amount++;
 	i = level->ui.state.error_amount;
 	level->ui.state.error_start_time = (unsigned int *)realloc(
@@ -109,6 +111,7 @@ void	ui_render_nonfatal_errors(t_level *level)
 	x = level->ui.state.ui_max_width + UI_PADDING_4 + UI_PADDING_4;
 	y = RES_Y / 2;
 	i = 0;
+	level->ui.state.current_font = level->ui.editor_font;
 	while (i < level->ui.state.error_amount)
 	{
 		set_text_color(UI_ERROR_COLOR + ui_nonfatal_get_fade(level, i));

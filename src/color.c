@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/21 17:32:09 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/31 14:47:30 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/02 17:14:14 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,16 +49,10 @@ unsigned int	brightness(unsigned int color1, t_color new)
 	return ((newr << 8 * 3) + (newg << 8 * 2) + (newb << 8 * 1));
 }
 
-int	skybox(t_level *l, t_cast_result res)
+static t_color	get_skybox_brightness(t_level *l)
 {
-	t_color			tmp;
-	t_obj			*obj;
-	int				i;
+	t_color	tmp;
 
-	if (res.reflection_depth)
-		obj = &l->sky.all;
-	else
-		obj = &l->sky.visible;
 	if (l->skybox_brightness != 0)
 	{
 		tmp.r = l->skybox_brightness;
@@ -71,10 +65,20 @@ int	skybox(t_level *l, t_cast_result res)
 		tmp.g = l->ui.sun_color.g + l->world_brightness;
 		tmp.b = l->ui.sun_color.b + l->world_brightness;
 	}
-	res.color = 0;
-	res.ray.pos.x = 0;
-	res.ray.pos.y = 0;
-	res.ray.pos.z = 0;
+	return (tmp);
+}
+
+int	skybox(t_level *l, t_cast_result res)
+{
+	t_color	tmp;
+	t_obj	*obj;
+	int		i;
+
+	obj = &l->sky.visible;
+	if (res.reflection_depth)
+		obj = &l->sky.all;
+	tmp = get_skybox_brightness(l);
+	res.ray.pos = (t_vec3){0, 0, 0};
 	res.texture = &l->sky.img;
 	res.normal_map = NULL;
 	res.baked = NULL;
@@ -86,15 +90,15 @@ int	skybox(t_level *l, t_cast_result res)
 		if (0 < cast_face(obj->tris[i], res.ray, &res))
 		{
 			face_color(res.uv.x, res.uv.y, obj->tris[i], &res);
-			res.color = brightness(res.color >> 8, tmp) + 0xff;
-			return (res.color);
+			return (brightness(res.color >> 8, tmp) + 0xff);
 		}
 		i++;
 	}
-	return (res.color);
+	return (0);
 }
 
-void	fog(unsigned int *color, float dist, unsigned int fog_color, t_level *level)
+void	fog(unsigned int *color, float dist, unsigned int fog_color,
+													t_level *level)
 {
 	float	fade;
 
@@ -117,7 +121,6 @@ void	blur_pixels(unsigned int *color, int gap)
 	int		col;
 
 	y = gap;
-	res = 0;
 	while (y < RES_Y - gap)
 	{
 		x = gap;
@@ -139,7 +142,7 @@ void	blur_pixels(unsigned int *color, int gap)
 	}
 }
 
-int	smooth_color(unsigned int *pixels, int gap, int x, int y)
+static int	smooth_color_kernel(unsigned int *pixels, int gap, int x, int y)
 {
 	int	dx;
 	int	dy;
@@ -147,9 +150,24 @@ int	smooth_color(unsigned int *pixels, int gap, int x, int y)
 	int	re2;
 	int	tmp;
 
-	re1 = 0;
-	re2 = 0;
-	tmp = 0;
+	dx = x - x % gap;
+	dy = y - y % gap;
+	re1 = pixels[dx + dy * RES_X];
+	re2 = pixels[dx + (dy + gap) * RES_X];
+	tmp = crossfade(re1 >> 8, re2 >> 8, y % gap / (float)gap * 0xff, 0xff);
+	re1 = pixels[dx + gap + dy * RES_X];
+	re2 = pixels[dx + gap + (dy + gap) * RES_X];
+	re1 = crossfade(re1 >> 8, re2 >> 8, y % gap / (float)gap * 0xff, 0xff);
+	return (crossfade(tmp >> 8, re1 >> 8, x % gap / (float)gap * 0xff, 0xff));
+}
+
+int	smooth_color(unsigned int *pixels, int gap, int x, int y)
+{
+	int	dx;
+	int	dy;
+	int	re1;
+	int	re2;
+
 	dx = x - x % gap;
 	dy = y - y % gap;
 	if (x >= RES_X - gap && y >= RES_Y - gap)
@@ -168,13 +186,7 @@ int	smooth_color(unsigned int *pixels, int gap, int x, int y)
 		return (crossfade(re1 >> 8, re2 >> 8, x % gap
 				/ (float)gap * 0xff, 0xff));
 	}
-	re1 = pixels[dx + dy * RES_X];
-	re2 = pixels[dx + (dy + gap) * RES_X];
-	tmp = crossfade(re1 >> 8, re2 >> 8, y % gap / (float)gap * 0xff, 0xff);
-	re1 = pixels[dx + gap + dy * RES_X];
-	re2 = pixels[dx + gap + (dy + gap) * RES_X];
-	re1 = crossfade(re1 >> 8, re2 >> 8, y % gap / (float)gap * 0xff, 0xff);
-	return (crossfade(tmp >> 8, re1 >> 8, x % gap / (float)gap * 0xff, 0xff));
+	return (smooth_color_kernel(pixels, gap, x, y));
 }
 
 void	fill_pixels(unsigned int *grid, int gap, int blur, int smooth)
@@ -183,20 +195,17 @@ void	fill_pixels(unsigned int *grid, int gap, int blur, int smooth)
 	int	x;
 	int	y;
 
-	y = 0;
 	if (blur)
 		blur_pixels(grid, gap);
-	while (y < RES_Y)
+	y = -1;
+	while (++y < RES_Y)
 	{
-		x = 0;
+		x = -1;
 		color = 0;
-		while (x < RES_X)
+		while (++x < RES_X)
 		{
-			if (smooth)
-			{
-				if (x % gap || y % gap)
-					grid[x + (y * RES_X)] = smooth_color(grid, gap, x, y);
-			}
+			if (smooth && (x % gap || y % gap))
+				grid[x + (y * RES_X)] = smooth_color(grid, gap, x, y);
 			else if (!(x % gap))
 			{
 				color = grid[x + (y * RES_X)];
@@ -205,9 +214,7 @@ void	fill_pixels(unsigned int *grid, int gap, int blur, int smooth)
 			}
 			else
 				grid[x + (y * RES_X)] = color;
-			x++;
 		}
-		y++;
 	}
 }
 
@@ -247,6 +254,26 @@ static void	wrap_coords(int *x, int *y, int max_x, int max_y)
 		*x = *x % max_x;
 }
 
+static void	normal_map(float u, float v, t_tri t, t_cast_result *res)
+{
+	int		x;
+	int		y;
+	float	w;
+
+	w = 1 - u - v;
+	x = ((t.verts[0].txtr.x * res->normal_map->width * w
+				+ t.verts[1].txtr.x * res->normal_map->width * v
+				+ t.verts[2].txtr.x * res->normal_map->width * u)
+			/ (float)(u + v + w));
+	y = ((t.verts[0].txtr.y * res->normal_map->height * w
+				+ t.verts[1].txtr.y * res->normal_map->height * v
+				+ t.verts[2].txtr.y * res->normal_map->height * u)
+			/ (float)(u + v + w));
+	wrap_coords(&x, &y, res->normal_map->width, res->normal_map->height);
+	res->normal
+		= get_normal(res->normal_map->image[x + (y * res->normal_map->width)]);
+}
+
 void	face_color(float u, float v, t_tri t, t_cast_result *res)
 {
 	int		x;
@@ -270,18 +297,6 @@ void	face_color(float u, float v, t_tri t, t_cast_result *res)
 		res->color = brightness(
 				res->color >> 8, res->baked[x + y * res->texture->width])
 			+ (res->color << 24 >> 24);
-	if (!res->normal_map)
-		return ;
-	x = ((t.verts[0].txtr.x * res->normal_map->width * w
-				+ t.verts[1].txtr.x * res->normal_map->width * v
-				+ t.verts[2].txtr.x * res->normal_map->width * u)
-			/ (float)(u + v + w));
-	y = ((t.verts[0].txtr.y * res->normal_map->height * w
-				+ t.verts[1].txtr.y * res->normal_map->height * v
-				+ t.verts[2].txtr.y * res->normal_map->height * u)
-			/ (float)(u + v + w));
-	wrap_coords(&x, &y, res->normal_map->width, res->normal_map->height);
-	res->normal = get_normal(
-			res->normal_map->image[x + (y * res->normal_map->width)]
-			);
+	if (res->normal_map)
+		normal_map(u, v, t, res);
 }

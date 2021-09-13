@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/22 10:29:09 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/25 21:11:25by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/05/25 21:11:25 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -191,7 +191,8 @@ int	bake(void *d)
 		tri++;
 		l->bake_progress = 100 * (float)tri / (float)l->all.tri_amount;
 	}
-	l->bake_status = BAKE_BAKED;
+	if (l->bake_status != BAKE_NOT_BAKED)
+		l->bake_status = BAKE_BAKED;
 	return (1);
 }
 
@@ -220,7 +221,7 @@ void	start_bake(t_level *level)
 	if (level->texture.width != level->normal_map.width
 		|| level->texture.height != level->normal_map.height)
 	{
-		nonfatal_error(level, "texture and normal map are not same size");
+		nonfatal_error("texture and normal map are not same size");
 		return ;
 	}
 	if (level->baked_size.x != level->texture.width

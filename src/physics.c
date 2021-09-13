@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   physics.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/10 01:23:16 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/06 15:48:07 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/12 23:49:15 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
 
-static void	input_wasd(t_vec3 *wishdir, const Uint8 *keys)
+static void	input_player_movement(t_vec3 *wishdir, const Uint8 *keys)
 {
 	if (keys[SDL_SCANCODE_W])
 		wishdir->z += 1;
@@ -58,7 +58,7 @@ static void	player_input(t_level *level, t_vec3 *wishdir, float *height)
 	ft_bzero(wishdir, sizeof(t_vec3));
 	if (level->ui.state.text_input_enable)
 		return ;
-	input_wasd(wishdir, keys);
+	input_player_movement(wishdir, keys);
 	input_uv(level, keys);
 	if (keys[SDL_SCANCODE_SPACE])
 		wishdir->y -= 1;
@@ -75,6 +75,8 @@ static void	player_input(t_level *level, t_vec3 *wishdir, float *height)
 		level->player.move_speed = RUN_SPEED;
 }
 
+// first if player to ground
+// second if is not floor, is in clip distance
 static int	player_collision(t_vec3 *vel, t_vec3 *pos, t_level *level,
 															float height)
 {
@@ -128,8 +130,7 @@ int	is_player_in_air(t_level *level, float height)
 		return (TRUE);
 }
 
-static void	noclip(t_level *level, t_vec3 *wishdir, t_vec3 *vel,
-														float delta_time)
+static void	noclip(t_level *level, t_vec3 *wishdir, float delta_time)
 {
 	if (wishdir->x && wishdir->y && wishdir->z)
 		vec_normalize(wishdir);
@@ -137,9 +138,8 @@ static void	noclip(t_level *level, t_vec3 *wishdir, t_vec3 *vel,
 	level->cam.pos.x += wishdir->x * delta_time;
 	level->cam.pos.y += wishdir->y * delta_time;
 	level->cam.pos.z += wishdir->z * delta_time;
-	ft_bzero(vel, sizeof(t_vec3));
 	level->ui.horizontal_velocity = vec_length(*wishdir);
-	level->player_vel = *vel;
+	level->player_vel = (t_vec3){0, 0, 0};
 }
 
 static void	rotate_wishdir(t_level *level, t_vec3 *wishdir)
@@ -174,7 +174,7 @@ static int	vertical_movement(t_vec3 *wishdir, t_vec3 *vel, float delta_time,
 	return (0);
 }
 
-void	air_movement(t_vec3 *wishdir, t_vec3 *vel, float delta_time)
+static void	air_movement(t_vec3 *wishdir, t_vec3 *vel, float delta_time)
 {
 	float	length;
 	float	speed;
@@ -213,7 +213,7 @@ void	horizontal_movement_no_input(t_vec3 *vel, float delta_time)
 	}
 }
 
-void	horizontal_movement(t_vec3 *wishdir, t_vec3 *vel,
+static void	horizontal_movement(t_vec3 *wishdir, t_vec3 *vel,
 								float delta_time, float movespeed)
 {
 	float	speed;
@@ -247,23 +247,13 @@ void	apply_velocity(t_vec3 vel, float h, t_level *level, float delta_time)
 	level->player_vel = vel;
 }
 
-void	player_movement(t_level *level, t_game_state game_state)
+static void	movement_physics(t_level *level, t_vec3 wishdir,
+					float height, float delta_time)
 {
 	t_vec3	vel;
-	t_vec3	wishdir;
 	int		in_air;
-	float	delta_time;
-	float	height;
 
-	height = PLAYER_HEIGHT;
-	if (game_state != GAME_STATE_EDITOR)
-		level->ui.noclip = FALSE;
 	vel = level->player_vel;
-	delta_time = level->ui.frame_time / 1000.;
-	player_input(level, &wishdir, &height);
-	rotate_wishdir(level, &wishdir);
-	if (level->ui.noclip)
-		return (noclip(level, &wishdir, &vel, delta_time));
 	in_air = is_player_in_air(level, height);
 	vertical_movement(&wishdir, &vel, delta_time, in_air);
 	if (in_air || wishdir.y)
@@ -272,4 +262,19 @@ void	player_movement(t_level *level, t_game_state game_state)
 		horizontal_movement(&wishdir, &vel, delta_time,
 			level->player.move_speed);
 	apply_velocity(vel, height, level, delta_time);
+}
+
+void	player_movement(t_level *level)
+{
+	t_vec3	wishdir;
+	float	delta_time;
+	float	height;
+
+	height = PLAYER_HEIGHT;
+	delta_time = level->ui.frame_time / 1000.;
+	player_input(level, &wishdir, &height);
+	rotate_wishdir(level, &wishdir);
+	if (level->ui.noclip)
+		return (noclip(level, &wishdir, delta_time));
+	movement_physics(level, wishdir, height, delta_time);
 }

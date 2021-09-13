@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/08 14:38:45 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/01 13:22:48 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/02 11:27:38 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,16 +30,20 @@ SDL_Texture	*empty_texture(SDL_Renderer *renderer)
 
 static void	init_fonts(t_editor_ui *ui)
 {
-	SDL_RWops*	mem;
+	SDL_RWops	*mem;
 
 	TTF_Init();
-	mem = SDL_RWFromMem((void *)&embed_digital_ttf[0], (int)embed_digital_ttf_len);
+	mem = SDL_RWFromMem((void *)&embed_digital_ttf[0],
+			(int)embed_digital_ttf_len);
 	ui->hud_font = TTF_OpenFontRW(mem, 1, HUD_FONT_SIZE);
-	mem = SDL_RWFromMem((void *)&embed_Roboto_Medium_ttf[0], (int)embed_Roboto_Medium_ttf_len);
+	mem = SDL_RWFromMem((void *)&embed_Roboto_Medium_ttf[0],
+			(int)embed_Roboto_Medium_ttf_len);
 	ui->editor_font = TTF_OpenFontRW(mem, 1, UI_FONT_SIZE);
-	mem = SDL_RWFromMem((void *)&embed_Roboto_Medium_ttf[0], (int)embed_Roboto_Medium_ttf_len);
+	mem = SDL_RWFromMem((void *)&embed_Roboto_Medium_ttf[0],
+			(int)embed_Roboto_Medium_ttf_len);
 	ui->main_menu_font = TTF_OpenFontRW(mem, 1, MAIN_MENU_FONT_SIZE);
-	mem = SDL_RWFromMem((void *)&embed_Roboto_Medium_ttf[0], (int)embed_Roboto_Medium_ttf_len);
+	mem = SDL_RWFromMem((void *)&embed_Roboto_Medium_ttf[0],
+			(int)embed_Roboto_Medium_ttf_len);
 	ui->win_lose_font = TTF_OpenFontRW(mem, 1, HUD_GAME_EVENT_FONT_SIZE);
 	if (!ui->editor_font || !ui->hud_font
 		|| !ui->main_menu_font || !ui->win_lose_font)
@@ -49,25 +53,46 @@ static void	init_fonts(t_editor_ui *ui)
 	}
 }
 
+static void	init_embedded_viewmodel(t_level *level)
+{
+	unsigned int	size;
+
+	size = embed_viewmodel_ak_0_bmp_len;
+	level->viewmodel[0]
+		= bmp_read_from_memory(&embed_viewmodel_ak_0_bmp[0], size);
+	// level->viewmodel[1]
+	// 	= bmp_read_from_memory(&embed_viewmodel_ak_1_bmp[0], size);
+	// level->viewmodel[2]
+	// 	= bmp_read_from_memory(&embed_viewmodel_ak_2_bmp[0], size);
+	// level->viewmodel[3]
+	// 	= bmp_read_from_memory(&embed_viewmodel_ak_3_bmp[0], size);
+	// level->viewmodel[4]
+	// 	= bmp_read_from_memory(&embed_viewmodel_ak_4_bmp[0], size);
+	// level->viewmodel[5]
+	// 	= bmp_read_from_memory(&embed_viewmodel_ak_5_bmp[0], size);
+	// level->viewmodel[6]
+	// 	= bmp_read_from_memory(&embed_viewmodel_ak_6_bmp[0], size);
+	// level->viewmodel[7]
+	// 	= bmp_read_from_memory(&embed_viewmodel_ak_7_bmp[0], size);
+	// level->viewmodel[8]
+	// 	= bmp_read_from_memory(&embed_viewmodel_ak_8_bmp[0], size);
+	// level->viewmodel[9]
+	// 	= bmp_read_from_memory(&embed_viewmodel_ak_9_bmp[0], size);
+}
+
 void	init_embedded(t_level *level)
 {
-	level->main_menu_title = bmp_read_from_memory(&embed_title_bmp[0], embed_title_bmp_len);
-	// level->viewmodel[0] = bmp_read_from_memory(&embed_viewmodel_ak_0_bmp[0], embed_viewmodel_ak_0_bmp_len);
-	// level->viewmodel[1] = bmp_read_from_memory(&embed_viewmodel_ak_1_bmp[0], embed_viewmodel_ak_1_bmp_len);
-	// level->viewmodel[2] = bmp_read_from_memory(&embed_viewmodel_ak_2_bmp[0], embed_viewmodel_ak_2_bmp_len);
-	// level->viewmodel[3] = bmp_read_from_memory(&embed_viewmodel_ak_3_bmp[0], embed_viewmodel_ak_3_bmp_len);
-	// level->viewmodel[4] = bmp_read_from_memory(&embed_viewmodel_ak_4_bmp[0], embed_viewmodel_ak_4_bmp_len);
-	// level->viewmodel[5] = bmp_read_from_memory(&embed_viewmodel_ak_5_bmp[0], embed_viewmodel_ak_5_bmp_len);
-	// level->viewmodel[6] = bmp_read_from_memory(&embed_viewmodel_ak_6_bmp[0], embed_viewmodel_ak_6_bmp_len);
-	// level->viewmodel[7] = bmp_read_from_memory(&embed_viewmodel_ak_7_bmp[0], embed_viewmodel_ak_7_bmp_len);
-	// level->viewmodel[8] = bmp_read_from_memory(&embed_viewmodel_ak_8_bmp[0], embed_viewmodel_ak_8_bmp_len);
-	// level->viewmodel[9] = bmp_read_from_memory(&embed_viewmodel_ak_9_bmp[0], embed_viewmodel_ak_9_bmp_len);
-	load_obj_from_memory(&embed_skybox_obj[0], embed_skybox_obj_len, &level->sky.all);
-	load_obj_from_memory(&embed_skybox_obj[0], embed_skybox_obj_len, &level->sky.visible);
+	level->main_menu_title
+		= bmp_read_from_memory(&embed_title_bmp[0], embed_title_bmp_len);
+	init_embedded_viewmodel(level);
+	load_obj_from_memory(&embed_skybox_obj[0], embed_skybox_obj_len,
+		&level->sky.all);
+	load_obj_from_memory(&embed_skybox_obj[0], embed_skybox_obj_len,
+		&level->sky.visible);
 	init_fonts(&level->ui);
 }
 
-void	init_level(t_level *level)
+static void	level_default_settings(t_level *level)
 {
 	level->player_health = PLAYER_HEALTH_MAX;
 	level->player_ammo = PLAYER_AMMO_MAX;
@@ -79,6 +104,11 @@ void	init_level(t_level *level)
 	level->cam.look_up = 0;
 	level->main_menu_anim_time = 2;
 	level->world_brightness = 0.5;
+}
+
+void	create_default_level(t_level *level)
+{
+	level_default_settings(level);
 	level->texture = bmp_read("out.bmp");
 	level->baked = (t_color *)malloc(sizeof(t_color)
 			* (level->texture.width * level->texture.height));
@@ -94,10 +124,6 @@ void	init_level(t_level *level)
 	level->normal_map = bmp_read("normal.bmp");
 	level->sky.img = bmp_read("skybox.bmp");
 	level->spray = bmp_read("spray.bmp");
-	level->visible.tris = (t_tri *)malloc(sizeof(t_tri)
-			* level->all.tri_amount);
-	if (!level->visible.tris)
-		ft_error("memory allocation failed\n");
 	load_obj("level/ship.obj", &level->all);
 	level->visible.tris
 		= (t_tri *)malloc(sizeof(t_tri) * level->all.tri_amount);
@@ -129,8 +155,10 @@ void	init_window(t_window **window)
 	window[0]->frame_buffer = NULL;
 	window[0]->depth_buffer
 		= (float *)malloc(sizeof(float) * (RES_X * RES_Y));
-	if (!window[0]->depth_buffer)
-		ft_error("memory allocation failed\n");
+	window[0]->buf
+		= (unsigned int *)malloc(sizeof(unsigned int) * (RES_X * RES_Y));
+	if (!window[0]->depth_buffer || !window[0]->buf)
+		ft_error("init window memory allocation failed\n");
 }
 
 void	init_enemy(t_tri *face)
@@ -176,33 +204,50 @@ void	init_player(t_enemy *player)
 	player->projectile_uv[2].y = 1;
 }
 
+static void	init_audio_effects(t_level *l)
+{
+	SDL_RWops	*rw;
+
+	rw = SDL_RWFromMem(embed_audio_effects_d_death_ogg,
+						embed_audio_effects_d_death_ogg_len);
+	l->audio.death = Mix_LoadWAV_RW(rw, 1);
+	rw = SDL_RWFromMem(embed_audio_effects_jump_wav,
+						embed_audio_effects_jump_wav_len);
+	l->audio.jump = Mix_LoadWAV_RW(rw, 1);
+	rw = SDL_RWFromMem(embed_audio_effects_gunshot_wav,
+						embed_audio_effects_gunshot_wav_len);
+	l->audio.gunshot = Mix_LoadWAV_RW(rw, 1);
+	rw = SDL_RWFromMem(embed_audio_effects_reload_wav,
+						embed_audio_effects_reload_wav_len);
+	l->audio.reload = Mix_LoadWAV_RW(rw, 1);
+	rw = SDL_RWFromMem(embed_audio_effects_door_wav,
+						embed_audio_effects_door_wav_len);
+	l->audio.door = Mix_LoadWAV_RW(rw, 1);
+	if (!l->audio.reload || !l->audio.gunshot || !l->audio.jump
+		|| !l->audio.death || !l->audio.door)
+		ft_error("audio effects init error");
+}
+
 void	init_audio(t_level *l)
 {
+	SDL_RWops	*rw;
+
 	if (Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 8, 4096) < 0)
-		ft_error("Failed to initialize SDL_Mixer");
+	{
+		nonfatal_error("Failed to initialize audio");
+		return ;
+	}
 	l->audio.music_volume = MIX_MAX_VOLUME / 10;
 	l->audio.sound_effect_volume = MIX_MAX_VOLUME / 10;
 	Mix_VolumeMusic(l->audio.music_volume);
 	Mix_Volume(-1, l->audio.sound_effect_volume);
-	l->audio.game_music = Mix_LoadMUS(AUDIO_GAME_MUSIC);
-	if (!l->audio.game_music)
-		ft_error(AUDIO_GAME_MUSIC);
-	l->audio.title_music = Mix_LoadMUS(AUDIO_TITLE_MUSIC);
-	if (!l->audio.title_music)
-		ft_error(AUDIO_TITLE_MUSIC);
-	l->audio.jump = Mix_LoadWAV(AUDIO_JUMP);
-	if (!l->audio.jump)
-		ft_error(AUDIO_JUMP);
-	l->audio.gunshot = Mix_LoadWAV(AUDIO_GUNSHOT);
-	if (!l->audio.gunshot)
-		ft_error(AUDIO_GUNSHOT);
-	l->audio.reload = Mix_LoadWAV(AUDIO_RELOAD);
-	if (!l->audio.reload)
-		ft_error(AUDIO_RELOAD);
-	l->audio.death = Mix_LoadWAV(AUDIO_DEATH);
-	if (!l->audio.death)
-		ft_error(AUDIO_DEATH);
-	l->audio.door = Mix_LoadWAV(AUDIO_DOOR);
-	if (!l->audio.door)
-		ft_error(AUDIO_DOOR);
+	rw = SDL_RWFromMem(embed_audio_music_main_menu_ogg,
+						embed_audio_music_main_menu_ogg_len);
+	l->audio.title_music = Mix_LoadMUS_RW(rw, 1);
+	rw = SDL_RWFromMem(embed_audio_music_ingame_ogg,
+						embed_audio_music_ingame_ogg_len);
+	l->audio.game_music = Mix_LoadMUS_RW(rw, 1);
+	if (!l->audio.game_music || !l->audio.title_music)
+		ft_error("audio init error");
+	init_audio_effects(l);
 }

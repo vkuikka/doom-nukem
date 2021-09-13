@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/01 12:02:04 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/01 12:33:35 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/12 20:41:20 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,17 +72,17 @@ static unsigned int	chroma_px(t_bmp *img, int x, int y, int x_amount)
 	return (res_color);
 }
 
-void	chromatic_abberation(unsigned int *pixels, int amount)
+void	chromatic_abberation(unsigned int *pixels, unsigned int *buf,
+														int amount)
 {
 	t_bmp	tmp;
-	int		buf[RES_X * RES_Y];
 	int		x;
 	int		y;
 
 	tmp.width = RES_X;
 	tmp.height = RES_Y;
-	tmp.image = &buf[0];
-	ft_memcpy(&buf[0], pixels, sizeof(int) * RES_X * RES_Y);
+	tmp.image = (int *)buf;
+	ft_memcpy(buf, pixels, sizeof(int) * RES_X * RES_Y);
 	y = 0;
 	while (y < RES_Y)
 	{

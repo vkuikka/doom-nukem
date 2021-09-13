@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/19 18:51:47 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/01 13:22:43 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/02 19:18:11 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,8 @@ static int	mouse_collision(t_rect rect, t_level *level, unsigned int *pixels)
 {
 	t_ivec2	mouse;
 
+	if (level->ui.state.ui_max_width < rect.w + rect.x)
+		level->ui.state.ui_max_width = rect.w + rect.x;
 	SDL_GetMouseState(&mouse.x, &mouse.y);
 	if (mouse.x >= rect.x && mouse.x < rect.x + rect.w
 		&& mouse.y >= rect.y && mouse.y < rect.y + rect.h)
@@ -111,6 +113,7 @@ void	main_menu_buttons_level(t_game_state *game_state, int *state_changed,
 	{
 		*game_state = GAME_STATE_INGAME;
 		*state_changed = TRUE;
+		level->ui.noclip = FALSE;
 		level->player_health = PLAYER_HEALTH_MAX;
 		level->player_ammo = PLAYER_AMMO_MAX;
 		Mix_PlayMusic(level->audio.game_music, -1);
@@ -139,7 +142,7 @@ void	main_menu_buttons_other(t_game_state *game_state, int *state_changed,
 	rect = main_menu_button_text("create level", 3);
 	if (mouse_collision(rect, level, pixels))
 	{
-		init_level(level);
+		create_default_level(level);
 		level->ui.noclip = TRUE;
 		*game_state = GAME_STATE_EDITOR;
 		*state_changed = TRUE;
@@ -161,6 +164,7 @@ void	main_menu(t_level *level, unsigned int *pixels,
 	set_text_color(MAIN_MENU_FONT_COLOR);
 	main_menu_title(&level->main_menu_title, pixels);
 	state_changed = FALSE;
+	level->ui.state.ui_max_width = 0;
 	if (level->level_initialized)
 		main_menu_buttons_level(game_state, &state_changed, level, pixels);
 	main_menu_buttons_other(game_state, &state_changed, level, pixels);

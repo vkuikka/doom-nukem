@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/31 09:13:43 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/31 14:37:14 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/02 04:02:37 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,6 @@ unsigned int	set_lightness(unsigned int color, float b)
 {
 	unsigned char	*rgb;
 	int				i;
-
 
 	rgb = (unsigned char *)&color;
 	i = 1;
@@ -58,17 +57,17 @@ void	hsl_update_color(t_color_hsl *c)
 	float			amount;
 
 	rgb = (unsigned char *)&c->color;
-	amount = ((sin((c->hue * M_PI * 2) + (M_PI * 2 * ((1.0 / 3) * 1))) + 1) / 2);
-	amount *= 2;
-	amount = clamp(amount, .5, 1.5) - .5;
+	amount = ((sin((c->hue * M_PI * 2) + (M_PI * 2
+						* ((1.0 / 3) * 1))) + 1) / 2);
+	amount = clamp(amount * 2, .5, 1.5) - .5;
 	rgb[3] = 0xff * amount;
-	amount = ((sin((c->hue * M_PI * 2) + (M_PI * 2 * ((1.0 / 3) * 2))) + 1) / 2);
-	amount *= 2;
-	amount = clamp(amount, .5, 1.5) - .5;
+	amount = ((sin((c->hue * M_PI * 2) + (M_PI * 2
+						* ((1.0 / 3) * 2))) + 1) / 2);
+	amount = clamp(amount * 2, .5, 1.5) - .5;
 	rgb[2] = 0xff * amount;
-	amount = ((sin((c->hue * M_PI * 2) + (M_PI * 2 * ((1.0 / 3) * 3))) + 1) / 2);
-	amount *= 2;
-	amount = clamp(amount, .5, 1.5) - .5;
+	amount = ((sin((c->hue * M_PI * 2) + (M_PI * 2
+						* ((1.0 / 3) * 3))) + 1) / 2);
+	amount = clamp(amount * 2, .5, 1.5) - .5;
 	rgb[1] = 0xff * amount;
 	rgb[0] = 0xff;
 	c->rgb_hue = c->color;

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   editor_set_state.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/11 15:51:06 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/12 16:27:14 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/02 16:25:39 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,17 @@
 
 void	set_obj(t_level *level, char *filename)
 {
+	t_obj	tmp;
+
+	if (!load_obj(filename, &tmp))
+	{
+		nonfatal_error("failed to read object file");
+		return ;
+	}
 	free_culling(level);
 	free(level->all.tris);
 	free(level->visible.tris);
-	load_obj(filename, &level->all);
+	level->all = tmp;
 	level->visible.tris
 		= (t_tri *)malloc(sizeof(t_tri) * level->all.tri_amount);
 	if (!level->visible.tris)
@@ -28,12 +35,17 @@ void	set_obj(t_level *level, char *filename)
 
 void	set_texture(t_level *level, char *filename)
 {
+	t_bmp	tmp;
+
+	tmp = bmp_read(filename);
+	if (!tmp.image)
+		return ;
 	free(level->texture.image);
 	free(level->baked);
 	free(level->spray_overlay);
-	level->texture = bmp_read(filename);
+	level->texture = tmp;
 	level->baked = (t_color *)malloc(sizeof(t_color)
-		* (level->texture.width * level->texture.height));
+			* (level->texture.width * level->texture.height));
 	level->spray_overlay = (unsigned int *)malloc(sizeof(unsigned int)
 			* (level->texture.width * level->texture.height));
 	if (!level->spray_overlay || !level->baked)
@@ -44,20 +56,35 @@ void	set_texture(t_level *level, char *filename)
 
 void	set_normal_map(t_level *level, char *filename)
 {
+	t_bmp	tmp;
+
+	tmp = bmp_read(filename);
+	if (!tmp.image)
+		return ;
 	free(level->normal_map.image);
-	level->normal_map = bmp_read(filename);
+	level->normal_map = tmp;
 }
 
 void	set_skybox(t_level *level, char *filename)
 {
+	t_bmp	tmp;
+
+	tmp = bmp_read(filename);
+	if (!tmp.image)
+		return ;
 	free(level->sky.img.image);
-	level->sky.img = bmp_read(filename);
+	level->sky.img = tmp;
 }
 
 void	set_spray(t_level *level, char *filename)
 {
+	t_bmp	tmp;
+
+	tmp = bmp_read(filename);
+	if (!tmp.image)
+		return ;
 	free(level->spray.image);
-	level->spray = bmp_read(filename);
+	level->spray = tmp;
 }
 
 void	set_win_pos(t_level *level)

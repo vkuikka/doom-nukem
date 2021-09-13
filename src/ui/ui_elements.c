@@ -6,11 +6,22 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/13 12:51:47 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/31 12:39:19 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/12 21:07:26 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
+
+t_level	*get_level(t_level *get_level)
+{
+	static t_level	*level = NULL;
+
+	if (get_level)
+		level = get_level;
+	else
+		return (level);
+	return (NULL);
+}
 
 t_window	*get_window(t_window *get_window)
 {
@@ -44,7 +55,8 @@ static int	edit_slider_var(float *unit, t_ui_state *state)
 		&& y >= state->ui_text_y_pos + 4 && y <= state->ui_text_y_pos + 15
 		&& x < UI_SLIDER_WIDTH - 2 && x >= 2)
 	{
-		*unit = (float)(x - 2) / (float)(UI_SLIDER_WIDTH - UI_SLIDER_BUTTON_WIDTH);
+		*unit = (float)(x - 2)
+			/ (float)(UI_SLIDER_WIDTH - UI_SLIDER_BUTTON_WIDTH);
 		return (TRUE);
 	}
 	return (FALSE);
@@ -123,7 +135,7 @@ void	render_button_streaming(unsigned int *texture, int *var, int dy)
 	}
 }
 
-void	render_color_slider(unsigned int *texture, float pos,
+static void	render_color_slider(t_window *window, float pos,
 						int dy, unsigned int *colors)
 {
 	int	x;
@@ -132,12 +144,10 @@ void	render_color_slider(unsigned int *texture, float pos,
 	y = -1;
 	while (++y < 4)
 	{
-		x = 0;
-		while (x < UI_SLIDER_WIDTH)
-		{
-			button_pixel_put(x + 2, y + 6 + dy, colors[x], texture);
-			x++;
-		}
+		x = -1;
+		while (++x < UI_SLIDER_WIDTH)
+			button_pixel_put(x + 2, y + 6 + dy, colors[x],
+				window->ui_texture_pixels);
 	}
 	y = 0;
 	while (y < 12)
@@ -145,8 +155,9 @@ void	render_color_slider(unsigned int *texture, float pos,
 		x = 0;
 		while (x <= UI_SLIDER_BUTTON_WIDTH)
 		{
-			button_pixel_put(
-				x + 2 + ((UI_SLIDER_WIDTH - UI_SLIDER_BUTTON_WIDTH) * pos), y + 2 + dy, 0x666666ff, texture);
+			button_pixel_put(x + 2
+				+ (int)((UI_SLIDER_WIDTH - UI_SLIDER_BUTTON_WIDTH)
+					* pos), y + 2 + dy, 0x666666ff, window->ui_texture_pixels);
 			x++;
 		}
 		y++;
@@ -162,12 +173,9 @@ void	render_slider_streaming(unsigned int *texture,
 	y = -1;
 	while (++y < 4)
 	{
-		x = 0;
-		while (x < UI_SLIDER_WIDTH)
-		{
+		x = -1;
+		while (++x < UI_SLIDER_WIDTH)
 			button_pixel_put(x + 2, y + 6 + dy, 0x404040ff, texture);
-			x++;
-		}
 	}
 	y = 0;
 	while (y < 12)
@@ -175,8 +183,9 @@ void	render_slider_streaming(unsigned int *texture,
 		x = 0;
 		while (x <= UI_SLIDER_BUTTON_WIDTH)
 		{
-			button_pixel_put(
-				x + 2 + ((UI_SLIDER_WIDTH - UI_SLIDER_BUTTON_WIDTH) * unit), y + 2 + dy, 0x666666ff, texture);
+			button_pixel_put(x + 2
+				+ (int)((UI_SLIDER_WIDTH - UI_SLIDER_BUTTON_WIDTH)
+					* unit), y + 2 + dy, 0x666666ff, texture);
 			x++;
 		}
 		y++;
@@ -222,11 +231,12 @@ float	clamp(float var, float min, float max)
 	return (var);
 }
 
-void	int_slider(int *var, char *str, int min, int max)
+int	int_slider(int *var, char *str, int min, int max)
 {
 	t_window	*window;
 	t_ui_state	*state;
 	float		unit;
+	int			res;
 
 	window = get_window(NULL);
 	if (str)
@@ -238,17 +248,19 @@ void	int_slider(int *var, char *str, int min, int max)
 	unit = (float)*var / (float)(max - min);
 	render_slider_streaming(window->ui_texture_pixels, unit,
 		state->ui_text_y_pos);
-	edit_slider_var(&unit, state);
+	res = edit_slider_var(&unit, state);
 	unit = clamp(unit, 0, 1);
 	*var = min + ((max - min) * unit);
 	state->ui_text_y_pos += UI_ELEMENT_HEIGHT;
+	return (res);
 }
 
-void	float_slider(float *var, char *str, float min, float max)
+int	float_slider(float *var, char *str, float min, float max)
 {
 	t_window	*window;
 	t_ui_state	*state;
 	float		unit;
+	int			res;
 
 	window = get_window(NULL);
 	if (str)
@@ -260,10 +272,11 @@ void	float_slider(float *var, char *str, float min, float max)
 	unit = (float)*var / (float)(max - min);
 	render_slider_streaming(window->ui_texture_pixels, unit,
 		state->ui_text_y_pos);
-	edit_slider_var(&unit, state);
+	res = edit_slider_var(&unit, state);
 	unit = clamp(unit, 0, 1);
 	*var = min + ((max - min) * unit);
 	state->ui_text_y_pos += UI_ELEMENT_HEIGHT;
+	return (res);
 }
 
 void	generate_color_slider_saturation(unsigned int *res, int color)
@@ -290,32 +303,32 @@ void	generate_color_slider_lightness(unsigned int *res, int color)
 	}
 }
 
-void	color_slider(t_color_hsl *var, char *str)
+int	color_slider(t_color_hsl *var, char *str)
 {
-	t_window		*window;
 	t_ui_state		*state;
 	unsigned int	colors[UI_SLIDER_WIDTH];
+	int				res;
 
-	window = get_window(NULL);
 	state = get_ui_state(NULL);
 	text(str);
-	render_color_slider(window->ui_texture_pixels, var->hue,
+	render_color_slider(get_window(NULL), var->hue,
 		state->ui_text_y_pos, state->color_slider_hue_colors);
-	edit_slider_var(&var->hue, state);
+	res = edit_slider_var(&var->hue, state);
 	state->ui_text_y_pos += UI_ELEMENT_HEIGHT;
 	generate_color_slider_saturation(&colors[0], var->rgb_hue);
-	render_color_slider(window->ui_texture_pixels, var->saturation,
+	render_color_slider(get_window(NULL), var->saturation,
 		state->ui_text_y_pos, &colors[0]);
-	edit_slider_var(&var->saturation, state);
+	res += edit_slider_var(&var->saturation, state);
 	state->ui_text_y_pos += UI_ELEMENT_HEIGHT;
 	var->lightness = (var->lightness + 1) / 2;
 	generate_color_slider_lightness(&colors[0], var->rgb_hue);
-	render_color_slider(window->ui_texture_pixels, var->lightness,
+	render_color_slider(get_window(NULL), var->lightness,
 		state->ui_text_y_pos, &colors[0]);
-	edit_slider_var(&var->lightness, state);
+	res += edit_slider_var(&var->lightness, state);
 	var->lightness = var->lightness * 2 - 1;
 	state->ui_text_y_pos += UI_ELEMENT_HEIGHT;
 	hsl_update_color(var);
+	return (res);
 }
 
 void	file_save(char *str, char *extension, void (*f)(t_level *, char *))
