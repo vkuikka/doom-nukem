@@ -62,7 +62,7 @@ static int	mouse_collision(t_rect rect, t_level *level, unsigned int *pixels)
 
 	if (level->ui.state.ui_max_width < rect.w + rect.x)
 		level->ui.state.ui_max_width = rect.w + rect.x;
-	SDL_GetMouseState(&mouse.x, &mouse.y);
+	mouse = level->ui.state.mouse;
 	if (mouse.x >= rect.x && mouse.x < rect.x + rect.w
 		&& mouse.y >= rect.y && mouse.y < rect.y + rect.h)
 	{

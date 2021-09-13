@@ -91,26 +91,27 @@ static int	edit_button_var(int *var, t_ui_state *state)
 	return (FALSE);
 }
 
-void	render_call_streaming(unsigned int *texture, int dy,
-											t_ivec2 *size, int color)
+static void	render_call(int dy, t_ivec2 *size, int color)
 {
-	int					x;
-	int					y;
+	t_window	*window;
+	int			x;
+	int			y;
 
+	window = get_window(NULL);
 	y = 0;
 	while (y < size->y - 1)
 	{
 		x = 0;
 		while (x < size->x + 4)
 		{
-			button_pixel_put(x + 2, y + 2 + dy, color, texture);
+			button_pixel_put(x + 2, y + 2 + dy, color, window->ui_texture_pixels);
 			x++;
 		}
 		y++;
 	}
 }
 
-void	render_button_streaming(unsigned int *texture, int *var, int dy)
+static void	render_button(unsigned int *texture, int *var, int dy)
 {
 	int					color;
 	int					x;
@@ -215,7 +216,7 @@ int	button(int *var, char *str)
 	window = get_window(NULL);
 	state = get_ui_state(NULL);
 	state->ui_text_x_offset = 14;
-	render_button_streaming(window->ui_texture_pixels, var,
+	render_button(window->ui_texture_pixels, var,
 		state->ui_text_y_pos);
 	changed = edit_button_var(var, state);
 	text(str);
@@ -336,7 +337,7 @@ void	file_save(char *str, char *extension, void (*f)(t_level *, char *))
 	t_ui_state	*state;
 
 	state = get_ui_state(NULL);
-	if (call(str, NULL, NULL))
+	if (call(str, NULL))
 	{
 		state->ui_location = UI_LOCATION_FILE_SAVE;
 		ft_strcpy(state->extension, extension);
@@ -349,7 +350,7 @@ void	file_browser(char *str, char *extension, void (*f)(t_level *, char *))
 	t_ui_state	*state;
 
 	state = get_ui_state(NULL);
-	if (call(str, NULL, NULL))
+	if (call(str, NULL))
 	{
 		state->ui_location = UI_LOCATION_FILE_OPEN;
 		ft_strcpy(state->extension, extension);
@@ -363,38 +364,36 @@ void	text_input(char *str, t_level *level)
 
 	if (!str[0])
 	{
-		if (call("input:", NULL, NULL))
+		if (call("input:", NULL))
 			level->ui.state.text_input_enable = TRUE;
 		return ;
 	}
 	filename = ft_strjoin(str, ".doom-nukem");
-	if (call(filename, NULL, NULL))
+	if (call(filename, NULL))
 		level->ui.state.text_input_enable = TRUE;
 	free(filename);
 }
 
-int	call(char *str, void (*f)(t_level *), t_level *level)
+int	call(char *str, void (*f)(t_level *))
 {
-	t_window	*window;
-	int			res;
 	t_ui_state	*state;
-	int			color_tmp;
+	t_level		*level;
 	t_ivec2		size;
+	int			tmp;
 
-	window = get_window(NULL);
 	state = get_ui_state(NULL);
+	level = get_level(NULL);
 	state->ui_text_x_offset = 4;
-	color_tmp = state->ui_text_color;
+	tmp = state->ui_text_color;
 	state->ui_text_color = UI_BACKGROUND_COL;
 	size = render_text(str, 4, state->ui_text_y_pos);
 	if (state->ui_max_width < state->ui_text_x_offset + size.x)
 		state->ui_max_width = state->ui_text_x_offset + size.x;
-	state->ui_text_color = color_tmp;
-	render_call_streaming(window->ui_texture_pixels, state->ui_text_y_pos,
-		&size, state->ui_text_color);
-	res = edit_call_var(state, size);
-	if (res && *f)
+	state->ui_text_color = tmp;
+	render_call(state->ui_text_y_pos, &size, state->ui_text_color);
+	tmp = edit_call_var(state, size);
+	if (tmp && *f)
 		(*f)(level);
 	state->ui_text_y_pos += UI_ELEMENT_HEIGHT;
-	return (res);
+	return (tmp);
 }

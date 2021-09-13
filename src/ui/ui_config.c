@@ -137,8 +137,8 @@ static void	ui_confing_face_render_settings(t_tri *tri)
 	button(&tri->isenemy, "enemy");
 }
 
-static void	ui_confing_face_settings(t_level *level,
-				int selected_amount, t_tri *tri)
+static void	ui_confing_face_settings(int selected_amount,
+											t_tri *tri)
 {
 	char	buf[100];
 
@@ -149,7 +149,7 @@ static void	ui_confing_face_settings(t_level *level,
 		sprintf(buf, "%d faces selected:", selected_amount);
 		text(buf);
 	}
-	if (call("remove faces", &remove_faces, level))
+	if (call("remove faces", &remove_faces))
 		return ;
 	if (!tri->reflectivity || selected_amount != 1)
 		sprintf(buf, "reflectivity: %.0f%%",
@@ -181,7 +181,7 @@ void	ui_config_selected_faces(t_level *level)
 		{
 			if (!selected_index)
 			{
-				ui_confing_face_settings(level,
+				ui_confing_face_settings(
 					selected_amount, &level->all.tris[i]);
 				selected_index = i + 1;
 				continue ;
@@ -219,10 +219,10 @@ void	ui_loop_directory_callback(int isdir, char *name, void *data)
 			&& !ft_strcmp(exten, &name[ft_strlen(name) - ft_strlen(exten)]))
 			extension_match = TRUE;
 		if (level->ui.state.find_extension != extension_match)
-			if (call(name, NULL, level))
+			if (call(name, NULL))
 				make_fileopen_call(level, name);
 	}
-	else if (isdir && level->ui.state.find_dir && call(name, NULL, level))
+	else if (isdir && level->ui.state.find_dir && call(name, NULL))
 		go_in_dir(level->ui.state.directory, name);
 }
 
@@ -230,14 +230,14 @@ void	ui_render_directory_header(t_level *level)
 {
 	set_text_color(UI_FACE_SELECTION_TEXT_COLOR);
 	text(level->ui.state.directory);
-	if (call("close", NULL, level))
+	if (call("close", NULL))
 	{
 		if (level->ui.state.open_file == &open_level)
 			level->ui.main_menu = MAIN_MENU_LOCATION_MAIN;
 		else
 			level->ui.state.ui_location = UI_LOCATION_MAIN;
 	}
-	if (call("up dir ..", NULL, level))
+	if (call("up dir ..", NULL))
 		path_up_dir(level->ui.state.directory);
 }
 
@@ -261,7 +261,7 @@ void	ui_render_directory(t_level *level)
 	if (level->ui.state.ui_location == UI_LOCATION_FILE_SAVE)
 	{
 		text_input(level->ui.state.save_filename, level);
-		if (call("save", NULL, level))
+		if (call("save", NULL))
 		{
 			save_level(level);
 			level->ui.state.ui_location = UI_LOCATION_MAIN;
@@ -332,9 +332,9 @@ void	ui_settings(t_level *level)
 	char		buf[100];
 
 	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
-	if (call("close", NULL, level))
+	if (call("close", NULL))
 		level->ui.main_menu = MAIN_MENU_LOCATION_MAIN;
-	if (call("select spray", NULL, level))
+	if (call("select spray", NULL))
 	{
 		level->ui.main_menu = MAIN_MENU_LOCATION_SPRAY_SELECT;
 		ft_strcpy(level->ui.state.extension, ".bmp");
@@ -360,8 +360,8 @@ void	ui_door_settings(t_level *level)
 {
 	char	buf[100];
 
-	call("set door start position", &set_door_pos_1, level);
-	call("set door stop position", &set_door_pos_2, level);
+	call("set door start position", &set_door_pos_1);
+	call("set door stop position", &set_door_pos_2);
 	if (button(&level->doors.door[level->doors.selected_index - 1]
 			.is_activation_pos_active, "has activation button"))
 	{
@@ -375,7 +375,7 @@ void	ui_door_settings(t_level *level)
 	}
 	if (level->doors.door[level->doors.selected_index - 1]
 		.is_activation_pos_active)
-		if (call("move door activation button", NULL, level))
+		if (call("move door activation button", NULL))
 			level->ui.state.ui_location
 				= UI_LOCATION_DOOR_ACTIVATION_BUTTON;
 	sprintf(buf, "door transition time: %fs",
@@ -390,11 +390,11 @@ void	ui_door_editor(t_level *level)
 	int			selected;
 	int			i;
 
-	if (call("close door editor", NULL, level))
+	if (call("close door editor", NULL))
 		level->ui.state.ui_location = UI_LOCATION_MAIN;
 	find_selected_door_index(level);
 	if (level->doors.selected_index)
-		call("delete selected door", &delete_door, level);
+		call("delete selected door", &delete_door);
 	if (level->doors.selected_index)
 		ui_door_settings(level);
 	else
@@ -405,7 +405,7 @@ void	ui_door_editor(t_level *level)
 			if (level->all.tris[i].selected)
 				selected++;
 		if (selected)
-			call("new door from selection", &add_new_door, level);
+			call("new door from selection", &add_new_door);
 		else
 			text("Select faces to create door from");
 	}
@@ -432,7 +432,7 @@ void	ui_single_light_settings(t_level *level)
 	changed += float_slider(
 			&level->lights[level->selected_light_index - 1].power,
 			buf, .1, 5);
-	call("delete light", &delete_light, level);
+	call("delete light", &delete_light);
 	if (changed)
 		level->bake_status = BAKE_NOT_BAKED;
 }
@@ -470,24 +470,24 @@ void	ui_light_editor(t_level *level)
 	{
 		set_text_color(UI_LEVEL_NOT_BAKED_COLOR);
 		sprintf(buf, "bake lighting");
-		if (call(buf, start_bake, level))
+		if (call(buf, start_bake))
 			level->selected_light_index = 0;
 	}
 	else if (level->bake_status == BAKE_BAKED)
 	{
 		set_text_color(UI_LEVEL_BAKED_COLOR);
 		sprintf(buf, "lighting baked");
-		if (call(buf, NULL, level))
+		if (call(buf, NULL))
 			level->bake_status = BAKE_NOT_BAKED;
 	}
 	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
-	if (call("close light editor", NULL, level))
+	if (call("close light editor", NULL))
 	{
 		level->ui.state.ui_location = UI_LOCATION_MAIN;
 		level->selected_light_index = 0;
 	}
 	ui_level_light_settings(level);
-	call("add light", &add_light, level);
+	call("add light", &add_light);
 	ui_single_light_settings(level);
 }
 
@@ -497,10 +497,10 @@ void	ui_level_set_var(t_level *level)
 
 	sprintf(buf, "win distance: %.2fm", level->win_dist);
 	float_slider(&level->win_dist, buf, 1, 40);
-	call("set win position", &set_win_pos, level);
-	call("set spawn position", &set_spawn_pos, level);
-	call("set menu position 1", &set_menu_pos_1, level);
-	call("set menu position 2", &set_menu_pos_2, level);
+	call("set win position", &set_win_pos);
+	call("set spawn position", &set_spawn_pos);
+	call("set menu position 1", &set_menu_pos_1);
+	call("set menu position 2", &set_menu_pos_2);
 	sprintf(buf, "main menu animation time %ds",
 		level->main_menu_anim_time);
 	int_slider((int *)&level->main_menu_anim_time, buf, 2, 50);
@@ -510,12 +510,12 @@ void	ui_level_settings(t_level *level)
 {
 	char	buf[100];
 
-	call("edit lights", &enable_light_editor, level);
+	call("edit lights", &enable_light_editor);
 	file_browser("select obj", ".obj", &set_obj);
 	file_browser("select texture", ".bmp", &set_texture);
 	file_browser("select normal map", ".bmp", &set_normal_map);
 	file_browser("select skybox", ".bmp", &set_skybox);
-	call("add face", &add_face, level);
+	call("add face", &add_face);
 	ui_level_set_var(level);
 	float_slider(&level->player.projectile_scale,
 		"Player projectile scale: ", 0, 1.5);
@@ -549,8 +549,8 @@ void	ui_editor(t_level *level)
 	button(&ui->raytracing, "raytrace lights");
 	button(&ui->vertex_select_mode, "vertex select mode");
 	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
-	call("edit uv", &enable_uv_editor, level);
-	call("edit doors", &enable_door_editor, level);
+	call("edit uv", &enable_uv_editor);
+	call("edit doors", &enable_door_editor);
 	if (nothing_selected(level) && level->bake_status != BAKE_BAKING)
 	{
 		ui_level_settings(level);
@@ -566,7 +566,7 @@ void	ui_baking(t_level *level)
 
 	sprintf(buf, "baking: %.3f%%", level->bake_progress);
 	set_text_color(UI_LEVEL_BAKING_COLOR);
-	if (call(buf, NULL, level))
+	if (call(buf, NULL))
 		level->bake_status = BAKE_NOT_BAKED;
 	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
 	button(&level->ui.noclip, "noclip");
@@ -583,15 +583,15 @@ void	select_editor_ui(t_level *level)
 		ui_render_directory(level);
 	else if (level->ui.state.ui_location == UI_LOCATION_UV_EDITOR)
 	{
-		if (call("close uv editor", NULL, level))
+		if (call("close uv editor", NULL))
 			level->ui.state.ui_location = UI_LOCATION_MAIN;
-		call("fix selected uv overlap", &fix_uv_overlap, level);
+		call("fix selected uv overlap", &fix_uv_overlap);
 	}
 	else if (level->ui.state.ui_location == UI_LOCATION_DOOR_EDITOR)
 		ui_door_editor(level);
 	else if (level->ui.state.ui_location == UI_LOCATION_DOOR_ACTIVATION_BUTTON)
 	{
-		if (call("return to door editor", NULL, level))
+		if (call("return to door editor", NULL))
 			level->ui.state.ui_location = UI_LOCATION_DOOR_EDITOR;
 	}
 	else if (level->ui.state.ui_location == UI_LOCATION_LIGHT_EDITOR)

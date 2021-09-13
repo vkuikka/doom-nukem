@@ -31,13 +31,11 @@ void	deselect_all_faces(t_level *level)
 	}
 }
 
-void	find_closest_mouse(t_vec3 *vert, int *i, int *k)
+void	find_closest_mouse(t_vec3 *vert, int *i, int *k, t_ivec2 *mouse)
 {
 	static float	nearest_len = -1;
 	static int		nearest_tri_index = -1;
 	static int		nearest_vert_index = -1;
-	int				x;
-	int				y;
 
 	if (!vert)
 	{
@@ -49,12 +47,11 @@ void	find_closest_mouse(t_vec3 *vert, int *i, int *k)
 	}
 	if (!vert || vert->z < 0)
 		return ;
-	SDL_GetMouseState(&x, &y);
-	if (vec2_length((t_vec2){vert->x - x, vert->y - y}) < nearest_len
-		|| nearest_len == -1)
+	if (vec2_length((t_vec2){vert->x - mouse->x, vert->y - mouse->y})
+		< nearest_len || nearest_len == -1)
 	{
 		nearest_len
-			= vec2_length((t_vec2){vert->x - x, vert->y - y});
+			= vec2_length((t_vec2){vert->x - mouse->x, vert->y - mouse->y});
 		nearest_tri_index = *i;
 		nearest_vert_index = *k;
 	}
@@ -68,7 +65,7 @@ static void	update_closest_vertex(t_level *level)
 	t_ivec2	o;
 	t_vec3	pos;
 
-	find_closest_mouse(NULL, &i, &k);
+	find_closest_mouse(NULL, &i, &k, NULL);
 	if (level->ui.state.m1_click && i != -1
 		&& level->ui.state.mouse_location == MOUSE_LOCATION_SELECTION)
 	{

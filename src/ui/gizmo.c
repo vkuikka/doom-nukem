@@ -183,7 +183,7 @@ void	gizmo_drag(t_level *level, t_vec3 x, t_vec3 y, t_vec3 z)
 	static int	drag_direction = 1;
 	t_ivec2		mouse;
 
-	SDL_GetMouseState(&mouse.x, &mouse.y);
+	mouse = level->ui.state.mouse;
 	if (!level->ui.state.m1_click)
 		return (gizmo_move_amount(level, mouse, drag_direction));
 	if (y.z > 0 && is_near(mouse.x, y.x, 9) && is_near(mouse.y, y.y, 9))

@@ -84,6 +84,8 @@ static void	set_mouse_input_location(t_level *level, t_game_state game_state)
 	int	y;
 
 	SDL_GetMouseState(&x, &y);
+	level->ui.state.mouse.x = x;
+	level->ui.state.mouse.y = y;
 	if (game_state == GAME_STATE_MAIN_MENU)
 	{
 		if (level->ui.main_menu == MAIN_MENU_LOCATION_MAIN)

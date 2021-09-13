@@ -95,7 +95,7 @@
 # define UI_INFO_TEXT_COLOR 0xff5500ff
 # define UI_FACE_SELECTION_TEXT_COLOR 0xffffffff
 # define UI_BACKGROUND_COL 0x222222bb
-# define UI_ELEMENT_HEIGHT 14
+# define UI_ELEMENT_HEIGHT 16
 # define UI_PADDING 2
 # define UI_PADDING_4 4
 # define UI_LEVEL_BAKED_COLOR 0x33aa33ff
@@ -428,6 +428,7 @@ typedef struct s_ui_state
 	int					error_amount;
 
 	int					mouse_capture;
+	t_ivec2				mouse;
 	int					m1_click;
 	int					m1_drag;
 	enum e_mouse_loc	mouse_location;
@@ -694,13 +695,13 @@ int				int_slider(int *var, char *str, int min, int max);
 int				float_slider(float *var, char *str, float min,
 					float max);
 int				color_slider(t_color_hsl *var, char *str);
-int				call(char *str, void (*f)(t_level *), t_level *level);
+int				call(char *str, void (*f)(t_level *));
 void			file_browser(char *str, char *extension,
 					void (*f)(t_level *, char *));
 void			file_save(char *str, char *extension,
 					void (*f)(t_level *, char *));
 void			text_input(char *str, t_level *level);
-void			find_closest_mouse(t_vec3 *vert, int *i, int *k);
+void			find_closest_mouse(t_vec3 *vert, int *i, int *k, t_ivec2 *mouse);
 
 void			main_menu(t_level *level, unsigned int *pixels,
 					t_game_state *game_state);
