@@ -119,6 +119,7 @@ void	main_menu_buttons_level(t_game_state *game_state, int *state_changed,
 		level->ui.noclip = TRUE;
 		*game_state = GAME_STATE_EDITOR;
 		*state_changed = TRUE;
+		level->ui.state.ui_location = UI_LOCATION_MAIN;
 	}
 }
 
@@ -127,6 +128,7 @@ void	main_menu_buttons_other(t_game_state *game_state, int *state_changed,
 {
 	if (main_menu_button_text("select level", 2, level, pixels))
 	{
+		level->ui.state.ui_location = UI_LOCATION_FILE_OPEN;
 		level->ui.main_menu = MAIN_MENU_LOCATION_LEVEL_SELECT;
 		ft_strcpy(level->ui.state.extension, ".doom-nukem");
 		level->ui.state.open_file = &open_level;

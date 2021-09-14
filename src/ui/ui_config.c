@@ -305,21 +305,21 @@ void	ui_render_info(t_editor_ui *ui, t_level *level)
 {
 	char		buf[100];
 
-	sprintf(buf, "fps: %d", get_fps());
+	sprintf(buf, " |   fps: %d", get_fps());
 	text(buf);
-	sprintf(buf, "cull: %ums", ui->cull_time);
+	sprintf(buf, " |   cull: %ums", ui->cull_time);
 	text(buf);
-	sprintf(buf, "ssp: %ums", ui->ssp_time);
+	sprintf(buf, " |   ssp: %ums", ui->ssp_time);
 	text(buf);
-	sprintf(buf, "        raycast amount: %uk", ui->total_raycasts / 1000);
+	sprintf(buf, " |   |   raycast amount: %uk", ui->total_raycasts / 1000);
 	text(buf);
-	sprintf(buf, "        raycast: %ums", ui->raycast_time);
+	sprintf(buf, " |   |   raycast: %ums", ui->raycast_time);
 	text(buf);
-	sprintf(buf, "        raster:   %ums", ui->raster_time);
+	sprintf(buf, " |   |   raster:   %ums", ui->raster_time);
 	text(buf);
-	sprintf(buf, "        ui:           %ums", ui->ui_time);
+	sprintf(buf, " |   |   ui:           %ums", ui->ui_time);
 	text(buf);
-	sprintf(buf, "    render:      %ums", ui->render_time);
+	sprintf(buf, " |   render:      %ums", ui->render_time);
 	text(buf);
 	sprintf(buf, "frame: %ums", ui->frame_time);
 	text(buf);
