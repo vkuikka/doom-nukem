@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/10 22:47:18 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/02 10:34:52 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/14 18:50:26 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,8 +77,10 @@ void	game_logic_put_info(t_level *level, unsigned int *texture)
 	t_vec3	b;
 	t_vec3	dist;
 
-	render_text_3d("menu1", level->main_menu_pos1.pos, UI_LEVEL_SETTINGS_TEXT_COLOR, level);
-	render_text_3d("menu2", level->main_menu_pos2.pos, UI_LEVEL_SETTINGS_TEXT_COLOR, level);
+	render_text_3d("menu1", level->main_menu_pos1.pos,
+		UI_LEVEL_SETTINGS_TEXT_COLOR, level);
+	render_text_3d("menu2", level->main_menu_pos2.pos,
+		UI_LEVEL_SETTINGS_TEXT_COLOR, level);
 	a = level->main_menu_pos1.pos;
 	b = level->main_menu_pos2.pos;
 	camera_offset(&a, &level->cam);

@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/13 12:51:47 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/12 21:07:26 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/14 18:49:31 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -173,7 +173,7 @@ static void	render_color_slider(t_window *window, float pos,
 				window->ui_texture_pixels);
 	}
 	render_slider_button(window->ui_texture_pixels, pos, dy,
-							colors[(int)(pos * (UI_SLIDER_WIDTH - 1))]);
+		colors[(int)(pos * (UI_SLIDER_WIDTH - 1))]);
 }
 
 static void	render_slider(unsigned int *texture, float pos, int dy, int color)
