@@ -77,6 +77,8 @@ void	game_logic_put_info(t_level *level, unsigned int *texture)
 	t_vec3	b;
 	t_vec3	dist;
 
+	render_text_3d("spawn", level->spawn_pos.pos,
+		UI_LEVEL_SETTINGS_TEXT_COLOR, level);
 	render_text_3d("menu1", level->main_menu_pos1.pos,
 		UI_LEVEL_SETTINGS_TEXT_COLOR, level);
 	render_text_3d("menu2", level->main_menu_pos2.pos,
