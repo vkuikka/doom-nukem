@@ -126,11 +126,13 @@ static void	read_uv_indices(char *str, t_ivec3 *uv_index, int *j, int x)
 		(*j)++;
 }
 
-void	read_indices(char *str, t_ivec3 *tex_index, t_ivec3 *uv_index)
+int	read_indices(char *str, t_ivec3 *tex_index, t_ivec3 *uv_index)
 {
 	int		j;
 	int		x;
 
+	*tex_index = (t_ivec3){0, 0, 0};
+	*uv_index = (t_ivec3){0, 0, 0};
 	j = 0;
 	while (str[j] != ' ')
 		j++;
@@ -150,6 +152,7 @@ void	read_indices(char *str, t_ivec3 *tex_index, t_ivec3 *uv_index)
 			read_uv_indices(str, uv_index, &j, x);
 		j++;
 	}
+	return (str[j - 1] == '\0');
 }
 
 static int	set_tri(char *str, t_vec3 *verts, t_vec2 *uvs, t_tri *tri)
@@ -157,9 +160,8 @@ static int	set_tri(char *str, t_vec3 *verts, t_vec2 *uvs, t_tri *tri)
 	t_ivec3	tex_index;
 	t_ivec3	uv_index;
 
-	tex_index = (t_ivec3){0, 0, 0};
-	uv_index = (t_ivec3){0, 0, 0};
-	read_indices(str, &tex_index, &uv_index);
+	if (!read_indices(str, &tex_index, &uv_index))
+		return (FALSE);
 	if (uvs)
 	{
 		tri->verts[0].txtr.x = uvs[uv_index.x].x;
@@ -181,6 +183,16 @@ static int	set_tri(char *str, t_vec3 *verts, t_vec2 *uvs, t_tri *tri)
 	return (TRUE);
 }
 
+static int	obj_set_all_tris_res(t_vec3 *verts, t_vec2 *uvs, int res)
+{
+	free(verts);
+	if (!uvs)
+		free(uvs);
+	if (res == FALSE)
+		nonfatal_error("obj not triangulated");
+	return (res);
+}
+
 static int	obj_set_all_tris(char **file, t_obj *obj)
 {
 	int		i;
@@ -198,14 +210,12 @@ static int	obj_set_all_tris(char **file, t_obj *obj)
 	j = 0;
 	while (file[i])
 	{
-		if (file[i][0] == 'f' && file[i][1] == ' ')
-			if (!set_tri(file[i], verts, uvs, &obj->tris[j++]))
-				return (FALSE);
+		if (file[i][0] == 'f' && file[i][1] == ' '
+			&& !set_tri(file[i], verts, uvs, &obj->tris[j++]))
+			return (obj_set_all_tris_res(verts, uvs, FALSE));
 		i++;
 	}
-	free(verts);
-	free(uvs);
-	return (TRUE);
+	return (obj_set_all_tris_res(verts, uvs, TRUE));
 }
 
 static int	obj_get_face_amount(char **file)
