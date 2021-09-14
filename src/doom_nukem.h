@@ -787,6 +787,7 @@ void			add_light(t_level *level);
 void			move_light(t_level *level, t_vec3 move_amount);
 void			select_light(t_level *level, int x, int y);
 void			delete_light(t_level *level);
+void			delete_all_lights(t_level *level);
 void			set_fourth_vertex_uv(t_tri *a);
 void			start_bake(t_level *level);
 t_vec3			get_normal(int vec);
