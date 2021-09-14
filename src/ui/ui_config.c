@@ -283,27 +283,32 @@ int	nothing_selected(t_level *level)
 	return (1);
 }
 
-void	ui_render_info(t_level *level)
+void	ui_render_info(t_editor_ui *ui, t_level *level)
 {
 	char		buf[100];
-	t_editor_ui	*ui;
 
-	ui = &level->ui;
-	set_text_color(UI_INFO_TEXT_COLOR);
-	sprintf(buf, "fps:               %d", get_fps());
+	sprintf(buf, "fps: %d", get_fps());
 	text(buf);
-	sprintf(buf, "cull:              %ums", ui->cull_time);
+	sprintf(buf, "cull: %ums", ui->cull_time);
 	text(buf);
-	sprintf(buf, "ssp:               %ums", ui->ssp_time);
+	sprintf(buf, "ssp: %ums", ui->ssp_time);
 	text(buf);
-	sprintf(buf, "render:          %ums", ui->render_time);
+	sprintf(buf, "        raycast amount: %uk", ui->total_raycasts / 1000);
 	text(buf);
-	sprintf(buf, "frametime: %ums", ui->frame_time);
+	sprintf(buf, "        raycast: %ums", ui->raycast_time);
 	text(buf);
-	sprintf(buf, "faces:           %d / %d",
+	sprintf(buf, "        raster:   %ums", ui->raster_time);
+	text(buf);
+	sprintf(buf, "        ui:           %ums", ui->ui_time);
+	text(buf);
+	sprintf(buf, "    render:      %ums", ui->render_time);
+	text(buf);
+	sprintf(buf, "frame: %ums", ui->frame_time);
+	text(buf);
+	sprintf(buf, "faces: %d / %d",
 		level->all.tri_amount, level->visible.tri_amount);
 	text(buf);
-	sprintf(buf, "xz velocity:  %.2fm/s", level->ui.horizontal_velocity);
+	sprintf(buf, "xz vel: %.2fm/s", level->ui.horizontal_velocity);
 	text(buf);
 }
 
@@ -553,12 +558,11 @@ void	ui_editor(t_level *level)
 	call("edit uv", &enable_uv_editor);
 	call("edit doors", &enable_door_editor);
 	if (nothing_selected(level) && level->bake_status != BAKE_BAKING)
-	{
 		ui_level_settings(level);
-		ui_render_info(level);
-	}
 	set_text_color(WF_SELECTED_COL);
 	ui_config_selected_faces(level);
+	set_text_color(UI_INFO_TEXT_COLOR);
+	ui_render_info(&level->ui, level);
 }
 
 void	ui_baking(t_level *level)
@@ -609,7 +613,8 @@ void	ui_main_menu(t_window *window, t_level *level, t_game_state *game_state)
 	else if (level->ui.main_menu == MAIN_MENU_LOCATION_SETTINGS)
 	{
 		ui_settings(level);
-		ui_render_info(level);
+		set_text_color(UI_INFO_TEXT_COLOR);
+		ui_render_info(&level->ui, level);
 	}
 	else
 		ui_render_directory(level);

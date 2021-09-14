@@ -103,6 +103,7 @@ void	cast_all_color(t_level *l, t_obj *obj, t_cast_result *res)
 {
 	int		new_hit;
 
+	l->ui.total_raycasts++;
 	new_hit = cast_loop(obj, res);
 	if (new_hit == -1)
 		res->color = skybox(l, *res);

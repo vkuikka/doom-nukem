@@ -487,8 +487,12 @@ typedef struct s_editor_ui
 
 	unsigned int		ssp_time;
 	unsigned int		cull_time;
+	unsigned int		raycast_time;
+	unsigned int		raster_time;
+	unsigned int		ui_time;
 	unsigned int		render_time;
 	unsigned int		frame_time;
+	unsigned int		total_raycasts;
 	struct s_ui_state	state;
 }						t_editor_ui;
 
