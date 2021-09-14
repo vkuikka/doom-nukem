@@ -418,6 +418,7 @@ void	ui_single_light_settings(t_level *level)
 
 	if (!level->selected_light_index)
 		return ;
+	set_text_color(level->lights[level->selected_light_index - 1].color.color);
 	changed = 0;
 	changed += color_slider(
 			&level->lights[level->selected_light_index - 1].color,
@@ -480,7 +481,7 @@ void	ui_light_editor(t_level *level)
 		if (call(buf, NULL))
 			level->bake_status = BAKE_NOT_BAKED;
 	}
-	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
+	set_text_color(level->ui.sun_color.color);
 	if (call("close light editor", NULL))
 	{
 		level->ui.state.ui_location = UI_LOCATION_MAIN;
@@ -556,7 +557,7 @@ void	ui_editor(t_level *level)
 		ui_level_settings(level);
 		ui_render_info(level);
 	}
-	set_text_color(UI_FACE_SELECTION_TEXT_COLOR);
+	set_text_color(WF_SELECTED_COL);
 	ui_config_selected_faces(level);
 }
 

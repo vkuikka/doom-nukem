@@ -112,15 +112,15 @@ static t_rect	render_call(t_ivec2 *size, t_ui_state *state)
 	return (rect);
 }
 
-static void	render_button(unsigned int *texture, int *var, int dy)
+static void	render_button(unsigned int *texture, int *var, int dy, int color)
 {
-	int					color;
-	int					x;
-	int					y;
+	int	edge_color;
+	int	x;
+	int	y;
 
-	color = 0x303030ff;
-	if (*var)
-		color = 0x008020ff;
+	edge_color = set_lightness(color, -0.8);
+	if (!(*var))
+		color = set_lightness(color, -0.7);
 	y = 0;
 	while (y < 10)
 	{
@@ -128,7 +128,7 @@ static void	render_button(unsigned int *texture, int *var, int dy)
 		while (x < 10)
 		{
 			if (y < 1 || y > 8 || x < 1 || x > 8)
-				button_pixel_put(x + 2, y + 4 + dy, 0x404040ff, texture);
+				button_pixel_put(x + 2, y + 4 + dy, edge_color, texture);
 			else
 				button_pixel_put(x + 2, y + 4 + dy, color, texture);
 			x++;
@@ -217,7 +217,7 @@ int	button(int *var, char *str)
 	state = get_ui_state(NULL);
 	state->ui_text_x_offset = 14;
 	render_button(window->ui_texture_pixels, var,
-		state->ui_text_y_pos);
+		state->ui_text_y_pos, state->ui_text_color);
 	changed = edit_button_var(var, state);
 	text(str);
 	return (changed);
