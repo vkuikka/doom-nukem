@@ -53,6 +53,7 @@ else
 endif
 
 clean:
+	rm -f embed.h
 #@make clean -C libft
 
 fclean: clean
