@@ -657,6 +657,7 @@ void	ui(t_window *window, t_level *level, t_game_state *game_state)
 		select_editor_ui(level);
 		door_put_text(level);
 		light_put_text(level);
+		game_logic_put_info(level, window->ui_texture_pixels);
 	}
 	else if (*game_state == GAME_STATE_MAIN_MENU)
 		ui_main_menu(window, level, game_state);

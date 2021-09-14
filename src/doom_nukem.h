@@ -657,6 +657,8 @@ unsigned int	set_saturation(unsigned int color, float s);
 void			hsl_update_color(t_color_hsl *c);
 void			face_color(float u, float v, t_tri t,
 					t_cast_result *res);
+void			print_line(t_vec3 start, t_vec3 stop, unsigned int color,
+						unsigned int *texture);
 void			wireframe(unsigned int *texture, t_level *level);
 void			camera_offset(t_vec3 *vertex, t_camera *cam);
 SDL_Color		get_sdl_color(unsigned int color);
@@ -768,6 +770,7 @@ t_ivec2			put_text(char *text, t_window *window,
 void			set_new_face(t_level *level, t_vec3 pos, t_vec3 dir,
 					float scale);
 
+void			game_logic_put_info(t_level *level, unsigned int *texture);
 void			door_animate(t_level *level);
 void			door_put_text(t_level *level);
 void			add_new_door(t_level *level);
