@@ -137,8 +137,8 @@ static void	ui_confing_face_render_settings(t_tri *tri)
 	button(&tri->isenemy, "enemy");
 }
 
-static void	ui_confing_face_settings(int selected_amount,
-											t_tri *tri)
+static void	ui_confing_face_settings(t_level *level,
+							int selected_amount, t_tri *tri)
 {
 	char	buf[100];
 
@@ -160,7 +160,8 @@ static void	ui_confing_face_settings(int selected_amount,
 			100 * tri->reflectivity,
 			tri->reflection_obj_all.tri_amount,
 			tri->reflection_obj_first_bounce.tri_amount);
-	float_slider(&tri->reflectivity, buf, 0, 1);
+	if (float_slider(&tri->reflectivity, buf, 0, 1))
+		static_culling(level);
 	ui_confing_face_render_settings(tri);
 	if (tri->isenemy)
 		ui_config_enemy_settings(tri);
@@ -181,7 +182,7 @@ void	ui_config_selected_faces(t_level *level)
 		{
 			if (!selected_index)
 			{
-				ui_confing_face_settings(
+				ui_confing_face_settings(level,
 					selected_amount, &level->all.tris[i]);
 				selected_index = i + 1;
 				continue ;
@@ -219,8 +220,15 @@ void	ui_loop_directory_callback(int isdir, char *name, void *data)
 			&& !ft_strcmp(exten, &name[ft_strlen(name) - ft_strlen(exten)]))
 			extension_match = TRUE;
 		if (level->ui.state.find_extension != extension_match)
-			if (call(name, NULL))
-				make_fileopen_call(level, name);
+		{
+			if (level->ui.state.ui_location == UI_LOCATION_FILE_OPEN)
+			{
+				if (call(name, NULL))
+					make_fileopen_call(level, name);
+			}
+			else
+				text(name);
+		}
 	}
 	else if (isdir && level->ui.state.find_dir && call(name, NULL))
 		go_in_dir(level->ui.state.directory, name);
@@ -228,8 +236,17 @@ void	ui_loop_directory_callback(int isdir, char *name, void *data)
 
 void	ui_render_directory_header(t_level *level)
 {
-	set_text_color(UI_FACE_SELECTION_TEXT_COLOR);
+	char		buf[100];
+
+	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
 	text(level->ui.state.directory);
+	if (level->ui.state.ui_location == UI_LOCATION_FILE_OPEN)
+	{
+		sprintf(buf, "select  %s  file", level->ui.state.extension);
+		text(buf);
+	}
+	else
+		text("Save file");
 	if (call("close", NULL))
 	{
 		if (level->ui.state.open_file == &open_level)
@@ -244,22 +261,23 @@ void	ui_render_directory_header(t_level *level)
 void	ui_render_directory(t_level *level)
 {
 	ui_render_directory_header(level);
-	set_text_color(UI_EDITOR_SETTINGS_TEXT_COLOR);
+	set_text_color(UI_DIRECTORY_FOLDER_COLOR);
 	level->ui.state.find_dir = TRUE;
 	level->ui.state.find_extension = FALSE;
 	loop_directory(level->ui.state.directory, (void *)level,
 		&ui_loop_directory_callback);
-	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
+	set_text_color(UI_DIRECTORY_FILE_WANTED_COLOR);
 	level->ui.state.find_dir = FALSE;
 	loop_directory(level->ui.state.directory, (void *)level,
 		&ui_loop_directory_callback);
-	set_text_color(UI_INFO_TEXT_COLOR);
+	set_text_color(UI_DIRECTORY_FILE_OTHER_COLOR);
 	level->ui.state.find_extension = TRUE;
 	loop_directory(level->ui.state.directory, (void *)level,
 		&ui_loop_directory_callback);
-	set_text_color(UI_FACE_SELECTION_TEXT_COLOR);
+	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
 	if (level->ui.state.ui_location == UI_LOCATION_FILE_SAVE)
 	{
+		text("save as:");
 		text_input(level->ui.state.save_filename, level);
 		if (call("save", NULL))
 		{

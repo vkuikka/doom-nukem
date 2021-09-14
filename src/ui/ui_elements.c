@@ -220,6 +220,7 @@ int	button(int *var, char *str)
 		state->ui_text_y_pos, state->ui_text_color);
 	changed = edit_button_var(var, state);
 	text(str);
+	state->ui_text_x_offset = 4;
 	return (changed);
 }
 
@@ -240,9 +241,10 @@ int	int_slider(int *var, char *str, int min, int max)
 	int			res;
 
 	window = get_window(NULL);
+	state = get_ui_state(NULL);
+	state->ui_text_x_offset = 4;
 	if (str)
 		text(str);
-	state = get_ui_state(NULL);
 	state->ui_text_x_offset = 14;
 	*var = clamp(*var, min, max);
 	*var -= min;
@@ -264,9 +266,10 @@ int	float_slider(float *var, char *str, float min, float max)
 	int			res;
 
 	window = get_window(NULL);
+	state = get_ui_state(NULL);
+	state->ui_text_x_offset = 4;
 	if (str)
 		text(str);
-	state = get_ui_state(NULL);
 	state->ui_text_x_offset = 14;
 	*var = clamp(*var, min, max);
 	*var -= min;
@@ -311,6 +314,7 @@ int	color_slider(t_color_hsl *var, char *str)
 	int				res;
 
 	state = get_ui_state(NULL);
+	state->ui_text_x_offset = 4;
 	text(str);
 	render_color_slider(get_window(NULL), var->hue,
 		state->ui_text_y_pos, state->color_slider_hue_colors);
@@ -364,7 +368,7 @@ void	text_input(char *str, t_level *level)
 
 	if (!str[0])
 	{
-		if (call("input:", NULL))
+		if (call("input:     ", NULL))
 			level->ui.state.text_input_enable = TRUE;
 		return ;
 	}
