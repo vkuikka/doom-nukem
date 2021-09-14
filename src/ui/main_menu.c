@@ -115,6 +115,7 @@ void	main_menu_buttons_level(t_game_state *game_state, int *state_changed,
 	}
 	if (main_menu_button_text("edit level", 1, level, pixels))
 	{
+		level->ui.state.m1_click = FALSE;
 		level->ui.noclip = TRUE;
 		*game_state = GAME_STATE_EDITOR;
 		*state_changed = TRUE;

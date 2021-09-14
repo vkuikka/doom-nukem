@@ -515,10 +515,12 @@ void	ui_light_editor(t_level *level)
 	ui_single_light_settings(level);
 }
 
-void	ui_level_set_var(t_level *level)
+void	ui_game_settings(t_level *level)
 {
 	char	buf[100];
 
+	if (call("close", NULL))
+		level->ui.state.ui_location = UI_LOCATION_MAIN;
 	sprintf(buf, "win distance: %.2fm", level->win_dist);
 	float_slider(&level->win_dist, buf, 1, 40);
 	call("set win position", &set_win_pos);
@@ -528,6 +530,8 @@ void	ui_level_set_var(t_level *level)
 	sprintf(buf, "main menu animation time %ds",
 		level->main_menu_anim_time);
 	int_slider((int *)&level->main_menu_anim_time, buf, 2, 50);
+	float_slider(&level->player.projectile_scale,
+		"Player projectile scale: ", 0, 1.5);
 }
 
 void	ui_level_settings(t_level *level)
@@ -540,9 +544,8 @@ void	ui_level_settings(t_level *level)
 	file_browser("select normal map", ".bmp", &set_normal_map);
 	file_browser("select skybox", ".bmp", &set_skybox);
 	call("add face", &add_face);
-	ui_level_set_var(level);
-	float_slider(&level->player.projectile_scale,
-		"Player projectile scale: ", 0, 1.5);
+	if (call("game settings", NULL))
+		level->ui.state.ui_location = UI_LOCATION_GAME_SETTINGS;
 	button(&level->ui.fog, "fog");
 	if (level->ui.fog)
 		color_slider(&level->ui.fog_color, NULL);
@@ -619,6 +622,8 @@ void	select_editor_ui(t_level *level)
 	}
 	else if (level->ui.state.ui_location == UI_LOCATION_LIGHT_EDITOR)
 		ui_light_editor(level);
+	else if (level->ui.state.ui_location == UI_LOCATION_GAME_SETTINGS)
+		ui_game_settings(level);
 	else
 		ui_editor(level);
 }
@@ -638,13 +643,18 @@ void	ui_main_menu(t_window *window, t_level *level, t_game_state *game_state)
 		ui_render_directory(level);
 }
 
+static void	reset_ui_state(t_ui_state *state, t_level *level)
+{
+	state->ui_max_width = 0;
+	state->ui_text_color = 0;
+	state->ui_text_x_offset = 0;
+	state->ui_text_y_pos = 0;
+	state->current_font = level->ui.editor_font;
+}
+
 void	ui(t_window *window, t_level *level, t_game_state *game_state)
 {
-	level->ui.state.ui_max_width = 0;
-	level->ui.state.ui_text_color = 0;
-	level->ui.state.ui_text_x_offset = 0;
-	level->ui.state.ui_text_y_pos = 0;
-	level->ui.state.current_font = level->ui.editor_font;
+	reset_ui_state(&level->ui.state, level);
 	if (level->ui.state.ssp_visual)
 	{
 		render_ssp_visual_background(window->ui_texture_pixels);
@@ -654,10 +664,14 @@ void	ui(t_window *window, t_level *level, t_game_state *game_state)
 	{
 		if (level->ui.state.ui_location == UI_LOCATION_UV_EDITOR)
 			uv_editor(level, window->ui_texture_pixels);
+		else if (level->ui.state.ui_location == UI_LOCATION_GAME_SETTINGS)
+			game_logic_put_info(level, window->ui_texture_pixels);
+		else
+		{
+			door_put_text(level);
+			light_put_text(level);
+		}
 		select_editor_ui(level);
-		door_put_text(level);
-		light_put_text(level);
-		game_logic_put_info(level, window->ui_texture_pixels);
 	}
 	else if (*game_state == GAME_STATE_MAIN_MENU)
 		ui_main_menu(window, level, game_state);
