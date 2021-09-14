@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   screen_space_partition.c                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/09 12:03:36 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/02 19:39:21 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/14 19:05:13y vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ static void	calculate_corner_vectors(t_vec3 result[2], t_camera c,
 	result[1].z = c.front.z + c.up.z * ym + c.side.z * xm;
 }
 
-static int	left(t_tri *tri, int x, t_camera cam)
+static int	horizontal(t_tri tri, int x, t_camera cam, int side)
 {
 	t_vec3	corners[2];
 	t_vec3	normal;
@@ -67,11 +67,11 @@ static int	left(t_tri *tri, int x, t_camera cam)
 	int		i;
 
 	calculate_corner_vectors(corners, cam, (float)x, 1);
-	vec_cross(&normal, corners[0], corners[1]);
+	vec_cross(&normal, corners[side], corners[!side]);
 	i = 0;
-	while (i < 3 + tri->isquad)
+	while (i < 3 + tri.isquad)
 	{
-		vec_sub(&vert, tri->verts[i].pos, cam.pos);
+		vec_sub(&vert, tri.verts[i].pos, cam.pos);
 		if (vec_dot(vert, normal) > 0)
 			return (0);
 		i++;
@@ -79,27 +79,7 @@ static int	left(t_tri *tri, int x, t_camera cam)
 	return (1);
 }
 
-static int	right(t_tri *tri, int x, t_camera cam)
-{
-	t_vec3	corners[2];
-	t_vec3	normal;
-	t_vec3	vert;
-	int		i;
-
-	calculate_corner_vectors(corners, cam, (float)x, 1);
-	vec_cross(&normal, corners[1], corners[0]);
-	i = 0;
-	while (i < 3 + tri->isquad)
-	{
-		vec_sub(&vert, tri->verts[i].pos, cam.pos);
-		if (vec_dot(vert, normal) > 0)
-			return (0);
-		i++;
-	}
-	return (1);
-}
-
-static int	over(t_tri *tri, int x, t_camera cam)
+static int	vertical(t_tri tri, int x, t_camera cam, int side)
 {
 	t_vec3	corners[2];
 	t_vec3	normal;
@@ -107,11 +87,11 @@ static int	over(t_tri *tri, int x, t_camera cam)
 	int		i;
 
 	calculate_corner_vectors(corners, cam, (float)x, 0);
-	vec_cross(&normal, corners[0], corners[1]);
+	vec_cross(&normal, corners[!side], corners[side]);
 	i = 0;
-	while (i < 3 + tri->isquad)
+	while (i < 3 + tri.isquad)
 	{
-		vec_sub(&vert, tri->verts[i].pos, cam.pos);
+		vec_sub(&vert, tri.verts[i].pos, cam.pos);
 		if (vec_dot(vert, normal) > 0)
 			return (0);
 		i++;
@@ -119,72 +99,57 @@ static int	over(t_tri *tri, int x, t_camera cam)
 	return (1);
 }
 
-static int	under(t_tri *tri, int x, t_camera cam)
+static void	partition_range(int (*side_comparison)(t_tri, int, t_camera, int),
+							t_tri tri, t_camera cam, float bounds[3])
 {
-	t_vec3	corners[2];
-	t_vec3	normal;
-	t_vec3	vert;
-	int		i;
+	float	tmp;
+	float	min;
+	float	max;
+	int		j;
 
-	calculate_corner_vectors(corners, cam, (float)x, 0);
-	vec_cross(&normal, corners[1], corners[0]);
-	i = 0;
-	while (i < 3 + tri->isquad)
-	{
-		vec_sub(&vert, tri->verts[i].pos, cam.pos);
-		if (vec_dot(vert, normal) > 0)
-			return (0);
-		i++;
-	}
-	return (1);
+	min = bounds[0];
+	max = bounds[1];
+	tmp = max;
+	j = tri.index - 1;
+	while (++j < bounds[2])
+		if (side_comparison(tri, (min + tmp) / 2, cam, 1))
+			min = (min + tmp) / 2;
+		else
+			tmp = (min + tmp) / 2;
+	tmp = min;
+	j = tri.index - 1;
+	while (++j < bounds[2])
+		if (side_comparison(tri, (max + tmp) / 2, cam, 0))
+			max = (max + tmp) / 2;
+		else
+			tmp = (max + tmp) / 2;
+	bounds[0] = min;
+	bounds[1] = max;
 }
 
-static void	find_partition(int (*dir1)(t_tri *, int, t_camera),
-					int (*dir2)(t_tri *, int, t_camera), t_tri *tri,
-					t_camera cam, float bounds[3])
+static void	find_partition(int (*side_comparison)(t_tri, int, t_camera, int),
+							t_tri tri, t_camera cam, float bounds[3])
 {
 	float	min;
 	float	max;
 	int		i;
-	int		j;
-	float	tmp;
 
 	min = bounds[0];
 	max = bounds[1];
 	i = 0;
 	while (i < bounds[2])
 	{
-		if (dir1(tri, (max + min) / 2, cam))
+		if (side_comparison(tri, (max + min) / 2, cam, 0))
 			max = (max + min) / 2;
-		else if (dir2(tri, (max + min) / 2, cam))
+		else if (side_comparison(tri, (max + min) / 2, cam, 1))
 			min = (max + min) / 2;
 		else
 		{
-			j = i;
-			tmp = (max + min) / 2;
-			while (j < bounds[2])
-			{
-				if (dir1(tri, (min + tmp) / 2, cam))
-					tmp = (max + tmp) / 2;
-				else if (dir2(tri, (min + tmp) / 2, cam))
-					min = (min + tmp) / 2;
-				else
-					tmp = (min + tmp) / 2;
-				j++;
-			}
-			j = i;
-			tmp = (max + min) / 2;
-			while (j < bounds[2])
-			{
-				if (dir2(tri, (max + tmp) / 2, cam))
-					tmp = (max + tmp) / 2;
-				else if (dir1(tri, (max + tmp) / 2, cam))
-					max = (max + tmp) / 2;
-				else
-					tmp = (max + tmp) / 2;
-				j++;
-			}
-			break ;
+			tri.index = i;
+			bounds[0] = min;
+			bounds[1] = max;
+			partition_range(side_comparison, tri, cam, bounds);
+			return;
 		}
 		i++;
 	}
@@ -192,7 +157,7 @@ static void	find_partition(int (*dir1)(t_tri *, int, t_camera),
 	bounds[1] = max;
 }
 
-static void	find_ssp_index(t_tri *tri, t_level *level)
+static void	find_ssp_index(t_tri tri, t_level *level)
 {
 	t_camera	cam;
 	float		y_bounds[3];
@@ -207,15 +172,15 @@ static void	find_ssp_index(t_tri *tri, t_level *level)
 	y_bounds[0] = 0;
 	y_bounds[1] = RES_Y - 1;
 	y_bounds[2] = SSP_MAX_Y - 1;
-	find_partition(left, right, tri, cam, x_bounds);
-	find_partition(under, over, tri, cam, y_bounds);
+	find_partition(horizontal, tri, cam, x_bounds);
+	find_partition(vertical, tri, cam, y_bounds);
 	x = get_ssp_coordinate(x_bounds[0], 1);
 	while (x <= get_ssp_coordinate(x_bounds[1], 1))
 	{
 		y = get_ssp_coordinate(y_bounds[0], 0) - 1;
 		while (++y <= get_ssp_coordinate(y_bounds[1], 0))
 			level->ssp[x + y * SSP_MAX_X]
-				.tris[level->ssp[x + y * SSP_MAX_X].tri_amount++] = *tri;
+				.tris[level->ssp[x + y * SSP_MAX_X].tri_amount++] = tri;
 		x++;
 	}
 }
@@ -242,7 +207,7 @@ void	screen_space_partition(t_level *level)
 			}
 		}
 		else
-			find_ssp_index(&level->visible.tris[i], level);
+			find_ssp_index(level->visible.tris[i], level);
 		i++;
 	}
 }
