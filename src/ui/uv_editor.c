@@ -270,7 +270,7 @@ static void	uv_wireframe(t_level *level, t_ivec2 offset,
 	t_uv_parameters	param;
 	int				i;
 
-	SDL_GetMouseState(&mouse.x, &mouse.y);
+	mouse = level->ui.state.mouse;
 	param.offset.x = offset.x;
 	param.offset.y = offset.y;
 	param.scale.x = level->texture.width * image_scale;

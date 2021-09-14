@@ -89,13 +89,15 @@
 # define GIZMO_SCALE_DIVIDER 4
 # define UI_SLIDER_WIDTH 100
 # define UI_SLIDER_BUTTON_WIDTH 5
+# define UI_SLIDER_BUTTON_HEIGHT 12
 # define UI_FONT_SIZE 13
-# define UI_EDITOR_SETTINGS_TEXT_COLOR 0x4444ffff
-# define UI_LEVEL_SETTINGS_TEXT_COLOR 0xffffffff
-# define UI_INFO_TEXT_COLOR 0xff5500ff
-# define UI_FACE_SELECTION_TEXT_COLOR 0xffffffff
+# define UI_DIRECTORY_FOLDER_COLOR 0xfff7c4ff
+# define UI_DIRECTORY_FILE_WANTED_COLOR 0x77c7f2ff
+# define UI_DIRECTORY_FILE_OTHER_COLOR 0x8c8c8cff
+# define UI_LEVEL_SETTINGS_TEXT_COLOR 0xccb0f5ff
+# define UI_INFO_TEXT_COLOR 0xff0000ff
 # define UI_BACKGROUND_COL 0x222222bb
-# define UI_ELEMENT_HEIGHT 14
+# define UI_ELEMENT_HEIGHT 16
 # define UI_PADDING 2
 # define UI_PADDING_4 4
 # define UI_LEVEL_BAKED_COLOR 0x33aa33ff
@@ -408,6 +410,7 @@ typedef enum e_ui_location
 	UI_LOCATION_FILE_OPEN,
 	UI_LOCATION_FILE_SAVE,
 	UI_LOCATION_UV_EDITOR,
+	UI_LOCATION_GAME_SETTINGS,
 	UI_LOCATION_DOOR_EDITOR,
 	UI_LOCATION_DOOR_ACTIVATION_BUTTON,
 	UI_LOCATION_LIGHT_EDITOR
@@ -428,6 +431,7 @@ typedef struct s_ui_state
 	int					error_amount;
 
 	int					mouse_capture;
+	t_ivec2				mouse;
 	int					m1_click;
 	int					m1_drag;
 	enum e_mouse_loc	mouse_location;
@@ -485,8 +489,12 @@ typedef struct s_editor_ui
 
 	unsigned int		ssp_time;
 	unsigned int		cull_time;
+	unsigned int		raycast_time;
+	unsigned int		raster_time;
+	unsigned int		ui_time;
 	unsigned int		render_time;
 	unsigned int		frame_time;
+	unsigned int		total_raycasts;
 	struct s_ui_state	state;
 }						t_editor_ui;
 
@@ -650,6 +658,8 @@ unsigned int	set_saturation(unsigned int color, float s);
 void			hsl_update_color(t_color_hsl *c);
 void			face_color(float u, float v, t_tri t,
 					t_cast_result *res);
+void			print_line(t_vec3 start, t_vec3 stop, unsigned int color,
+						unsigned int *texture);
 void			wireframe(unsigned int *texture, t_level *level);
 void			camera_offset(t_vec3 *vertex, t_camera *cam);
 SDL_Color		get_sdl_color(unsigned int color);
@@ -694,13 +704,14 @@ int				int_slider(int *var, char *str, int min, int max);
 int				float_slider(float *var, char *str, float min,
 					float max);
 int				color_slider(t_color_hsl *var, char *str);
-int				call(char *str, void (*f)(t_level *), t_level *level);
+int				call(char *str, void (*f)(t_level *));
 void			file_browser(char *str, char *extension,
 					void (*f)(t_level *, char *));
 void			file_save(char *str, char *extension,
 					void (*f)(t_level *, char *));
 void			text_input(char *str, t_level *level);
-void			find_closest_mouse(t_vec3 *vert, int *i, int *k);
+void			find_closest_mouse(t_vec3 *vert, int *i, int *k, t_ivec2 *mouse);
+int				mouse_collision(t_rect rect, t_ivec2 mouse);
 
 void			main_menu(t_level *level, unsigned int *pixels,
 					t_game_state *game_state);
@@ -760,6 +771,7 @@ t_ivec2			put_text(char *text, t_window *window,
 void			set_new_face(t_level *level, t_vec3 pos, t_vec3 dir,
 					float scale);
 
+void			game_logic_put_info(t_level *level, unsigned int *texture);
 void			door_animate(t_level *level);
 void			door_put_text(t_level *level);
 void			add_new_door(t_level *level);
@@ -780,6 +792,7 @@ void			add_light(t_level *level);
 void			move_light(t_level *level, t_vec3 move_amount);
 void			select_light(t_level *level, int x, int y);
 void			delete_light(t_level *level);
+void			delete_all_lights(t_level *level);
 void			set_fourth_vertex_uv(t_tri *a);
 void			start_bake(t_level *level);
 t_vec3			get_normal(int vec);
