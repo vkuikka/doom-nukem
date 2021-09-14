@@ -114,15 +114,15 @@ static void	partition_range(int (*side_comparison)(t_tri, int, t_camera, int),
 	while (++j < bounds[2])
 		if (side_comparison(tri, (min + tmp) / 2, cam, 1))
 			min = (min + tmp) / 2;
-		else
-			tmp = (min + tmp) / 2;
+	else
+		tmp = (min + tmp) / 2;
 	tmp = min;
 	j = tri.index - 1;
 	while (++j < bounds[2])
 		if (side_comparison(tri, (max + tmp) / 2, cam, 0))
 			max = (max + tmp) / 2;
-		else
-			tmp = (max + tmp) / 2;
+	else
+		tmp = (max + tmp) / 2;
 	bounds[0] = min;
 	bounds[1] = max;
 }
@@ -149,7 +149,7 @@ static void	find_partition(int (*side_comparison)(t_tri, int, t_camera, int),
 			bounds[0] = min;
 			bounds[1] = max;
 			partition_range(side_comparison, tri, cam, bounds);
-			return;
+			return ;
 		}
 		i++;
 	}
