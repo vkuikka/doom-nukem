@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/13 22:51:22 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/15 01:20:19by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,10 +99,12 @@ static int	cast_loop(t_obj *obj, t_cast_result *res)
 	return (new_hit);
 }
 
-void	cast_all_color(t_level *l, t_obj *obj, t_cast_result *res)
+void	cast_all_color(t_level *l, t_obj *obj, t_cast_result *res,
+							int apply_fog)
 {
 	int		new_hit;
 
+	vec_normalize(&res->ray.dir);
 	new_hit = cast_loop(obj, res);
 	if (new_hit == -1)
 		res->color = skybox(l, *res);
@@ -114,7 +116,7 @@ void	cast_all_color(t_level *l, t_obj *obj, t_cast_result *res)
 		vec_add(&res->ray.pos, res->ray.pos, res->ray.dir);
 		raytrace(res, obj, l);
 	}
-	if (l->ui.fog)
+	if (l->ui.fog && apply_fog)
 		fog(&res->color, res->dist, l->ui.fog_color.color, l);
 }
 
@@ -168,7 +170,7 @@ void	raycast(t_level *level, t_window *window, int thread_id)
 			{
 				res.ray = ray_set(&level->cam, level->ui.fov, xy);
 				cast_result_set(&res, level);
-				cast_all_color(level, &level->ssp[get_ssp(xy)], &res);
+				cast_all_color(level, &level->ssp[get_ssp(xy)], &res, TRUE);
 				window->frame_buffer[xy.x + (xy.y * RES_X)]
 					= (res.color >> 8 << 8) + 0xff;
 				window->depth_buffer[xy.x + (xy.y * RES_X)] = res.dist;
