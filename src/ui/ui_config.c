@@ -578,7 +578,7 @@ void	ui_editor(t_level *level)
 	}
 	button(&ui->raytracing, "raytrace lights");
 	button(&ui->vertex_select_mode, "vertex select mode");
-	call("cull static", &static_culling, level);
+	call("cull static", &static_culling);
 	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
 	call("edit uv", &enable_uv_editor);
 	call("edit doors", &enable_door_editor);
