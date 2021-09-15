@@ -52,25 +52,17 @@ static void	render_raycast(t_window *window, t_level *level)
 	SDL_RenderCopy(window->SDLrenderer, window->texture, NULL, NULL);
 }
 
-static void	render_raster(t_window *window, t_level *level,
-							t_game_state *game_state)
+static void	render_raster(t_window *window, t_level *level)
 {
-	int	dummy_for_sdl;
-
 	if (SDL_LockTexture(window->raster_texture, NULL,
-			(void **)&window->raster_texture_pixels, &dummy_for_sdl
-		) != 0)
+			(void **)&window->raster_texture_pixels, &(int){0}) != 0)
 		ft_error("failed to lock texture\n");
 	ft_memset(window->raster_texture_pixels, 0, RES_X * RES_Y * sizeof(int));
-	if (*game_state == GAME_STATE_EDITOR)
-	{
-		wireframe(window->raster_texture_pixels, level);
-		if (level->ui.state.gizmo_active)
-			gizmo_render(level, window->raster_texture_pixels);
-	}
+	wireframe(window->raster_texture_pixels, level);
+	if (level->ui.state.gizmo_active)
+		gizmo_render(level, window->raster_texture_pixels);
 	SDL_UnlockTexture(window->raster_texture);
 	SDL_RenderCopy(window->SDLrenderer, window->raster_texture, NULL, NULL);
-	return ;
 }
 
 static void	render_ui(t_window *window, t_level *level,
@@ -94,15 +86,27 @@ static void	render_ui(t_window *window, t_level *level,
 
 static void	render(t_window *window, t_level *level, t_game_state *game_state)
 {
+	unsigned int	raycast_time;
+	unsigned int	raster_time;
+	unsigned int	ui_time;
+
 	SDL_RenderClear(window->SDLrenderer);
 	if (level->level_initialized)
 	{
+		level->ui.total_raycasts = 0;
+		raycast_time = SDL_GetTicks();
 		if (!level->ui.wireframe
 			|| (level->ui.wireframe && level->ui.wireframe_on_top))
 			render_raycast(window, level);
-		render_raster(window, level, game_state);
+		level->ui.raycast_time = SDL_GetTicks() - raycast_time;
+		raster_time = SDL_GetTicks();
+		if (*game_state == GAME_STATE_EDITOR)
+			render_raster(window, level);
+		level->ui.raster_time = SDL_GetTicks() - raster_time;
 	}
+	ui_time = SDL_GetTicks();
 	render_ui(window, level, game_state);
+	level->ui.ui_time = SDL_GetTicks() - ui_time;
 	SDL_RenderPresent(window->SDLrenderer);
 }
 

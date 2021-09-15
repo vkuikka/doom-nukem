@@ -226,7 +226,7 @@ void	render_wireframe(unsigned int *texture, t_level *level, t_obj *obj,
 			ss_vert = wireframe_render_line(obj,
 					(t_ivec3){i, k, is_visible}, level, texture);
 			if (!is_visible)
-				find_closest_mouse(&ss_vert, &i, &k);
+				find_closest_mouse(&ss_vert, &i, &k, &level->ui.state.mouse);
 			k++;
 		}
 		if (is_visible || !level->ui.wireframe_culling_visual)

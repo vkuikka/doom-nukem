@@ -78,12 +78,27 @@ static void	set_mouse_input_location_3d_space(t_level *level, int x, int y)
 	}
 }
 
+static void	set_mouse_location(t_level *level, int *x, int *y)
+{
+	if (level->ui.state.mouse_capture)
+	{
+		*x = RES_X / 2;
+		*y = RES_Y / 2;
+	}
+	else
+	{
+		SDL_GetMouseState(x, y);
+		level->ui.state.mouse.x = *x;
+		level->ui.state.mouse.y = *y;
+	}
+}
+
 static void	set_mouse_input_location(t_level *level, t_game_state game_state)
 {
 	int	x;
 	int	y;
 
-	SDL_GetMouseState(&x, &y);
+	set_mouse_location(level, &x, &y);
 	if (game_state == GAME_STATE_MAIN_MENU)
 	{
 		if (level->ui.main_menu == MAIN_MENU_LOCATION_MAIN)

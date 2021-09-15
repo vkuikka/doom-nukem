@@ -74,6 +74,18 @@ void	move_light(t_level *level, t_vec3 move_amount)
 		level->bake_status = BAKE_NOT_BAKED;
 }
 
+void	delete_all_lights(t_level *level)
+{
+	if (level->lights)
+	{
+		free(level->lights);
+		level->lights = NULL;
+	}
+	level->light_amount = 0;
+	level->selected_light_index = 0;
+	level->bake_status = BAKE_NOT_BAKED;
+}
+
 void	delete_light(t_level *level)
 {
 	int	i;
