@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   doom_nukem.h                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/12 23:41:30 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/15 01:41:33 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -313,13 +313,11 @@ typedef struct s_tri
 	float				refractivity;
 	int					shader;
 	int					selected;
+	int					opacity_precise;
 	t_obj				opacity_obj_all;
 	t_obj				reflection_obj_all;
 	t_obj				reflection_obj_first_bounce;
 	t_obj				shadow_faces;
-	// int					breakable;
-	// int					broken;
-	// int					*reflection_culling_mask;
 }						t_tri;
 
 typedef struct s_skybox
@@ -482,6 +480,7 @@ typedef struct s_editor_ui
 	int					raytracing;
 	int					spray_from_view;
 	float				spray_size;
+	int					normal_map_disabled;
 
 	t_color_hsl			sun_color;
 	struct s_vec3		sun_dir;
@@ -755,7 +754,7 @@ void			save_level(t_level *level);
 void			open_level(t_level *level, char *filename);
 
 void			cast_all_color(t_level *l, t_obj *obj,
-					t_cast_result *res);
+					t_cast_result *res, int apply_fog);
 int				cull_behind(t_vec3 dir, t_vec3 pos, t_tri tri);
 int				cull_ahead(t_vec3 dir, t_vec3 pos, t_tri tri);
 
