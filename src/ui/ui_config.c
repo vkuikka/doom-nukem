@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/13 23:29:27 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/15 23:44:13 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,7 +134,7 @@ static void	ui_confing_face_render_settings(t_tri *tri)
 	if (button(&tri->isquad, "quad"))
 		set_fourth_vertex(tri);
 	button(&tri->isgrid, "grid");
-	int_slider(&tri->shader, "shader", 0, 2);
+	int_slider(&tri->shader, "shader", 0, 3);
 	button(&tri->isbreakable, "breakable");
 	button(&tri->isenemy, "enemy");
 }

@@ -55,11 +55,16 @@ static void	raytrace(t_cast_result *res, t_obj *obj, t_level *l)
 	t_color	light;
 	t_vec3	tmp;
 
-	vec_add(&tmp, res->ray.dir, res->ray.pos);
+	tmp = res->ray.pos;
 	face_normal = l->all.tris[res->face_index].normal;
 	vec_normalize(&res->normal);
 	if (l->all.tris[res->face_index].shader == 1)
 		res->color = shader_wave(tmp, &res->normal, 0x070C5A, 0x020540);
+	if (l->all.tris[res->face_index].shader == 3)
+	{
+		res->color = shader_test(tmp, l, *res);
+		return ;
+	}
 	if (l->all.tris[res->face_index].shader == 2)
 		res->color = shader_rule30(tmp);
 	else if (!res->baked || res->raytracing)
