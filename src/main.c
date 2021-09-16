@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/12 22:18:52 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/16 18:20:45 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,11 +23,22 @@ static void	update_camera(t_level *l)
 	l->cam.fov_x = l->ui.fov * ((float)RES_X / RES_Y);
 }
 
+static void	render_finish(t_window *window, t_level *level)
+{
+	fill_pixels(window->frame_buffer, level->ui.raycast_quality,
+		level->ui.blur, level->ui.smooth_pixels);
+	chromatic_abberation(window->frame_buffer, window->buf,
+		level->ui.chromatic_abberation);
+	SDL_UnlockTexture(window->texture);
+	SDL_RenderCopy(window->SDLrenderer, window->texture, NULL, NULL);
+}
+
 static void	render_raycast(t_window *window, t_level *level)
 {
 	SDL_Thread	*threads[THREAD_AMOUNT];
 	t_rthread	thread_data[THREAD_AMOUNT];
 	int			i;
+	int			thread_casts;
 
 	if (SDL_LockTexture(window->texture, NULL,
 			(void **)&window->frame_buffer, &(int){0}) != 0)
@@ -43,13 +54,11 @@ static void	render_raycast(t_window *window, t_level *level)
 	}
 	i = -1;
 	while (++i < THREAD_AMOUNT)
-		SDL_WaitThread(threads[i], &(int){0});
-	fill_pixels(window->frame_buffer, level->ui.raycast_quality,
-		level->ui.blur, level->ui.smooth_pixels);
-	chromatic_abberation(window->frame_buffer, window->buf,
-		level->ui.chromatic_abberation);
-	SDL_UnlockTexture(window->texture);
-	SDL_RenderCopy(window->SDLrenderer, window->texture, NULL, NULL);
+	{
+		SDL_WaitThread(threads[i], &thread_casts);
+		level->ui.total_raycasts += thread_casts;
+	}
+	render_finish(window, level);
 }
 
 static void	render_raster(t_window *window, t_level *level)

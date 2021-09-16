@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/15 01:20:19by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/16 18:19:52 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,7 +106,6 @@ void	cast_all_color(t_level *l, t_obj *obj, t_cast_result *res,
 {
 	int		new_hit;
 
-	l->ui.total_raycasts++;
 	vec_normalize(&res->ray.dir);
 	new_hit = cast_loop(obj, res);
 	if (new_hit == -1)
@@ -157,12 +156,13 @@ void	cast_result_set(t_cast_result *res, t_level *level)
 	res->face_index = -1;
 }
 
-void	raycast(t_level *level, t_window *window, int thread_id)
+int	raycast(t_level *level, t_window *window, int thread_id)
 {
 	t_cast_result	res;
 	t_ivec2			xy;
 
 	xy.x = thread_id;
+	res.raycast_amount = 0;
 	while (xy.x < RES_X)
 	{
 		xy.y = -1;
@@ -181,6 +181,7 @@ void	raycast(t_level *level, t_window *window, int thread_id)
 		}
 		xy.x += THREAD_AMOUNT;
 	}
+	return (res.raycast_amount);
 }
 
 int	init_raycast(void *data_pointer)
@@ -188,6 +189,5 @@ int	init_raycast(void *data_pointer)
 	t_rthread	*thread;
 
 	thread = data_pointer;
-	raycast(thread->level, thread->window, thread->id);
-	return (0);
+	return (raycast(thread->level, thread->window, thread->id));
 }

@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/16 17:28:17 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/16 18:19:27 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -603,6 +603,7 @@ typedef struct s_cast_result
 	struct s_bmp		*texture;
 	t_color				*baked;
 	unsigned int		*spray_overlay;
+	int					raycast_amount;
 }						t_cast_result;
 
 typedef struct s_buffer
@@ -658,7 +659,7 @@ void			hsl_update_color(t_color_hsl *c);
 void			face_color(float u, float v, t_tri t,
 					t_cast_result *res);
 void			print_line(t_vec3 start, t_vec3 stop, unsigned int color,
-						unsigned int *texture);
+					unsigned int *texture);
 void			wireframe(unsigned int *texture, t_level *level);
 void			camera_offset(t_vec3 *vertex, t_camera *cam);
 SDL_Color		get_sdl_color(unsigned int color);
@@ -709,7 +710,8 @@ void			file_browser(char *str, char *extension,
 void			file_save(char *str, char *extension,
 					void (*f)(t_level *, char *));
 void			text_input(char *str, t_level *level);
-void			find_closest_mouse(t_vec3 *vert, int *i, int *k, t_ivec2 *mouse);
+void			find_closest_mouse(t_vec3 *vert, int *i, int *k,
+					t_ivec2 *mouse);
 int				mouse_collision(t_rect rect, t_ivec2 mouse);
 
 void			main_menu(t_level *level, unsigned int *pixels,
@@ -719,7 +721,8 @@ void			hud(t_level *level, unsigned int *pixels,
 					t_game_state game_state);
 void			fake_analog_signal(t_bmp *img, unsigned int *pixels,
 					float amount);
-void			chromatic_abberation(unsigned int *pixels, unsigned int *buf, int amount);
+void			chromatic_abberation(unsigned int *pixels,
+					unsigned int *buf, int amount);
 void			create_projectile(t_level *level, t_vec3 pos,
 					t_vec3 dir, t_enemy *enemy);
 
