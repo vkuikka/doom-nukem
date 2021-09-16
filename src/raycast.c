@@ -61,10 +61,7 @@ static void	raytrace(t_cast_result *res, t_obj *obj, t_level *l)
 	if (l->all.tris[res->face_index].shader == 1)
 		res->color = shader_wave(tmp, &res->normal, 0x070C5A, 0x020540);
 	if (l->all.tris[res->face_index].shader == 3)
-	{
-		res->color = shader_test(tmp, l, *res);
-		return ;
-	}
+		res->color = shader_test(tmp, l, res);
 	if (l->all.tris[res->face_index].shader == 2)
 		res->color = shader_rule30(tmp);
 	else if (!res->baked || res->raytracing)

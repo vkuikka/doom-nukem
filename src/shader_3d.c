@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/16 12:01:41 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/16 12:02:29 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/16 16:48:21 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,6 @@ static float interpolated_noise(float x, float y)
     return cosine_interpolate(i1, i2, y_frac);
 }
 
-
 float perlin_noise_2D(float x, float y)
 {
     int octaves=5;
@@ -71,7 +70,7 @@ float perlin_noise_2D(float x, float y)
     return total;
 }
 
-unsigned int	shader_test(t_vec3 pos, t_level *level, t_cast_result res)
+unsigned int	shader_test(t_vec3 pos, t_level *level, t_cast_result *res)
 {
 	t_vec2	v;
 	t_vec3	ogpos;
@@ -83,38 +82,35 @@ unsigned int	shader_test(t_vec3 pos, t_level *level, t_cast_result res)
 	float	time;
 	time = SDL_GetTicks() / 1000.0;
 
-	float perlin = perlin_noise_2D(v.x + time, v.y + time);
+	float perlin = perlin_noise_2D(v.x + time * 1.5, v.y + time * 1.5);
 	// float perlin = perlin_noise_2D(v.x, v.y);
 	perlin = (perlin + 1) / 2;
 
 	// return (crossfade(0, 0xffffff, res * 0xff, 0xff));
-
-	tmp = pos;
-	vec_normalize(&tmp);
-
-	vec_sub(&pos, pos, level->cam.pos);
-	vec_normalize(&pos);
 	ogpos = pos;
+	vec_sub(&tmp, pos, level->cam.pos);
 
-	tmp.y = 0;
-	vec_mult(&tmp, perlin);
-	vec_add(&pos, pos, tmp);
-	// pos.y -= res / 5;
-	// pos.y += 1;
 
-	t_ray ray;
-	ray.pos = level->cam.pos;
-	ray.dir = pos;
+	// vec_normalize(&tmp);
+	// tmp.y = 0;
+	// vec_normalize(&tmp);
+	vec_mult(&tmp, (perlin));
 
-	vec_normalize(&ray.dir);
-	float dist = cast_face(level->all.tris[res.face_index], ray, &res);
-	pos = ogpos;
-	vec_mult(&pos, dist);
-	vec_add(&pos, ray.pos, pos);
 
-	// perlin = perlin_noise_2D(fabs(pos.x) + time, fabs(pos.z) + time);
-	// perlin = (perlin + 1) / 2;
-	// return (crossfade(0, 0x0000ff, perlin * 0xff, 0xff));
+	vec_add(&pos, ogpos, tmp);
+
+	// tmp = pos;
+	// tmp.y -= 1;
+	// tmp.x -= perlin / 2;
+	// camera_offset(&ogpos, &level->cam);
+	// camera_offset(&tmp, &level->cam);
+	// print_line(ogpos, tmp, 0xffffffff * perlin, res.window->frame_buffer);
+	res->normal.x += perlin - 0.5;
+
+	(void)res;
+	perlin = perlin_noise_2D(fabs(pos.x) + time, fabs(pos.z) + time);
+	perlin = (perlin + 1) / 2;
+	return (crossfade(0x001f40, 0x4790de, perlin * 0xff, 0xff));
 
 	if (fmod(fabs(pos.x), 4) > 2 ^ fmod(fabs(pos.z), 4) > 2)
 		return (0xffffffff);

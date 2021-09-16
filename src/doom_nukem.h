@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/16 11:30:33 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/16 17:28:17 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -744,7 +744,7 @@ void			reflection(t_cast_result *res, t_level *l, t_obj *obj);
 unsigned int	shader_wave(t_vec3 mod, t_vec3 *normal,
 					unsigned int col1, unsigned int col2);
 unsigned int	shader_rule30(t_vec3 pos);
-unsigned int	shader_test(t_vec3 pos, t_level *level, t_cast_result res);
+unsigned int	shader_test(t_vec3 pos, t_level *level, t_cast_result *res);
 t_color			sunlight(t_level *l, t_cast_result *res, t_color light);
 
 void			select_face(t_camera *cam, t_level *level,
