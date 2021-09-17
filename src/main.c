@@ -126,6 +126,18 @@ static void	tick_forward(t_level *level, t_game_state *game_state)
 	enemies_update_sprites(level);
 }
 
+static void	merge_objects(t_level *level)
+{
+	int	i;
+
+	i = 0;
+	while (i < level->all.tri_amount)
+	{
+		level->all.tris[i].texture = &level->texture;
+		i++;
+	}
+}
+
 static void	dnukem(t_window *window, t_level *level, t_game_state game_state)
 {
 	unsigned int	ssp_time;
@@ -139,6 +151,7 @@ static void	dnukem(t_window *window, t_level *level, t_game_state game_state)
 		read_input(window, level, &game_state);
 		tick_forward(level, &game_state);
 		cull_time = SDL_GetTicks();
+		merge_objects(level);
 		culling(level);
 		level->ui.cull_time = SDL_GetTicks() - cull_time;
 		ssp_time = SDL_GetTicks();

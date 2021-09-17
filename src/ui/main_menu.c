@@ -115,6 +115,7 @@ void	main_menu_buttons_level(t_game_state *game_state, int *state_changed,
 	}
 	if (main_menu_button_text("edit level", 1, level, pixels))
 	{
+		Mix_HaltMusic();
 		level->ui.state.m1_click = FALSE;
 		level->ui.noclip = TRUE;
 		*game_state = GAME_STATE_EDITOR;
@@ -135,6 +136,7 @@ void	main_menu_buttons_other(t_game_state *game_state, int *state_changed,
 	}
 	if (main_menu_button_text("create level", 3, level, pixels))
 	{
+		Mix_HaltMusic();
 		create_default_level(level);
 		level->ui.noclip = TRUE;
 		*game_state = GAME_STATE_EDITOR;

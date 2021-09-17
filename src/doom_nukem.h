@@ -314,6 +314,7 @@ typedef struct s_tri
 	int					shader;
 	int					selected;
 	int					opacity_precise;
+	t_bmp				*texture;
 	t_obj				opacity_obj_all;
 	t_obj				reflection_obj_all;
 	t_obj				reflection_obj_first_bounce;
@@ -514,12 +515,12 @@ typedef struct s_player_pos
 
 typedef struct s_level
 {
-	struct s_obj		all;
-	struct s_obj		visible;
-	struct s_obj		*ssp;
-	struct s_bmp		texture;
-	struct s_bmp		normal_map;
-	struct s_bmp		spray;
+	t_obj				all;
+	t_obj				visible;
+	t_obj				*ssp;
+	t_bmp				texture;
+	t_bmp				normal_map;
+	t_bmp				spray;
 	unsigned int		*spray_overlay;
 	t_color				*baked;
 	t_vec2				baked_size;

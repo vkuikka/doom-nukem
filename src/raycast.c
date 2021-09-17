@@ -112,6 +112,7 @@ void	cast_all_color(t_level *l, t_obj *obj, t_cast_result *res,
 	else
 	{
 		res->face_index = obj->tris[new_hit].index;
+		res->texture = obj->tris[new_hit].texture;
 		face_color(res->uv.x, res->uv.y, obj->tris[new_hit], res);
 		vec_mult(&res->ray.dir, res->dist);
 		vec_add(&res->ray.pos, res->ray.pos, res->ray.dir);
@@ -145,7 +146,6 @@ void	cast_result_set(t_cast_result *res, t_level *level)
 		res->normal_map = &level->normal_map;
 	else
 		res->normal_map = NULL;
-	res->texture = &level->texture;
 	res->spray_overlay = level->spray_overlay;
 	if (level->bake_status != BAKE_NOT_BAKED)
 		res->baked = level->baked;
