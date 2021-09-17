@@ -126,16 +126,38 @@ static void	tick_forward(t_level *level, t_game_state *game_state)
 	enemies_update_sprites(level);
 }
 
-static void	merge_objects(t_level *level)
+static void	merge_pickup_boxes(t_level *level)
 {
 	int	i;
+	int	k;
 
-	i = 0;
-	while (i < level->all.tri_amount)
+	if (level->dynamic.pickup_box.tri_amount + level->visible.tri_amount >= level->all.tri_amount)
 	{
-		level->all.tris[i].texture = &level->texture;
-		i++;
+		printf("out of mem\n");
+		return ;
 	}
+	i = level->visible.tri_amount;
+	k = 0;
+	while (k < level->dynamic.pickup_box.tri_amount)
+	{
+		level->visible.tris[i] = level->dynamic.pickup_box.tris[k];
+		level->visible.tris[i].texture = &level->dynamic.ammo_pickup_texture;
+		level->visible.tris[i].texture = &level->dynamic.health_pickup_texture;
+		i++;
+		k++;
+	}
+	level->visible.tri_amount = i;
+}
+
+static void	merge_dynamic(t_level *level, t_game_state game_state)
+{
+	(void)game_state;
+	// if (game_state == GAME_STATE_EDITOR)
+	// 	|| game_state == GAME_STATE_MAIN_MENU)
+	// 	return ;
+	merge_pickup_boxes(level);
+	// merge_enemies();
+	// merge_projectiles();
 }
 
 static void	dnukem(t_window *window, t_level *level, t_game_state game_state)
@@ -151,8 +173,8 @@ static void	dnukem(t_window *window, t_level *level, t_game_state game_state)
 		read_input(window, level, &game_state);
 		tick_forward(level, &game_state);
 		cull_time = SDL_GetTicks();
-		merge_objects(level);
 		culling(level);
+		merge_dynamic(level, game_state);
 		level->ui.cull_time = SDL_GetTicks() - cull_time;
 		ssp_time = SDL_GetTicks();
 		screen_space_partition(level);
@@ -182,15 +204,7 @@ int	main(int argc, char **argv)
 	init_audio(level);
 	init_embedded(level);
 	init_player(&level->player);
-
-	//remove
-	open_level(level, "level/demo.doom-nukem");
-	game_state = GAME_STATE_EDITOR;
-	level->cam.pos = level->spawn_pos.pos;
-	level->cam.look_side = level->spawn_pos.look_side;
-	level->cam.look_up = level->spawn_pos.look_up;
-	//remove
-
+	Mix_PlayMusic(level->audio.title_music, -1);
 	while (!level->level_initialized)
 	{
 		read_input(window, level, &game_state);

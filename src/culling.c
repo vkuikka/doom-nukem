@@ -342,6 +342,7 @@ void	init_culling(t_level *level)
 	i = -1;
 	while (++i < level->all.tri_amount)
 	{
+		level->all.tris[i].texture = &level->texture;
 		level->all.tris[i].reflection_obj_all.tris
 			= (t_tri *)malloc(sizeof(t_tri) * level->all.tri_amount);
 		level->all.tris[i].reflection_obj_first_bounce.tris

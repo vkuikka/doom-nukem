@@ -24,7 +24,7 @@ AUDIO=$(addprefix audio/, $(AUDIO_FILES))
 VIEWMODEL_FILES = ak_0.bmp
 #ak_1.bmp ak_2.bmp ak_3.bmp ak_4.bmp ak_5.bmp ak_6.bmp ak_7.bmp ak_8.bmp ak_9.bmp
 VIEWMODEL=$(addprefix viewmodel/, $(VIEWMODEL_FILES))
-EMBED_FILES = title.bmp skybox.obj digital.ttf Roboto-Medium.ttf
+EMBED_FILES = title.bmp skybox.obj digital.ttf Roboto-Medium.ttf ammo_pickup_texture.bmp health_pickup_texture.bmp pickup_box.obj
 EMBED_FILES += $(VIEWMODEL)
 EMBED_FILES += $(AUDIO)
 EMBED=$(addprefix embed/, $(EMBED_FILES))

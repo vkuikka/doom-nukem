@@ -513,8 +513,20 @@ typedef struct s_player_pos
 	float				look_up;
 }						t_player_pos;
 
+typedef struct s_dynamic_geometry
+{
+	t_obj				projectiles;
+	t_obj				enemies;
+	t_obj				pickup_box;
+	t_bmp				enemy_texture;
+	t_bmp				projectile_texture;
+	t_bmp				ammo_pickup_texture;
+	t_bmp				health_pickup_texture;
+}						t_dynamic_geometry;
+
 typedef struct s_level
 {
+	t_dynamic_geometry	dynamic;
 	t_obj				all;
 	t_obj				visible;
 	t_obj				*ssp;
