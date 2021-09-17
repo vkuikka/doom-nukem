@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   init.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/08 14:38:45 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/02 11:27:38 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/17 22:52:45 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,7 +142,7 @@ void	init_window(t_window **window)
 		ft_error("memory allocation failed\n");
 	window[0]->SDLwindow = SDL_CreateWindow("DOOM NUKEM",
 			SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-			RES_X, RES_Y, 0);
+			RES_X, RES_Y, SDL_WINDOW_ALLOW_HIGHDPI);
 	if (!window[0]->SDLwindow)
 		ft_error("could not create window");
 	window[0]->SDLrenderer

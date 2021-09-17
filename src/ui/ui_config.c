@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/17 19:29:55 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/18 00:46:18 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,9 +122,10 @@ static void	ui_config_face_perlin_settings(t_perlin_settings *perlin)
 	char	buf[100];
 
 	set_text_color(UI_SHADER_SETTINGS);
-	text("perlin noise:");
 	float_slider(&perlin->min, "min", 0, 1);
 	float_slider(&perlin->max, "max", 0, 1);
+	float_slider(&perlin->noise_opacity, "opacity from noise", 0, 4);
+	float_slider(&perlin->distance, "distance (0 = disabled)", 0, 800);
 	int_slider(&perlin->depth, "depth", 1, 6);
 	float_slider(&perlin->scale, "scale", 0.01, 2);
 	float_slider(&perlin->move_speed, "speed", 0, 3);

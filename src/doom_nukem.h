@@ -6,14 +6,14 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/17 18:37:12 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/18 00:10:55 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef DOOM_NUKEM_H
 # define DOOM_NUKEM_H
 # define RES_X 1000
-# define RES_Y 700
+# define RES_Y 750
 # define THREAD_AMOUNT 8
 # define NOISE_QUALITY_LIMIT 8
 # define SSP_MAX_X 20
@@ -265,6 +265,8 @@ typedef struct s_perlin_settings
 	float				min;
 	float				max;
 	int					depth;
+	float				noise_opacity;
+	float				distance;
 	int					visualizer;
 	t_color_hsl			color_1;
 	t_color_hsl			color_2;
