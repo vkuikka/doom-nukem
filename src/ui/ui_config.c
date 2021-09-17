@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/17 13:08:38 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/17 19:29:55 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,7 +117,27 @@ static void	ui_config_enemy_settings(t_tri *tri)
 	ui_config_enemy_projectile_settings(tri);
 }
 
-static void	ui_confing_face_render_settings(t_tri *tri, t_editor_ui *ui)
+static void	ui_config_face_perlin_settings(t_perlin_settings *perlin)
+{
+	char	buf[100];
+
+	set_text_color(UI_SHADER_SETTINGS);
+	text("perlin noise:");
+	float_slider(&perlin->min, "min", 0, 1);
+	float_slider(&perlin->max, "max", 0, 1);
+	int_slider(&perlin->depth, "depth", 1, 6);
+	float_slider(&perlin->scale, "scale", 0.01, 2);
+	float_slider(&perlin->move_speed, "speed", 0, 3);
+	sprintf(buf, "depth speed difference: %.2f", perlin->speed_diff);
+	float_slider(&perlin->speed_diff, buf, 0, 4);
+	int_slider(&perlin->visualizer, "visualizer", 0, 3);
+	if (color_slider(&perlin->color_1, "color 1"))
+		hsl_update_color(&perlin->color_1);
+	if (color_slider(&perlin->color_2, "color 2"))
+		hsl_update_color(&perlin->color_2);
+}
+
+static void	ui_confing_face_render_settings(t_tri *tri)
 {
 	char	buf[100];
 
@@ -136,20 +156,10 @@ static void	ui_confing_face_render_settings(t_tri *tri, t_editor_ui *ui)
 	button(&tri->isgrid, "grid");
 	button(&tri->isbreakable, "breakable");
 	button(&tri->isenemy, "enemy");
-	int_slider(&tri->shader, "shader", 0, 3);
-	if (tri->shader == 3)
-	{
-		set_text_color(0xc77dffff);
-		text("perlin noise:");
-		int_slider(&ui->perlin_depth, "depth", 1, 6);
-		float_slider(&ui->perlin_scale, "scale", 0, 2);
-		float_slider(&ui->perlin_move_speed, "speed", 0, 3);
-		int_slider(&ui->perlin_visualizer, "visualizer", 0, 2);
-		if (color_slider(&ui->perlin_color_1, "color 1"))
-			hsl_update_color(&ui->perlin_color_1);
-		if (color_slider(&ui->perlin_color_2, "color 2"))
-			hsl_update_color(&ui->perlin_color_2);
-	}
+	if (int_slider(&tri->shader, "shader", 0, 3) && tri->shader == 3)
+		perlin_init(tri);
+	if (tri->shader == 3 && tri->perlin)
+		ui_config_face_perlin_settings(tri->perlin);
 }
 
 static void	ui_confing_face_settings(t_level *level,
@@ -177,7 +187,7 @@ static void	ui_confing_face_settings(t_level *level,
 			tri->reflection_obj_first_bounce.tri_amount);
 	if (float_slider(&tri->reflectivity, buf, 0, 1))
 		static_culling(level);
-	ui_confing_face_render_settings(tri, &level->ui);
+	ui_confing_face_render_settings(tri);
 	if (tri->isenemy)
 		ui_config_enemy_settings(tri);
 }

@@ -80,22 +80,60 @@ float   perlin_noise(float x, float y, float freq, int depth)
 	return (fin / div);
 }
 
+void	perlin_init(t_tri *t)
+{
+	t->perlin = (t_perlin_settings*)malloc(sizeof(t_perlin_settings));
+	if (!t->perlin)
+	{
+		nonfatal_error("failed to initialize perlin shader");
+		return ;
+	}
+	t->perlin->scale = 1;
+	t->perlin->depth = 6;
+	t->perlin->move_speed = 1;
+	t->perlin->speed_diff = 1.5;
+	t->perlin->visualizer = 0;
+	t->perlin->min = 0;
+	t->perlin->max = 1;
+	ft_memset(&t->perlin->color_1, 0, sizeof(t_color_hsl));
+	ft_memset(&t->perlin->color_2, 0, sizeof(t_color_hsl));
+	t->perlin->color_2.lightness = -1;
+}
+
+float	stretch_value(float perlin, float min, float max)
+{
+	if (perlin > max)
+		perlin = max;
+	if (perlin < min)
+		perlin = min;
+	return ((perlin - min) * (1 / (max - min)));
+}
+
 unsigned int	shader_test(t_vec3 pos, t_level *level, t_cast_result *res)
 {
-	t_vec2	v;
-	t_vec3	ogpos;
-	t_vec3	tmp;
-	float	time;
-	float	perlin;
+	t_perlin_settings	p;
+	t_vec2				v;
+	t_vec3				ogpos;
+	t_vec3				tmp;
+	float				time;
+	float				perlin;
 
 	v.x = fabs(pos.x);
 	v.y = fabs(pos.z);
+	res->normal = level->all.tris[res->face_index].normal;
+	if (!level->all.tris[res->face_index].perlin)
+		return (0x000000ff);
 
-	time = SDL_GetTicks() / 1000.0 * level->ui.perlin_move_speed;
+	p = *level->all.tris[res->face_index].perlin;
 
-	perlin = perlin_noise(v.x + time, v.y + time, level->ui.perlin_scale, level->ui.perlin_depth);
-	if (level->ui.perlin_visualizer == 1)
-		return (crossfade(level->ui.perlin_color_1.color >> 8, level->ui.perlin_color_2.color >> 8, perlin * 0xff, 0xff));
+	time = SDL_GetTicks() / 1000.0 * p.move_speed;
+
+	perlin = perlin_noise(fabs(pos.x) + time * p.speed_diff,
+							fabs(pos.z), p.scale, p.depth);
+	perlin = stretch_value(perlin, p.min, p.max);
+
+	if (p.visualizer == 1)
+		return (crossfade(p.color_1.color >> 8, p.color_2.color >> 8, perlin * 0xff, 0xff));
 	res->normal.x += perlin - 0.5;
 
 	ogpos = pos;
@@ -103,13 +141,15 @@ unsigned int	shader_test(t_vec3 pos, t_level *level, t_cast_result *res)
 	vec_mult(&tmp, perlin);
 	vec_add(&pos, ogpos, tmp);
 
-	perlin = perlin_noise(fabs(pos.x) + time, fabs(pos.z) + time, level->ui.perlin_scale, level->ui.perlin_depth);
+	perlin = perlin_noise(fabs(pos.x) + time,
+							fabs(pos.z), p.scale, p.depth);
+	perlin = stretch_value(perlin, p.min, p.max);
 
-	if (level->ui.perlin_visualizer == 2)
+	if (p.visualizer == 2)
 	{
 		if (fmod(fabs(pos.x), 4) > 2 ^ fmod(fabs(pos.z), 4) > 2)
 			return (0xffffffff);
 		return (0x000000ff);
 	}
-	return (crossfade(level->ui.perlin_color_1.color >> 8, level->ui.perlin_color_2.color >> 8, perlin * 0xff, 0xff));
+	return (crossfade(p.color_1.color >> 8, p.color_2.color >> 8, perlin * 0xff, 0xff));
 }

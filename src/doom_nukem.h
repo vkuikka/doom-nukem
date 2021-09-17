@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/17 13:08:33 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/17 18:37:12 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,6 +103,7 @@
 # define UI_LEVEL_BAKED_COLOR 0x33aa33ff
 # define UI_LEVEL_BAKING_COLOR 0xccaa33ff
 # define UI_LEVEL_NOT_BAKED_COLOR 0xcc3333ff
+# define UI_SHADER_SETTINGS 0xc77dffff
 
 # define UV_PADDING 3
 
@@ -256,6 +257,19 @@ typedef struct s_uv_parameters
 	unsigned int		*pixels;
 }						t_uv_parameters;
 
+typedef struct s_perlin_settings
+{
+	float				move_speed;
+	float				speed_diff;
+	float				scale;
+	float				min;
+	float				max;
+	int					depth;
+	int					visualizer;
+	t_color_hsl			color_1;
+	t_color_hsl			color_2;
+}						t_perlin_settings;
+
 typedef struct s_projectile
 {
 	struct s_vec3		dir;
@@ -318,6 +332,7 @@ typedef struct s_tri
 	t_obj				reflection_obj_all;
 	t_obj				reflection_obj_first_bounce;
 	t_obj				shadow_faces;
+	t_perlin_settings	*perlin;
 }						t_tri;
 
 typedef struct s_skybox
@@ -481,13 +496,6 @@ typedef struct s_editor_ui
 	int					spray_from_view;
 	float				spray_size;
 	int					normal_map_disabled;
-
-	float				perlin_move_speed;
-	float				perlin_scale;
-	int					perlin_depth;
-	int					perlin_visualizer;
-	t_color_hsl			perlin_color_1;
-	t_color_hsl			perlin_color_2;
 
 	t_color_hsl			sun_color;
 	struct s_vec3		sun_dir;
@@ -832,5 +840,6 @@ void			ui(t_window *window, t_level *level, t_game_state *game_state);
 void			render_ssp_visual_background(unsigned int *texture);
 void			render_ssp_visual_text(t_level *level);
 void			ui_render_background(t_window *window, t_level *level);
+void			perlin_init(t_tri *tri);
 
 #endif
