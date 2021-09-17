@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/15 23:44:13 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/17 13:08:38 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,7 +117,7 @@ static void	ui_config_enemy_settings(t_tri *tri)
 	ui_config_enemy_projectile_settings(tri);
 }
 
-static void	ui_confing_face_render_settings(t_tri *tri)
+static void	ui_confing_face_render_settings(t_tri *tri, t_editor_ui *ui)
 {
 	char	buf[100];
 
@@ -134,9 +134,22 @@ static void	ui_confing_face_render_settings(t_tri *tri)
 	if (button(&tri->isquad, "quad"))
 		set_fourth_vertex(tri);
 	button(&tri->isgrid, "grid");
-	int_slider(&tri->shader, "shader", 0, 3);
 	button(&tri->isbreakable, "breakable");
 	button(&tri->isenemy, "enemy");
+	int_slider(&tri->shader, "shader", 0, 3);
+	if (tri->shader == 3)
+	{
+		set_text_color(0xc77dffff);
+		text("perlin noise:");
+		int_slider(&ui->perlin_depth, "depth", 1, 6);
+		float_slider(&ui->perlin_scale, "scale", 0, 2);
+		float_slider(&ui->perlin_move_speed, "speed", 0, 3);
+		int_slider(&ui->perlin_visualizer, "visualizer", 0, 2);
+		if (color_slider(&ui->perlin_color_1, "color 1"))
+			hsl_update_color(&ui->perlin_color_1);
+		if (color_slider(&ui->perlin_color_2, "color 2"))
+			hsl_update_color(&ui->perlin_color_2);
+	}
 }
 
 static void	ui_confing_face_settings(t_level *level,
@@ -164,7 +177,7 @@ static void	ui_confing_face_settings(t_level *level,
 			tri->reflection_obj_first_bounce.tri_amount);
 	if (float_slider(&tri->reflectivity, buf, 0, 1))
 		static_culling(level);
-	ui_confing_face_render_settings(tri);
+	ui_confing_face_render_settings(tri, &level->ui);
 	if (tri->isenemy)
 		ui_config_enemy_settings(tri);
 }

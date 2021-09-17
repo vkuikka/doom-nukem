@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/16 18:19:27 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/17 13:08:33 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -481,6 +481,13 @@ typedef struct s_editor_ui
 	int					spray_from_view;
 	float				spray_size;
 	int					normal_map_disabled;
+
+	float				perlin_move_speed;
+	float				perlin_scale;
+	int					perlin_depth;
+	int					perlin_visualizer;
+	t_color_hsl			perlin_color_1;
+	t_color_hsl			perlin_color_2;
 
 	t_color_hsl			sun_color;
 	struct s_vec3		sun_dir;
