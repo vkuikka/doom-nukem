@@ -189,14 +189,12 @@ int	smooth_color(unsigned int *pixels, int gap, int x, int y)
 	return (smooth_color_kernel(pixels, gap, x, y));
 }
 
-void	fill_pixels(unsigned int *grid, int gap, int blur, int smooth)
+void	fill_pixels(unsigned int *grid, int gap, int smooth)
 {
 	int	color;
 	int	x;
 	int	y;
 
-	if (blur)
-		blur_pixels(grid, gap);
 	y = -1;
 	while (++y < RES_Y)
 	{
@@ -216,6 +214,17 @@ void	fill_pixels(unsigned int *grid, int gap, int blur, int smooth)
 				grid[x + (y * RES_X)] = color;
 		}
 	}
+}
+
+void	post_process(t_window *window, t_level *level)
+{
+	if (level->ui.blur)
+		blur_pixels(window->frame_buffer, level->ui.raycast_quality);
+	fill_pixels(window->frame_buffer, level->ui.raycast_quality,
+		level->ui.smooth_pixels);
+	if (level->ui.chromatic_abberation)
+		chromatic_abberation(window->frame_buffer, window->post_process_buf,
+			level->ui.chromatic_abberation);
 }
 
 SDL_Color	get_sdl_color(unsigned int color)

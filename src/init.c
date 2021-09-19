@@ -160,9 +160,9 @@ void	init_window(t_window **window)
 	window[0]->frame_buffer = NULL;
 	window[0]->depth_buffer
 		= (float *)malloc(sizeof(float) * (RES_X * RES_Y));
-	window[0]->buf
+	window[0]->post_process_buf
 		= (unsigned int *)malloc(sizeof(unsigned int) * (RES_X * RES_Y));
-	if (!window[0]->depth_buffer || !window[0]->buf)
+	if (!window[0]->depth_buffer || !window[0]->post_process_buf)
 		ft_error("init window memory allocation failed\n");
 }
 

@@ -174,7 +174,7 @@ typedef struct s_window
 	SDL_Texture			*text_texture;
 	SDL_Texture			*ui_texture;
 	unsigned int		*ui_texture_pixels;
-	unsigned int		*buf;
+	unsigned int		*post_process_buf;
 }						t_window;
 
 typedef struct s_rect
@@ -661,8 +661,7 @@ void			game_logic(t_level *level, t_game_state *game_state);
 int				init_raycast(void *t);
 float			cast_face(t_tri t, t_ray ray, t_cast_result *res);
 float			cast_all(t_ray vec, t_level *level, int *index);
-void			fill_pixels(unsigned int *grid, int pixel_gap,
-					int blur, int smooth);
+void			post_process(t_window *window, t_level *level);
 unsigned int	crossfade(unsigned int color1, unsigned int color2,
 					unsigned int fade, unsigned int alpha);
 unsigned int	set_lightness(unsigned int color, float b);
