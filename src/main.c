@@ -44,7 +44,9 @@ static void	render_raycast(t_window *window, t_level *level)
 	i = -1;
 	while (++i < THREAD_AMOUNT)
 		SDL_WaitThread(threads[i], &(int){0});
+	level->ui.post_time = SDL_GetTicks();
 	post_process(window, level);
+	level->ui.post_time = SDL_GetTicks() - level->ui.post_time;
 	SDL_UnlockTexture(window->texture);
 	SDL_RenderCopy(window->SDLrenderer, window->texture, NULL, NULL);
 }
@@ -95,7 +97,7 @@ static void	render(t_window *window, t_level *level, t_game_state *game_state)
 		if (!level->ui.wireframe
 			|| (level->ui.wireframe && level->ui.wireframe_on_top))
 			render_raycast(window, level);
-		level->ui.raycast_time = SDL_GetTicks() - raycast_time;
+		level->ui.raycast_time = SDL_GetTicks() - raycast_time - level->ui.post_time;
 		raster_time = SDL_GetTicks();
 		if (*game_state == GAME_STATE_EDITOR)
 			render_raster(window, level);

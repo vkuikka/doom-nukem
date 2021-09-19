@@ -307,7 +307,7 @@ void	ui_render_info(t_editor_ui *ui, t_level *level)
 {
 	char		buf[100];
 
-	sprintf(buf, " |   fps: %d", get_fps());
+	sprintf(buf, "fps: %d", get_fps());
 	text(buf);
 	sprintf(buf, " |   cull: %ums", ui->cull_time);
 	text(buf);
@@ -316,6 +316,8 @@ void	ui_render_info(t_editor_ui *ui, t_level *level)
 	sprintf(buf, " |   |   raycast amount: %uk", ui->total_raycasts / 1000);
 	text(buf);
 	sprintf(buf, " |   |   raycast: %ums", ui->raycast_time);
+	text(buf);
+	sprintf(buf, " |   |   post:       %ums", ui->post_time);
 	text(buf);
 	sprintf(buf, " |   |   raster:   %ums", ui->raster_time);
 	text(buf);
@@ -342,13 +344,14 @@ void	ui_render_settings(t_level *level)
 	sprintf(buf, "render scale: %d (%.0f%%)", ui->raycast_quality,
 		100.0 / (float)ui->raycast_quality);
 	int_slider(&ui->raycast_quality, buf, 1, 20);
-	int_slider(&ui->chromatic_abberation, "chroma", 0, 30);
 	fov_angle = ui->fov + 0.01;
 	fov_angle *= 180.0 / M_PI;
 	sprintf(buf, "fov: %d", (int)fov_angle);
 	float_slider(&ui->fov, buf, M_PI / 6, M_PI);
-	button(&ui->blur, "blur");
-	button(&ui->smooth_pixels, "smooth pixel transition");
+	int_slider(&ui->chromatic_abberation, "chroma (20ms expensive)", 0, 30);
+	float_slider(&ui->sharpen, "sharpen (60ms very expensive)", 0.0, 5.0);
+	button(&ui->smooth_pixels, "smooth pixel (20ms expensive)");
+	button(&ui->blur, "blur (1ms cheap)");
 	button(&ui->state.ssp_visual, "ssp visualize");
 }
 

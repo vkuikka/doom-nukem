@@ -469,6 +469,7 @@ typedef struct s_editor_ui
 	int					fog;
 	int					blur;
 	int					chromatic_abberation;
+	float				sharpen;
 	int					smooth_pixels;
 	t_color_hsl			fog_color;
 	int					show_quads;
@@ -490,6 +491,7 @@ typedef struct s_editor_ui
 	unsigned int		ssp_time;
 	unsigned int		cull_time;
 	unsigned int		raycast_time;
+	unsigned int		post_time;
 	unsigned int		raster_time;
 	unsigned int		ui_time;
 	unsigned int		render_time;
