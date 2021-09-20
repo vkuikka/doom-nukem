@@ -330,8 +330,49 @@ void	ui_render_info(t_editor_ui *ui, t_level *level)
 	sprintf(buf, "faces: %d / %d",
 		level->all.tri_amount, level->visible.tri_amount);
 	text(buf);
+}
+
+static void	center_screen_print_line(t_vec2 dir, unsigned int color)
+{
+	t_window	*window;
+	t_vec3		start;
+	t_vec3		stop;
+
+	window = get_window(NULL);
+	start.x = RES_X / 2;
+	start.y = RES_Y / 2;
+	start.z = 0;
+	stop.x = RES_X / 2 + (dir.x * 20);
+	stop.y = RES_Y / 2 + (dir.y * -20);
+	stop.z = 0;
+	print_line(start, stop, color, window->ui_texture_pixels);
+}
+
+void	ui_physics_info(t_editor_ui *ui, t_level *level)
+{
+	char	buf[100];
+	t_vec2	tmp;
+	t_vec3	n;
+
+	button(&ui->physics_debug, "physics debug");
+	if (!ui->physics_debug)
+		return ;
+	tmp.x = level->player_vel.x;
+	tmp.y = level->player_vel.z;
+	center_screen_print_line(tmp, 0xff0000ff);
 	sprintf(buf, "xz vel: %.2fm/s", level->ui.horizontal_velocity);
-	text(buf);
+	set_text_color(0xff0000ff);
+	render_text(buf, RES_X / 2, RES_Y / 2 + (UI_ELEMENT_HEIGHT * 1));
+	center_screen_print_line(ui->wishdir, 0xff00ff);
+	set_text_color(0xff00ff);
+	render_text("wishdir", RES_X / 2, RES_Y / 2 + (UI_ELEMENT_HEIGHT * 2));
+	n = level->cam.front;
+	vec_normalize(&n);
+	tmp.x = n.x;
+	tmp.y = n.z;
+	center_screen_print_line(tmp, 0xffff);
+	set_text_color(0xffff);
+	render_text("camera", RES_X / 2, RES_Y / 2 + (UI_ELEMENT_HEIGHT * 3));
 }
 
 void	ui_render_settings(t_level *level)
@@ -591,6 +632,7 @@ void	ui_editor(t_level *level)
 	ui_config_selected_faces(level);
 	set_text_color(UI_INFO_TEXT_COLOR);
 	ui_render_info(&level->ui, level);
+	ui_physics_info(&level->ui, level);
 }
 
 void	ui_baking(t_level *level)

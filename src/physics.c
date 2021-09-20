@@ -277,4 +277,9 @@ void	player_movement(t_level *level)
 	if (level->ui.noclip)
 		return (noclip(level, &wishdir, delta_time));
 	movement_physics(level, wishdir, height, delta_time);
+	if (level->ui.physics_debug)
+	{
+		level->ui.wishdir.x = wishdir.x;
+		level->ui.wishdir.y = wishdir.z;
+	}
 }

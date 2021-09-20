@@ -486,7 +486,6 @@ typedef struct s_editor_ui
 
 	t_color_hsl			sun_color;
 	struct s_vec3		sun_dir;
-	float				horizontal_velocity;
 
 	unsigned int		ssp_time;
 	unsigned int		cull_time;
@@ -497,6 +496,10 @@ typedef struct s_editor_ui
 	unsigned int		render_time;
 	unsigned int		frame_time;
 	unsigned int		total_raycasts;
+
+	int					physics_debug;
+	float				horizontal_velocity;
+	t_vec2				wishdir;
 	struct s_ui_state	state;
 }						t_editor_ui;
 
