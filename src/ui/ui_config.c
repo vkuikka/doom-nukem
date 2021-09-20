@@ -575,6 +575,7 @@ void	ui_game_settings(t_level *level)
 		camera_path_add_pos(&level->main_menu_anim, level->cam);
 	sprintf(buf, "main menu animation time %ds",
 		level->main_menu_anim.duration);
+	button(&level->main_menu_anim.loop, "main menu anim edge loop");
 	int_slider((int *)&level->main_menu_anim.duration, buf, 2, 50);
 	float_slider(&level->player.projectile_scale,
 		"Player projectile scale: ", 0, 1.5);

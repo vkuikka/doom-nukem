@@ -533,6 +533,7 @@ typedef struct s_camera_path
 {
 	t_player_pos		*pos;
 	int					amount;
+	int					loop;
 	unsigned int		duration;
 	unsigned int		start_time;
 }						t_camera_path;

@@ -35,6 +35,11 @@ void	draw_camera_path(char *str, t_camera_path *path,
 		a = b;
 		i++;
 	}
+	if (!path->loop)
+		return ;
+	b = path->pos[0].pos;
+	camera_offset(&b, &level->cam);
+	print_line(a, b, UI_LEVEL_SETTINGS_TEXT_COLOR, texture);
 }
 
 void	cam_lerp(t_camera *cam, t_player_pos a, t_player_pos b, float f)
@@ -64,16 +69,25 @@ float	bezier_float_middle(float a, float b, float c, float f)
 
 void	camera_path_get_pos_bezier(t_camera_path *path, t_camera *cam, float time)
 {
-	int		node_id;
 	float	elem_size;
 	float	node_time;
+	int		node_amount;
+	t_ivec3	id;
 
-	node_id = (path->amount - 2) * time;
-	elem_size = 1.0 / (path->amount - 2);
-	node_time = (time - (elem_size * node_id)) / elem_size;
-	cam->pos = vec_bezier_middle(path->pos[node_id + 0].pos, path->pos[node_id + 1].pos, path->pos[node_id + 2].pos, node_time);
-	cam->look_side = bezier_float_middle(path->pos[node_id + 0].look_side, path->pos[node_id + 1].look_side, path->pos[node_id + 2].look_side, node_time);
-	cam->look_up = bezier_float_middle(path->pos[node_id + 0].look_up, path->pos[node_id + 1].look_up, path->pos[node_id + 2].look_up, node_time);
+	node_amount = path->amount;
+	if (!path->loop)
+		node_amount -= 2;
+	id.x = ((int)(node_amount * time) + 0) % path->amount;
+	id.y = ((int)(node_amount * time) + 1) % path->amount;
+	id.z = ((int)(node_amount * time) + 2) % path->amount;
+	elem_size = 1.0 / node_amount;
+	node_time = (time - (elem_size * id.x)) / elem_size;
+	cam->pos = vec_bezier_middle(path->pos[id.x].pos, path->pos[id.y].pos,
+			path->pos[id.z].pos, node_time);
+	cam->look_side = bezier_float_middle(path->pos[id.x].look_side,
+			path->pos[id.y].look_side, path->pos[id.z].look_side, node_time);
+	cam->look_up = bezier_float_middle(path->pos[id.x].look_up,
+			path->pos[id.y].look_up, path->pos[id.z].look_up, node_time);
 }
 
 void	camera_path_add_pos(t_camera_path *path, t_camera c)
@@ -107,8 +121,16 @@ void	camera_path_set(t_camera_path *path, t_camera *cam)
 		path->start_time = SDL_GetTicks();
 		time = 0;
 	}
-	else if (time > 1)//loop button here
-		time = 1 - (time - 1);
+	else if (time > 1)
+	{
+		if (path->loop)
+		{
+			path->start_time = SDL_GetTicks();
+			time = 0;
+		}
+		else
+			time = 1 - (time - 1);
+	}
 	if (path->amount == 2)
 		cam_lerp(cam, path->pos[0], path->pos[1], time);
 	else
