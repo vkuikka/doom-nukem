@@ -170,7 +170,7 @@ static void	ui_go_back(t_level *level, t_game_state *game_state)
 		level->ui.state.mouse_capture = FALSE;
 		SDL_SetRelativeMouseMode(SDL_FALSE);
 		*game_state = GAME_STATE_MAIN_MENU;
-		level->main_menu_anim_start_time = SDL_GetTicks();
+		level->main_menu_anim.start_time = SDL_GetTicks();
 		level->ui.state.ui_location = UI_LOCATION_MAIN;
 		level->win_start_time = 0;
 		level->death_start_time = 0;

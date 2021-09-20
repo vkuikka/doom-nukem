@@ -107,7 +107,7 @@ static void	level_default_settings(t_level *level)
 	level->cam.pos.z = 0;
 	level->cam.look_side = 0;
 	level->cam.look_up = 0;
-	level->main_menu_anim_time = 2;
+	level->main_menu_anim.duration = 2;
 	level->world_brightness = 0.5;
 }
 

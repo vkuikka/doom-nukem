@@ -73,21 +73,11 @@ static void	game_finished(t_level *level, t_game_state *game_state,
 
 void	game_logic_put_info(t_level *level, unsigned int *texture)
 {
-	t_vec3	a;
-	t_vec3	b;
 	t_vec3	dist;
 
+	draw_camera_path("menu", &level->main_menu_anim, texture, level);
 	render_text_3d("spawn", level->spawn_pos.pos,
 		UI_LEVEL_SETTINGS_TEXT_COLOR, level);
-	render_text_3d("menu1", level->main_menu_pos1.pos,
-		UI_LEVEL_SETTINGS_TEXT_COLOR, level);
-	render_text_3d("menu2", level->main_menu_pos2.pos,
-		UI_LEVEL_SETTINGS_TEXT_COLOR, level);
-	a = level->main_menu_pos1.pos;
-	b = level->main_menu_pos2.pos;
-	camera_offset(&a, &level->cam);
-	camera_offset(&b, &level->cam);
-	print_line(a, b, UI_LEVEL_SETTINGS_TEXT_COLOR, texture);
 	vec_sub(&dist, level->win_pos, level->cam.pos);
 	if (vec_length(dist) < level->win_dist)
 		render_text_3d("win", level->win_pos, UI_LEVEL_BAKED_COLOR, level);

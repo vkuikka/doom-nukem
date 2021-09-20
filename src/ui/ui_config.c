@@ -571,11 +571,11 @@ void	ui_game_settings(t_level *level)
 	float_slider(&level->win_dist, buf, 1, 40);
 	call("set win position", &set_win_pos);
 	call("set spawn position", &set_spawn_pos);
-	call("set menu position 1", &set_menu_pos_1);
-	call("set menu position 2", &set_menu_pos_2);
+	if (call("menu add camera pos", NULL))
+		camera_path_add_pos(&level->main_menu_anim, level->cam);
 	sprintf(buf, "main menu animation time %ds",
-		level->main_menu_anim_time);
-	int_slider((int *)&level->main_menu_anim_time, buf, 2, 50);
+		level->main_menu_anim.duration);
+	int_slider((int *)&level->main_menu_anim.duration, buf, 2, 50);
 	float_slider(&level->player.projectile_scale,
 		"Player projectile scale: ", 0, 1.5);
 }

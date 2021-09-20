@@ -112,7 +112,7 @@ static void	render(t_window *window, t_level *level, t_game_state *game_state)
 static void	tick_forward(t_level *level, t_game_state *game_state)
 {
 	if (*game_state == GAME_STATE_MAIN_MENU)
-		main_menu_move_background(level);
+		camera_path_set(&level->main_menu_anim, &level->cam);
 	else
 	{
 		if (*game_state != GAME_STATE_EDITOR)

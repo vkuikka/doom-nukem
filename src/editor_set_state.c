@@ -100,16 +100,3 @@ void	set_spawn_pos(t_level *level)
 	level->spawn_pos.look_up = level->cam.look_up;
 }
 
-void	set_menu_pos_1(t_level *level)
-{
-	level->main_menu_pos1.pos = level->cam.pos;
-	level->main_menu_pos1.look_side = level->cam.look_side;
-	level->main_menu_pos1.look_up = level->cam.look_up;
-}
-
-void	set_menu_pos_2(t_level *level)
-{
-	level->main_menu_pos2.pos = level->cam.pos;
-	level->main_menu_pos2.look_side = level->cam.look_side;
-	level->main_menu_pos2.look_up = level->cam.look_up;
-}

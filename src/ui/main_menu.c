@@ -71,35 +71,6 @@ static int	main_menu_button_text(char *text, int index,
 	return (FALSE);
 }
 
-void	main_menu_move_background(t_level *level)
-{
-	float	time;
-
-	time = (SDL_GetTicks() - level->main_menu_anim_start_time)
-		/ (1000.0 * level->main_menu_anim_time);
-	if (time < 1)
-	{
-		level->cam.pos = vec_interpolate(level->main_menu_pos1.pos,
-				level->main_menu_pos2.pos, time);
-		level->cam.look_side = lerp(level->main_menu_pos1.look_side,
-				level->main_menu_pos2.look_side, time);
-		level->cam.look_up = lerp(level->main_menu_pos1.look_up,
-				level->main_menu_pos2.look_up, time);
-	}
-	else if (time < 2)
-	{
-		time -= 1;
-		level->cam.pos = vec_interpolate(level->main_menu_pos2.pos,
-				level->main_menu_pos1.pos, time);
-		level->cam.look_side = lerp(level->main_menu_pos2.look_side,
-				level->main_menu_pos1.look_side, time);
-		level->cam.look_up = lerp(level->main_menu_pos2.look_up,
-				level->main_menu_pos1.look_up, time);
-	}
-	else
-		level->main_menu_anim_start_time = SDL_GetTicks();
-}
-
 void	main_menu_buttons_level(t_game_state *game_state, int *state_changed,
 						t_level *level, unsigned int *pixels)
 {

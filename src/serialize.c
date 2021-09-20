@@ -606,10 +606,10 @@ void	deserialize_level(t_level *level, t_buffer *buf)
 	deserialize_float(&level->world_brightness, buf);
 	deserialize_float(&level->skybox_brightness, buf);
 	deserialize_player_pos(&level->spawn_pos, buf);
-	deserialize_player_pos(&level->main_menu_pos1, buf);
-	deserialize_player_pos(&level->main_menu_pos2, buf);
-	deserialize_int((int *)&level->main_menu_anim_time, buf);
-	deserialize_int((int *)&level->main_menu_anim_start_time, buf);
+	// deserialize_player_pos(&level->main_menu_pos1, buf);
+	// deserialize_player_pos(&level->main_menu_pos2, buf);
+	// deserialize_int((int *)&level->main_menu_anim_time, buf);
+	// deserialize_int((int *)&level->main_menu_anim_start_time, buf);
 	level->visible.tris = (t_tri *)malloc(sizeof(t_tri)
 			* level->all.tri_amount);
 	if (!level->visible.tris)
@@ -641,10 +641,10 @@ void	serialize_level(t_level *level, t_buffer *buf)
 	serialize_float(level->world_brightness, buf);
 	serialize_float(level->skybox_brightness, buf);
 	serialize_player_pos(&level->spawn_pos, buf);
-	serialize_player_pos(&level->main_menu_pos1, buf);
-	serialize_player_pos(&level->main_menu_pos2, buf);
-	serialize_int(level->main_menu_anim_time, buf);
-	serialize_int(level->main_menu_anim_start_time, buf);
+	// serialize_player_pos(&level->main_menu_pos1, buf);
+	// serialize_player_pos(&level->main_menu_pos2, buf);
+	// serialize_int(level->main_menu_anim_time, buf);
+	// serialize_int(level->main_menu_anim_start_time, buf);
 }
 
 #ifdef _WIN32

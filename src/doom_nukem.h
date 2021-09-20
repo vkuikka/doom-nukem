@@ -513,7 +513,7 @@ typedef struct s_light
 
 typedef struct s_player_pos
 {
-	struct s_vec3		pos;
+	t_vec3				pos;
 	float				look_side;
 	float				look_up;
 }						t_player_pos;
@@ -528,6 +528,14 @@ typedef struct s_dynamic_geometry
 	t_bmp				ammo_pickup_texture;
 	t_bmp				health_pickup_texture;
 }						t_dynamic_geometry;
+
+typedef struct s_camera_path
+{
+	t_player_pos		*pos;
+	int					amount;
+	unsigned int		duration;
+	unsigned int		start_time;
+}						t_camera_path;
 
 typedef struct s_level
 {
@@ -556,14 +564,11 @@ typedef struct s_level
 	int					player_ammo;
 	struct s_player_pos	spawn_pos;
 	struct s_bmp		main_menu_title;
-	struct s_player_pos	main_menu_pos1;
-	struct s_player_pos	main_menu_pos2;
 	struct s_vec3		win_pos;
 	float				win_dist;
 	unsigned int		win_start_time;
-	unsigned int		main_menu_anim_time;
-	unsigned int		main_menu_anim_start_time;
 	unsigned int		death_start_time;
+	t_camera_path		main_menu_anim;
 	struct s_vec3		player_vel;
 	unsigned int		reload_start_time;
 	int					viewmodel_index;
@@ -729,9 +734,12 @@ void			text_input(char *str, t_level *level);
 void			find_closest_mouse(t_vec3 *vert, int *i, int *k, t_ivec2 *mouse);
 int				mouse_collision(t_rect rect, t_ivec2 mouse);
 
+void			draw_camera_path(char *str, t_camera_path *path,
+					unsigned int *texture, t_level *level);
+void			camera_path_set(t_camera_path *path, t_camera *cam);
+void			camera_path_add_pos(t_camera_path *path, t_camera c);
 void			main_menu(t_level *level, unsigned int *pixels,
 					t_game_state *game_state);
-void			main_menu_move_background(t_level *level);
 void			hud(t_level *level, unsigned int *pixels,
 					t_game_state game_state);
 void			fake_analog_signal(t_bmp *img, unsigned int *pixels,
@@ -822,8 +830,6 @@ void			set_skybox(t_level *level, char *filename);
 void			set_spray(t_level *level, char *filename);
 void			set_win_pos(t_level *level);
 void			set_spawn_pos(t_level *level);
-void			set_menu_pos_1(t_level *level);
-void			set_menu_pos_2(t_level *level);
 void			nonfatal_error(char *message);
 void			ui_render_nonfatal_errors(t_level *level);
 t_ui_state		*get_ui_state(t_ui_state *get_state);
