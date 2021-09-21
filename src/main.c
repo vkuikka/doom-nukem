@@ -126,7 +126,7 @@ static void	tick_forward(t_level *level, t_game_state *game_state)
 }
 
 
-static void	merge_dynamic_object(t_level *level, t_obj *obj, t_vec3 pos, float z_rotation)
+static void	merge_prop(t_level *level, t_obj *obj, t_vec3 pos, float z_rotation)
 {
 	int	i;
 	int	k;
@@ -152,7 +152,7 @@ static void	merge_dynamic_object(t_level *level, t_obj *obj, t_vec3 pos, float z
 	while (k < obj->tri_amount)
 	{
 		level->visible.tris[i] = obj->tris[k];
-		for (int z = 0; z < 3 + obj->tris[i].isquad; z++)
+		for (int z = 0; z < 3 + obj->tris[k].isquad; z++)
 		{
 			level->visible.tris[i].verts[z].pos.x += pos.x;
 			level->visible.tris[i].verts[z].pos.y += pos.y;
@@ -166,28 +166,27 @@ static void	merge_dynamic_object(t_level *level, t_obj *obj, t_vec3 pos, float z
 	level->visible.tri_amount = i;
 }
 
-
-static void	merge_pickup_boxes(t_level *level)
+static void	merge_game_models(t_level *level, t_game_state game_state)
 {
 	int	i;
 
-	i = 0;
-	while (i < 3)
+	if ((game_state == GAME_STATE_EDITOR
+		&& level->ui.state.ui_location == UI_LOCATION_GAME_SETTINGS)
+		|| game_state == GAME_STATE_INGAME)
 	{
-		merge_dynamic_object(level, &level->game_models.pickup_box, (t_vec3){0, 0, i * 10}, 0);
-		i++;
+		i = -1;
+		while (++i < level->game_logic.ammo_box_amount)
+			merge_prop(level, &level->game_models.pickup_box,
+				level->game_logic.ammo_box_spawn_pos[i], 0);
+		i = -1;
+		while (++i < level->game_logic.health_box_amount)
+			merge_prop(level, &level->game_models.pickup_box,
+				level->game_logic.health_box_spawn_pos[i], 0);
+		i = -1;
+		while (++i < level->game_logic.enemy_amount)
+			merge_prop(level, &level->game_models.pickup_box,
+				level->game_logic.enemy_spawn_pos[i], 0);
 	}
-}
-
-static void	merge_dynamic(t_level *level, t_game_state game_state)
-{
-	(void)game_state;
-	// if (game_state == GAME_STATE_EDITOR)
-	// 	|| game_state == GAME_STATE_MAIN_MENU)
-	// 	return ;
-	merge_pickup_boxes(level);
-	// merge_enemies();
-	// merge_projectiles();
 }
 
 static void	dnukem(t_window *window, t_level *level, t_game_state game_state)
@@ -204,7 +203,7 @@ static void	dnukem(t_window *window, t_level *level, t_game_state game_state)
 		tick_forward(level, &game_state);
 		cull_time = SDL_GetTicks();
 		culling(level);
-		merge_dynamic(level, game_state);
+		merge_game_models(level, game_state);
 		level->ui.cull_time = SDL_GetTicks() - cull_time;
 		ssp_time = SDL_GetTicks();
 		screen_space_partition(level);
