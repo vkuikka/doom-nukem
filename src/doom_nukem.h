@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/18 00:10:55 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/21 10:46:48 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -764,7 +764,8 @@ void			reflection(t_cast_result *res, t_level *l, t_obj *obj);
 unsigned int	shader_wave(t_vec3 mod, t_vec3 *normal,
 					unsigned int col1, unsigned int col2);
 unsigned int	shader_rule30(t_vec3 pos);
-unsigned int	shader_test(t_vec3 pos, t_level *level, t_cast_result *res);
+unsigned int	shader_perlin(t_vec3 pos, t_level *level, t_cast_result *res);
+void			perlin_init(t_tri *tri);
 t_color			sunlight(t_level *l, t_cast_result *res, t_color light);
 
 void			select_face(t_camera *cam, t_level *level,
@@ -842,6 +843,5 @@ void			ui(t_window *window, t_level *level, t_game_state *game_state);
 void			render_ssp_visual_background(unsigned int *texture);
 void			render_ssp_visual_text(t_level *level);
 void			ui_render_background(t_window *window, t_level *level);
-void			perlin_init(t_tri *tri);
 
 #endif

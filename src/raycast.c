@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/16 18:19:52 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/21 10:47:14 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ static void	raytrace(t_cast_result *res, t_obj *obj, t_level *l)
 	if (l->all.tris[res->face_index].shader == 1)
 		res->color = shader_wave(tmp, &res->normal, 0x070C5A, 0x020540);
 	if (l->all.tris[res->face_index].shader == 3)
-		res->color = shader_test(tmp, l, res);
+		res->color = shader_perlin(tmp, l, res);
 	if (l->all.tris[res->face_index].shader == 2)
 		res->color = shader_rule30(tmp);
 	else if (!res->baked || res->raytracing)
