@@ -579,6 +579,9 @@ void	ui_game_settings(t_level *level)
 	int_slider((int *)&level->main_menu_anim.duration, buf, 2, 50);
 	float_slider(&level->player.projectile_scale,
 		"Player projectile scale: ", 0, 1.5);
+	call("add enemy spawn", &add_enemy_spawn_pos);
+	call("add ammo box", &add_ammo_box);
+	call("add health box", &add_health_box);
 }
 
 void	ui_level_settings(t_level *level)

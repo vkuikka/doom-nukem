@@ -83,6 +83,10 @@
 # define VIEWMODEL_FRAMES 10
 # define VIEWMODEL_ANIM_FPS 2.0
 
+# define AMMO_BOX_TEXT_COLOR 0x037700ff
+# define HEALTH_BOX_TEXT_COLOR 0xf76565ff
+# define ENEMY_SPAWN_TEXT_COLOR 0x7005fcff
+
 # define NONFATAL_ERROR_LIFETIME_SECONDS 7.42
 # define NONFATAL_ERROR_FADEOUT_TIME_MS 666
 # define UI_ERROR_COLOR 0xff000000
@@ -544,7 +548,7 @@ typedef struct s_game_logic
 	int					player_health;
 	int					player_ammo;
 
-	t_vec3				*healt_box_spawn_pos;
+	t_vec3				*health_box_spawn_pos;
 	int					health_box_amount;
 	t_vec3				*ammo_box_spawn_pos;
 	int					ammo_box_amount;
@@ -815,6 +819,9 @@ void			game_logic(t_level *level, t_game_state *game_state);
 void			game_logic_put_info(t_level *level, unsigned int *texture);
 void			game_logic_select_nearest_to_mouse(t_level *level, int x, int y);
 void			game_logic_move_selected(t_level *level, t_vec3 move_amount);
+void			add_enemy_spawn_pos(t_level *level);
+void			add_ammo_box(t_level *level);
+void			add_health_box(t_level *level);
 
 void			door_animate(t_level *level);
 void			door_put_text(t_level *level);

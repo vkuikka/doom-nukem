@@ -71,6 +71,48 @@ static void	game_finished(t_level *level, t_game_state *game_state,
 	}
 }
 
+void	add_health_box(t_level *level)
+{
+	int	amount;
+
+	amount = level->game_logic.health_box_amount;
+	level->game_logic.health_box_spawn_pos = (t_vec3 *)ft_realloc(level->game_logic.health_box_spawn_pos,
+		sizeof(t_vec3) * amount, sizeof(t_vec3) * (amount + 1));
+	if (!level->game_logic.health_box_spawn_pos)
+		ft_error("memory allocation failed");
+	vec_add(&level->game_logic.health_box_spawn_pos[amount],
+		level->cam.pos, level->cam.front);
+	level->game_logic.health_box_amount++;
+}
+
+void	add_ammo_box(t_level *level)
+{
+	int	amount;
+
+	amount = level->game_logic.ammo_box_amount;
+	level->game_logic.ammo_box_spawn_pos = (t_vec3 *)ft_realloc(level->game_logic.ammo_box_spawn_pos,
+		sizeof(t_vec3) * amount, sizeof(t_vec3) * (amount + 1));
+	if (!level->game_logic.ammo_box_spawn_pos)
+		ft_error("memory allocation failed");
+	vec_add(&level->game_logic.ammo_box_spawn_pos[amount],
+		level->cam.pos, level->cam.front);
+	level->game_logic.ammo_box_amount++;
+}
+
+void	add_enemy_spawn_pos(t_level *level)
+{
+	int	amount;
+
+	amount = level->game_logic.enemy_amount;
+	level->game_logic.enemy_spawn_pos = (t_vec3 *)ft_realloc(level->game_logic.enemy_spawn_pos,
+		sizeof(t_vec3) * amount, sizeof(t_vec3) * (amount + 1));
+	if (!level->game_logic.enemy_spawn_pos)
+		ft_error("memory allocation failed");
+	vec_add(&level->game_logic.enemy_spawn_pos[amount],
+		level->cam.pos, level->cam.front);
+	level->game_logic.enemy_amount++;
+}
+
 void	game_logic_move_selected(t_level *level, t_vec3 move_amount)
 {
 	(void)level;
@@ -87,6 +129,7 @@ void	game_logic_select_nearest_to_mouse(t_level *level, int x, int y)
 void	game_logic_put_info(t_level *level, unsigned int *texture)
 {
 	t_vec3	dist;
+	int		i;
 
 	draw_camera_path("menu", &level->main_menu_anim, texture, level);
 	render_text_3d("spawn", level->game_logic.spawn_pos.pos,
@@ -96,6 +139,15 @@ void	game_logic_put_info(t_level *level, unsigned int *texture)
 		render_text_3d("win", level->game_logic.win_pos, UI_LEVEL_BAKED_COLOR, level);
 	else
 		render_text_3d("win", level->game_logic.win_pos, UI_LEVEL_NOT_BAKED_COLOR, level);
+	i = -1;
+	while (++i < level->game_logic.ammo_box_amount)
+		render_text_3d("ammo", level->game_logic.ammo_box_spawn_pos[i], AMMO_BOX_TEXT_COLOR, level);
+	i = -1;
+	while (++i < level->game_logic.health_box_amount)
+		render_text_3d("health", level->game_logic.health_box_spawn_pos[i], HEALTH_BOX_TEXT_COLOR, level);
+	i = -1;
+	while (++i < level->game_logic.enemy_amount)
+		render_text_3d("enemy", level->game_logic.enemy_spawn_pos[i], ENEMY_SPAWN_TEXT_COLOR, level);
 }
 
 void	game_logic(t_level *level, t_game_state *game_state)
