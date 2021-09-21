@@ -125,27 +125,58 @@ static void	tick_forward(t_level *level, t_game_state *game_state)
 	enemies_update_sprites(level);
 }
 
-static void	merge_pickup_boxes(t_level *level)
+
+static void	merge_dynamic_object(t_level *level, t_obj *obj, t_vec3 pos, float z_rotation)
 {
 	int	i;
 	int	k;
 
-	if (level->dynamic.pickup_box.tri_amount + level->visible.tri_amount >= level->all.tri_amount)
+	if (obj->tri_amount + level->visible.tri_amount
+		>= level->all.tri_amount)
 	{
-		printf("out of mem\n");
+		// i = level->visible_max_tri_amount * 1.5;
+		// ft_realloc();
+
+		// level->visible.tris = (t_tri *)ft_realloc(level->visible.tris,
+		// 		sizeof(t_tri) * level->all.tri_amount - 1,
+		// 		sizeof(t_tri) * level->all.tri_amount);
+		// if (!level->visible.tris)
+		// 	ft_error("memory allocation failed");
+		printf("error\n");
 		return ;
 	}
-	i = level->visible.tri_amount;
+	(void)z_rotation;
+
 	k = 0;
-	while (k < level->dynamic.pickup_box.tri_amount)
+	i = level->visible.tri_amount;
+	while (k < obj->tri_amount)
 	{
-		level->visible.tris[i] = level->dynamic.pickup_box.tris[k];
-		level->visible.tris[i].texture = &level->dynamic.ammo_pickup_texture;
-		level->visible.tris[i].texture = &level->dynamic.health_pickup_texture;
+		level->visible.tris[i] = obj->tris[k];
+		for (int z = 0; z < 3 + obj->tris[i].isquad; z++)
+		{
+			level->visible.tris[i].verts[z].pos.x += pos.x;
+			level->visible.tris[i].verts[z].pos.y += pos.y;
+			level->visible.tris[i].verts[z].pos.z += pos.z;
+		}
+		// level->visible.tris[i].texture = &level->dynamic.health_pickup_texture;
+		level->visible.tris[i].texture = &level->game_models.ammo_pickup_texture;
 		i++;
 		k++;
 	}
 	level->visible.tri_amount = i;
+}
+
+
+static void	merge_pickup_boxes(t_level *level)
+{
+	int	i;
+
+	i = 0;
+	while (i < 3)
+	{
+		merge_dynamic_object(level, &level->game_models.pickup_box, (t_vec3){0, 0, i * 10}, 0);
+		i++;
+	}
 }
 
 static void	merge_dynamic(t_level *level, t_game_state game_state)

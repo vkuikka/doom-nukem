@@ -376,6 +376,7 @@ typedef enum e_mouse_loc
 	MOUSE_LOCATION_GIZMO_Z,
 	MOUSE_LOCATION_MAIN_MENU,
 	MOUSE_LOCATION_LIGHT_EDITOR,
+	MOUSE_LOCATION_GAME_SETTINGS,
 	MOUSE_LOCATION_SELECTION
 }						t_mouse_loc;
 
@@ -409,10 +410,10 @@ typedef enum e_ui_location
 	UI_LOCATION_FILE_OPEN,
 	UI_LOCATION_FILE_SAVE,
 	UI_LOCATION_UV_EDITOR,
-	UI_LOCATION_GAME_SETTINGS,
 	UI_LOCATION_DOOR_EDITOR,
 	UI_LOCATION_DOOR_ACTIVATION_BUTTON,
-	UI_LOCATION_LIGHT_EDITOR
+	UI_LOCATION_LIGHT_EDITOR,
+	UI_LOCATION_GAME_SETTINGS
 }						t_ui_location;
 
 struct	s_level;
@@ -518,16 +519,17 @@ typedef struct s_player_pos
 	float				look_up;
 }						t_player_pos;
 
-typedef struct s_dynamic_geometry
+typedef struct s_game_models
 {
 	t_obj				projectiles;
 	t_obj				enemies;
 	t_obj				pickup_box;
+
 	t_bmp				enemy_texture;
 	t_bmp				projectile_texture;
 	t_bmp				ammo_pickup_texture;
 	t_bmp				health_pickup_texture;
-}						t_dynamic_geometry;
+}						t_game_models;
 
 typedef struct s_camera_path
 {
@@ -540,7 +542,7 @@ typedef struct s_camera_path
 
 typedef struct s_level
 {
-	t_dynamic_geometry	dynamic;
+	t_game_models		game_models;
 	t_obj				all;
 	t_obj				visible;
 	t_obj				*ssp;

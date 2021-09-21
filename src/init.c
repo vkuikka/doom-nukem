@@ -84,11 +84,11 @@ void	init_embedded(t_level *level)
 {
 	level->main_menu_title
 		= bmp_read_from_memory(&embed_title_bmp[0], embed_title_bmp_len);
-	level->dynamic.ammo_pickup_texture
+	level->game_models.ammo_pickup_texture
 		= bmp_read_from_memory(&embed_ammo_pickup_texture_bmp[0], embed_ammo_pickup_texture_bmp_len);
-	level->dynamic.health_pickup_texture = bmp_read_from_memory(&embed_health_pickup_texture_bmp[0], embed_health_pickup_texture_bmp_len);
+	level->game_models.health_pickup_texture = bmp_read_from_memory(&embed_health_pickup_texture_bmp[0], embed_health_pickup_texture_bmp_len);
 	load_obj_from_memory(&embed_pickup_box_obj[0], embed_pickup_box_obj_len,
-		&level->dynamic.pickup_box);
+		&level->game_models.pickup_box);
 	init_embedded_viewmodel(level);
 	load_obj_from_memory(&embed_skybox_obj[0], embed_skybox_obj_len,
 		&level->sky.all);

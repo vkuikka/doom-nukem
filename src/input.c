@@ -69,6 +69,12 @@ static void	set_mouse_input_location_3d_space(t_level *level, int x, int y)
 			if (level->ui.state.m1_click && level->bake_status != BAKE_BAKING)
 				select_light(level, x, y);
 		}
+		else if (level->ui.state.ui_location == UI_LOCATION_GAME_SETTINGS)
+		{
+			level->ui.state.mouse_location = MOUSE_LOCATION_GAME_SETTINGS;
+			// if (level->ui.state.m1_click)
+			// 	game_logic_move_item(level, x, y);
+		}
 		else
 		{
 			level->ui.state.mouse_location = MOUSE_LOCATION_SELECTION;
@@ -78,7 +84,7 @@ static void	set_mouse_input_location_3d_space(t_level *level, int x, int y)
 	}
 }
 
-static void	set_mouse_location(t_level *level, int *x, int *y)
+static void	get_mouse_coordinate(t_level *level, int *x, int *y)
 {
 	if (level->ui.state.mouse_capture)
 	{
@@ -98,7 +104,7 @@ static void	set_mouse_input_location(t_level *level, t_game_state game_state)
 	int	x;
 	int	y;
 
-	set_mouse_location(level, &x, &y);
+	get_mouse_coordinate(level, &x, &y);
 	if (game_state == GAME_STATE_MAIN_MENU)
 	{
 		if (level->ui.main_menu == MAIN_MENU_LOCATION_MAIN)
