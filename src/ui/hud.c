@@ -108,9 +108,9 @@ void	ingame_hud(t_level *level, unsigned int *pixels)
 	level->ui.state.current_font = level->ui.hud_font;
 	set_text_color(HUD_TEXT_COLOR);
 	crosshair(pixels, RES_X / 2, RES_Y / 2);
-	sprintf(buf, "%d+", level->player_health);
+	sprintf(buf, "%d+", level->game_logic.player_health);
 	render_text(buf, HUD_FONT_SIZE / 4, RES_Y - HUD_FONT_SIZE);
-	sprintf(buf, "%d", level->player_ammo);
+	sprintf(buf, "%d", level->game_logic.player_ammo);
 	render_text(buf, RES_X - ((HUD_FONT_SIZE / 2) * strlen(buf)),
 		RES_Y - HUD_FONT_SIZE);
 }

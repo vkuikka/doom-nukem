@@ -80,8 +80,8 @@ void	main_menu_buttons_level(t_game_state *game_state, int *state_changed,
 		*game_state = GAME_STATE_INGAME;
 		*state_changed = TRUE;
 		level->ui.noclip = FALSE;
-		level->player_health = PLAYER_HEALTH_MAX;
-		level->player_ammo = PLAYER_AMMO_MAX;
+		level->game_logic.player_health = PLAYER_HEALTH_MAX;
+		level->game_logic.player_ammo = PLAYER_AMMO_MAX;
 		Mix_PlayMusic(level->audio.game_music, -1);
 	}
 	if (main_menu_button_text("edit level", 1, level, pixels))
@@ -133,9 +133,9 @@ void	main_menu(t_level *level, unsigned int *pixels,
 	main_menu_buttons_other(game_state, &state_changed, level, pixels);
 	if (state_changed)
 	{
-		level->cam.pos = level->spawn_pos.pos;
-		level->cam.look_side = level->spawn_pos.look_side;
-		level->cam.look_up = level->spawn_pos.look_up;
+		level->cam.pos = level->game_logic.spawn_pos.pos;
+		level->cam.look_side = level->game_logic.spawn_pos.look_side;
+		level->cam.look_up = level->game_logic.spawn_pos.look_up;
 		level->player_vel.x = 0;
 		level->player_vel.y = 0;
 		level->player_vel.z = 0;

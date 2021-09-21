@@ -143,8 +143,8 @@ void	deserialize_settings(t_level *level, t_buffer *buf)
 	deserialize_float(&level->ui.render_distance, buf);
 	deserialize_color(&level->ui.sun_color, buf);
 	deserialize_vec3(&level->ui.sun_dir, buf);
-	deserialize_vec3(&level->win_pos, buf);
-	deserialize_float(&level->win_dist, buf);
+	deserialize_vec3(&level->game_logic.win_pos, buf);
+	deserialize_float(&level->game_logic.win_dist, buf);
 }
 
 void	serialize_settings(t_level *level, t_buffer *buf)
@@ -157,8 +157,8 @@ void	serialize_settings(t_level *level, t_buffer *buf)
 	serialize_float(level->ui.render_distance, buf);
 	serialize_color(level->ui.sun_color, buf);
 	serialize_vec3(level->ui.sun_dir, buf);
-	serialize_vec3(level->win_pos, buf);
-	serialize_float(level->win_dist, buf);
+	serialize_vec3(level->game_logic.win_pos, buf);
+	serialize_float(level->game_logic.win_dist, buf);
 }
 
 void	deserialize_vert(t_vert *vert, t_buffer *buf)
@@ -605,7 +605,7 @@ void	deserialize_level(t_level *level, t_buffer *buf)
 	deserialize_lights(level, buf);
 	deserialize_float(&level->world_brightness, buf);
 	deserialize_float(&level->skybox_brightness, buf);
-	deserialize_player_pos(&level->spawn_pos, buf);
+	deserialize_player_pos(&level->game_logic.spawn_pos, buf);
 	// deserialize_player_pos(&level->main_menu_pos1, buf);
 	// deserialize_player_pos(&level->main_menu_pos2, buf);
 	// deserialize_int((int *)&level->main_menu_anim_time, buf);
@@ -640,7 +640,7 @@ void	serialize_level(t_level *level, t_buffer *buf)
 	serialize_lights(level, buf);
 	serialize_float(level->world_brightness, buf);
 	serialize_float(level->skybox_brightness, buf);
-	serialize_player_pos(&level->spawn_pos, buf);
+	serialize_player_pos(&level->game_logic.spawn_pos, buf);
 	// serialize_player_pos(&level->main_menu_pos1, buf);
 	// serialize_player_pos(&level->main_menu_pos2, buf);
 	// serialize_int(level->main_menu_anim_time, buf);

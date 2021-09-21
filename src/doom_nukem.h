@@ -531,6 +531,27 @@ typedef struct s_game_models
 	t_bmp				health_pickup_texture;
 }						t_game_models;
 
+typedef struct s_game_logic
+{
+	t_player_pos		spawn_pos;
+	t_vec3				win_pos;
+	float				win_dist;
+
+	unsigned int		win_start_time;
+	unsigned int		death_start_time;
+	unsigned int		reload_start_time;
+
+	int					player_health;
+	int					player_ammo;
+
+	t_vec3				*healt_box_spawn_pos;
+	int					health_box_amount;
+	t_vec3				*ammo_box_spawn_pos;
+	int					ammo_box_amount;
+	t_vec3				*enemy_spawn_pos;
+	int					enemy_amount;
+}						t_game_logic;
+
 typedef struct s_camera_path
 {
 	t_player_pos		*pos;
@@ -563,17 +584,10 @@ typedef struct s_level
 	int					light_amount;
 	int					selected_light_index;
 	struct s_enemy		player;
-	int					player_health;
-	int					player_ammo;
-	struct s_player_pos	spawn_pos;
 	struct s_bmp		main_menu_title;
-	struct s_vec3		win_pos;
-	float				win_dist;
-	unsigned int		win_start_time;
-	unsigned int		death_start_time;
+	t_game_logic		game_logic;
 	t_camera_path		main_menu_anim;
 	struct s_vec3		player_vel;
-	unsigned int		reload_start_time;
 	int					viewmodel_index;
 	struct s_bmp		viewmodel[VIEWMODEL_FRAMES];
 	float				world_brightness;
@@ -670,7 +684,6 @@ int				get_ssp_coordinate(int coord, int horizontal);
 
 void			read_input(t_window *window, t_level *level,
 					t_game_state *game_state);
-void			game_logic(t_level *level, t_game_state *game_state);
 int				init_raycast(void *t);
 float			cast_face(t_tri t, t_ray ray, t_cast_result *res);
 float			cast_all(t_ray vec, t_level *level, int *index);
@@ -798,7 +811,11 @@ t_ivec2			put_text(char *text, t_window *window,
 void			set_new_face(t_level *level, t_vec3 pos, t_vec3 dir,
 					float scale);
 
+void			game_logic(t_level *level, t_game_state *game_state);
 void			game_logic_put_info(t_level *level, unsigned int *texture);
+void			game_logic_select_nearest_to_mouse(t_level *level, int x, int y);
+void			game_logic_move_selected(t_level *level, t_vec3 move_amount);
+
 void			door_animate(t_level *level);
 void			door_put_text(t_level *level);
 void			add_new_door(t_level *level);

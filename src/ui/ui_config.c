@@ -567,8 +567,8 @@ void	ui_game_settings(t_level *level)
 
 	if (call("close", NULL))
 		level->ui.state.ui_location = UI_LOCATION_MAIN;
-	sprintf(buf, "win distance: %.2fm", level->win_dist);
-	float_slider(&level->win_dist, buf, 1, 40);
+	sprintf(buf, "win distance: %.2fm", level->game_logic.win_dist);
+	float_slider(&level->game_logic.win_dist, buf, 1, 40);
 	call("set win position", &set_win_pos);
 	call("set spawn position", &set_spawn_pos);
 	if (call("menu add camera pos", NULL))

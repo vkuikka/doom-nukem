@@ -99,9 +99,9 @@ void	init_embedded(t_level *level)
 
 static void	level_default_settings(t_level *level)
 {
-	level->player_health = PLAYER_HEALTH_MAX;
-	level->player_ammo = PLAYER_AMMO_MAX;
-	level->win_dist = INITIAL_LEVEL_WIN_DIST;
+	level->game_logic.player_health = PLAYER_HEALTH_MAX;
+	level->game_logic.player_ammo = PLAYER_AMMO_MAX;
+	level->game_logic.win_dist = INITIAL_LEVEL_WIN_DIST;
 	level->cam.pos.x = 0;
 	level->cam.pos.y = -PLAYER_HEIGHT;
 	level->cam.pos.z = 0;

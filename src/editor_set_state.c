@@ -90,13 +90,13 @@ void	set_spray(t_level *level, char *filename)
 
 void	set_win_pos(t_level *level)
 {
-	level->win_pos = level->cam.pos;
+	level->game_logic.win_pos = level->cam.pos;
 }
 
 void	set_spawn_pos(t_level *level)
 {
-	level->spawn_pos.pos = level->cam.pos;
-	level->spawn_pos.look_side = level->cam.look_side;
-	level->spawn_pos.look_up = level->cam.look_up;
+	level->game_logic.spawn_pos.pos = level->cam.pos;
+	level->game_logic.spawn_pos.look_side = level->cam.look_side;
+	level->game_logic.spawn_pos.look_up = level->cam.look_up;
 }
 

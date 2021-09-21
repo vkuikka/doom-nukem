@@ -189,7 +189,7 @@ void	move_enemy(t_tri *face, t_level *level, float time)
 		{
 			face->enemy->current_attack_delay = 0;
 			vec_mult(&level->player_vel, 0);
-			level->player_health -= face->enemy->attack_damage;
+			level->game_logic.player_health -= face->enemy->attack_damage;
 		}
 		else if (face->enemy->projectile_speed)
 		{
@@ -218,7 +218,7 @@ static void	move_projectile(t_tri *face, t_level *level, float time)
 	if (vec_length(e.dir) <= PROJECTILE_DAMAGE_DIST && face->projectile->damage > 0)
 	{
 		vec_mult(&level->player_vel, 0);
-		level->player_health -= face->projectile->damage;
+		level->game_logic.player_health -= face->projectile->damage;
 		remove_projectile(level, face->index);
 		return ;
 	}
