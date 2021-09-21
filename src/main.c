@@ -131,19 +131,17 @@ static void	merge_prop(t_level *level, t_obj *obj, t_vec3 pos, float z_rotation)
 	int	i;
 	int	k;
 
+	if (!level->visible_max)
+		level->visible_max = level->all.tri_amount;
 	if (obj->tri_amount + level->visible.tri_amount
-		>= level->all.tri_amount)
+		>= level->visible_max)
 	{
-		// i = level->visible_max_tri_amount * 1.5;
-		// ft_realloc();
-
-		// level->visible.tris = (t_tri *)ft_realloc(level->visible.tris,
-		// 		sizeof(t_tri) * level->all.tri_amount - 1,
-		// 		sizeof(t_tri) * level->all.tri_amount);
-		// if (!level->visible.tris)
-		// 	ft_error("memory allocation failed");
-		printf("error\n");
-		return ;
+		level->visible.tris = (t_tri *)ft_realloc(level->visible.tris,
+				sizeof(t_tri) * level->visible_max,
+				sizeof(t_tri) * (int)(level->visible_max * 1.5));
+		level->visible_max *= 1.5;
+		if (!level->visible.tris)
+			ft_error("memory allocation failed");
 	}
 	(void)z_rotation;
 

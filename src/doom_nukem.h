@@ -567,9 +567,9 @@ typedef struct s_camera_path
 
 typedef struct s_level
 {
-	t_game_models		game_models;
 	t_obj				all;
 	t_obj				visible;
+	int					visible_max;
 	t_obj				*ssp;
 	t_bmp				texture;
 	t_bmp				normal_map;
@@ -589,6 +589,7 @@ typedef struct s_level
 	int					selected_light_index;
 	struct s_enemy		player;
 	struct s_bmp		main_menu_title;
+	t_game_models		game_models;
 	t_game_logic		game_logic;
 	t_camera_path		main_menu_anim;
 	struct s_vec3		player_vel;

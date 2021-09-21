@@ -71,6 +71,43 @@ static void	game_finished(t_level *level, t_game_state *game_state,
 	}
 }
 
+static float	obj_find_lowest_point(t_obj *obj)
+{
+	float	min;
+	int		i;
+	int		k;
+
+	min = 0;
+	i = 0;
+	while (i < obj->tri_amount)
+	{
+		k = 0;
+		while (k < 3 + obj->tris[i].isquad)
+		{
+			if (obj->tris[i].verts[k].pos.y > min)
+				min = obj->tris[i].verts[k].pos.y;
+			k++;
+		}
+		i++;
+	}
+	return (min);
+}
+
+static void	obj_pos_set_to_floor(t_vec3 *vec, t_obj *obj, t_level *level)
+{
+	t_ray	ray;
+	float	ground_dist;
+
+	ray.dir = (t_vec3){0, 1, 0};
+	ray.pos = *vec;
+	ground_dist = cast_all(ray, level, NULL);
+	if (ground_dist == FLT_MAX)
+		ground_dist = 0;
+	else
+		ground_dist -= obj_find_lowest_point(obj);
+	vec->y += ground_dist;
+}
+
 void	add_health_box(t_level *level)
 {
 	int	amount;
@@ -82,6 +119,8 @@ void	add_health_box(t_level *level)
 		ft_error("memory allocation failed");
 	vec_add(&level->game_logic.health_box_spawn_pos[amount],
 		level->cam.pos, level->cam.front);
+	obj_pos_set_to_floor(&level->game_logic.health_box_spawn_pos[amount],
+			&level->game_models.pickup_box, level);
 	level->game_logic.health_box_amount++;
 }
 
@@ -96,6 +135,8 @@ void	add_ammo_box(t_level *level)
 		ft_error("memory allocation failed");
 	vec_add(&level->game_logic.ammo_box_spawn_pos[amount],
 		level->cam.pos, level->cam.front);
+	obj_pos_set_to_floor(&level->game_logic.ammo_box_spawn_pos[amount],
+			&level->game_models.pickup_box, level);
 	level->game_logic.ammo_box_amount++;
 }
 
@@ -110,6 +151,8 @@ void	add_enemy_spawn_pos(t_level *level)
 		ft_error("memory allocation failed");
 	vec_add(&level->game_logic.enemy_spawn_pos[amount],
 		level->cam.pos, level->cam.front);
+	obj_pos_set_to_floor(&level->game_logic.enemy_spawn_pos[amount],
+			&level->game_models.pickup_box, level);
 	level->game_logic.enemy_amount++;
 }
 
