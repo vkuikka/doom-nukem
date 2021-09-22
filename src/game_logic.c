@@ -120,7 +120,7 @@ void	add_health_box(t_level *level)
 	vec_add(&level->game_logic.health_box_spawn_pos[amount],
 		level->cam.pos, level->cam.front);
 	obj_pos_set_to_floor(&level->game_logic.health_box_spawn_pos[amount],
-			&level->game_models.pickup_box, level);
+			&level->game_models.health_pickup_box, level);
 	level->game_logic.health_box_amount++;
 }
 
@@ -136,7 +136,7 @@ void	add_ammo_box(t_level *level)
 	vec_add(&level->game_logic.ammo_box_spawn_pos[amount],
 		level->cam.pos, level->cam.front);
 	obj_pos_set_to_floor(&level->game_logic.ammo_box_spawn_pos[amount],
-			&level->game_models.pickup_box, level);
+			&level->game_models.ammo_pickup_box, level);
 	level->game_logic.ammo_box_amount++;
 }
 
@@ -152,7 +152,7 @@ void	add_enemy_spawn_pos(t_level *level)
 	vec_add(&level->game_logic.enemy_spawn_pos[amount],
 		level->cam.pos, level->cam.front);
 	obj_pos_set_to_floor(&level->game_logic.enemy_spawn_pos[amount],
-			&level->game_models.pickup_box, level);
+			&level->game_models.enemy, level);
 	level->game_logic.enemy_amount++;
 }
 

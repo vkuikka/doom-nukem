@@ -179,8 +179,19 @@ static void	find_ssp_index(t_tri tri, t_level *level)
 	{
 		y = get_ssp_coordinate(y_bounds[0], 0) - 1;
 		while (++y <= get_ssp_coordinate(y_bounds[1], 0))
+		{
+			if (level->ssp[x + y * SSP_MAX_X].tri_amount + 1 >= level->ssp_max[x + y * SSP_MAX_X])
+			{
+				level->ssp[x + y * SSP_MAX_X].tris = (t_tri *)ft_realloc(level->ssp[x + y * SSP_MAX_X].tris,
+						sizeof(t_tri) * level->ssp_max[x + y * SSP_MAX_X],
+						sizeof(t_tri) * (int)(level->ssp_max[x + y * SSP_MAX_X] * 1.5));
+				level->ssp_max[x + y * SSP_MAX_X] *= 1.5;
+				if (!level->ssp[x + y * SSP_MAX_X].tris)
+					ft_error("memory allocation failed");
+			}
 			level->ssp[x + y * SSP_MAX_X]
 				.tris[level->ssp[x + y * SSP_MAX_X].tri_amount++] = tri;
+		}
 		x++;
 	}
 }
@@ -236,6 +247,12 @@ void	init_screen_space_partition(t_level *level)
 				* level->all.tri_amount);
 		if (!level->ssp[i].tris)
 			ft_error("memory allocation failed");
+		i++;
+	}
+	i = 0;
+	while (i < SSP_MAX_X * SSP_MAX_Y)
+	{
+		level->ssp_max[i] = level->all.tri_amount;
 		i++;
 	}
 }

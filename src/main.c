@@ -126,7 +126,7 @@ static void	tick_forward(t_level *level, t_game_state *game_state)
 }
 
 
-static void	merge_prop(t_level *level, t_obj *obj, t_vec3 pos, float z_rotation)
+static void	merge_prop(t_level *level, t_obj *obj, t_vec3 pos, float y_rotation)
 {
 	int	i;
 	int	k;
@@ -143,8 +143,6 @@ static void	merge_prop(t_level *level, t_obj *obj, t_vec3 pos, float z_rotation)
 		if (!level->visible.tris)
 			ft_error("memory allocation failed");
 	}
-	(void)z_rotation;
-
 	k = 0;
 	i = level->visible.tri_amount;
 	while (k < obj->tri_amount)
@@ -152,12 +150,23 @@ static void	merge_prop(t_level *level, t_obj *obj, t_vec3 pos, float z_rotation)
 		level->visible.tris[i] = obj->tris[k];
 		for (int z = 0; z < 3 + obj->tris[k].isquad; z++)
 		{
+			if (y_rotation)
+				rotate_vertex(y_rotation, &level->visible.tris[i].verts[z].pos, 0);
 			level->visible.tris[i].verts[z].pos.x += pos.x;
 			level->visible.tris[i].verts[z].pos.y += pos.y;
 			level->visible.tris[i].verts[z].pos.z += pos.z;
 		}
-		// level->visible.tris[i].texture = &level->dynamic.health_pickup_texture;
-		level->visible.tris[i].texture = &level->game_models.ammo_pickup_texture;
+		if (y_rotation)
+		{
+			vec_sub(&level->visible.tris[i].v0v2, level->visible.tris[i].verts[1].pos,
+				level->visible.tris[i].verts[0].pos);
+			vec_sub(&level->visible.tris[i].v0v1, level->visible.tris[i].verts[2].pos,
+				level->visible.tris[i].verts[0].pos);
+			vec_cross(&level->visible.tris[i].normal, level->visible.tris[i].v0v2,
+				level->visible.tris[i].v0v1);
+			vec_normalize(&level->visible.tris[i].normal);
+		}
+		level->visible.tris[i].texture = &obj->texture;
 		i++;
 		k++;
 	}
@@ -167,23 +176,26 @@ static void	merge_prop(t_level *level, t_obj *obj, t_vec3 pos, float z_rotation)
 static void	merge_game_models(t_level *level, t_game_state game_state)
 {
 	int	i;
+	static float rot = 0;
+	rot += .03;
 
-	if ((game_state == GAME_STATE_EDITOR
-		&& level->ui.state.ui_location == UI_LOCATION_GAME_SETTINGS)
-		|| game_state == GAME_STATE_INGAME)
+	(void)game_state;
+	// if ((game_state == GAME_STATE_EDITOR
+	// 	&& level->ui.state.ui_location == UI_LOCATION_GAME_SETTINGS)
+	// 	|| game_state == GAME_STATE_INGAME)
 	{
 		i = -1;
 		while (++i < level->game_logic.ammo_box_amount)
-			merge_prop(level, &level->game_models.pickup_box,
-				level->game_logic.ammo_box_spawn_pos[i], 0);
+			merge_prop(level, &level->game_models.ammo_pickup_box,
+				level->game_logic.ammo_box_spawn_pos[i], rot + (M_PI / 3 * i));
 		i = -1;
 		while (++i < level->game_logic.health_box_amount)
-			merge_prop(level, &level->game_models.pickup_box,
-				level->game_logic.health_box_spawn_pos[i], 0);
+			merge_prop(level, &level->game_models.health_pickup_box,
+				level->game_logic.health_box_spawn_pos[i], rot + (M_PI / 3 * i));
 		i = -1;
 		while (++i < level->game_logic.enemy_amount)
-			merge_prop(level, &level->game_models.pickup_box,
-				level->game_logic.enemy_spawn_pos[i], 0);
+			merge_prop(level, &level->game_models.enemy,
+				level->game_logic.enemy_spawn_pos[i], rot + (M_PI / 3 * i));
 	}
 }
 

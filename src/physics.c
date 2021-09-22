@@ -270,7 +270,7 @@ void	player_movement(t_level *level)
 	float	delta_time;
 	float	height;
 
-	height = PLAYER_HEIGHT;
+	height = PLAYER_EYE_HEIGHT;
 	delta_time = level->ui.frame_time / 1000.;
 	player_input(level, &wishdir, &height);
 	rotate_wishdir(level, &wishdir);

@@ -84,17 +84,26 @@ void	init_embedded(t_level *level)
 {
 	level->main_menu_title
 		= bmp_read_from_memory(&embed_title_bmp[0], embed_title_bmp_len);
-	level->game_models.ammo_pickup_texture
-		= bmp_read_from_memory(&embed_ammo_pickup_texture_bmp[0], embed_ammo_pickup_texture_bmp_len);
-	level->game_models.health_pickup_texture = bmp_read_from_memory(&embed_health_pickup_texture_bmp[0], embed_health_pickup_texture_bmp_len);
-	load_obj_from_memory(&embed_pickup_box_obj[0], embed_pickup_box_obj_len,
-		&level->game_models.pickup_box);
 	init_embedded_viewmodel(level);
 	load_obj_from_memory(&embed_skybox_obj[0], embed_skybox_obj_len,
 		&level->sky.all);
 	load_obj_from_memory(&embed_skybox_obj[0], embed_skybox_obj_len,
 		&level->sky.visible);
 	init_fonts(&level->ui);
+
+	load_obj_from_memory(&embed_pickup_box_obj[0], embed_pickup_box_obj_len,
+		&level->game_models.ammo_pickup_box);
+	load_obj_from_memory(&embed_pickup_box_obj[0], embed_pickup_box_obj_len,
+		&level->game_models.health_pickup_box);
+	int res = load_obj("embed/enemy.obj", &level->game_models.enemy);
+	res += load_obj("embed/viewmodel.obj", &level->game_models.viewmodel);
+	if (res != 2)
+		ft_error("fix embed\n");
+	level->game_models.ammo_pickup_box.texture
+		= bmp_read_from_memory(&embed_ammo_pickup_texture_bmp[0], embed_ammo_pickup_texture_bmp_len);
+	level->game_models.health_pickup_box.texture
+		= bmp_read_from_memory(&embed_health_pickup_texture_bmp[0], embed_health_pickup_texture_bmp_len);
+	level->game_models.enemy.texture = bmp_read("embed/enemy_texture.bmp");
 }
 
 static void	level_default_settings(t_level *level)
@@ -103,7 +112,7 @@ static void	level_default_settings(t_level *level)
 	level->game_logic.player_ammo = PLAYER_AMMO_MAX;
 	level->game_logic.win_dist = INITIAL_LEVEL_WIN_DIST;
 	level->cam.pos.x = 0;
-	level->cam.pos.y = -PLAYER_HEIGHT;
+	level->cam.pos.y = -PLAYER_EYE_HEIGHT;
 	level->cam.pos.z = 0;
 	level->cam.look_side = 0;
 	level->cam.look_up = 0;
@@ -129,7 +138,7 @@ void	create_default_level(t_level *level)
 	level->normal_map = bmp_read("normal.bmp");
 	level->sky.img = bmp_read("skybox.bmp");
 	level->spray = bmp_read("spray.bmp");
-	load_obj("level/ship.obj", &level->all);
+	load_obj("level/cache.obj", &level->all);
 	level->visible.tris
 		= (t_tri *)malloc(sizeof(t_tri) * level->all.tri_amount);
 	if (!level->visible.tris)

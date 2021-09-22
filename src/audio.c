@@ -21,12 +21,12 @@ static void	handle_jump_sound(t_level *level)
 	if (!keys[SDL_SCANCODE_SPACE])
 		return ;
 	audio = &level->audio;
-	if (!audio->played_jump_sound && is_player_in_air(level, PLAYER_HEIGHT))
+	if (!audio->played_jump_sound && is_player_in_air(level, PLAYER_EYE_HEIGHT))
 	{
 		Mix_PlayChannel(AUDIO_JUMP_CHANNEL, level->audio.jump, 0);
 		audio->played_jump_sound = TRUE;
 	}
-	if (!is_player_in_air(level, PLAYER_HEIGHT))
+	if (!is_player_in_air(level, PLAYER_EYE_HEIGHT))
 	{
 		audio->played_jump_sound = FALSE;
 	}

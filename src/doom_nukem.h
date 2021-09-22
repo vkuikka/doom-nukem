@@ -28,7 +28,7 @@
 # define WALK_SPEED 4	//	m/s
 # define CROUCH_SPEED 3	//	m/s
 # define GROUND_FRICTION 5.
-# define PLAYER_HEIGHT 1.75
+# define PLAYER_EYE_HEIGHT 1.65
 # define PLAYER_HEIGHT_MAGIC 1.3
 # define CROUCHED_HEIGHT 1
 # define WALL_CLIP_DIST 0.3
@@ -291,6 +291,7 @@ typedef struct s_obj
 {
 	struct s_tri		*tris;
 	int					tri_amount;
+	t_bmp				texture;
 }						t_obj;
 
 // verts = vertex coordinates of 3d triangle
@@ -525,14 +526,12 @@ typedef struct s_player_pos
 
 typedef struct s_game_models
 {
-	t_obj				projectiles;
-	t_obj				enemies;
-	t_obj				pickup_box;
+	t_obj				ammo_pickup_box;
+	t_obj				health_pickup_box;
+	t_obj				enemy;
+	t_obj				viewmodel;
 
-	t_bmp				enemy_texture;
 	t_bmp				projectile_texture;
-	t_bmp				ammo_pickup_texture;
-	t_bmp				health_pickup_texture;
 }						t_game_models;
 
 typedef struct s_game_logic
@@ -571,6 +570,7 @@ typedef struct s_level
 	t_obj				visible;
 	int					visible_max;
 	t_obj				*ssp;
+	int					ssp_max[SSP_MAX_X * SSP_MAX_Y];
 	t_bmp				texture;
 	t_bmp				normal_map;
 	t_bmp				spray;
