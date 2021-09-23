@@ -32,6 +32,8 @@ static void	render_raycast(t_window *window, t_level *level)
 	if (SDL_LockTexture(window->texture, NULL,
 			(void **)&window->frame_buffer, &(int){0}) != 0)
 		ft_error("failed to lock texture\n");
+	if (level->render_is_first_pass)
+		ft_memset(window->frame_buffer, 0, RES_X * RES_Y * sizeof(int));
 	i = -1;
 	while (++i < THREAD_AMOUNT)
 	{
@@ -89,7 +91,6 @@ static void	render(t_window *window, t_level *level, t_game_state *game_state)
 	unsigned int	raster_time;
 	unsigned int	ui_time;
 
-	SDL_RenderClear(window->SDLrenderer);
 	if (level->level_initialized)
 	{
 		level->ui.total_raycasts = 0;
@@ -107,6 +108,7 @@ static void	render(t_window *window, t_level *level, t_game_state *game_state)
 	render_ui(window, level, game_state);
 	level->ui.ui_time = SDL_GetTicks() - ui_time;
 	SDL_RenderPresent(window->SDLrenderer);
+	SDL_RenderClear(window->SDLrenderer);
 }
 
 static void	tick_forward(t_level *level, t_game_state *game_state)
@@ -199,6 +201,19 @@ static void	merge_game_models(t_level *level, t_game_state game_state)
 	}
 }
 
+// static void	viewmodel(t_window *window, t_level *level, t_game_state *game_state)
+// {
+// 	(void)game_state;
+// 	// if (*game_state != GAME_STATE_EDITOR)
+// 	// 	return ;
+// 	level->visible.tri_amount = 0;
+// 	merge_prop(level, &level->game_models.viewmodel, level->cam.pos, level->cam.look_side);
+// 	screen_space_partition(level);
+// 	level->render_is_first_pass = TRUE;
+// 	render_raycast(window, level);
+// 	level->render_is_first_pass = FALSE;
+// }
+
 static void	dnukem(t_window *window, t_level *level, t_game_state game_state)
 {
 	unsigned int	ssp_time;
@@ -212,6 +227,7 @@ static void	dnukem(t_window *window, t_level *level, t_game_state game_state)
 		read_input(window, level, &game_state);
 		tick_forward(level, &game_state);
 		cull_time = SDL_GetTicks();
+		// viewmodel(window, level, &game_state);
 		culling(level);
 		merge_game_models(level, game_state);
 		level->ui.cull_time = SDL_GetTicks() - cull_time;

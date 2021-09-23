@@ -18,11 +18,8 @@ static void	player_reload(t_level *level)
 
 	time = (SDL_GetTicks() - level->game_logic.reload_start_time)
 		/ (1000 * VIEWMODEL_ANIM_FPS);
-	if (time < 1)
-		level->viewmodel_index = (int)(time * VIEWMODEL_FRAMES);
-	else
+	if (time > 1)
 	{
-		level->viewmodel_index = 0;
 		level->game_logic.reload_start_time = 0;
 		level->game_logic.player_ammo = PLAYER_AMMO_MAX;
 	}

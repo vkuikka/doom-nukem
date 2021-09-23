@@ -326,11 +326,18 @@ typedef struct s_tri
 	t_obj				shadow_faces;
 }						t_tri;
 
+typedef struct s_obj_animation
+{
+	t_obj				*keyframes;
+	int					keyframe_amount;
+	unsigned int		duration;
+}						t_obj_animation;
+
 typedef struct s_skybox
 {
-	struct s_bmp		img;
-	struct s_obj		all;
-	struct s_obj		visible;
+	t_bmp				img;
+	t_obj				all;
+	t_obj				visible;
 }						t_skybox;
 
 // look_side = angle for looking to the side
@@ -529,6 +536,8 @@ typedef struct s_game_models
 	t_obj				ammo_pickup_box;
 	t_obj				health_pickup_box;
 	t_obj				enemy;
+	// t_obj_animation		enemy;
+	t_obj_animation		viewmodel_animation;
 	t_obj				viewmodel;
 
 	t_bmp				projectile_texture;
@@ -566,6 +575,7 @@ typedef struct s_camera_path
 
 typedef struct s_level
 {
+	int					render_is_first_pass;
 	t_obj				all;
 	t_obj				visible;
 	int					visible_max;
@@ -588,13 +598,11 @@ typedef struct s_level
 	int					light_amount;
 	int					selected_light_index;
 	struct s_enemy		player;
-	struct s_bmp		main_menu_title;
+	t_bmp				main_menu_title;
 	t_game_models		game_models;
 	t_game_logic		game_logic;
 	t_camera_path		main_menu_anim;
 	struct s_vec3		player_vel;
-	int					viewmodel_index;
-	struct s_bmp		viewmodel[VIEWMODEL_FRAMES];
 	float				world_brightness;
 	float				skybox_brightness;
 	struct s_audio		audio;

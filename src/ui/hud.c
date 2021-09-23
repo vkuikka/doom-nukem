@@ -82,25 +82,6 @@ static void	crosshair(unsigned int *pixels, int x, int y)
 	}
 }
 
-static void	viewmodel(unsigned int *pixels, t_bmp img)
-{
-	int	x;
-	int	y;
-
-	x = 25;
-	while (x <= img.width)
-	{
-		y = 0;
-		while (y < img.height)
-		{
-			pixel_put_hud(RES_X - img.width + x, RES_Y - img.height + y,
-				img.image[x + (y * img.width)], pixels);
-			y++;
-		}
-		x++;
-	}
-}
-
 void	ingame_hud(t_level *level, unsigned int *pixels)
 {
 	char	buf[100];
@@ -117,7 +98,6 @@ void	ingame_hud(t_level *level, unsigned int *pixels)
 
 void	hud(t_level *level, unsigned int *pixels, t_game_state game_state)
 {
-	viewmodel(pixels, level->viewmodel[level->viewmodel_index]);
 	if (game_state == GAME_STATE_DEAD)
 	{
 		level->ui.state.current_font = level->ui.win_lose_font;

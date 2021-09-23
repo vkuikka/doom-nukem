@@ -53,38 +53,10 @@ static void	init_fonts(t_editor_ui *ui)
 	}
 }
 
-static void	init_embedded_viewmodel(t_level *level)
-{
-	unsigned int	size;
-
-	size = embed_viewmodel_ak_0_bmp_len;
-	level->viewmodel[0]
-		= bmp_read_from_memory(&embed_viewmodel_ak_0_bmp[0], size);
-	// level->viewmodel[1]
-	// 	= bmp_read_from_memory(&embed_viewmodel_ak_1_bmp[0], size);
-	// level->viewmodel[2]
-	// 	= bmp_read_from_memory(&embed_viewmodel_ak_2_bmp[0], size);
-	// level->viewmodel[3]
-	// 	= bmp_read_from_memory(&embed_viewmodel_ak_3_bmp[0], size);
-	// level->viewmodel[4]
-	// 	= bmp_read_from_memory(&embed_viewmodel_ak_4_bmp[0], size);
-	// level->viewmodel[5]
-	// 	= bmp_read_from_memory(&embed_viewmodel_ak_5_bmp[0], size);
-	// level->viewmodel[6]
-	// 	= bmp_read_from_memory(&embed_viewmodel_ak_6_bmp[0], size);
-	// level->viewmodel[7]
-	// 	= bmp_read_from_memory(&embed_viewmodel_ak_7_bmp[0], size);
-	// level->viewmodel[8]
-	// 	= bmp_read_from_memory(&embed_viewmodel_ak_8_bmp[0], size);
-	// level->viewmodel[9]
-	// 	= bmp_read_from_memory(&embed_viewmodel_ak_9_bmp[0], size);
-}
-
 void	init_embedded(t_level *level)
 {
 	level->main_menu_title
 		= bmp_read_from_memory(&embed_title_bmp[0], embed_title_bmp_len);
-	init_embedded_viewmodel(level);
 	load_obj_from_memory(&embed_skybox_obj[0], embed_skybox_obj_len,
 		&level->sky.all);
 	load_obj_from_memory(&embed_skybox_obj[0], embed_skybox_obj_len,
@@ -96,14 +68,17 @@ void	init_embedded(t_level *level)
 	load_obj_from_memory(&embed_pickup_box_obj[0], embed_pickup_box_obj_len,
 		&level->game_models.health_pickup_box);
 	int res = load_obj("embed/enemy.obj", &level->game_models.enemy);
-	res += load_obj("embed/viewmodel.obj", &level->game_models.viewmodel);
+	res += load_obj("embed/viewmodel/viewmodel_0.obj", &level->game_models.viewmodel);
+	// res += load_animation("embed/viewmodel/viewmodel_0.obj", &level->game_models.viewmodel_animation, &level->game_models.viewmodel_animation);
 	if (res != 2)
 		ft_error("fix embed\n");
+
 	level->game_models.ammo_pickup_box.texture
 		= bmp_read_from_memory(&embed_ammo_pickup_texture_bmp[0], embed_ammo_pickup_texture_bmp_len);
 	level->game_models.health_pickup_box.texture
 		= bmp_read_from_memory(&embed_health_pickup_texture_bmp[0], embed_health_pickup_texture_bmp_len);
 	level->game_models.enemy.texture = bmp_read("embed/enemy_texture.bmp");
+	level->game_models.viewmodel.texture = bmp_read("embed/enemy_texture.bmp");
 }
 
 static void	level_default_settings(t_level *level)
