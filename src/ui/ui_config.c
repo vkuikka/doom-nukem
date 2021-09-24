@@ -582,6 +582,17 @@ void	ui_game_settings(t_level *level)
 	call("add enemy spawn", &add_enemy_spawn_pos);
 	call("add ammo box", &add_ammo_box);
 	call("add health box", &add_health_box);
+	if (level->ui.state.logic_selected == GAME_LOGIC_SELECTED_MENU_ANIMATION)
+	{
+		if (call("delete node", NULL))
+			camera_path_delete_pos(&level->main_menu_anim, level->ui.state.logic_selected_index);
+	}
+	else if (level->ui.state.logic_selected == GAME_LOGIC_SELECTED_AMMO)
+		call("delete ammo box", &delete_ammo_box);
+	else if (level->ui.state.logic_selected == GAME_LOGIC_SELECTED_HEALTH)
+		call("delete health box", &delete_health_box);
+	else if (level->ui.state.logic_selected == GAME_LOGIC_SELECTED_ENEMY)
+		call("delete enemy", &delete_enemy_spawn_pos);
 }
 
 void	ui_level_settings(t_level *level)

@@ -326,13 +326,6 @@ typedef struct s_tri
 	t_obj				shadow_faces;
 }						t_tri;
 
-typedef struct s_obj_animation
-{
-	t_obj				*keyframes;
-	int					keyframe_amount;
-	unsigned int		duration;
-}						t_obj_animation;
-
 typedef struct s_skybox
 {
 	t_bmp				img;
@@ -549,8 +542,6 @@ typedef struct s_game_models
 	t_obj				ammo_pickup_box;
 	t_obj				health_pickup_box;
 	t_obj				enemy;
-	// t_obj_animation		enemy;
-	t_obj_animation		viewmodel_animation;
 	t_obj				viewmodel;
 
 	t_bmp				projectile_texture;
@@ -780,6 +771,7 @@ void			draw_camera_path(char *str, t_camera_path *path,
 					unsigned int *texture, t_level *level);
 void			camera_path_set(t_camera_path *path, t_camera *cam);
 void			camera_path_add_pos(t_camera_path *path, t_camera c);
+void			camera_path_delete_pos(t_camera_path *path, int index);
 void			main_menu(t_level *level, unsigned int *pixels,
 					t_game_state *game_state);
 void			hud(t_level *level, unsigned int *pixels,
@@ -843,6 +835,9 @@ void			game_logic_move_selected(t_level *level, t_vec3 move_amount);
 void			add_enemy_spawn_pos(t_level *level);
 void			add_ammo_box(t_level *level);
 void			add_health_box(t_level *level);
+void			delete_health_box(t_level *level);
+void			delete_ammo_box(t_level *level);
+void			delete_enemy_spawn_pos(t_level *level);
 
 void			door_animate(t_level *level);
 void			door_put_text(t_level *level);

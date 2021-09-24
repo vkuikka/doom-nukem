@@ -90,6 +90,18 @@ void	camera_path_get_pos_bezier(t_camera_path *path, t_camera *cam, float time)
 			path->pos[id.y].look_up, path->pos[id.z].look_up, node_time);
 }
 
+void	camera_path_delete_pos(t_camera_path *path, int index)
+{
+	while (index < path->amount - 1)
+	{
+		path->pos[index] = path->pos[index + 1];
+		index++;
+	}
+	path->pos = (t_player_pos*)ft_realloc(path->pos,
+		sizeof(t_player_pos) * path->amount, sizeof(t_player_pos) * (path->amount - 1));
+	path->amount--;
+}
+
 void	camera_path_add_pos(t_camera_path *path, t_camera c)
 {
 	path->pos = (t_player_pos*)ft_realloc(path->pos,

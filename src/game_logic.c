@@ -137,6 +137,66 @@ void	add_ammo_box(t_level *level)
 	level->game_logic.ammo_box_amount++;
 }
 
+void	delete_health_box(t_level *level)
+{
+	int	amount;
+	int	i;
+
+	amount = level->game_logic.health_box_amount;
+	i = level->ui.state.logic_selected_index;
+	while (i < amount - 1)
+	{
+		level->game_logic.health_box_spawn_pos[i] = level->game_logic.health_box_spawn_pos[i + 1];
+		i++;
+	}
+	level->game_logic.health_box_spawn_pos = (t_vec3 *)ft_realloc(level->game_logic.health_box_spawn_pos,
+		sizeof(t_vec3) * amount, sizeof(t_vec3) * (amount - 1));
+	if (!level->game_logic.health_box_spawn_pos)
+		ft_error("memory allocation failed");
+	level->game_logic.health_box_amount--;
+	level->ui.state.logic_selected = GAME_LOGIC_SELECTED_NONE;
+}
+
+void	delete_ammo_box(t_level *level)
+{
+	int	amount;
+	int	i;
+
+	amount = level->game_logic.ammo_box_amount;
+	i = level->ui.state.logic_selected_index;
+	while (i < amount - 1)
+	{
+		level->game_logic.ammo_box_spawn_pos[i] = level->game_logic.ammo_box_spawn_pos[i + 1];
+		i++;
+	}
+	level->game_logic.ammo_box_spawn_pos = (t_vec3 *)ft_realloc(level->game_logic.ammo_box_spawn_pos,
+		sizeof(t_vec3) * amount, sizeof(t_vec3) * (amount - 1));
+	if (!level->game_logic.ammo_box_spawn_pos)
+		ft_error("memory allocation failed");
+	level->game_logic.ammo_box_amount--;
+	level->ui.state.logic_selected = GAME_LOGIC_SELECTED_NONE;
+}
+
+void	delete_enemy_spawn_pos(t_level *level)
+{
+	int	amount;
+	int	i;
+
+	amount = level->game_logic.enemy_amount;
+	i = level->ui.state.logic_selected_index;
+	while (i < amount - 1)
+	{
+		level->game_logic.enemy_spawn_pos[i] = level->game_logic.enemy_spawn_pos[i + 1];
+		i++;
+	}
+	level->game_logic.enemy_spawn_pos = (t_vec3 *)ft_realloc(level->game_logic.enemy_spawn_pos,
+		sizeof(t_vec3) * amount, sizeof(t_vec3) * (amount - 1));
+	if (!level->game_logic.enemy_spawn_pos)
+		ft_error("memory allocation failed");
+	level->game_logic.enemy_amount--;
+	level->ui.state.logic_selected = GAME_LOGIC_SELECTED_NONE;
+}
+
 void	add_enemy_spawn_pos(t_level *level)
 {
 	int	amount;
