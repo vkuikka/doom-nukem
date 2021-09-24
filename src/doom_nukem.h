@@ -408,6 +408,17 @@ typedef enum e_game_state
 	GAME_STATE_WIN
 }						t_game_state;
 
+typedef enum e_game_logic_selected
+{
+	GAME_LOGIC_SELECTED_NONE,
+	GAME_LOGIC_SELECTED_SPAWN,
+	GAME_LOGIC_SELECTED_WIN,
+	GAME_LOGIC_SELECTED_MENU_ANIMATION,
+	GAME_LOGIC_SELECTED_AMMO,
+	GAME_LOGIC_SELECTED_HEALTH,
+	GAME_LOGIC_SELECTED_ENEMY
+}						t_glogic_selected;
+
 typedef enum e_main_menu
 {
 	MAIN_MENU_LOCATION_MAIN,
@@ -449,6 +460,8 @@ typedef struct s_ui_state
 	enum e_mouse_loc	mouse_location;
 	float				uv_zoom;
 	struct s_vec2		uv_pos;
+	t_glogic_selected	logic_selected;
+	int					logic_selected_index;
 
 	char				*save_filename;
 	int					text_input_enable;
@@ -800,8 +813,7 @@ unsigned int	shader_wave(t_vec3 mod, t_vec3 *normal,
 unsigned int	shader_rule30(t_vec3 pos);
 t_color			sunlight(t_level *l, t_cast_result *res, t_color light);
 
-void			select_face(t_camera *cam, t_level *level,
-					int x, int y);
+void			select_face(t_camera *cam, t_level *level);
 void			deselect_all_faces(t_level *level);
 
 void			save_level(t_level *level);
@@ -826,7 +838,7 @@ void			set_new_face(t_level *level, t_vec3 pos, t_vec3 dir,
 
 void			game_logic(t_level *level, t_game_state *game_state);
 void			game_logic_put_info(t_level *level, unsigned int *texture);
-void			game_logic_select_nearest_to_mouse(t_level *level, int x, int y);
+void			game_logic_select_nearest_to_mouse(t_level *level);
 void			game_logic_move_selected(t_level *level, t_vec3 move_amount);
 void			add_enemy_spawn_pos(t_level *level);
 void			add_ammo_box(t_level *level);
@@ -850,7 +862,7 @@ void			light_put_text(t_level *level);
 void			enable_light_editor(t_level *level);
 void			add_light(t_level *level);
 void			move_light(t_level *level, t_vec3 move_amount);
-void			select_light(t_level *level, int x, int y);
+void			select_light(t_level *level);
 void			delete_light(t_level *level);
 void			delete_all_lights(t_level *level);
 void			set_fourth_vertex_uv(t_tri *a);

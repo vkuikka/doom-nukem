@@ -596,7 +596,10 @@ void	ui_level_settings(t_level *level)
 	button(&level->ui.normal_map_disabled, "disable normal map");
 	call("add face", &add_face);
 	if (call("game settings", NULL))
+	{
 		level->ui.state.ui_location = UI_LOCATION_GAME_SETTINGS;
+		level->ui.state.logic_selected = GAME_LOGIC_SELECTED_NONE;
+	}
 	button(&level->ui.fog, "fog");
 	if (level->ui.fog)
 		color_slider(&level->ui.fog_color, NULL);

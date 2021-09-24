@@ -56,7 +56,7 @@ static void	typing_input(t_level *level, SDL_Event event)
 		typing_input_backspace(level);
 }
 
-static void	set_mouse_input_location_3d_space(t_level *level, int x, int y)
+static void	set_mouse_input_location_3d_space(t_level *level)
 {
 	gizmo(level);
 	if (level->ui.state.mouse_location != MOUSE_LOCATION_GIZMO_X
@@ -67,18 +67,18 @@ static void	set_mouse_input_location_3d_space(t_level *level, int x, int y)
 		{
 			level->ui.state.mouse_location = MOUSE_LOCATION_LIGHT_EDITOR;
 			if (level->ui.state.m1_click && level->bake_status != BAKE_BAKING)
-				select_light(level, x, y);
+				select_light(level);
 		}
 		else if (level->ui.state.ui_location == UI_LOCATION_GAME_SETTINGS)
 		{
 			level->ui.state.mouse_location = MOUSE_LOCATION_GAME_SETTINGS;
 			if (level->ui.state.m1_click)
-				game_logic_select_nearest_to_mouse(level, x, y);
+				game_logic_select_nearest_to_mouse(level);
 		}
 		else
 		{
 			level->ui.state.mouse_location = MOUSE_LOCATION_SELECTION;
-			select_face(&level->cam, level, x, y);
+			select_face(&level->cam, level);
 		}
 		level->ui.state.m1_drag = FALSE;
 	}
@@ -121,7 +121,7 @@ static void	set_mouse_input_location(t_level *level, t_game_state game_state)
 		&& x < RES_X / 2)
 		level->ui.state.mouse_location = MOUSE_LOCATION_UV_EDITOR;
 	else
-		set_mouse_input_location_3d_space(level, x, y);
+		set_mouse_input_location_3d_space(level);
 	gizmo(level);
 	level->ui.state.m1_click = FALSE;
 }
