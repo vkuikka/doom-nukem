@@ -23,7 +23,7 @@ static void	update_camera(t_level *l)
 	l->cam.fov_x = l->ui.fov * ((float)RES_X / RES_Y);
 }
 
-static void	render_raycast(t_window *window, t_level *level)
+static void	render_raycast(t_window *window, t_level *level, t_game_state *game_state)
 {
 	SDL_Thread	*threads[THREAD_AMOUNT];
 	t_rthread	thread_data[THREAD_AMOUNT];
@@ -32,7 +32,7 @@ static void	render_raycast(t_window *window, t_level *level)
 	if (SDL_LockTexture(window->texture, NULL,
 			(void **)&window->frame_buffer, &(int){0}) != 0)
 		ft_error("failed to lock texture\n");
-	if (level->render_is_first_pass)
+	if (level->render_is_first_pass || *game_state != GAME_STATE_INGAME)
 		ft_memset(window->frame_buffer, 0, RES_X * RES_Y * sizeof(int));
 	i = -1;
 	while (++i < THREAD_AMOUNT)
@@ -46,11 +46,6 @@ static void	render_raycast(t_window *window, t_level *level)
 	i = -1;
 	while (++i < THREAD_AMOUNT)
 		SDL_WaitThread(threads[i], &(int){0});
-	level->ui.post_time = SDL_GetTicks();
-	post_process(window, level);
-	level->ui.post_time = SDL_GetTicks() - level->ui.post_time;
-	SDL_UnlockTexture(window->texture);
-	SDL_RenderCopy(window->SDLrenderer, window->texture, NULL, NULL);
 }
 
 static void	render_raster(t_window *window, t_level *level)
@@ -97,7 +92,14 @@ static void	render(t_window *window, t_level *level, t_game_state *game_state)
 		raycast_time = SDL_GetTicks();
 		if (!level->ui.wireframe
 			|| (level->ui.wireframe && level->ui.wireframe_on_top))
-			render_raycast(window, level);
+		{
+			render_raycast(window, level, game_state);
+			level->ui.post_time = SDL_GetTicks();
+			post_process(window, level);
+			level->ui.post_time = SDL_GetTicks() - level->ui.post_time;
+			SDL_UnlockTexture(window->texture);
+			SDL_RenderCopy(window->SDLrenderer, window->texture, NULL, NULL);
+		}
 		level->ui.raycast_time = SDL_GetTicks() - raycast_time - level->ui.post_time;
 		raster_time = SDL_GetTicks();
 		if (*game_state == GAME_STATE_EDITOR)
@@ -128,7 +130,7 @@ static void	tick_forward(t_level *level, t_game_state *game_state)
 }
 
 
-static void	merge_prop(t_level *level, t_obj *obj, t_vec3 pos, float y_rotation)
+static void	merge_prop(t_level *level, t_obj *obj, t_vec3 pos, t_vec2 rotation)
 {
 	int	i;
 	int	k;
@@ -152,13 +154,15 @@ static void	merge_prop(t_level *level, t_obj *obj, t_vec3 pos, float y_rotation)
 		level->visible.tris[i] = obj->tris[k];
 		for (int z = 0; z < 3 + obj->tris[k].isquad; z++)
 		{
-			if (y_rotation)
-				rotate_vertex(y_rotation, &level->visible.tris[i].verts[z].pos, 0);
+			if (rotation.x)
+				rotate_vertex(rotation.x, &level->visible.tris[i].verts[z].pos, 1);
+			if (rotation.y)
+				rotate_vertex(rotation.y, &level->visible.tris[i].verts[z].pos, 0);
 			level->visible.tris[i].verts[z].pos.x += pos.x;
 			level->visible.tris[i].verts[z].pos.y += pos.y;
 			level->visible.tris[i].verts[z].pos.z += pos.z;
 		}
-		if (y_rotation)
+		if (rotation.y)
 		{
 			vec_sub(&level->visible.tris[i].v0v2, level->visible.tris[i].verts[1].pos,
 				level->visible.tris[i].verts[0].pos);
@@ -181,38 +185,36 @@ static void	merge_game_models(t_level *level, t_game_state game_state)
 	static float rot = 0;
 	rot += .03;
 
-	(void)game_state;
-	// if ((game_state == GAME_STATE_EDITOR
-	// 	&& level->ui.state.ui_location == UI_LOCATION_GAME_SETTINGS)
-	// 	|| game_state == GAME_STATE_INGAME)
+	if ((game_state == GAME_STATE_EDITOR
+		&& level->ui.state.ui_location == UI_LOCATION_GAME_SETTINGS)
+		|| game_state == GAME_STATE_INGAME)
 	{
 		i = -1;
 		while (++i < level->game_logic.ammo_box_amount)
 			merge_prop(level, &level->game_models.ammo_pickup_box,
-				level->game_logic.ammo_box_spawn_pos[i], rot + (M_PI / 3 * i));
+				level->game_logic.ammo_box_spawn_pos[i], (t_vec2){0, rot + (M_PI / 3 * i)});
 		i = -1;
 		while (++i < level->game_logic.health_box_amount)
 			merge_prop(level, &level->game_models.health_pickup_box,
-				level->game_logic.health_box_spawn_pos[i], rot + (M_PI / 3 * i));
+				level->game_logic.health_box_spawn_pos[i], (t_vec2){0, rot + (M_PI / 3 * i)});
 		i = -1;
 		while (++i < level->game_logic.enemy_amount)
 			merge_prop(level, &level->game_models.enemy,
-				level->game_logic.enemy_spawn_pos[i], rot + (M_PI / 3 * i));
+				level->game_logic.enemy_spawn_pos[i], (t_vec2){0, rot + (M_PI / 3 * i)});
 	}
 }
 
-// static void	viewmodel(t_window *window, t_level *level, t_game_state *game_state)
-// {
-// 	(void)game_state;
-// 	// if (*game_state != GAME_STATE_EDITOR)
-// 	// 	return ;
-// 	level->visible.tri_amount = 0;
-// 	merge_prop(level, &level->game_models.viewmodel, level->cam.pos, level->cam.look_side);
-// 	screen_space_partition(level);
-// 	level->render_is_first_pass = TRUE;
-// 	render_raycast(window, level);
-// 	level->render_is_first_pass = FALSE;
-// }
+static void	viewmodel(t_window *window, t_level *level, t_game_state *game_state)
+{
+	if (*game_state != GAME_STATE_INGAME)
+		return ;
+	level->visible.tri_amount = 0;
+	merge_prop(level, &level->game_models.viewmodel, level->cam.pos, (t_vec2){level->cam.look_up, level->cam.look_side});
+	screen_space_partition(level);
+	level->render_is_first_pass = TRUE;
+	render_raycast(window, level, game_state);
+	level->render_is_first_pass = FALSE;
+}
 
 static void	dnukem(t_window *window, t_level *level, t_game_state game_state)
 {
@@ -227,7 +229,7 @@ static void	dnukem(t_window *window, t_level *level, t_game_state game_state)
 		read_input(window, level, &game_state);
 		tick_forward(level, &game_state);
 		cull_time = SDL_GetTicks();
-		// viewmodel(window, level, &game_state);
+		viewmodel(window, level, &game_state);
 		culling(level);
 		merge_game_models(level, game_state);
 		level->ui.cull_time = SDL_GetTicks() - cull_time;

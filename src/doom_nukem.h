@@ -14,7 +14,7 @@
 # define DOOM_NUKEM_H
 # define RES_X 1000
 # define RES_Y 700
-# define THREAD_AMOUNT 8
+# define THREAD_AMOUNT 4
 # define NOISE_QUALITY_LIMIT 8
 # define SSP_MAX_X 20
 # define SSP_MAX_Y 20
@@ -75,7 +75,7 @@
 # define MAIN_MENU_FONT_PADDING_MULTIPLIER 1.5
 # define CROSSHAIR_COLOR 0xff0000ff
 # define INITIAL_LEVEL_WIN_DIST 3
-# define WIN_LENGTH_SEC 15
+# define WIN_LENGTH_SEC 7
 # define PLAYER_HEALTH_MAX 100
 # define PLAYER_AMMO_MAX 30
 # define DEATH_LENGTH_SEC 5

@@ -78,7 +78,7 @@ void	init_embedded(t_level *level)
 	level->game_models.health_pickup_box.texture
 		= bmp_read_from_memory(&embed_health_pickup_texture_bmp[0], embed_health_pickup_texture_bmp_len);
 	level->game_models.enemy.texture = bmp_read("embed/enemy_texture.bmp");
-	level->game_models.viewmodel.texture = bmp_read("embed/enemy_texture.bmp");
+	level->game_models.viewmodel.texture = bmp_read("embed/viewmodel/viewmodel_texture.bmp");
 }
 
 static void	level_default_settings(t_level *level)

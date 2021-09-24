@@ -107,6 +107,11 @@ void	cast_all_color(t_level *l, t_obj *obj, t_cast_result *res,
 	l->ui.total_raycasts++;
 	vec_normalize(&res->ray.dir);
 	new_hit = cast_loop(obj, res);
+	if (new_hit == -1 && l->render_is_first_pass)
+	{
+		res->color = 0;
+		return ;
+	}
 	if (new_hit == -1)
 		res->color = skybox(l, *res);
 	else
@@ -166,14 +171,16 @@ void	raycast(t_level *level, t_window *window, int thread_id)
 		xy.y = -1;
 		while (++xy.y < RES_Y)
 		{
+			if (!level->render_is_first_pass && window->frame_buffer[xy.x + xy.y * RES_X])
+				continue ;
 			if (!(xy.x % level->ui.raycast_quality)
 				&& !(xy.y % level->ui.raycast_quality))
 			{
 				res.ray = ray_set(&level->cam, level->ui.fov, xy);
 				cast_result_set(&res, level);
 				cast_all_color(level, &level->ssp[get_ssp(xy)], &res, TRUE);
-				window->frame_buffer[xy.x + (xy.y * RES_X)]
-					= (res.color >> 8 << 8) + 0xff;
+				window->frame_buffer[xy.x + (xy.y * RES_X)] = res.color;
+					// = (res.color >> 8 << 8) + 0xff;
 				window->depth_buffer[xy.x + (xy.y * RES_X)] = res.dist;
 			}
 		}
