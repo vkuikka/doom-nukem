@@ -82,6 +82,8 @@
 # define DEATH_OVERLAY_COLOR 0xff000088
 # define VIEWMODEL_FRAMES 10
 # define VIEWMODEL_ANIM_FPS 2.0
+# define ITEM_PICKUP_DIST 1.4//m
+# define ITEM_SPAWN_TIME 30//s
 
 # define AMMO_BOX_TEXT_COLOR 0x037700ff
 # define HEALTH_BOX_TEXT_COLOR 0xf76565ff
@@ -543,9 +545,15 @@ typedef struct s_game_models
 	t_obj				health_pickup_box;
 	t_obj				enemy;
 	t_obj				viewmodel;
-
 	t_bmp				projectile_texture;
 }						t_game_models;
+
+typedef struct s_item_pickup
+{
+	unsigned int		start_time;
+	int					visible;
+	t_vec3				pos;
+}						t_item_pickup;
 
 typedef struct s_game_logic
 {
@@ -560,9 +568,9 @@ typedef struct s_game_logic
 	int					player_health;
 	int					player_ammo;
 
-	t_vec3				*health_box_spawn_pos;
+	t_item_pickup		*health_box;
 	int					health_box_amount;
-	t_vec3				*ammo_box_spawn_pos;
+	t_item_pickup		*ammo_box;
 	int					ammo_box_amount;
 	t_vec3				*enemy_spawn_pos;
 	int					enemy_amount;

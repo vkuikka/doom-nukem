@@ -110,13 +110,15 @@ void	add_health_box(t_level *level)
 	int	amount;
 
 	amount = level->game_logic.health_box_amount;
-	level->game_logic.health_box_spawn_pos = (t_vec3 *)ft_realloc(level->game_logic.health_box_spawn_pos,
-		sizeof(t_vec3) * amount, sizeof(t_vec3) * (amount + 1));
-	if (!level->game_logic.health_box_spawn_pos)
+	level->game_logic.health_box = (t_item_pickup *)ft_realloc(level->game_logic.health_box,
+		sizeof(t_item_pickup) * amount, sizeof(t_item_pickup) * (amount + 1));
+	if (!level->game_logic.health_box)
 		ft_error("memory allocation failed");
-	vec_add(&level->game_logic.health_box_spawn_pos[amount],
+	vec_add(&level->game_logic.health_box[amount].pos,
 		level->cam.pos, level->cam.front);
-	obj_pos_set_to_floor(&level->game_logic.health_box_spawn_pos[amount],
+	level->game_logic.health_box[amount].visible = 1;
+	level->game_logic.health_box[amount].start_time = 0;
+	obj_pos_set_to_floor(&level->game_logic.health_box[amount].pos,
 			&level->game_models.health_pickup_box, level);
 	level->game_logic.health_box_amount++;
 }
@@ -126,13 +128,15 @@ void	add_ammo_box(t_level *level)
 	int	amount;
 
 	amount = level->game_logic.ammo_box_amount;
-	level->game_logic.ammo_box_spawn_pos = (t_vec3 *)ft_realloc(level->game_logic.ammo_box_spawn_pos,
-		sizeof(t_vec3) * amount, sizeof(t_vec3) * (amount + 1));
-	if (!level->game_logic.ammo_box_spawn_pos)
+	level->game_logic.ammo_box = (t_item_pickup *)ft_realloc(level->game_logic.ammo_box,
+		sizeof(t_item_pickup) * amount, sizeof(t_item_pickup) * (amount + 1));
+	if (!level->game_logic.ammo_box)
 		ft_error("memory allocation failed");
-	vec_add(&level->game_logic.ammo_box_spawn_pos[amount],
+	vec_add(&level->game_logic.ammo_box[amount].pos,
 		level->cam.pos, level->cam.front);
-	obj_pos_set_to_floor(&level->game_logic.ammo_box_spawn_pos[amount],
+	level->game_logic.ammo_box[amount].visible = 1;
+	level->game_logic.ammo_box[amount].start_time = 0;
+	obj_pos_set_to_floor(&level->game_logic.ammo_box[amount].pos,
 			&level->game_models.ammo_pickup_box, level);
 	level->game_logic.ammo_box_amount++;
 }
@@ -146,12 +150,12 @@ void	delete_health_box(t_level *level)
 	i = level->ui.state.logic_selected_index;
 	while (i < amount - 1)
 	{
-		level->game_logic.health_box_spawn_pos[i] = level->game_logic.health_box_spawn_pos[i + 1];
+		level->game_logic.health_box[i] = level->game_logic.health_box[i + 1];
 		i++;
 	}
-	level->game_logic.health_box_spawn_pos = (t_vec3 *)ft_realloc(level->game_logic.health_box_spawn_pos,
-		sizeof(t_vec3) * amount, sizeof(t_vec3) * (amount - 1));
-	if (!level->game_logic.health_box_spawn_pos)
+	level->game_logic.health_box = (t_item_pickup *)ft_realloc(level->game_logic.health_box,
+		sizeof(t_item_pickup) * amount, sizeof(t_item_pickup) * (amount - 1));
+	if (!level->game_logic.health_box)
 		ft_error("memory allocation failed");
 	level->game_logic.health_box_amount--;
 	level->ui.state.logic_selected = GAME_LOGIC_SELECTED_NONE;
@@ -166,12 +170,12 @@ void	delete_ammo_box(t_level *level)
 	i = level->ui.state.logic_selected_index;
 	while (i < amount - 1)
 	{
-		level->game_logic.ammo_box_spawn_pos[i] = level->game_logic.ammo_box_spawn_pos[i + 1];
+		level->game_logic.ammo_box[i] = level->game_logic.ammo_box[i + 1];
 		i++;
 	}
-	level->game_logic.ammo_box_spawn_pos = (t_vec3 *)ft_realloc(level->game_logic.ammo_box_spawn_pos,
-		sizeof(t_vec3) * amount, sizeof(t_vec3) * (amount - 1));
-	if (!level->game_logic.ammo_box_spawn_pos)
+	level->game_logic.ammo_box = (t_item_pickup *)ft_realloc(level->game_logic.ammo_box,
+		sizeof(t_item_pickup) * amount, sizeof(t_item_pickup) * (amount - 1));
+	if (!level->game_logic.ammo_box)
 		ft_error("memory allocation failed");
 	level->game_logic.ammo_box_amount--;
 	level->ui.state.logic_selected = GAME_LOGIC_SELECTED_NONE;
@@ -234,9 +238,9 @@ void	game_logic_move_selected(t_level *level, t_vec3 move_amount)
 	else if (level->ui.state.logic_selected == GAME_LOGIC_SELECTED_MENU_ANIMATION)
 		move_selected_vec(level, move_amount, &level->main_menu_anim.pos[i].pos);
 	else if (level->ui.state.logic_selected == GAME_LOGIC_SELECTED_AMMO)
-		move_selected_vec(level, move_amount, &level->game_logic.ammo_box_spawn_pos[i]);
+		move_selected_vec(level, move_amount, &level->game_logic.ammo_box[i].pos);
 	else if (level->ui.state.logic_selected == GAME_LOGIC_SELECTED_HEALTH)
-		move_selected_vec(level, move_amount, &level->game_logic.health_box_spawn_pos[i]);
+		move_selected_vec(level, move_amount, &level->game_logic.health_box[i].pos);
 	else if (level->ui.state.logic_selected == GAME_LOGIC_SELECTED_ENEMY)
 		move_selected_vec(level, move_amount, &level->game_logic.enemy_spawn_pos[i]);
 }
@@ -284,14 +288,14 @@ void	game_logic_select_nearest_to_mouse(t_level *level)
 		}
 	i = -1;
 	while (++i < level->game_logic.ammo_box_amount)
-		if (check_if_3d_closer(level->game_logic.ammo_box_spawn_pos[i], &dist, level))
+		if (check_if_3d_closer(level->game_logic.ammo_box[i].pos, &dist, level))
 		{
 			level->ui.state.logic_selected = GAME_LOGIC_SELECTED_AMMO;
 			level->ui.state.logic_selected_index = i;
 		}
 	i = -1;
 	while (++i < level->game_logic.health_box_amount)
-		if (check_if_3d_closer(level->game_logic.health_box_spawn_pos[i], &dist, level))
+		if (check_if_3d_closer(level->game_logic.health_box[i].pos, &dist, level))
 		{
 			level->ui.state.logic_selected = GAME_LOGIC_SELECTED_HEALTH;
 			level->ui.state.logic_selected_index = i;
@@ -320,13 +324,59 @@ void	game_logic_put_info(t_level *level, unsigned int *texture)
 		render_text_3d("win", level->game_logic.win_pos, UI_LEVEL_NOT_BAKED_COLOR, level);
 	i = -1;
 	while (++i < level->game_logic.ammo_box_amount)
-		render_text_3d("ammo", level->game_logic.ammo_box_spawn_pos[i], AMMO_BOX_TEXT_COLOR, level);
+		render_text_3d("ammo", level->game_logic.ammo_box[i].pos, AMMO_BOX_TEXT_COLOR, level);
 	i = -1;
 	while (++i < level->game_logic.health_box_amount)
-		render_text_3d("health", level->game_logic.health_box_spawn_pos[i], HEALTH_BOX_TEXT_COLOR, level);
+		render_text_3d("health", level->game_logic.health_box[i].pos, HEALTH_BOX_TEXT_COLOR, level);
 	i = -1;
 	while (++i < level->game_logic.enemy_amount)
 		render_text_3d("enemy", level->game_logic.enemy_spawn_pos[i], ENEMY_SPAWN_TEXT_COLOR, level);
+}
+
+static int	pick_up_pick_ups(t_level *level, t_item_pickup *pickups, int amount)
+{
+	t_vec3	dist;
+	int		i;
+
+	i = -1;
+	while (++i < amount)
+	{
+		if (pickups[i].start_time)
+		{
+			if (SDL_GetTicks() - pickups[i].start_time > ITEM_SPAWN_TIME * 1000.0)
+			{
+				pickups[i].start_time = 0;
+				pickups[i].visible = TRUE;
+			}
+			continue ;
+		}
+		vec_sub(&dist, pickups[i].pos, level->cam.pos);
+		if (vec_length(dist) < ITEM_PICKUP_DIST)
+		{
+			pickups[i].start_time = SDL_GetTicks();
+			pickups[i].visible = FALSE;
+			return (TRUE);
+		}
+	}
+	return (FALSE);
+}
+
+static void	reset_pick_ups(t_level *level)
+{
+	int	i;
+
+	i = -1;
+	while (++i < level->game_logic.health_box_amount)
+	{
+		level->game_logic.health_box[i].start_time = 0;
+		level->game_logic.health_box[i].visible = TRUE;
+	}
+	i = -1;
+	while (++i < level->game_logic.ammo_box_amount)
+	{
+		level->game_logic.ammo_box[i].start_time = 0;
+		level->game_logic.ammo_box[i].visible = TRUE;
+	}
 }
 
 void	game_logic(t_level *level, t_game_state *game_state)
@@ -339,6 +389,15 @@ void	game_logic(t_level *level, t_game_state *game_state)
 	if (level->ui.state.m1_click && level->ui.state.mouse_capture
 		&& *game_state != GAME_STATE_DEAD)
 		player_shoot(level);
+	if (*game_state == GAME_STATE_INGAME)
+	{
+		if (pick_up_pick_ups(level, level->game_logic.ammo_box, level->game_logic.ammo_box_amount))
+			level->game_logic.player_ammo = PLAYER_AMMO_MAX;
+		if (pick_up_pick_ups(level, level->game_logic.health_box, level->game_logic.health_box_amount))
+			level->game_logic.player_health = PLAYER_HEALTH_MAX;
+	}
+	else
+		reset_pick_ups(level);
 	if (level->game_logic.win_start_time || level->game_logic.death_start_time)
 		game_finished(level, game_state, 0);
 	else if (level->game_logic.player_health <= 0)

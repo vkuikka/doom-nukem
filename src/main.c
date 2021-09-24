@@ -191,12 +191,14 @@ static void	merge_game_models(t_level *level, t_game_state game_state)
 	{
 		i = -1;
 		while (++i < level->game_logic.ammo_box_amount)
-			merge_prop(level, &level->game_models.ammo_pickup_box,
-				level->game_logic.ammo_box_spawn_pos[i], (t_vec2){0, rot + (M_PI / 3 * i)});
+			if (level->game_logic.ammo_box[i].visible)
+				merge_prop(level, &level->game_models.ammo_pickup_box,
+					level->game_logic.ammo_box[i].pos, (t_vec2){0, rot + (M_PI / 3 * i)});
 		i = -1;
 		while (++i < level->game_logic.health_box_amount)
-			merge_prop(level, &level->game_models.health_pickup_box,
-				level->game_logic.health_box_spawn_pos[i], (t_vec2){0, rot + (M_PI / 3 * i)});
+			if (level->game_logic.health_box[i].visible)
+				merge_prop(level, &level->game_models.health_pickup_box,
+					level->game_logic.health_box[i].pos, (t_vec2){0, rot + (M_PI / 3 * i)});
 		i = -1;
 		while (++i < level->game_logic.enemy_amount)
 			merge_prop(level, &level->game_models.enemy,
