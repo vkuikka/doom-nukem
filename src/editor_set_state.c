@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/11 15:51:06 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/02 16:25:39 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/25 16:24:35 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,4 +99,3 @@ void	set_spawn_pos(t_level *level)
 	level->game_logic.spawn_pos.look_side = level->cam.look_side;
 	level->game_logic.spawn_pos.look_up = level->cam.look_up;
 }
-

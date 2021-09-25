@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/08 14:38:45 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/02 11:27:38 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/25 16:31:38 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,17 +62,14 @@ void	init_embedded(t_level *level)
 	load_obj_from_memory(&embed_skybox_obj[0], embed_skybox_obj_len,
 		&level->sky.visible);
 	init_fonts(&level->ui);
-
 	load_obj_from_memory(&embed_pickup_box_obj[0], embed_pickup_box_obj_len,
 		&level->game_models.ammo_pickup_box);
 	load_obj_from_memory(&embed_pickup_box_obj[0], embed_pickup_box_obj_len,
 		&level->game_models.health_pickup_box);
 	int res = load_obj("embed/enemy.obj", &level->game_models.enemy);
 	res += load_obj("embed/viewmodel/viewmodel_0.obj", &level->game_models.viewmodel);
-	// res += load_animation("embed/viewmodel/viewmodel_0.obj", &level->game_models.viewmodel_animation, &level->game_models.viewmodel_animation);
 	if (res != 2)
 		ft_error("fix embed\n");
-
 	level->game_models.ammo_pickup_box.texture
 		= bmp_read_from_memory(&embed_ammo_pickup_texture_bmp[0], embed_ammo_pickup_texture_bmp_len);
 	level->game_models.health_pickup_box.texture
@@ -198,19 +195,19 @@ static void	init_audio_effects(t_level *l)
 	SDL_RWops	*rw;
 
 	rw = SDL_RWFromMem(embed_audio_effects_d_death_ogg,
-						embed_audio_effects_d_death_ogg_len);
+			embed_audio_effects_d_death_ogg_len);
 	l->audio.death = Mix_LoadWAV_RW(rw, 1);
 	rw = SDL_RWFromMem(embed_audio_effects_jump_wav,
-						embed_audio_effects_jump_wav_len);
+			embed_audio_effects_jump_wav_len);
 	l->audio.jump = Mix_LoadWAV_RW(rw, 1);
 	rw = SDL_RWFromMem(embed_audio_effects_gunshot_wav,
-						embed_audio_effects_gunshot_wav_len);
+			embed_audio_effects_gunshot_wav_len);
 	l->audio.gunshot = Mix_LoadWAV_RW(rw, 1);
 	rw = SDL_RWFromMem(embed_audio_effects_reload_wav,
-						embed_audio_effects_reload_wav_len);
+			embed_audio_effects_reload_wav_len);
 	l->audio.reload = Mix_LoadWAV_RW(rw, 1);
 	rw = SDL_RWFromMem(embed_audio_effects_door_wav,
-						embed_audio_effects_door_wav_len);
+			embed_audio_effects_door_wav_len);
 	l->audio.door = Mix_LoadWAV_RW(rw, 1);
 	if (!l->audio.reload || !l->audio.gunshot || !l->audio.jump
 		|| !l->audio.death || !l->audio.door)
@@ -231,10 +228,10 @@ void	init_audio(t_level *l)
 	Mix_VolumeMusic(l->audio.music_volume);
 	Mix_Volume(-1, l->audio.sound_effect_volume);
 	rw = SDL_RWFromMem(embed_audio_music_main_menu_ogg,
-						embed_audio_music_main_menu_ogg_len);
+			embed_audio_music_main_menu_ogg_len);
 	l->audio.title_music = Mix_LoadMUS_RW(rw, 1);
 	rw = SDL_RWFromMem(embed_audio_music_ingame_ogg,
-						embed_audio_music_ingame_ogg_len);
+			embed_audio_music_ingame_ogg_len);
 	l->audio.game_music = Mix_LoadMUS_RW(rw, 1);
 	if (!l->audio.game_music || !l->audio.title_music)
 		ft_error("audio init error");

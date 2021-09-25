@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/09 21:56:12 by alcohen           #+#    #+#             */
-/*   Updated: 2021/08/12 11:35:28 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/25 15:59:27 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,8 @@ void	handle_audio(t_level *level, t_game_state *game_state)
 		Mix_HaltMusic();
 		Mix_PlayChannel(AUDIO_DEATH_CHANNEL, level->audio.death, 0);
 	}
-	if (level->game_logic.reload_start_time && !level->audio.played_reload_sound)
+	if (level->game_logic.reload_start_time
+		&& !level->audio.played_reload_sound)
 	{
 		if (!Mix_Playing(AUDIO_RELOAD_CHANNEL))
 			Mix_PlayChannel(AUDIO_RELOAD_CHANNEL, level->audio.reload, 0);

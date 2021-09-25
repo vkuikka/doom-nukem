@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   screen_space_partition.c                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/09 12:03:36 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/14 19:05:13y vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/25 16:38:53 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -157,6 +157,23 @@ static void	find_partition(int (*side_comparison)(t_tri, int, t_camera, int),
 	bounds[1] = max;
 }
 
+static void	ssp_set_tri(t_tri tri, t_level *level, int x, int y)
+{
+	if (level->ssp[x + y * SSP_MAX_X].tri_amount + 1
+		>= level->ssp_max[x + y * SSP_MAX_X])
+	{
+		level->ssp[x + y * SSP_MAX_X].tris
+			= (t_tri *)ft_realloc(level->ssp[x + y * SSP_MAX_X].tris,
+				sizeof(t_tri) * level->ssp_max[x + y * SSP_MAX_X],
+				sizeof(t_tri) * (int)(level->ssp_max[x + y * SSP_MAX_X] * 1.5));
+		level->ssp_max[x + y * SSP_MAX_X] *= 1.5;
+		if (!level->ssp[x + y * SSP_MAX_X].tris)
+			ft_error("memory allocation failed");
+	}
+	level->ssp[x + y * SSP_MAX_X]
+		.tris[level->ssp[x + y * SSP_MAX_X].tri_amount++] = tri;
+}
+
 static void	find_ssp_index(t_tri tri, t_level *level)
 {
 	t_camera	cam;
@@ -179,19 +196,7 @@ static void	find_ssp_index(t_tri tri, t_level *level)
 	{
 		y = get_ssp_coordinate(y_bounds[0], 0) - 1;
 		while (++y <= get_ssp_coordinate(y_bounds[1], 0))
-		{
-			if (level->ssp[x + y * SSP_MAX_X].tri_amount + 1 >= level->ssp_max[x + y * SSP_MAX_X])
-			{
-				level->ssp[x + y * SSP_MAX_X].tris = (t_tri *)ft_realloc(level->ssp[x + y * SSP_MAX_X].tris,
-						sizeof(t_tri) * level->ssp_max[x + y * SSP_MAX_X],
-						sizeof(t_tri) * (int)(level->ssp_max[x + y * SSP_MAX_X] * 1.5));
-				level->ssp_max[x + y * SSP_MAX_X] *= 1.5;
-				if (!level->ssp[x + y * SSP_MAX_X].tris)
-					ft_error("memory allocation failed");
-			}
-			level->ssp[x + y * SSP_MAX_X]
-				.tris[level->ssp[x + y * SSP_MAX_X].tri_amount++] = tri;
-		}
+			ssp_set_tri(tri, level, x, y);
 		x++;
 	}
 }

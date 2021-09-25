@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   color.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/21 17:32:09 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/13 20:47:28 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/25 16:24:19 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -235,16 +235,17 @@ unsigned int	vec_to_color(t_vec3 color)
 t_vec3	color_to_vec(unsigned int color)
 {
 	unsigned char	*rgb;
+	t_vec3			res;
 
 	rgb = (unsigned char *)&color;
-	t_vec3 res;
 	res.x = rgb[3] / (float)0xff;
 	res.y = rgb[2] / (float)0xff;
 	res.z = rgb[1] / (float)0xff;
 	return (res);
 }
 
-static unsigned int	sharpen_kernel(unsigned int *buf, int i, float center, float neighbor)
+static unsigned int	sharpen_kernel(unsigned int *buf, int i,
+						float center, float neighbor)
 {
 	t_vec3	tmp;
 	t_vec3	c;
@@ -284,7 +285,8 @@ void	sharpen(unsigned int *pixels, unsigned int *buf, float amount)
 		x = 1;
 		while (x < RES_X - 1)
 		{
-			pixels[x + y * RES_X] = sharpen_kernel(buf, x + y * RES_X, center, neighbor);
+			pixels[x + y * RES_X]
+				= sharpen_kernel(buf, x + y * RES_X, center, neighbor);
 			x++;
 		}
 		y++;

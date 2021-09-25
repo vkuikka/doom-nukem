@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ui_config.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/13 23:29:27 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/25 15:46:06 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -561,6 +561,22 @@ void	ui_light_editor(t_level *level)
 	ui_single_light_settings(level);
 }
 
+void	ui_game_settings_delete_selected(t_level *level)
+{
+	if (level->ui.state.logic_selected == GAME_LOGIC_SELECTED_MENU_ANIMATION)
+	{
+		if (call("delete node", NULL))
+			camera_path_delete_pos(&level->main_menu_anim,
+				level->ui.state.logic_selected_index);
+	}
+	else if (level->ui.state.logic_selected == GAME_LOGIC_SELECTED_AMMO)
+		call("delete ammo box", &delete_ammo_box);
+	else if (level->ui.state.logic_selected == GAME_LOGIC_SELECTED_HEALTH)
+		call("delete health box", &delete_health_box);
+	else if (level->ui.state.logic_selected == GAME_LOGIC_SELECTED_ENEMY)
+		call("delete enemy", &delete_enemy_spawn_pos);
+}
+
 void	ui_game_settings(t_level *level)
 {
 	char	buf[100];
@@ -582,17 +598,7 @@ void	ui_game_settings(t_level *level)
 	call("add enemy spawn", &add_enemy_spawn_pos);
 	call("add ammo box", &add_ammo_box);
 	call("add health box", &add_health_box);
-	if (level->ui.state.logic_selected == GAME_LOGIC_SELECTED_MENU_ANIMATION)
-	{
-		if (call("delete node", NULL))
-			camera_path_delete_pos(&level->main_menu_anim, level->ui.state.logic_selected_index);
-	}
-	else if (level->ui.state.logic_selected == GAME_LOGIC_SELECTED_AMMO)
-		call("delete ammo box", &delete_ammo_box);
-	else if (level->ui.state.logic_selected == GAME_LOGIC_SELECTED_HEALTH)
-		call("delete health box", &delete_health_box);
-	else if (level->ui.state.logic_selected == GAME_LOGIC_SELECTED_ENEMY)
-		call("delete enemy", &delete_enemy_spawn_pos);
+	ui_game_settings_delete_selected(level);
 }
 
 void	ui_level_settings(t_level *level)

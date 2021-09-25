@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/12 22:18:52 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/25 16:54:52 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,7 +129,6 @@ static void	tick_forward(t_level *level, t_game_state *game_state)
 	enemies_update_sprites(level);
 }
 
-
 static void	merge_prop(t_level *level, t_obj *obj, t_vec3 pos, t_vec2 rotation)
 {
 	int	i;
@@ -181,10 +180,10 @@ static void	merge_prop(t_level *level, t_obj *obj, t_vec3 pos, t_vec2 rotation)
 
 static void	merge_game_models(t_level *level, t_game_state game_state)
 {
-	int	i;
-	static float rot = 0;
-	rot += .03;
+	static float	rot = 0;
+	int				i;
 
+	rot += .03;
 	if ((game_state == GAME_STATE_EDITOR
 		&& level->ui.state.ui_location == UI_LOCATION_GAME_SETTINGS)
 		|| game_state == GAME_STATE_INGAME)
