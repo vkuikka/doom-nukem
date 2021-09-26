@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/21 10:46:48 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/21 11:36:29 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -264,7 +264,8 @@ typedef struct s_perlin_settings
 	float				scale;
 	float				min;
 	float				max;
-	int					depth;
+	int					resolution;
+	float				depth;
 	float				noise_opacity;
 	float				distance;
 	int					visualizer;

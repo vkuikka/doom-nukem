@@ -53,8 +53,8 @@ float	noise2d(float x, float y)
 	float	low;
 	float	high;
 
-	in.x = x;
-	in.y = y;
+	in.x = (int)x;
+	in.y = (int)y;
 	frac.x = x - in.x;
 	frac.y = y - in.y;
 	low = smooth_inter(noise2(in.x, in.y),
@@ -91,24 +91,27 @@ float	perlin_noise(float x, float y, float freq, int depth)
 
 void	perlin_init(t_tri *t)
 {
-	t->perlin = (t_perlin_settings *)malloc(sizeof(t_perlin_settings));
 	if (!t->perlin)
 	{
-		nonfatal_error("failed to initialize perlin shader");
-		return ;
+		t->perlin = (t_perlin_settings *)malloc(sizeof(t_perlin_settings));
+		if (!t->perlin)
+		{
+			nonfatal_error("failed to initialize perlin shader");
+			return ;
+		}
+		t->perlin->scale = 1;
+		t->perlin->depth = 3;
+		t->perlin->move_speed = 1;
+		t->perlin->speed_diff = 1.5;
+		t->perlin->visualizer = 0;
+		t->perlin->min = 0;
+		t->perlin->max = 1;
+		t->perlin->distance = 0;
+		t->perlin->noise_opacity = 0;
+		ft_memset(&t->perlin->color_1, 0, sizeof(t_color_hsl));
+		ft_memset(&t->perlin->color_2, 0, sizeof(t_color_hsl));
+		t->perlin->color_2.lightness = -1;
 	}
-	t->perlin->scale = 1;
-	t->perlin->depth = 6;
-	t->perlin->move_speed = 1;
-	t->perlin->speed_diff = 1.5;
-	t->perlin->visualizer = 0;
-	t->perlin->min = 0;
-	t->perlin->max = 1;
-	t->perlin->distance = 0;
-	t->perlin->noise_opacity = 0;
-	ft_memset(&t->perlin->color_1, 0, sizeof(t_color_hsl));
-	ft_memset(&t->perlin->color_2, 0, sizeof(t_color_hsl));
-	t->perlin->color_2.lightness = -1;
 }
 
 float	stretch_value(float perlin, float min, float max)
@@ -145,50 +148,59 @@ float	noise_opacity(t_perlin_settings p, float perlin, t_cast_result res)
 	return (opacity);
 }
 
+float	perlin_opacity(t_vec3 *pos, float perlin, t_level *l,
+						t_perlin_settings p)
+{
+	t_vec3	ogpos;
+	t_vec3	tmp;
+	float	time;
+
+	ogpos = *pos;
+	time = SDL_GetTicks() / 1000.0 * p.move_speed;
+	vec_sub(&tmp, *pos, l->cam.pos);
+	vec_normalize(&tmp);
+	vec_mult(&tmp, perlin * p.depth);
+	vec_add(pos, *pos, tmp);
+	perlin = perlin_noise(fabs(pos->x) + time,
+			fabs(pos->z), p.scale, p.resolution);
+	perlin = stretch_value(perlin, p.min, p.max);
+	return (perlin);
+}
+
+static unsigned int	depth_grid_visualizer(t_vec3 pos,
+											t_level *level, t_cast_result *res)
+{
+	if (fmod(fabs(pos.x), 4) > 2 ^ fmod(fabs(pos.z), 4) > 2)
+		return (0xffffffff);
+	if (level->all.tris[res->face_index].opacity)
+		return (0);
+	return (0x000000ff);
+}
+
 unsigned int	shader_perlin(t_vec3 pos, t_level *level, t_cast_result *res)
 {
 	t_perlin_settings	p;
-	t_vec2				v;
-	t_vec3				ogpos;
-	t_vec3				tmp;
 	float				time;
 	float				perlin;
+	float				opacity;
 
-	v.x = fabs(pos.x);
-	v.y = fabs(pos.z);
-	res->normal = level->all.tris[res->face_index].normal;
 	if (!level->all.tris[res->face_index].perlin)
 		return (0x000000ff);
+	res->normal = level->all.tris[res->face_index].normal;
 	p = *level->all.tris[res->face_index].perlin;
 	time = SDL_GetTicks() / 1000.0 * p.move_speed;
-
 	perlin = perlin_noise(fabs(pos.x) + time * p.speed_diff,
-							fabs(pos.z), p.scale, p.depth);
+			fabs(pos.z), p.scale, p.resolution);
 	perlin = stretch_value(perlin, p.min, p.max);
-
-	float opacity;
 	opacity = noise_opacity(p, perlin, *res);
-
 	if (p.visualizer == 1)
-		return (crossfade(p.color_1.color >> 8, p.color_2.color >> 8, perlin * 0xff, opacity * 0xff));
+		return (crossfade(p.color_1.color >> 8,
+				p.color_2.color >> 8, perlin * 0xff, opacity * 0xff));
 	res->normal.x += perlin - 0.5;
-
-	ogpos = pos;
-	vec_sub(&tmp, pos, level->cam.pos);
-	vec_mult(&tmp, perlin);
-	vec_add(&pos, ogpos, tmp);
-
-	perlin = perlin_noise(fabs(pos.x) + time, fabs(pos.z), p.scale, p.depth);
-	perlin = stretch_value(perlin, p.min, p.max);
-
+	perlin = perlin_opacity(&pos, perlin, level, p);
 	if (p.visualizer == 2)
-	{
-		if (fmod(fabs(pos.x), 4) > 2 ^ fmod(fabs(pos.z), 4) > 2)
-			return (0xffffffff);
-		if (level->all.tris[res->face_index].opacity)
-			return (0);
-		return (0x000000ff);
-	}
+		return (depth_grid_visualizer(pos, level, res));
 	opacity = noise_opacity(p, perlin, *res);
-	return (crossfade(p.color_1.color >> 8, p.color_2.color >> 8, perlin * 0xff, opacity * 0xff));
+	return (crossfade(p.color_1.color >> 8,
+			p.color_2.color >> 8, perlin * 0xff, opacity * 0xff));
 }
