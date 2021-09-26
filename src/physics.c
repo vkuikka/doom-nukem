@@ -270,11 +270,16 @@ void	player_movement(t_level *level)
 	float	delta_time;
 	float	height;
 
-	height = PLAYER_HEIGHT;
+	height = PLAYER_EYE_HEIGHT;
 	delta_time = level->ui.frame_time / 1000.;
 	player_input(level, &wishdir, &height);
 	rotate_wishdir(level, &wishdir);
 	if (level->ui.noclip)
 		return (noclip(level, &wishdir, delta_time));
 	movement_physics(level, wishdir, height, delta_time);
+	if (level->ui.physics_debug)
+	{
+		level->ui.wishdir.x = wishdir.x;
+		level->ui.wishdir.y = wishdir.z;
+	}
 }

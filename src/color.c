@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   color.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/21 17:32:09 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/13 20:47:28 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/25 16:24:19 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -189,14 +189,12 @@ int	smooth_color(unsigned int *pixels, int gap, int x, int y)
 	return (smooth_color_kernel(pixels, gap, x, y));
 }
 
-void	fill_pixels(unsigned int *grid, int gap, int blur, int smooth)
+void	fill_pixels(unsigned int *grid, int gap, int smooth)
 {
 	int	color;
 	int	x;
 	int	y;
 
-	if (blur)
-		blur_pixels(grid, gap);
 	y = -1;
 	while (++y < RES_Y)
 	{
@@ -216,6 +214,97 @@ void	fill_pixels(unsigned int *grid, int gap, int blur, int smooth)
 				grid[x + (y * RES_X)] = color;
 		}
 	}
+}
+
+unsigned int	vec_to_color(t_vec3 color)
+{
+	unsigned int	res;
+	unsigned char	*rgb;
+
+	rgb = (unsigned char *)&res;
+	color.x = clamp(color.x, 0, 1);
+	color.y = clamp(color.y, 0, 1);
+	color.z = clamp(color.z, 0, 1);
+	rgb[3] = color.x * 0xff;
+	rgb[2] = color.y * 0xff;
+	rgb[1] = color.z * 0xff;
+	rgb[0] = 0xff;
+	return (res);
+}
+
+t_vec3	color_to_vec(unsigned int color)
+{
+	unsigned char	*rgb;
+	t_vec3			res;
+
+	rgb = (unsigned char *)&color;
+	res.x = rgb[3] / (float)0xff;
+	res.y = rgb[2] / (float)0xff;
+	res.z = rgb[1] / (float)0xff;
+	return (res);
+}
+
+static unsigned int	sharpen_kernel(unsigned int *buf, int i,
+						float center, float neighbor)
+{
+	t_vec3	tmp;
+	t_vec3	c;
+
+	c = (t_vec3){0, 0, 0};
+	tmp = color_to_vec(buf[i + RES_X]);
+	vec_mult(&tmp, neighbor);
+	vec_add(&c, c, tmp);
+	tmp = color_to_vec(buf[i - 1]);
+	vec_mult(&tmp, neighbor);
+	vec_add(&c, c, tmp);
+	tmp = color_to_vec(buf[i]);
+	vec_mult(&tmp, center);
+	vec_add(&c, c, tmp);
+	tmp = color_to_vec(buf[i + 1]);
+	vec_mult(&tmp, neighbor);
+	vec_add(&c, c, tmp);
+	tmp = color_to_vec(buf[i - RES_X]);
+	vec_mult(&tmp, neighbor);
+	vec_add(&c, c, tmp);
+	return (vec_to_color(c));
+}
+
+void	sharpen(unsigned int *pixels, unsigned int *buf, float amount)
+{
+	float	neighbor;
+	float	center;
+	int		x;
+	int		y;
+
+	neighbor = amount * -1.0;
+	center = amount * 4.0 + 1.0;
+	ft_memcpy(buf, pixels, sizeof(int) * RES_X * RES_Y);
+	y = 1;
+	while (y < RES_Y - 1)
+	{
+		x = 1;
+		while (x < RES_X - 1)
+		{
+			pixels[x + y * RES_X]
+				= sharpen_kernel(buf, x + y * RES_X, center, neighbor);
+			x++;
+		}
+		y++;
+	}
+}
+
+void	post_process(t_window *window, t_level *level)
+{
+	if (level->ui.blur)
+		blur_pixels(window->frame_buffer, level->ui.raycast_quality);
+	fill_pixels(window->frame_buffer, level->ui.raycast_quality,
+		level->ui.smooth_pixels);
+	if (level->ui.chromatic_abberation)
+		chromatic_abberation(window->frame_buffer, window->post_process_buf,
+			level->ui.chromatic_abberation);
+	if (level->ui.sharpen)
+		sharpen(window->frame_buffer, window->post_process_buf,
+			level->ui.sharpen);
 }
 
 SDL_Color	get_sdl_color(unsigned int color)

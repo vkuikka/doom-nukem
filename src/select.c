@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/31 18:32:46 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/02 19:53:23 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/25 16:51:07 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,7 +112,7 @@ static void	raycast_face_selection(t_ray vec, t_level *level)
 		deselect_all_faces(level);
 }
 
-void	select_face(t_camera *cam, t_level *level, int x, int y)
+void	select_face(t_camera *cam, t_level *level)
 {
 	t_ray	r;
 	float	xm;
@@ -124,8 +124,8 @@ void	select_face(t_camera *cam, t_level *level, int x, int y)
 	{
 		r.dir = cam->front;
 		r.pos = cam->pos;
-		ym = cam->fov_y / RES_Y * y - cam->fov_y / 2;
-		xm = cam->fov_x / RES_X * x - cam->fov_x / 2;
+		ym = cam->fov_y / RES_Y * level->ui.state.mouse.y - cam->fov_y / 2;
+		xm = cam->fov_x / RES_X * level->ui.state.mouse.x - cam->fov_x / 2;
 		r.dir.x += cam->up.x * ym + cam->side.x * xm;
 		r.dir.y += cam->up.y * ym + cam->side.y * xm;
 		r.dir.z += cam->up.z * ym + cam->side.z * xm;

@@ -14,7 +14,7 @@
 # define DOOM_NUKEM_H
 # define RES_X 1000
 # define RES_Y 700
-# define THREAD_AMOUNT 8
+# define THREAD_AMOUNT 4
 # define NOISE_QUALITY_LIMIT 8
 # define SSP_MAX_X 20
 # define SSP_MAX_Y 20
@@ -28,7 +28,7 @@
 # define WALK_SPEED 4	//	m/s
 # define CROUCH_SPEED 3	//	m/s
 # define GROUND_FRICTION 5.
-# define PLAYER_HEIGHT 1.75
+# define PLAYER_EYE_HEIGHT 1.65
 # define PLAYER_HEIGHT_MAGIC 1.3
 # define CROUCHED_HEIGHT 1
 # define WALL_CLIP_DIST 0.3
@@ -75,13 +75,19 @@
 # define MAIN_MENU_FONT_PADDING_MULTIPLIER 1.5
 # define CROSSHAIR_COLOR 0xff0000ff
 # define INITIAL_LEVEL_WIN_DIST 3
-# define WIN_LENGTH_SEC 15
+# define WIN_LENGTH_SEC 7
 # define PLAYER_HEALTH_MAX 100
 # define PLAYER_AMMO_MAX 30
 # define DEATH_LENGTH_SEC 5
 # define DEATH_OVERLAY_COLOR 0xff000088
 # define VIEWMODEL_FRAMES 10
 # define VIEWMODEL_ANIM_FPS 2.0
+# define ITEM_PICKUP_DIST 1.4//m
+# define ITEM_SPAWN_TIME 30//s
+
+# define AMMO_BOX_TEXT_COLOR 0x037700ff
+# define HEALTH_BOX_TEXT_COLOR 0xf76565ff
+# define ENEMY_SPAWN_TEXT_COLOR 0x7005fcff
 
 # define NONFATAL_ERROR_LIFETIME_SECONDS 7.42
 # define NONFATAL_ERROR_FADEOUT_TIME_MS 666
@@ -174,7 +180,7 @@ typedef struct s_window
 	SDL_Texture			*text_texture;
 	SDL_Texture			*ui_texture;
 	unsigned int		*ui_texture_pixels;
-	unsigned int		*buf;
+	unsigned int		*post_process_buf;
 }						t_window;
 
 typedef struct s_rect
@@ -287,6 +293,7 @@ typedef struct s_obj
 {
 	struct s_tri		*tris;
 	int					tri_amount;
+	t_bmp				texture;
 }						t_obj;
 
 // verts = vertex coordinates of 3d triangle
@@ -314,6 +321,7 @@ typedef struct s_tri
 	int					shader;
 	int					selected;
 	int					opacity_precise;
+	t_bmp				*texture;
 	t_obj				opacity_obj_all;
 	t_obj				reflection_obj_all;
 	t_obj				reflection_obj_first_bounce;
@@ -322,9 +330,9 @@ typedef struct s_tri
 
 typedef struct s_skybox
 {
-	struct s_bmp		img;
-	struct s_obj		all;
-	struct s_obj		visible;
+	t_bmp				img;
+	t_obj				all;
+	t_obj				visible;
 }						t_skybox;
 
 // look_side = angle for looking to the side
@@ -375,6 +383,7 @@ typedef enum e_mouse_loc
 	MOUSE_LOCATION_GIZMO_Z,
 	MOUSE_LOCATION_MAIN_MENU,
 	MOUSE_LOCATION_LIGHT_EDITOR,
+	MOUSE_LOCATION_GAME_SETTINGS,
 	MOUSE_LOCATION_SELECTION
 }						t_mouse_loc;
 
@@ -394,6 +403,17 @@ typedef enum e_game_state
 	GAME_STATE_WIN
 }						t_game_state;
 
+typedef enum e_game_logic_selected
+{
+	GAME_LOGIC_SELECTED_NONE,
+	GAME_LOGIC_SELECTED_SPAWN,
+	GAME_LOGIC_SELECTED_WIN,
+	GAME_LOGIC_SELECTED_MENU_ANIMATION,
+	GAME_LOGIC_SELECTED_AMMO,
+	GAME_LOGIC_SELECTED_HEALTH,
+	GAME_LOGIC_SELECTED_ENEMY
+}						t_glogic_selected;
+
 typedef enum e_main_menu
 {
 	MAIN_MENU_LOCATION_MAIN,
@@ -408,10 +428,10 @@ typedef enum e_ui_location
 	UI_LOCATION_FILE_OPEN,
 	UI_LOCATION_FILE_SAVE,
 	UI_LOCATION_UV_EDITOR,
-	UI_LOCATION_GAME_SETTINGS,
 	UI_LOCATION_DOOR_EDITOR,
 	UI_LOCATION_DOOR_ACTIVATION_BUTTON,
-	UI_LOCATION_LIGHT_EDITOR
+	UI_LOCATION_LIGHT_EDITOR,
+	UI_LOCATION_GAME_SETTINGS
 }						t_ui_location;
 
 struct	s_level;
@@ -435,6 +455,8 @@ typedef struct s_ui_state
 	enum e_mouse_loc	mouse_location;
 	float				uv_zoom;
 	struct s_vec2		uv_pos;
+	t_glogic_selected	logic_selected;
+	int					logic_selected_index;
 
 	char				*save_filename;
 	int					text_input_enable;
@@ -468,6 +490,7 @@ typedef struct s_editor_ui
 	int					fog;
 	int					blur;
 	int					chromatic_abberation;
+	float				sharpen;
 	int					smooth_pixels;
 	t_color_hsl			fog_color;
 	int					show_quads;
@@ -484,16 +507,20 @@ typedef struct s_editor_ui
 
 	t_color_hsl			sun_color;
 	struct s_vec3		sun_dir;
-	float				horizontal_velocity;
 
 	unsigned int		ssp_time;
 	unsigned int		cull_time;
 	unsigned int		raycast_time;
+	unsigned int		post_time;
 	unsigned int		raster_time;
 	unsigned int		ui_time;
 	unsigned int		render_time;
 	unsigned int		frame_time;
 	unsigned int		total_raycasts;
+
+	int					physics_debug;
+	float				horizontal_velocity;
+	t_vec2				wishdir;
 	struct s_ui_state	state;
 }						t_editor_ui;
 
@@ -507,19 +534,68 @@ typedef struct s_light
 
 typedef struct s_player_pos
 {
-	struct s_vec3		pos;
+	t_vec3				pos;
 	float				look_side;
 	float				look_up;
 }						t_player_pos;
 
+typedef struct s_game_models
+{
+	t_obj				ammo_pickup_box;
+	t_obj				health_pickup_box;
+	t_obj				enemy;
+	t_obj				viewmodel;
+	t_bmp				projectile_texture;
+}						t_game_models;
+
+typedef struct s_item_pickup
+{
+	unsigned int		start_time;
+	int					visible;
+	t_vec3				pos;
+}						t_item_pickup;
+
+typedef struct s_game_logic
+{
+	t_player_pos		spawn_pos;
+	t_vec3				win_pos;
+	float				win_dist;
+
+	unsigned int		win_start_time;
+	unsigned int		death_start_time;
+	unsigned int		reload_start_time;
+
+	int					player_health;
+	int					player_ammo;
+
+	t_item_pickup		*health_box;
+	int					health_box_amount;
+	t_item_pickup		*ammo_box;
+	int					ammo_box_amount;
+	t_vec3				*enemy_spawn_pos;
+	int					enemy_amount;
+}						t_game_logic;
+
+typedef struct s_camera_path
+{
+	t_player_pos		*pos;
+	int					amount;
+	int					loop;
+	unsigned int		duration;
+	unsigned int		start_time;
+}						t_camera_path;
+
 typedef struct s_level
 {
-	struct s_obj		all;
-	struct s_obj		visible;
-	struct s_obj		*ssp;
-	struct s_bmp		texture;
-	struct s_bmp		normal_map;
-	struct s_bmp		spray;
+	int					render_is_first_pass;
+	t_obj				all;
+	t_obj				visible;
+	int					visible_max;
+	t_obj				*ssp;
+	int					ssp_max[SSP_MAX_X * SSP_MAX_Y];
+	t_bmp				texture;
+	t_bmp				normal_map;
+	t_bmp				spray;
 	unsigned int		*spray_overlay;
 	t_color				*baked;
 	t_vec2				baked_size;
@@ -534,22 +610,11 @@ typedef struct s_level
 	int					light_amount;
 	int					selected_light_index;
 	struct s_enemy		player;
-	int					player_health;
-	int					player_ammo;
-	struct s_player_pos	spawn_pos;
-	struct s_bmp		main_menu_title;
-	struct s_player_pos	main_menu_pos1;
-	struct s_player_pos	main_menu_pos2;
-	struct s_vec3		win_pos;
-	float				win_dist;
-	unsigned int		win_start_time;
-	unsigned int		main_menu_anim_time;
-	unsigned int		main_menu_anim_start_time;
-	unsigned int		death_start_time;
+	t_bmp				main_menu_title;
+	t_game_models		game_models;
+	t_game_logic		game_logic;
+	t_camera_path		main_menu_anim;
 	struct s_vec3		player_vel;
-	unsigned int		reload_start_time;
-	int					viewmodel_index;
-	struct s_bmp		viewmodel[VIEWMODEL_FRAMES];
 	float				world_brightness;
 	float				skybox_brightness;
 	struct s_audio		audio;
@@ -644,12 +709,10 @@ int				get_ssp_coordinate(int coord, int horizontal);
 
 void			read_input(t_window *window, t_level *level,
 					t_game_state *game_state);
-void			game_logic(t_level *level, t_game_state *game_state);
 int				init_raycast(void *t);
 float			cast_face(t_tri t, t_ray ray, t_cast_result *res);
 float			cast_all(t_ray vec, t_level *level, int *index);
-void			fill_pixels(unsigned int *grid, int pixel_gap,
-					int blur, int smooth);
+void			post_process(t_window *window, t_level *level);
 unsigned int	crossfade(unsigned int color1, unsigned int color2,
 					unsigned int fade, unsigned int alpha);
 unsigned int	set_lightness(unsigned int color, float b);
@@ -712,9 +775,13 @@ void			text_input(char *str, t_level *level);
 void			find_closest_mouse(t_vec3 *vert, int *i, int *k, t_ivec2 *mouse);
 int				mouse_collision(t_rect rect, t_ivec2 mouse);
 
+void			draw_camera_path(char *str, t_camera_path *path,
+					unsigned int *texture, t_level *level);
+void			camera_path_set(t_camera_path *path, t_camera *cam);
+void			camera_path_add_pos(t_camera_path *path, t_camera c);
+void			camera_path_delete_pos(t_camera_path *path, int index);
 void			main_menu(t_level *level, unsigned int *pixels,
 					t_game_state *game_state);
-void			main_menu_move_background(t_level *level);
 void			hud(t_level *level, unsigned int *pixels,
 					t_game_state game_state);
 void			fake_analog_signal(t_bmp *img, unsigned int *pixels,
@@ -746,8 +813,7 @@ unsigned int	shader_wave(t_vec3 mod, t_vec3 *normal,
 unsigned int	shader_rule30(t_vec3 pos);
 t_color			sunlight(t_level *l, t_cast_result *res, t_color light);
 
-void			select_face(t_camera *cam, t_level *level,
-					int x, int y);
+void			select_face(t_camera *cam, t_level *level);
 void			deselect_all_faces(t_level *level);
 
 void			save_level(t_level *level);
@@ -770,7 +836,17 @@ t_ivec2			put_text(char *text, t_window *window,
 void			set_new_face(t_level *level, t_vec3 pos, t_vec3 dir,
 					float scale);
 
+void			game_logic(t_level *level, t_game_state *game_state);
 void			game_logic_put_info(t_level *level, unsigned int *texture);
+void			game_logic_select_nearest_to_mouse(t_level *level);
+void			game_logic_move_selected(t_level *level, t_vec3 move_amount);
+void			add_enemy_spawn_pos(t_level *level);
+void			add_ammo_box(t_level *level);
+void			add_health_box(t_level *level);
+void			delete_health_box(t_level *level);
+void			delete_ammo_box(t_level *level);
+void			delete_enemy_spawn_pos(t_level *level);
+
 void			door_animate(t_level *level);
 void			door_put_text(t_level *level);
 void			add_new_door(t_level *level);
@@ -789,7 +865,7 @@ void			light_put_text(t_level *level);
 void			enable_light_editor(t_level *level);
 void			add_light(t_level *level);
 void			move_light(t_level *level, t_vec3 move_amount);
-void			select_light(t_level *level, int x, int y);
+void			select_light(t_level *level);
 void			delete_light(t_level *level);
 void			delete_all_lights(t_level *level);
 void			set_fourth_vertex_uv(t_tri *a);
@@ -805,8 +881,6 @@ void			set_skybox(t_level *level, char *filename);
 void			set_spray(t_level *level, char *filename);
 void			set_win_pos(t_level *level);
 void			set_spawn_pos(t_level *level);
-void			set_menu_pos_1(t_level *level);
-void			set_menu_pos_2(t_level *level);
 void			nonfatal_error(char *message);
 void			ui_render_nonfatal_errors(t_level *level);
 t_ui_state		*get_ui_state(t_ui_state *get_state);

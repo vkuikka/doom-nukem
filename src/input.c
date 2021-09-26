@@ -56,7 +56,7 @@ static void	typing_input(t_level *level, SDL_Event event)
 		typing_input_backspace(level);
 }
 
-static void	set_mouse_input_location_3d_space(t_level *level, int x, int y)
+static void	set_mouse_input_location_3d_space(t_level *level)
 {
 	gizmo(level);
 	if (level->ui.state.mouse_location != MOUSE_LOCATION_GIZMO_X
@@ -67,18 +67,24 @@ static void	set_mouse_input_location_3d_space(t_level *level, int x, int y)
 		{
 			level->ui.state.mouse_location = MOUSE_LOCATION_LIGHT_EDITOR;
 			if (level->ui.state.m1_click && level->bake_status != BAKE_BAKING)
-				select_light(level, x, y);
+				select_light(level);
+		}
+		else if (level->ui.state.ui_location == UI_LOCATION_GAME_SETTINGS)
+		{
+			level->ui.state.mouse_location = MOUSE_LOCATION_GAME_SETTINGS;
+			if (level->ui.state.m1_click)
+				game_logic_select_nearest_to_mouse(level);
 		}
 		else
 		{
 			level->ui.state.mouse_location = MOUSE_LOCATION_SELECTION;
-			select_face(&level->cam, level, x, y);
+			select_face(&level->cam, level);
 		}
 		level->ui.state.m1_drag = FALSE;
 	}
 }
 
-static void	set_mouse_location(t_level *level, int *x, int *y)
+static void	get_mouse_coordinate(t_level *level, int *x, int *y)
 {
 	if (level->ui.state.mouse_capture)
 	{
@@ -98,7 +104,7 @@ static void	set_mouse_input_location(t_level *level, t_game_state game_state)
 	int	x;
 	int	y;
 
-	set_mouse_location(level, &x, &y);
+	get_mouse_coordinate(level, &x, &y);
 	if (game_state == GAME_STATE_MAIN_MENU)
 	{
 		if (level->ui.main_menu == MAIN_MENU_LOCATION_MAIN)
@@ -115,7 +121,7 @@ static void	set_mouse_input_location(t_level *level, t_game_state game_state)
 		&& x < RES_X / 2)
 		level->ui.state.mouse_location = MOUSE_LOCATION_UV_EDITOR;
 	else
-		set_mouse_input_location_3d_space(level, x, y);
+		set_mouse_input_location_3d_space(level);
 	gizmo(level);
 	level->ui.state.m1_click = FALSE;
 }
@@ -170,10 +176,10 @@ static void	ui_go_back(t_level *level, t_game_state *game_state)
 		level->ui.state.mouse_capture = FALSE;
 		SDL_SetRelativeMouseMode(SDL_FALSE);
 		*game_state = GAME_STATE_MAIN_MENU;
-		level->main_menu_anim_start_time = SDL_GetTicks();
+		level->main_menu_anim.start_time = SDL_GetTicks();
 		level->ui.state.ui_location = UI_LOCATION_MAIN;
-		level->win_start_time = 0;
-		level->death_start_time = 0;
+		level->game_logic.win_start_time = 0;
+		level->game_logic.death_start_time = 0;
 		Mix_PlayMusic(level->audio.title_music, -1);
 	}
 }
@@ -203,7 +209,7 @@ static void	keyboard_input(t_window *window, t_level *level, SDL_Event event,
 	else if (event.key.keysym.scancode == SDL_SCANCODE_Q)
 		ui_go_back(level, game_state);
 	else if (event.key.keysym.scancode == SDL_SCANCODE_R)
-		level->reload_start_time = SDL_GetTicks();
+		level->game_logic.reload_start_time = SDL_GetTicks();
 	else if (event.key.keysym.scancode == SDL_SCANCODE_T)
 		spray(level->cam, level);
 }

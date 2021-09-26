@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   raycast.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/15 01:20:19by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/25 16:35:01 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,11 +107,17 @@ void	cast_all_color(t_level *l, t_obj *obj, t_cast_result *res,
 	l->ui.total_raycasts++;
 	vec_normalize(&res->ray.dir);
 	new_hit = cast_loop(obj, res);
+	if (new_hit == -1 && l->render_is_first_pass)
+	{
+		res->color = 0;
+		return ;
+	}
 	if (new_hit == -1)
 		res->color = skybox(l, *res);
 	else
 	{
 		res->face_index = obj->tris[new_hit].index;
+		res->texture = obj->tris[new_hit].texture;
 		face_color(res->uv.x, res->uv.y, obj->tris[new_hit], res);
 		vec_mult(&res->ray.dir, res->dist);
 		vec_add(&res->ray.pos, res->ray.pos, res->ray.dir);
@@ -145,7 +151,6 @@ void	cast_result_set(t_cast_result *res, t_level *level)
 		res->normal_map = &level->normal_map;
 	else
 		res->normal_map = NULL;
-	res->texture = &level->texture;
 	res->spray_overlay = level->spray_overlay;
 	if (level->bake_status != BAKE_NOT_BAKED)
 		res->baked = level->baked;
@@ -166,14 +171,16 @@ void	raycast(t_level *level, t_window *window, int thread_id)
 		xy.y = -1;
 		while (++xy.y < RES_Y)
 		{
+			if (!level->render_is_first_pass
+				&& window->frame_buffer[xy.x + xy.y * RES_X])
+				continue ;
 			if (!(xy.x % level->ui.raycast_quality)
 				&& !(xy.y % level->ui.raycast_quality))
 			{
 				res.ray = ray_set(&level->cam, level->ui.fov, xy);
 				cast_result_set(&res, level);
 				cast_all_color(level, &level->ssp[get_ssp(xy)], &res, TRUE);
-				window->frame_buffer[xy.x + (xy.y * RES_X)]
-					= (res.color >> 8 << 8) + 0xff;
+				window->frame_buffer[xy.x + (xy.y * RES_X)] = res.color;
 				window->depth_buffer[xy.x + (xy.y * RES_X)] = res.dist;
 			}
 		}

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ui_config.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/13 23:29:27 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/25 15:46:06 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -307,7 +307,7 @@ void	ui_render_info(t_editor_ui *ui, t_level *level)
 {
 	char		buf[100];
 
-	sprintf(buf, " |   fps: %d", get_fps());
+	sprintf(buf, "fps: %d", get_fps());
 	text(buf);
 	sprintf(buf, " |   cull: %ums", ui->cull_time);
 	text(buf);
@@ -316,6 +316,8 @@ void	ui_render_info(t_editor_ui *ui, t_level *level)
 	sprintf(buf, " |   |   raycast amount: %uk", ui->total_raycasts / 1000);
 	text(buf);
 	sprintf(buf, " |   |   raycast: %ums", ui->raycast_time);
+	text(buf);
+	sprintf(buf, " |   |   post:       %ums", ui->post_time);
 	text(buf);
 	sprintf(buf, " |   |   raster:   %ums", ui->raster_time);
 	text(buf);
@@ -328,8 +330,49 @@ void	ui_render_info(t_editor_ui *ui, t_level *level)
 	sprintf(buf, "faces: %d / %d",
 		level->all.tri_amount, level->visible.tri_amount);
 	text(buf);
+}
+
+static void	center_screen_print_line(t_vec2 dir, unsigned int color)
+{
+	t_window	*window;
+	t_vec3		start;
+	t_vec3		stop;
+
+	window = get_window(NULL);
+	start.x = RES_X / 2;
+	start.y = RES_Y / 2;
+	start.z = 0;
+	stop.x = RES_X / 2 + (dir.x * 20);
+	stop.y = RES_Y / 2 + (dir.y * -20);
+	stop.z = 0;
+	print_line(start, stop, color, window->ui_texture_pixels);
+}
+
+void	ui_physics_info(t_editor_ui *ui, t_level *level)
+{
+	char	buf[100];
+	t_vec2	tmp;
+	t_vec3	n;
+
+	button(&ui->physics_debug, "physics debug");
+	if (!ui->physics_debug)
+		return ;
+	tmp.x = level->player_vel.x;
+	tmp.y = level->player_vel.z;
+	center_screen_print_line(tmp, 0xff0000ff);
 	sprintf(buf, "xz vel: %.2fm/s", level->ui.horizontal_velocity);
-	text(buf);
+	set_text_color(0xff0000ff);
+	render_text(buf, RES_X / 2, RES_Y / 2 + (UI_ELEMENT_HEIGHT * 1));
+	center_screen_print_line(ui->wishdir, 0xff00ff);
+	set_text_color(0xff00ff);
+	render_text("wishdir", RES_X / 2, RES_Y / 2 + (UI_ELEMENT_HEIGHT * 2));
+	n = level->cam.front;
+	vec_normalize(&n);
+	tmp.x = n.x;
+	tmp.y = n.z;
+	center_screen_print_line(tmp, 0xffff);
+	set_text_color(0xffff);
+	render_text("camera", RES_X / 2, RES_Y / 2 + (UI_ELEMENT_HEIGHT * 3));
 }
 
 void	ui_render_settings(t_level *level)
@@ -342,13 +385,14 @@ void	ui_render_settings(t_level *level)
 	sprintf(buf, "render scale: %d (%.0f%%)", ui->raycast_quality,
 		100.0 / (float)ui->raycast_quality);
 	int_slider(&ui->raycast_quality, buf, 1, 20);
-	int_slider(&ui->chromatic_abberation, "chroma", 0, 30);
 	fov_angle = ui->fov + 0.01;
 	fov_angle *= 180.0 / M_PI;
 	sprintf(buf, "fov: %d", (int)fov_angle);
 	float_slider(&ui->fov, buf, M_PI / 6, M_PI);
-	button(&ui->blur, "blur");
-	button(&ui->smooth_pixels, "smooth pixel transition");
+	int_slider(&ui->chromatic_abberation, "chroma (20ms expensive)", 0, 30);
+	float_slider(&ui->sharpen, "sharpen (60ms very expensive)", 0.0, 5.0);
+	button(&ui->smooth_pixels, "smooth pixel (20ms expensive)");
+	button(&ui->blur, "blur (1ms cheap)");
 	button(&ui->state.ssp_visual, "ssp visualize");
 }
 
@@ -517,23 +561,44 @@ void	ui_light_editor(t_level *level)
 	ui_single_light_settings(level);
 }
 
+void	ui_game_settings_delete_selected(t_level *level)
+{
+	if (level->ui.state.logic_selected == GAME_LOGIC_SELECTED_MENU_ANIMATION)
+	{
+		if (call("delete node", NULL))
+			camera_path_delete_pos(&level->main_menu_anim,
+				level->ui.state.logic_selected_index);
+	}
+	else if (level->ui.state.logic_selected == GAME_LOGIC_SELECTED_AMMO)
+		call("delete ammo box", &delete_ammo_box);
+	else if (level->ui.state.logic_selected == GAME_LOGIC_SELECTED_HEALTH)
+		call("delete health box", &delete_health_box);
+	else if (level->ui.state.logic_selected == GAME_LOGIC_SELECTED_ENEMY)
+		call("delete enemy", &delete_enemy_spawn_pos);
+}
+
 void	ui_game_settings(t_level *level)
 {
 	char	buf[100];
 
 	if (call("close", NULL))
 		level->ui.state.ui_location = UI_LOCATION_MAIN;
-	sprintf(buf, "win distance: %.2fm", level->win_dist);
-	float_slider(&level->win_dist, buf, 1, 40);
+	sprintf(buf, "win distance: %.2fm", level->game_logic.win_dist);
+	float_slider(&level->game_logic.win_dist, buf, 1, 40);
 	call("set win position", &set_win_pos);
 	call("set spawn position", &set_spawn_pos);
-	call("set menu position 1", &set_menu_pos_1);
-	call("set menu position 2", &set_menu_pos_2);
+	if (call("menu add camera pos", NULL))
+		camera_path_add_pos(&level->main_menu_anim, level->cam);
 	sprintf(buf, "main menu animation time %ds",
-		level->main_menu_anim_time);
-	int_slider((int *)&level->main_menu_anim_time, buf, 2, 50);
+		level->main_menu_anim.duration);
+	button(&level->main_menu_anim.loop, "main menu anim edge loop");
+	int_slider((int *)&level->main_menu_anim.duration, buf, 2, 50);
 	float_slider(&level->player.projectile_scale,
 		"Player projectile scale: ", 0, 1.5);
+	call("add enemy spawn", &add_enemy_spawn_pos);
+	call("add ammo box", &add_ammo_box);
+	call("add health box", &add_health_box);
+	ui_game_settings_delete_selected(level);
 }
 
 void	ui_level_settings(t_level *level)
@@ -548,7 +613,10 @@ void	ui_level_settings(t_level *level)
 	button(&level->ui.normal_map_disabled, "disable normal map");
 	call("add face", &add_face);
 	if (call("game settings", NULL))
+	{
 		level->ui.state.ui_location = UI_LOCATION_GAME_SETTINGS;
+		level->ui.state.logic_selected = GAME_LOGIC_SELECTED_NONE;
+	}
 	button(&level->ui.fog, "fog");
 	if (level->ui.fog)
 		color_slider(&level->ui.fog_color, NULL);
@@ -588,6 +656,7 @@ void	ui_editor(t_level *level)
 	ui_config_selected_faces(level);
 	set_text_color(UI_INFO_TEXT_COLOR);
 	ui_render_info(&level->ui, level);
+	ui_physics_info(&level->ui, level);
 }
 
 void	ui_baking(t_level *level)
