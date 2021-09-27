@@ -99,15 +99,16 @@ void	perlin_init(t_tri *t)
 			nonfatal_error("failed to initialize perlin shader");
 			return ;
 		}
-		t->perlin->scale = 1;
-		t->perlin->depth = 3;
 		t->perlin->move_speed = 1;
-		t->perlin->speed_diff = 1.5;
-		t->perlin->visualizer = 0;
+		t->perlin->speed_diff = 1;
+		t->perlin->scale = 1;
 		t->perlin->min = 0;
 		t->perlin->max = 1;
-		t->perlin->distance = 0;
+		t->perlin->resolution = 5;
+		t->perlin->depth = 3;
 		t->perlin->noise_opacity = 0;
+		t->perlin->distance = 0;
+		t->perlin->visualizer = 0;
 		ft_memset(&t->perlin->color_1, 0, sizeof(t_color_hsl));
 		ft_memset(&t->perlin->color_2, 0, sizeof(t_color_hsl));
 		t->perlin->color_2.lightness = -1;

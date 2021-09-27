@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/31 16:52:44 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/15 01:57:26 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/27 02:55:39 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,25 +131,6 @@ void	reflection(t_cast_result *res, t_level *l, t_obj *obj)
 	res->color = crossfade((unsigned int)res->color >> 8, reflection.color >> 8,
 			l->all.tris[res->face_index].reflectivity * 0xff,
 			(unsigned int)res->color << 24 >> 24);
-}
-
-unsigned int	shader_wave(t_vec3 mod, t_vec3 *normal,
-							unsigned int col1, unsigned int col2)
-{
-	float	time;
-	float	res;
-	float	tmp;
-
-	time = SDL_GetTicks() / 1000.0;
-	tmp = 2 * M_PI / 6 * (sin(mod.z) / 5 + sin(mod.x) / 4 + mod.x + time);
-	tmp = sin(tmp);
-	res = fabs(tmp);
-	normal->x -= res / 5;
-	normal->y = 1;
-	normal->z = 0;
-	vec_normalize(normal);
-	col1 = crossfade(col1, col2, res * 0xff, 0xff);
-	return (col1);
 }
 
 #define RULE_30_SIZE 99

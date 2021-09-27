@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/21 11:36:29 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/27 02:56:35 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -306,6 +306,13 @@ typedef struct s_obj
 	int					tri_amount;
 }						t_obj;
 
+typedef enum e_shader
+{
+	SHADER_NONE = 0,
+	SHADER_RULE_30,
+	SHADER_PERLIN
+}						t_shader;
+
 // verts = vertex coordinates of 3d triangle
 // v0v1 = vector between vertices 1 and 0
 // v0v2 = vector between vertices 2 and 0
@@ -328,7 +335,7 @@ typedef struct s_tri
 	float				opacity;
 	float				reflectivity;
 	float				refractivity;
-	int					shader;
+	t_shader			shader;
 	int					selected;
 	int					opacity_precise;
 	t_obj				opacity_obj_all;
@@ -429,7 +436,8 @@ typedef enum e_ui_location
 	UI_LOCATION_GAME_SETTINGS,
 	UI_LOCATION_DOOR_EDITOR,
 	UI_LOCATION_DOOR_ACTIVATION_BUTTON,
-	UI_LOCATION_LIGHT_EDITOR
+	UI_LOCATION_LIGHT_EDITOR,
+	UI_LOCATION_SHADER_EDITOR
 }						t_ui_location;
 
 struct	s_level;
