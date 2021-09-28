@@ -12,8 +12,8 @@
 
 NAME = dnukem
 SRCDIR = src/
-SRC = main.c input.c game_logic.c color.c culling.c culling_occlusion.c vectors.c init.c file_read.c raycast.c obj_read.c bmp_read.c find_quads.c wireframe.c editor_set_state.c physics.c enemies.c shaders.c select.c serialize.c screen_space_partition.c uv_overlap.c 2d_intersect.c obj_editor.c door_runtime.c bake.c spray.c audio.c cast_face.c shader_perlin.c
-SRC_UI = color_hsl.c door_editor.c distortion.c gizmo.c hud.c light_editor.c main_menu.c nonfatal_error.c ui_config.c ui_elements.c ui.c uv_editor.c
+SRC = main.c input.c game_logic.c color.c culling.c culling_occlusion.c vectors.c init.c file_read.c raycast.c obj_read.c bmp_read.c find_quads.c wireframe.c editor_set_state.c physics.c enemies.c shaders.c select.c serialize.c screen_space_partition.c uv_overlap.c 2d_intersect.c obj_editor.c door_runtime.c bake.c spray.c audio.c cast_face.c camera_path.c shader_perlin.c
+SRC_UI = color_hsl.c door_editor.c distortion.c gizmo.c hud.c light_editor.c main_menu.c nonfatal_error.c ui_config.c ui_elements.c ui.c uv_editor.c game_logic_editor.c
 LIB = libft/libft.a -L x86_64-w64-mingw32/lib/
 INCLUDE = libft/includes -I ./ -I src/ -I x86_64-w64-mingw32/include/ -I x86_64-w64-mingw32/include/SDL2
 AUDIO_EFFECT = d_death.ogg doorsliding.wav gunshot.wav jump.wav osrsMonsterDeath.wav teleport.wav windowShatter.wav door.wav gettinghit.wav jetpack.wav osrsDeath.wav reload.wav victory.wav
@@ -21,10 +21,9 @@ MUSIC = ingame.ogg main_menu.ogg
 AUDIO_FILES=$(addprefix music/, $(MUSIC))
 AUDIO_FILES+=$(addprefix effects/, $(AUDIO_EFFECT))
 AUDIO=$(addprefix audio/, $(AUDIO_FILES))
-VIEWMODEL_FILES = ak_0.bmp
-#ak_1.bmp ak_2.bmp ak_3.bmp ak_4.bmp ak_5.bmp ak_6.bmp ak_7.bmp ak_8.bmp ak_9.bmp
-VIEWMODEL=$(addprefix viewmodel/, $(VIEWMODEL_FILES))
-EMBED_FILES = title.bmp skybox.obj digital.ttf Roboto-Medium.ttf
+#VIEWMODEL_FILES = ak_0.bmp
+#VIEWMODEL=$(addprefix viewmodel/, $(VIEWMODEL_FILES))
+EMBED_FILES = title.bmp skybox.obj digital.ttf Roboto-Medium.ttf ammo_pickup_texture.bmp health_pickup_texture.bmp pickup_box.obj
 EMBED_FILES += $(VIEWMODEL)
 EMBED_FILES += $(AUDIO)
 EMBED=$(addprefix embed/, $(EMBED_FILES))

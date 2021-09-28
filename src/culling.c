@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   culling.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/20 17:50:56 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/14 16:53:15by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/25 16:22:56 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -342,6 +342,7 @@ void	init_culling(t_level *level)
 	i = -1;
 	while (++i < level->all.tri_amount)
 	{
+		level->all.tris[i].texture = &level->texture;
 		level->all.tris[i].reflection_obj_all.tris
 			= (t_tri *)malloc(sizeof(t_tri) * level->all.tri_amount);
 		level->all.tris[i].reflection_obj_first_bounce.tris

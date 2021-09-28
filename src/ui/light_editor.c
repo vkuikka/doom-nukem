@@ -29,7 +29,7 @@ void	light_put_text(t_level *level)
 	}
 }
 
-void	select_light(t_level *level, int x, int y)
+void	select_light(t_level *level)
 {
 	float	nearest_len;
 	float	len;
@@ -48,8 +48,8 @@ void	select_light(t_level *level, int x, int y)
 			continue ;
 		test.x = vert.x;
 		test.y = vert.y;
-		test.x -= x;
-		test.y -= y;
+		test.x -= level->ui.state.mouse.x;
+		test.y -= level->ui.state.mouse.y;
 		len = vec2_length(test);
 		if (len < nearest_len || nearest_len == -1)
 			level->selected_light_index = i + 1;

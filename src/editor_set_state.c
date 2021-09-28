@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/11 15:51:06 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/02 16:25:39 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/25 16:24:35 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,26 +90,12 @@ void	set_spray(t_level *level, char *filename)
 
 void	set_win_pos(t_level *level)
 {
-	level->win_pos = level->cam.pos;
+	level->game_logic.win_pos = level->cam.pos;
 }
 
 void	set_spawn_pos(t_level *level)
 {
-	level->spawn_pos.pos = level->cam.pos;
-	level->spawn_pos.look_side = level->cam.look_side;
-	level->spawn_pos.look_up = level->cam.look_up;
-}
-
-void	set_menu_pos_1(t_level *level)
-{
-	level->main_menu_pos1.pos = level->cam.pos;
-	level->main_menu_pos1.look_side = level->cam.look_side;
-	level->main_menu_pos1.look_up = level->cam.look_up;
-}
-
-void	set_menu_pos_2(t_level *level)
-{
-	level->main_menu_pos2.pos = level->cam.pos;
-	level->main_menu_pos2.look_side = level->cam.look_side;
-	level->main_menu_pos2.look_up = level->cam.look_up;
+	level->game_logic.spawn_pos.pos = level->cam.pos;
+	level->game_logic.spawn_pos.look_side = level->cam.look_side;
+	level->game_logic.spawn_pos.look_up = level->cam.look_up;
 }

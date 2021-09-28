@@ -140,7 +140,19 @@ static t_vec3	calc_move_screen_space(int index, int amount)
 	return (dir);
 }
 
-void	gizmo_set_mouse_location(t_level *level,
+static void	gizmo_call_move(t_level *level, t_vec3 move_amount)
+{
+	if (level->ui.state.ui_location == UI_LOCATION_DOOR_ACTIVATION_BUTTON)
+		door_activation_move(level, move_amount);
+	else if (level->ui.state.ui_location == UI_LOCATION_LIGHT_EDITOR)
+		move_light(level, move_amount);
+	else if (level->ui.state.ui_location == UI_LOCATION_GAME_SETTINGS)
+		game_logic_move_selected(level, move_amount);
+	else
+		obj_editor_input(level, move_amount);
+}
+
+static void	gizmo_set_mouse_location(t_level *level,
 				int deltax, int deltay, int drag_direction)
 {
 	float	dist_from_screen;
@@ -161,15 +173,10 @@ void	gizmo_set_mouse_location(t_level *level,
 			res = calc_move_screen_space(level->ui.state.mouse_location - 3,
 					deltax * dist_from_screen * drag_direction);
 	}
-	if (level->ui.state.ui_location == UI_LOCATION_DOOR_ACTIVATION_BUTTON)
-		door_activation_move(level, res);
-	else if (level->ui.state.ui_location == UI_LOCATION_LIGHT_EDITOR)
-		move_light(level, res);
-	else
-		obj_editor_input(level, res);
+	gizmo_call_move(level, res);
 }
 
-void	gizmo_move_amount(t_level *level, t_ivec2 mouse, int drag_direction)
+static void	gizmo_move_amount(t_level *level, t_ivec2 mouse, int drag_direction)
 {
 	static t_ivec2	prev_mouse;
 

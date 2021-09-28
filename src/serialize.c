@@ -143,8 +143,8 @@ void	deserialize_settings(t_level *level, t_buffer *buf)
 	deserialize_float(&level->ui.render_distance, buf);
 	deserialize_color(&level->ui.sun_color, buf);
 	deserialize_vec3(&level->ui.sun_dir, buf);
-	deserialize_vec3(&level->win_pos, buf);
-	deserialize_float(&level->win_dist, buf);
+	deserialize_vec3(&level->game_logic.win_pos, buf);
+	deserialize_float(&level->game_logic.win_dist, buf);
 }
 
 void	serialize_settings(t_level *level, t_buffer *buf)
@@ -157,8 +157,8 @@ void	serialize_settings(t_level *level, t_buffer *buf)
 	serialize_float(level->ui.render_distance, buf);
 	serialize_color(level->ui.sun_color, buf);
 	serialize_vec3(level->ui.sun_dir, buf);
-	serialize_vec3(level->win_pos, buf);
-	serialize_float(level->win_dist, buf);
+	serialize_vec3(level->game_logic.win_pos, buf);
+	serialize_float(level->game_logic.win_dist, buf);
 }
 
 void	deserialize_vert(t_vert *vert, t_buffer *buf)
@@ -605,11 +605,45 @@ void	deserialize_level(t_level *level, t_buffer *buf)
 	deserialize_lights(level, buf);
 	deserialize_float(&level->world_brightness, buf);
 	deserialize_float(&level->skybox_brightness, buf);
-	deserialize_player_pos(&level->spawn_pos, buf);
-	deserialize_player_pos(&level->main_menu_pos1, buf);
-	deserialize_player_pos(&level->main_menu_pos2, buf);
-	deserialize_int((int *)&level->main_menu_anim_time, buf);
-	deserialize_int((int *)&level->main_menu_anim_start_time, buf);
+	deserialize_player_pos(&level->game_logic.spawn_pos, buf);
+	deserialize_int(&level->game_logic.health_box_amount, buf);
+	level->game_logic.health_box = (t_item_pickup *)malloc(sizeof(t_item_pickup) * level->game_logic.health_box_amount);
+	if (!level->game_logic.health_box)
+		ft_error("memory allocation failed\n");
+	i = -1;
+	while (++i < level->game_logic.health_box_amount)
+	{
+		deserialize_vec3(&level->game_logic.health_box[i].pos, buf);
+		level->game_logic.health_box[i].start_time = 0;
+		level->game_logic.health_box[i].visible = 1;
+	}
+	deserialize_int(&level->game_logic.ammo_box_amount, buf);
+	level->game_logic.ammo_box = (t_item_pickup *)malloc(sizeof(t_item_pickup) * level->game_logic.ammo_box_amount);
+	if (!level->game_logic.ammo_box)
+		ft_error("memory allocation failed\n");
+	i = -1;
+	while (++i < level->game_logic.ammo_box_amount)
+	{
+		deserialize_vec3(&level->game_logic.ammo_box[i].pos, buf);
+		level->game_logic.ammo_box[i].start_time = 0;
+		level->game_logic.ammo_box[i].visible = 1;
+	}
+	deserialize_int(&level->game_logic.enemy_amount, buf);
+	level->game_logic.enemy_spawn_pos = (t_vec3 *)malloc(sizeof(t_vec3) * level->game_logic.enemy_amount);
+	if (!level->game_logic.enemy_spawn_pos)
+		ft_error("memory allocation failed\n");
+	i = -1;
+	while (++i < level->game_logic.enemy_amount)
+		deserialize_vec3(&level->game_logic.enemy_spawn_pos[i], buf);
+	deserialize_int(&level->main_menu_anim.amount, buf);
+	deserialize_int((int *)&level->main_menu_anim.duration, buf);
+	deserialize_int(&level->main_menu_anim.loop, buf);
+	level->main_menu_anim.pos = (t_player_pos *)malloc(sizeof(t_player_pos) * level->main_menu_anim.amount);
+	if (!level->main_menu_anim.pos)
+		ft_error("memory allocation failed\n");
+	i = -1;
+	while (++i < level->main_menu_anim.amount)
+		deserialize_player_pos(&level->main_menu_anim.pos[i], buf);
 	level->visible.tris = (t_tri *)malloc(sizeof(t_tri)
 			* level->all.tri_amount);
 	if (!level->visible.tris)
@@ -640,11 +674,25 @@ void	serialize_level(t_level *level, t_buffer *buf)
 	serialize_lights(level, buf);
 	serialize_float(level->world_brightness, buf);
 	serialize_float(level->skybox_brightness, buf);
-	serialize_player_pos(&level->spawn_pos, buf);
-	serialize_player_pos(&level->main_menu_pos1, buf);
-	serialize_player_pos(&level->main_menu_pos2, buf);
-	serialize_int(level->main_menu_anim_time, buf);
-	serialize_int(level->main_menu_anim_start_time, buf);
+	serialize_player_pos(&level->game_logic.spawn_pos, buf);
+	serialize_int(level->game_logic.health_box_amount, buf);
+	i = -1;
+	while (++i < level->game_logic.health_box_amount)
+		serialize_vec3(level->game_logic.health_box[i].pos, buf);
+	serialize_int(level->game_logic.ammo_box_amount, buf);
+	i = -1;
+	while (++i < level->game_logic.ammo_box_amount)
+		serialize_vec3(level->game_logic.ammo_box[i].pos, buf);
+	serialize_int(level->game_logic.enemy_amount, buf);
+	i = -1;
+	while (++i < level->game_logic.enemy_amount)
+		serialize_vec3(level->game_logic.enemy_spawn_pos[i], buf);
+	serialize_int(level->main_menu_anim.amount, buf);
+	serialize_int(level->main_menu_anim.duration, buf);
+	serialize_int(level->main_menu_anim.loop, buf);
+	i = -1;
+	while (++i < level->main_menu_anim.amount)
+		serialize_player_pos(&level->main_menu_anim.pos[i], buf);
 }
 
 #ifdef _WIN32
