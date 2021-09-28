@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/20 12:35:22 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/22 22:30:54 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/16 17:33:06 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,8 @@ float	cast_face(t_tri t, t_ray ray, t_cast_result *res)
 	t_vec2	uv;
 	float	invdet;
 
+	if (res)
+		res->raycast_amount++;
 	vec_cross(&pvec, ray.dir, t.v0v2);
 	invdet = 1 / vec_dot(pvec, t.v0v1);
 	vec_sub(&tvec, ray.pos, t.verts[0].pos);

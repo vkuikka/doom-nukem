@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   input.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/10 22:39:12 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/02 19:17:44 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/16 17:57:22 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -192,7 +192,7 @@ static void	keyboard_input(t_window *window, t_level *level, SDL_Event event,
 	else if (event.key.keysym.scancode == SDL_SCANCODE_COMMA
 		&& level->ui.raycast_quality > 1)
 		level->ui.raycast_quality -= 1;
-	else if (event.key.keysym.scancode == SDL_SCANCODE_CAPSLOCK
+	else if (event.key.keysym.scancode == SDL_SCANCODE_N
 		&& *game_state != GAME_STATE_INGAME)
 		level->ui.noclip = level->ui.noclip == 0;
 	else if (event.key.keysym.scancode == SDL_SCANCODE_Z)

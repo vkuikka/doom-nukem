@@ -6,14 +6,14 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/15 01:41:33 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/28 18:54:14 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef DOOM_NUKEM_H
 # define DOOM_NUKEM_H
 # define RES_X 1000
-# define RES_Y 700
+# define RES_Y 750
 # define THREAD_AMOUNT 4
 # define NOISE_QUALITY_LIMIT 8
 # define SSP_MAX_X 20
@@ -38,6 +38,7 @@
 # define DOOR_LOCATION_INFO_COLOR 0x880088ff
 # define DOOR_ACTIVATION_LOCATION_INFO_COLOR 0xcc2288ff
 # define LIGHT_LOCATION_INFO_COLOR 0xffdd00ff
+# define PERLIN_OFFSET 123
 
 # define ENEMY_MOVABLE_HEIGHT_DIFF 1
 # define MAX_PROJECTILE_TRAVEL 100
@@ -109,6 +110,7 @@
 # define UI_LEVEL_BAKED_COLOR 0x33aa33ff
 # define UI_LEVEL_BAKING_COLOR 0xccaa33ff
 # define UI_LEVEL_NOT_BAKED_COLOR 0xcc3333ff
+# define UI_SHADER_SETTINGS 0xc77dffff
 
 # define UV_PADDING 3
 
@@ -262,6 +264,25 @@ typedef struct s_uv_parameters
 	unsigned int		*pixels;
 }						t_uv_parameters;
 
+typedef struct s_perlin_settings
+{
+	float				move_speed;
+	float				speed_diff;
+	float				scale;
+	float				min;
+	float				max;
+	int					resolution;
+	float				depth;
+	float				noise_opacity;
+	float				distance;
+	float				swirl;
+	float				swirl_interval;
+	t_vec2				dir;
+	int					visualizer;
+	t_color_hsl			color_1;
+	t_color_hsl			color_2;
+}						t_perlin_settings;
+
 typedef struct s_projectile
 {
 	struct s_vec3		dir;
@@ -296,6 +317,13 @@ typedef struct s_obj
 	t_bmp				texture;
 }						t_obj;
 
+typedef enum e_shader
+{
+	SHADER_NONE = 0,
+	SHADER_RULE_30,
+	SHADER_PERLIN
+}						t_shader;
+
 // verts = vertex coordinates of 3d triangle
 // v0v1 = vector between vertices 1 and 0
 // v0v2 = vector between vertices 2 and 0
@@ -318,7 +346,7 @@ typedef struct s_tri
 	float				opacity;
 	float				reflectivity;
 	float				refractivity;
-	int					shader;
+	t_shader			shader;
 	int					selected;
 	int					opacity_precise;
 	t_bmp				*texture;
@@ -326,6 +354,7 @@ typedef struct s_tri
 	t_obj				reflection_obj_all;
 	t_obj				reflection_obj_first_bounce;
 	t_obj				shadow_faces;
+	t_perlin_settings	*perlin;
 }						t_tri;
 
 typedef struct s_skybox
@@ -431,6 +460,7 @@ typedef enum e_ui_location
 	UI_LOCATION_DOOR_EDITOR,
 	UI_LOCATION_DOOR_ACTIVATION_BUTTON,
 	UI_LOCATION_LIGHT_EDITOR,
+	UI_LOCATION_SHADER_EDITOR,
 	UI_LOCATION_GAME_SETTINGS
 }						t_ui_location;
 
@@ -668,6 +698,7 @@ typedef struct s_cast_result
 	struct s_bmp		*texture;
 	t_color				*baked;
 	unsigned int		*spray_overlay;
+	int					raycast_amount;
 }						t_cast_result;
 
 typedef struct s_buffer
@@ -696,6 +727,7 @@ void			vec2_avg(t_vec2 *res, t_vec2 ve1, t_vec2 ve2);
 void			vec2_sub(t_vec2 *res, t_vec2 ve1, t_vec2 ve2);
 void			vec2_add(t_vec2 *res, t_vec2 ve1, t_vec2 ve2);
 void			vec2_mult(t_vec2 *res, float mult);
+void			vec2_normalize(t_vec2 *vec);
 float			clamp(float var, float min, float max);
 
 void			init_window(t_window **window);
@@ -721,7 +753,7 @@ void			hsl_update_color(t_color_hsl *c);
 void			face_color(float u, float v, t_tri t,
 					t_cast_result *res);
 void			print_line(t_vec3 start, t_vec3 stop, unsigned int color,
-						unsigned int *texture);
+					unsigned int *texture);
 void			wireframe(unsigned int *texture, t_level *level);
 void			camera_offset(t_vec3 *vertex, t_camera *cam);
 SDL_Color		get_sdl_color(unsigned int color);
@@ -772,7 +804,8 @@ void			file_browser(char *str, char *extension,
 void			file_save(char *str, char *extension,
 					void (*f)(t_level *, char *));
 void			text_input(char *str, t_level *level);
-void			find_closest_mouse(t_vec3 *vert, int *i, int *k, t_ivec2 *mouse);
+void			find_closest_mouse(t_vec3 *vert, int *i, int *k,
+					t_ivec2 *mouse);
 int				mouse_collision(t_rect rect, t_ivec2 mouse);
 
 void			draw_camera_path(char *str, t_camera_path *path,
@@ -786,7 +819,8 @@ void			hud(t_level *level, unsigned int *pixels,
 					t_game_state game_state);
 void			fake_analog_signal(t_bmp *img, unsigned int *pixels,
 					float amount);
-void			chromatic_abberation(unsigned int *pixels, unsigned int *buf, int amount);
+void			chromatic_abberation(unsigned int *pixels,
+					unsigned int *buf, int amount);
 void			create_projectile(t_level *level, t_vec3 pos,
 					t_vec3 dir, t_enemy *enemy);
 
@@ -811,6 +845,9 @@ void			reflection(t_cast_result *res, t_level *l, t_obj *obj);
 unsigned int	shader_wave(t_vec3 mod, t_vec3 *normal,
 					unsigned int col1, unsigned int col2);
 unsigned int	shader_rule30(t_vec3 pos);
+unsigned int	shader_perlin(t_vec3 pos, t_level *level, t_cast_result *res);
+void			perlin_init(t_tri *tri);
+int				noise2(int x, int y);
 t_color			sunlight(t_level *l, t_cast_result *res, t_color light);
 
 void			select_face(t_camera *cam, t_level *level);

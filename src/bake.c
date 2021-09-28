@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/22 10:29:09 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/05/25 21:11:25 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/28 23:14:01 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,12 +89,12 @@ t_vec3	uv_to_3d(t_tri tri, t_bmp *txtr, t_ivec2 point)
 
 static void	wrap_coords(int *x, int *y, int max_x, int max_y)
 {
-	while (*y < 0)
-		*y += max_y;
+	if (*y < 0)
+		*y = max_y - (*y % max_y);
 	if (*y >= max_y)
 		*y = *y % max_y;
-	while (*x < 0)
-		*x += max_x;
+	if (*x < 0)
+		*x = max_x - (*x % max_x);
 	if (*x >= max_x)
 		*x = *x % max_x;
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   vectors.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/07 18:13:00 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/02 16:28:13 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/27 23:46:47 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,15 @@ t_vec3	vec_interpolate(t_vec3 a, t_vec3 b, float f)
 	res.y = lerp(a.y, b.y, f);
 	res.z = lerp(a.z, b.z, f);
 	return (res);
+}
+
+void	vec2_normalize(t_vec2 *vec)
+{
+	float	w;
+
+	w = sqrtf(vec->x * vec->x + vec->y * vec->y);
+	vec->x /= w;
+	vec->y /= w;
 }
 
 void	vec_normalize(t_vec3 *vec)

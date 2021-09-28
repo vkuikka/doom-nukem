@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   serialize.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/06 14:13:02 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/03 06:52:03 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/27 03:02:27 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -267,7 +267,7 @@ void	deserialize_tri(t_tri *tri, t_buffer *buf)
 	deserialize_float(&tri->opacity, buf);
 	deserialize_float(&tri->reflectivity, buf);
 	deserialize_float(&tri->refractivity, buf);
-	deserialize_int(&tri->shader, buf);
+	deserialize_int((int*)&tri->shader, buf);
 	if (tri->isenemy)
 	{
 		tri->enemy = (t_enemy *)malloc(sizeof(t_enemy));
@@ -304,7 +304,7 @@ void	serialize_tri(t_tri *tri, t_buffer *buf)
 	serialize_float(tri->opacity, buf);
 	serialize_float(tri->reflectivity, buf);
 	serialize_float(tri->refractivity, buf);
-	serialize_int(tri->shader, buf);
+	serialize_int((int)tri->shader, buf);
 	if (tri->isenemy)
 		serialize_enemy(tri->enemy, buf);
 	if (tri->isprojectile)

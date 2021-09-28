@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/25 16:35:01 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/09/27 02:56:40 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,12 +55,12 @@ static void	raytrace(t_cast_result *res, t_obj *obj, t_level *l)
 	t_color	light;
 	t_vec3	tmp;
 
-	vec_add(&tmp, res->ray.dir, res->ray.pos);
+	tmp = res->ray.pos;
 	face_normal = l->all.tris[res->face_index].normal;
 	vec_normalize(&res->normal);
-	if (l->all.tris[res->face_index].shader == 1)
-		res->color = shader_wave(tmp, &res->normal, 0x070C5A, 0x020540);
-	if (l->all.tris[res->face_index].shader == 2)
+	if (l->all.tris[res->face_index].shader == SHADER_PERLIN)
+		res->color = shader_perlin(tmp, l, res);
+	if (l->all.tris[res->face_index].shader == SHADER_RULE_30)
 		res->color = shader_rule30(tmp);
 	else if (!res->baked || res->raytracing)
 	{
@@ -104,7 +104,6 @@ void	cast_all_color(t_level *l, t_obj *obj, t_cast_result *res,
 {
 	int		new_hit;
 
-	l->ui.total_raycasts++;
 	vec_normalize(&res->ray.dir);
 	new_hit = cast_loop(obj, res);
 	if (new_hit == -1 && l->render_is_first_pass)
@@ -160,12 +159,13 @@ void	cast_result_set(t_cast_result *res, t_level *level)
 	res->face_index = -1;
 }
 
-void	raycast(t_level *level, t_window *window, int thread_id)
+int	raycast(t_level *level, t_window *window, int thread_id)
 {
 	t_cast_result	res;
 	t_ivec2			xy;
 
 	xy.x = thread_id;
+	res.raycast_amount = 0;
 	while (xy.x < RES_X)
 	{
 		xy.y = -1;
@@ -186,6 +186,7 @@ void	raycast(t_level *level, t_window *window, int thread_id)
 		}
 		xy.x += THREAD_AMOUNT;
 	}
+	return (res.raycast_amount);
 }
 
 int	init_raycast(void *data_pointer)
@@ -193,6 +194,5 @@ int	init_raycast(void *data_pointer)
 	t_rthread	*thread;
 
 	thread = data_pointer;
-	raycast(thread->level, thread->window, thread->id);
-	return (0);
+	return (raycast(thread->level, thread->window, thread->id));
 }
