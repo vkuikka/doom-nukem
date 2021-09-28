@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ui_config.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/28 22:56:24 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/28 23:27:06 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -153,8 +153,11 @@ static void	ui_config_face_perlin(t_perlin_settings *perlin, t_level *level)
 	}
 	else
 	{
-		float_slider(&perlin->dir.x, "dir x", -1, 1);
-		float_slider(&perlin->dir.y, "dir z", -1, 1);
+		if (call("set swirl direction", NULL))
+		{
+			perlin->dir.x = level->cam.dir.x;
+			perlin->dir.y = level->cam.dir.z;
+		}
 		vec2_normalize(&perlin->dir);
 	}
 	ui_config_face_perlin_settings(perlin);
