@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/27 03:43:09 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/28 20:38:29 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,11 +117,27 @@ static void	ui_config_enemy_settings(t_tri *tri)
 	ui_config_enemy_projectile_settings(tri);
 }
 
-static void	ui_config_face_perlin_settings(t_perlin_settings *perlin)
+static void	ui_config_face_perlin(t_perlin_settings *perlin, t_level *level)
 {
 	char	buf[100];
 
 	set_text_color(UI_SHADER_SETTINGS);
+	float_slider(&perlin->swirl, "swirl", 0, 5);
+	if (perlin->swirl != 0)
+	{
+		float_slider(&perlin->swirl_interval, "swirl interval", 0, 20);
+		if (call("set swirl position", NULL))
+		{
+			perlin->dir.x = level->cam.pos.x;
+			perlin->dir.y = level->cam.pos.z;
+		}
+	}
+	else
+	{
+		float_slider(&perlin->dir.x, "dir x", -1, 1);
+		float_slider(&perlin->dir.y, "dir z", -1, 1);
+		vec2_normalize(&perlin->dir);
+	}
 	float_slider(&perlin->min, "min", 0, 1);
 	float_slider(&perlin->max, "max", 0, 1);
 	float_slider(&perlin->noise_opacity, "opacity from noise", 0, 4);
@@ -571,7 +587,10 @@ void	choose_shader(t_tri *tri)
 	if (call("perlin", NULL))
 	{
 		if (!tri->perlin)
+		{
 			perlin_init(tri);
+			noise2(0, 0);
+		}
 		tri->shader = SHADER_PERLIN;
 	}
 	if (call("rule 30", NULL))
@@ -593,7 +612,7 @@ void	ui_shader_settings(t_level *level)
 			tri = &level->all.tris[i];
 			choose_shader(tri);
 			if (tri->shader == SHADER_PERLIN && tri->perlin)
-				ui_config_face_perlin_settings(tri->perlin);
+				ui_config_face_perlin(tri->perlin, level);
 			return ;
 		}
 	}

@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/27 02:56:35 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/28 18:54:14 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,7 @@
 # define DOOR_LOCATION_INFO_COLOR 0x880088ff
 # define DOOR_ACTIVATION_LOCATION_INFO_COLOR 0xcc2288ff
 # define LIGHT_LOCATION_INFO_COLOR 0xffdd00ff
+# define PERLIN_OFFSET 123
 
 # define ENEMY_MOVABLE_HEIGHT_DIFF 1
 # define MAX_PROJECTILE_TRAVEL 100
@@ -268,6 +269,9 @@ typedef struct s_perlin_settings
 	float				depth;
 	float				noise_opacity;
 	float				distance;
+	float				swirl;
+	float				swirl_interval;
+	t_vec2				dir;
 	int					visualizer;
 	t_color_hsl			color_1;
 	t_color_hsl			color_2;
@@ -658,6 +662,7 @@ void			vec2_avg(t_vec2 *res, t_vec2 ve1, t_vec2 ve2);
 void			vec2_sub(t_vec2 *res, t_vec2 ve1, t_vec2 ve2);
 void			vec2_add(t_vec2 *res, t_vec2 ve1, t_vec2 ve2);
 void			vec2_mult(t_vec2 *res, float mult);
+void			vec2_normalize(t_vec2 *vec);
 float			clamp(float var, float min, float max);
 
 void			init_window(t_window **window);
@@ -775,6 +780,7 @@ unsigned int	shader_wave(t_vec3 mod, t_vec3 *normal,
 unsigned int	shader_rule30(t_vec3 pos);
 unsigned int	shader_perlin(t_vec3 pos, t_level *level, t_cast_result *res);
 void			perlin_init(t_tri *tri);
+int				noise2(int x, int y);
 t_color			sunlight(t_level *l, t_cast_result *res, t_color light);
 
 void			select_face(t_camera *cam, t_level *level,
