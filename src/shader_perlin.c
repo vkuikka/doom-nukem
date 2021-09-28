@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/16 12:01:41 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/28 23:12:08 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/28 23:34:05 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,7 +112,7 @@ void	perlin_init(t_tri *t)
 	t->perlin->distance = 0;
 	t->perlin->visualizer = 0;
 	t->perlin->swirl = 0;
-	t->perlin->swirl_interval = 1;
+	t->perlin->swirl_interval = 10;
 	t->perlin->dir.x = -1;
 	t->perlin->dir.y = 0;
 	ft_memset(&t->perlin->color_1, 0, sizeof(t_color_hsl));

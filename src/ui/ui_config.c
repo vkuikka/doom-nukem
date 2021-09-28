@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/28 23:27:06 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/28 23:33:23 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -153,10 +153,10 @@ static void	ui_config_face_perlin(t_perlin_settings *perlin, t_level *level)
 	}
 	else
 	{
-		if (call("set swirl direction", NULL))
+		if (call("set noise direction", NULL))
 		{
-			perlin->dir.x = level->cam.dir.x;
-			perlin->dir.y = level->cam.dir.z;
+			perlin->dir.x = level->cam.front.x;
+			perlin->dir.y = level->cam.front.z;
 		}
 		vec2_normalize(&perlin->dir);
 	}

@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/16 18:20:45 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/28 23:32:03 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,10 +25,7 @@ static void	update_camera(t_level *l)
 
 static void	render_finish(t_window *window, t_level *level)
 {
-	fill_pixels(window->frame_buffer, level->ui.raycast_quality,
-		level->ui.blur, level->ui.smooth_pixels);
-	chromatic_abberation(window->frame_buffer, window->buf,
-		level->ui.chromatic_abberation);
+	post_process(window, level);
 	SDL_UnlockTexture(window->texture);
 	SDL_RenderCopy(window->SDLrenderer, window->texture, NULL, NULL);
 }
