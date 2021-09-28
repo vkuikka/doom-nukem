@@ -6,31 +6,11 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/16 12:01:41 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/28 23:03:07 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/28 23:12:08 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
-
-static void	wrap_coordsf(float *x, float *y, float max_x, float max_y)
-{
-	if (*y < 0)
-	{
-		*y = max_y - fmod(*y, max_y);
-		if (*y == max_y)
-			*y = 0;
-	}
-	if (*y >= max_y)
-		*y = fmod(*y, max_y);
-	if (*x < 0)
-	{
-		*x = max_x - fmod(*x, max_x);
-		if (*x == max_y)
-			*x = 0;
-	}
-	if (*x >= max_x)
-		*x = fmod(*x, max_x);
-}
 
 int	noise2(int x, int y)
 {
@@ -95,7 +75,8 @@ float	perlin_noise(float x, float y, float freq, int depth)
 	fin = 0;
 	div = 0;
 	amp = 1;
-	wrap_coordsf(&x, &y, 256, 256);
+	x = fabs(x);
+	y = fabs(y);
 	x *= freq;
 	y *= freq;
 	while (i < depth)

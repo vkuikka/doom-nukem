@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/21 17:32:09 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/13 20:47:28 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/28 23:14:33 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -243,13 +243,13 @@ t_vec3	get_normal(int vec)
 
 static void	wrap_coords(int *x, int *y, int max_x, int max_y)
 {
-	while (*y < 0)
-		*y += max_y;
+	if (*y < 0)
+		*y = max_y - (*y % max_y);
 	if (*y >= max_y)
 		*y = *y % max_y;
 	*y = max_y - *y - 1;
-	while (*x < 0)
-		*x += max_x;
+	if (*x < 0)
+		*x = max_x - (*x % max_x);
 	if (*x >= max_x)
 		*x = *x % max_x;
 }
