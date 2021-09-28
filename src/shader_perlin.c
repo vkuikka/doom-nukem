@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/16 12:01:41 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/28 22:37:25 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/28 23:03:07 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ int	noise2(int x, int y)
 			tmp++;
 		}
 	}
-    tmp = (hash[y % 256] + x);
+	tmp = (hash[y % 256] + x);
 	return (hash[tmp % 256]);
 }
 
@@ -113,7 +113,7 @@ float	perlin_noise(float x, float y, float freq, int depth)
 void	perlin_init(t_tri *t)
 {
 	if (t->perlin)
-		return;
+		return ;
 	t->perlin = (t_perlin_settings *)malloc(sizeof(t_perlin_settings));
 	if (!t->perlin)
 	{
@@ -209,8 +209,10 @@ float	noise_swirl(float time, t_vec3 pos, t_perlin_settings p)
 	return (lerp(perlin2, perlin1, gradient));
 }
 
-static float	noise_move(t_perlin_settings p, t_vec3 pos, float time)
+static float	noise_move(float time, t_vec3 pos, t_perlin_settings p)
 {
+	if (p.swirl)
+		return (noise_swirl(time, pos, p));
 	pos.x += p.dir.x * time + PERLIN_OFFSET;
 	pos.z += p.dir.y * time + PERLIN_OFFSET;
 	return (perlin_noise(pos.x, pos.z, p.scale, p.resolution));
@@ -227,10 +229,7 @@ float	perlin_opacity(t_vec3 *pos, float perlin, t_level *l,
 	vec_normalize(&tmp);
 	vec_mult(&tmp, perlin * p.depth);
 	vec_add(pos, *pos, tmp);
-	if (p.swirl)
-		perlin = noise_swirl(time, *pos, p);
-	else
-		perlin = noise_move(p, *pos, time);
+	perlin = noise_move(time, *pos, p);
 	perlin = stretch_value(perlin, p.min, p.max);
 	return (perlin);
 }
@@ -257,10 +256,7 @@ unsigned int	shader_perlin(t_vec3 pos, t_level *level, t_cast_result *res)
 	res->normal = level->all.tris[res->face_index].normal;
 	p = *level->all.tris[res->face_index].perlin;
 	time = SDL_GetTicks() / 1000.0 * p.move_speed;
-	if (p.swirl)
-		perlin = noise_swirl(time, pos, p);
-	else
-		perlin = noise_move(p, pos, time);
+	perlin = noise_move(time, pos, p);
 	perlin = stretch_value(perlin, p.min, p.max);
 	opacity = noise_opacity(p, perlin, *res);
 	if (p.visualizer == 1)

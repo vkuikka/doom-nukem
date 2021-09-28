@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/28 20:38:29 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/28 22:56:24 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,10 +117,29 @@ static void	ui_config_enemy_settings(t_tri *tri)
 	ui_config_enemy_projectile_settings(tri);
 }
 
-static void	ui_config_face_perlin(t_perlin_settings *perlin, t_level *level)
+static void	ui_config_face_perlin_settings(t_perlin_settings *p)
 {
 	char	buf[100];
 
+	float_slider(&p->min, "min", 0, 1);
+	float_slider(&p->max, "max", 0, 1);
+	float_slider(&p->noise_opacity, "opacity from noise", 0, 4);
+	float_slider(&p->distance, "distance (0 = disabled)", 0, 800);
+	int_slider(&p->resolution, "resolution", 1, 6);
+	float_slider(&p->depth, "depth", 0, 5);
+	float_slider(&p->scale, "scale", 0.01, 2);
+	float_slider(&p->move_speed, "speed", 0, 3);
+	sprintf(buf, "depth speed difference: %.2f", p->speed_diff);
+	float_slider(&p->speed_diff, buf, 0, 4);
+	int_slider(&p->visualizer, "visualizer", 0, 3);
+	if (color_slider(&p->color_1, "color 1"))
+		hsl_update_color(&p->color_1);
+	if (color_slider(&p->color_2, "color 2"))
+		hsl_update_color(&p->color_2);
+}
+
+static void	ui_config_face_perlin(t_perlin_settings *perlin, t_level *level)
+{
 	set_text_color(UI_SHADER_SETTINGS);
 	float_slider(&perlin->swirl, "swirl", 0, 5);
 	if (perlin->swirl != 0)
@@ -138,21 +157,7 @@ static void	ui_config_face_perlin(t_perlin_settings *perlin, t_level *level)
 		float_slider(&perlin->dir.y, "dir z", -1, 1);
 		vec2_normalize(&perlin->dir);
 	}
-	float_slider(&perlin->min, "min", 0, 1);
-	float_slider(&perlin->max, "max", 0, 1);
-	float_slider(&perlin->noise_opacity, "opacity from noise", 0, 4);
-	float_slider(&perlin->distance, "distance (0 = disabled)", 0, 800);
-	int_slider(&perlin->resolution, "resolution", 1, 6);
-	float_slider(&perlin->depth, "depth", 0, 5);
-	float_slider(&perlin->scale, "scale", 0.01, 2);
-	float_slider(&perlin->move_speed, "speed", 0, 3);
-	sprintf(buf, "depth speed difference: %.2f", perlin->speed_diff);
-	float_slider(&perlin->speed_diff, buf, 0, 4);
-	int_slider(&perlin->visualizer, "visualizer", 0, 3);
-	if (color_slider(&perlin->color_1, "color 1"))
-		hsl_update_color(&perlin->color_1);
-	if (color_slider(&perlin->color_2, "color 2"))
-		hsl_update_color(&perlin->color_2);
+	ui_config_face_perlin_settings(perlin);
 }
 
 static void	ui_confing_face_render_settings(t_tri *tri, t_level *level)
