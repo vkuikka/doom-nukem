@@ -78,6 +78,7 @@ void	init_embedded(t_level *level)
 	level->game_models.reload_animation.duration = RELOAD_ANIMATION_DURATION;
 	level->game_models.viewmodel = get_animation_target(&level->game_models.reload_animation);
 	obj_copy(&level->game_models.enemy, &level->game_models.enemy_shoot);
+	level->game_logic.anim_duration_multiplier = 1.0;
 	if (res != 4)
 		ft_error("fix embed\n");
 	level->game_models.ammo_pickup_box.texture
