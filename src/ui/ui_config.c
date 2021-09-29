@@ -646,6 +646,15 @@ void	ui_game_settings(t_level *level)
 	call("add ammo box", &add_ammo_box);
 	call("add health box", &add_health_box);
 	ui_game_settings_delete_selected(level);
+	float_slider(&level->game_logic.item_spin_speed, "item spin speed", 0, 0.1);
+	int_slider(&level->game_logic.enemy_animation_view_index, "view enemy animation", -1, 3);
+	level->game_logic.enemy_animation_view_index
+	 = clamp(level->game_logic.enemy_animation_view_index, 0, 2);
+	sprintf(buf, "enemy animation speed %.2fx",
+		level->game_logic.anim_duration_multiplier);
+	float_slider(&level->game_logic.anim_duration_multiplier, buf, 0, 2.0);
+	set_text_color(UI_INFO_TEXT_COLOR);
+	ui_render_info(&level->ui, level);
 }
 
 void	choose_shader(t_tri *tri)

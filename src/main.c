@@ -192,7 +192,7 @@ static void	merge_game_models(t_level *level, t_game_state game_state)
 	static float	rot = 0;
 	int				i;
 
-	rot += .03;
+	rot += level->game_logic.item_spin_speed;
 	if ((game_state == GAME_STATE_EDITOR
 		&& level->ui.state.ui_location == UI_LOCATION_GAME_SETTINGS)
 		|| game_state == GAME_STATE_INGAME)
@@ -207,7 +207,17 @@ static void	merge_game_models(t_level *level, t_game_state game_state)
 			if (level->game_logic.health_box[i].visible)
 				merge_prop(level, &level->game_models.health_pickup_box,
 					level->game_logic.health_box[i].pos, (t_vec2){0, rot + (M_PI / 3 * i)});
-		play_animation(&level->game_models.enemy, &level->game_models.enemy_run, 0);
+
+		if (level->game_logic.enemy_animation_view_index == 0)
+			play_animation(&level->game_models.enemy, &level->game_models.enemy_run, 0,
+				level->game_logic.anim_duration_multiplier);
+		else if (level->game_logic.enemy_animation_view_index == 1)
+			play_animation(&level->game_models.enemy, &level->game_models.enemy_die, 0,
+				level->game_logic.anim_duration_multiplier);
+		else
+			obj_copy(&level->game_models.enemy, &level->game_models.enemy_shoot);
+
+
 		i = -1;
 		while (++i < level->game_logic.enemy_amount)
 			merge_prop(level, &level->game_models.enemy,
@@ -221,7 +231,7 @@ static void	viewmodel(t_window *window, t_level *level, t_game_state *game_state
 		return ;
 	play_animation(&level->game_models.viewmodel,
 	&level->game_models.reload_animation,
-	level->game_logic.reload_start_time);
+	level->game_logic.reload_start_time, 1.0);
 	level->visible.tri_amount = 0;
 	merge_prop(level, &level->game_models.viewmodel, level->cam.pos, (t_vec2){level->cam.look_up, level->cam.look_side});
 	screen_space_partition(level);

@@ -604,9 +604,12 @@ typedef struct s_game_logic
 	unsigned int		win_start_time;
 	unsigned int		death_start_time;
 	unsigned int		reload_start_time;
-
 	int					player_health;
 	int					player_ammo;
+
+	float				item_spin_speed;
+	int					enemy_animation_view_index;
+	float				anim_duration_multiplier;
 
 	t_item_pickup		*health_box;
 	int					health_box_amount;
@@ -838,7 +841,8 @@ int				load_animation(char *get_filename, t_obj_animation *animation,
 					int amount);
 t_obj			get_animation_target(t_obj_animation *animation);
 void			play_animation(t_obj *target, t_obj_animation *animation,
-					unsigned int start_time);
+					unsigned int start_time, float anim_speed_modifier);
+void			obj_copy(t_obj *target, t_obj *source);
 
 void			uv_editor(t_level *level, unsigned int *pixels);
 void			enable_uv_editor(t_level *level);
