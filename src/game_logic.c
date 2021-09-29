@@ -17,7 +17,7 @@ static void	player_reload(t_level *level)
 	float	time;
 
 	time = (SDL_GetTicks() - level->game_logic.reload_start_time)
-		/ (1000 * VIEWMODEL_ANIM_FPS);
+		/ (1000 * level->game_models.reload_animation.duration);
 	if (time > 1)
 	{
 		level->game_logic.reload_start_time = 0;

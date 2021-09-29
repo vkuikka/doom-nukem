@@ -66,8 +66,14 @@ void	init_embedded(t_level *level)
 		&level->game_models.ammo_pickup_box);
 	load_obj_from_memory(&embed_pickup_box_obj[0], embed_pickup_box_obj_len,
 		&level->game_models.health_pickup_box);
-	int res = load_obj("embed/enemy.obj", &level->game_models.enemy);
-	res += load_obj("embed/viewmodel/viewmodel_0.obj", &level->game_models.viewmodel);
+	int res = 0;
+	// res += load_obj("embed/enemy.obj", &level->game_models.enemy);
+	res += load_animation("embed/enemy_run/enemy_run_00.obj", &level->game_models.enemy_run, 10);
+	level->game_models.enemy = get_animation_target(&level->game_models.enemy_run);
+	level->game_models.enemy_run.duration = 2.0;
+	res += load_animation("embed/viewmodel/viewmodel_0.obj", &level->game_models.reload_animation, 3);
+	level->game_models.reload_animation.duration = RELOAD_ANIMATION_DURATION;
+	level->game_models.viewmodel = get_animation_target(&level->game_models.reload_animation);
 	if (res != 2)
 		ft_error("fix embed\n");
 	level->game_models.ammo_pickup_box.texture

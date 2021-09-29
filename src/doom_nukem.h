@@ -81,8 +81,7 @@
 # define PLAYER_AMMO_MAX 30
 # define DEATH_LENGTH_SEC 5
 # define DEATH_OVERLAY_COLOR 0xff000088
-# define VIEWMODEL_FRAMES 10
-# define VIEWMODEL_ANIM_FPS 2.0
+# define RELOAD_ANIMATION_DURATION 2.0//s
 # define ITEM_PICKUP_DIST 1.4//m
 # define ITEM_SPAWN_TIME 30//s
 
@@ -569,12 +568,23 @@ typedef struct s_player_pos
 	float				look_up;
 }						t_player_pos;
 
+typedef struct s_obj_animation
+{
+	t_obj				*keyframes;
+	int					keyframe_amount;
+	float				duration;
+}						t_obj_animation;
+
 typedef struct s_game_models
 {
 	t_obj				ammo_pickup_box;
 	t_obj				health_pickup_box;
 	t_obj				enemy;
+	t_obj				enemy_shoot;
+	t_obj_animation		enemy_run;
+	t_obj_animation		enemy_die;
 	t_obj				viewmodel;
+	t_obj_animation		reload_animation;
 	t_bmp				projectile_texture;
 }						t_game_models;
 
@@ -823,6 +833,12 @@ void			chromatic_abberation(unsigned int *pixels,
 					unsigned int *buf, int amount);
 void			create_projectile(t_level *level, t_vec3 pos,
 					t_vec3 dir, t_enemy *enemy);
+
+int				load_animation(char *get_filename, t_obj_animation *animation,
+					int amount);
+t_obj			get_animation_target(t_obj_animation *animation);
+void			play_animation(t_obj *target, t_obj_animation *animation,
+					unsigned int start_time);
 
 void			uv_editor(t_level *level, unsigned int *pixels);
 void			enable_uv_editor(t_level *level);

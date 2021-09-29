@@ -173,16 +173,13 @@ static void	merge_prop(t_level *level, t_obj *obj, t_vec3 pos, t_vec2 rotation)
 			level->visible.tris[i].verts[z].pos.y += pos.y;
 			level->visible.tris[i].verts[z].pos.z += pos.z;
 		}
-		if (rotation.y)
-		{
-			vec_sub(&level->visible.tris[i].v0v2, level->visible.tris[i].verts[1].pos,
-				level->visible.tris[i].verts[0].pos);
-			vec_sub(&level->visible.tris[i].v0v1, level->visible.tris[i].verts[2].pos,
-				level->visible.tris[i].verts[0].pos);
-			vec_cross(&level->visible.tris[i].normal, level->visible.tris[i].v0v2,
-				level->visible.tris[i].v0v1);
-			vec_normalize(&level->visible.tris[i].normal);
-		}
+		vec_sub(&level->visible.tris[i].v0v2, level->visible.tris[i].verts[1].pos,
+			level->visible.tris[i].verts[0].pos);
+		vec_sub(&level->visible.tris[i].v0v1, level->visible.tris[i].verts[2].pos,
+			level->visible.tris[i].verts[0].pos);
+		vec_cross(&level->visible.tris[i].normal, level->visible.tris[i].v0v2,
+			level->visible.tris[i].v0v1);
+		vec_normalize(&level->visible.tris[i].normal);
 		level->visible.tris[i].texture = &obj->texture;
 		i++;
 		k++;
@@ -210,6 +207,7 @@ static void	merge_game_models(t_level *level, t_game_state game_state)
 			if (level->game_logic.health_box[i].visible)
 				merge_prop(level, &level->game_models.health_pickup_box,
 					level->game_logic.health_box[i].pos, (t_vec2){0, rot + (M_PI / 3 * i)});
+		play_animation(&level->game_models.enemy, &level->game_models.enemy_run, 0);
 		i = -1;
 		while (++i < level->game_logic.enemy_amount)
 			merge_prop(level, &level->game_models.enemy,
@@ -221,6 +219,9 @@ static void	viewmodel(t_window *window, t_level *level, t_game_state *game_state
 {
 	if (*game_state != GAME_STATE_INGAME)
 		return ;
+	play_animation(&level->game_models.viewmodel,
+	&level->game_models.reload_animation,
+	level->game_logic.reload_start_time);
 	level->visible.tri_amount = 0;
 	merge_prop(level, &level->game_models.viewmodel, level->cam.pos, (t_vec2){level->cam.look_up, level->cam.look_side});
 	screen_space_partition(level);
