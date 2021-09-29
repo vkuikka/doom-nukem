@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/06 14:13:02 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/27 03:02:27 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/29 14:05:36 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -247,6 +247,42 @@ void	serialize_player_pos(t_player_pos *pos, t_buffer *buf)
 	serialize_float(pos->look_up, buf);
 }
 
+void	deserialize_perlin_settings(t_perlin_settings *p, t_buffer *buf)
+{
+	deserialize_float(&p->move_speed, buf);
+	deserialize_float(&p->speed_diff, buf);
+	deserialize_float(&p->scale, buf);
+	deserialize_float(&p->min, buf);
+	deserialize_float(&p->max, buf);
+	deserialize_int(&p->resolution, buf);
+	deserialize_float(&p->depth, buf);
+	deserialize_float(&p->noise_opacity, buf);
+	deserialize_float(&p->distance, buf);
+	deserialize_float(&p->swirl, buf);
+	deserialize_float(&p->swirl_interval, buf);
+	deserialize_vec2(&p->dir, buf);
+	deserialize_color(&p->color_1, buf);
+	deserialize_color(&p->color_2, buf);
+}
+
+void	serialize_perlin_settings(t_perlin_settings *p, t_buffer *buf)
+{
+	serialize_float(p->move_speed, buf);
+	serialize_float(p->speed_diff, buf);
+	serialize_float(p->scale, buf);
+	serialize_float(p->min, buf);
+	serialize_float(p->max, buf);
+	serialize_int(p->resolution, buf);
+	serialize_float(p->depth, buf);
+	serialize_float(p->noise_opacity, buf);
+	serialize_float(p->distance, buf);
+	serialize_float(p->swirl, buf);
+	serialize_float(p->swirl_interval, buf);
+	serialize_vec2(p->dir, buf);
+	serialize_color(p->color_1, buf);
+	serialize_color(p->color_2, buf);
+}
+
 void	deserialize_tri(t_tri *tri, t_buffer *buf)
 {
 	int	i;
@@ -268,6 +304,13 @@ void	deserialize_tri(t_tri *tri, t_buffer *buf)
 	deserialize_float(&tri->reflectivity, buf);
 	deserialize_float(&tri->refractivity, buf);
 	deserialize_int((int*)&tri->shader, buf);
+	if (tri->shader == SHADER_PERLIN)
+	{
+		tri->perlin = (t_perlin_settings *)malloc(sizeof(t_perlin_settings));
+		if (!tri->perlin)
+			ft_error("failed to allocate memory for file");
+		deserialize_perlin_settings(tri->perlin, buf);
+	}
 	if (tri->isenemy)
 	{
 		tri->enemy = (t_enemy *)malloc(sizeof(t_enemy));
@@ -305,6 +348,8 @@ void	serialize_tri(t_tri *tri, t_buffer *buf)
 	serialize_float(tri->reflectivity, buf);
 	serialize_float(tri->refractivity, buf);
 	serialize_int((int)tri->shader, buf);
+	if (tri->shader == SHADER_PERLIN)
+		serialize_perlin_settings(tri->perlin, buf);
 	if (tri->isenemy)
 		serialize_enemy(tri->enemy, buf);
 	if (tri->isprojectile)

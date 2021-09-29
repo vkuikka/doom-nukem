@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/22 10:29:09 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/28 23:14:01 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/29 00:20:42 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,7 +111,7 @@ static void	bake_pixel(t_level *l, t_ivec2 wrap, t_ivec2 i, t_cast_result *res)
 				+ (wrap.y * l->normal_map.width)]);
 		vec_normalize(&res->normal);
 		l->baked[wrap.x + wrap.y * l->texture.width] = sunlight(l, res,
-				lights(l, res, l->all.tris[res->face_index].normal));
+				lights(l, res));
 	}
 }
 
@@ -142,7 +142,7 @@ static void	bake_area(t_level *l, t_cast_result *res, t_ivec2 i)
 				+ (wrap.y * l->normal_map.width)]);
 		vec_normalize(&res->normal);
 		l->baked[wrap.x + wrap.y * l->texture.width] = sunlight(l, res,
-				lights(l, res, l->all.tris[res->face_index].normal));
+				lights(l, res));
 		wrap.y -= 1;
 		bake_pixel(l, wrap, i, res);
 		wrap.x -= 1;

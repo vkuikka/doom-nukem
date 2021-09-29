@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/28 18:54:14 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/29 00:19:30 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -895,7 +895,7 @@ void			enable_door_editor(t_level *level);
 void			find_selected_door_index(t_level *level);
 void			door_activation_move(t_level *level,
 					t_vec3 move_amount);
-t_color			lights(t_level *l, t_cast_result *res, t_vec3 normal);
+t_color			lights(t_level *l, t_cast_result *res);
 unsigned int	brightness(unsigned int color1, t_color new);
 int				nothing_selected(t_level *level);
 void			light_put_text(t_level *level);

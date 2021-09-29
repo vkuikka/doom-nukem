@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/31 16:52:44 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/27 02:55:39 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/29 13:53:11 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,7 +87,7 @@ static void	color_set(t_color *col, float value)
 	col->b = value;
 }
 
-t_color	lights(t_level *l, t_cast_result *res, t_vec3 normal)
+t_color	lights(t_level *l, t_cast_result *res)
 {
 	t_ray	ray;
 	float	dist;
@@ -101,8 +101,7 @@ t_color	lights(t_level *l, t_cast_result *res, t_vec3 normal)
 		vec_sub(&ray.dir, res->ray.pos, l->lights[i].pos);
 		dist = 1.0 - vec_length(ray.dir) / l->lights[i].radius;
 		ray.pos = l->lights[i].pos;
-		if (dist > 0 && vec_dot(ray.dir, res->normal) < 0
-			&& vec_dot(ray.dir, normal) < 0 && (!res->raytracing
+		if (dist > 0 && vec_dot(ray.dir, res->normal) < 0 && (!res->raytracing
 				|| cast_all(ray, l, NULL) >= vec_length(ray.dir) - 0.1))
 		{
 			vec_normalize(&ray.dir);

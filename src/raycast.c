@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   raycast.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/27 02:56:40 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/09/29 13:53:23 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,12 +51,10 @@ static void	trace_bounce(t_cast_result *res, t_obj *obj, t_level *l)
 
 static void	raytrace(t_cast_result *res, t_obj *obj, t_level *l)
 {
-	t_vec3	face_normal;
 	t_color	light;
 	t_vec3	tmp;
 
 	tmp = res->ray.pos;
-	face_normal = l->all.tris[res->face_index].normal;
 	vec_normalize(&res->normal);
 	if (l->all.tris[res->face_index].shader == SHADER_PERLIN)
 		res->color = shader_perlin(tmp, l, res);
@@ -64,7 +62,7 @@ static void	raytrace(t_cast_result *res, t_obj *obj, t_level *l)
 		res->color = shader_rule30(tmp);
 	else if (!res->baked || res->raytracing)
 	{
-		light = sunlight(l, res, lights(l, res, face_normal));
+		light = sunlight(l, res, lights(l, res));
 		res->color
 			= brightness(res->color >> 8, light) + (res->color << 24 >> 24);
 	}
