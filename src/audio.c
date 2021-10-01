@@ -37,12 +37,12 @@ void	handle_audio(t_level *level, t_game_state *game_state)
 	if (level->ui.state.m1_click && level->ui.state.mouse_capture
 		&& *game_state != GAME_STATE_DEAD)
 	{
-		if (level->game_logic.player_ammo)
+		if (level->game_logic.player.ammo)
 			Mix_PlayChannel(AUDIO_GUNSHOT_CHANNEL, level->audio.gunshot, 0);
 		else
 			Mix_PlayChannel(AUDIO_RELOAD_CHANNEL, level->audio.reload, 0);
 	}
-	else if (level->game_logic.player_health <= 0)
+	else if (level->game_logic.player.health <= 0)
 	{
 		Mix_HaltMusic();
 		Mix_PlayChannel(AUDIO_DEATH_CHANNEL, level->audio.death, 0);

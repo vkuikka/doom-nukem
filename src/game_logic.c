@@ -21,7 +21,7 @@ static void	player_reload(t_level *level)
 	if (time > 1)
 	{
 		level->game_logic.reload_start_time = 0;
-		level->game_logic.player_ammo = PLAYER_AMMO_MAX;
+		level->game_logic.player.ammo = PLAYER_AMMO_MAX;
 	}
 }
 
@@ -29,9 +29,9 @@ static void	player_shoot(t_level *level)
 {
 	t_enemy	tmp;
 
-	if (level->game_logic.player_ammo)
+	if (level->game_logic.player.ammo)
 	{
-		level->game_logic.player_ammo--;
+		level->game_logic.player.ammo--;
 		// level->player.dir = level->cam.front;
 		create_projectile(level, level->cam.pos,
 			level->cam.front, &tmp);
@@ -57,7 +57,7 @@ static void	game_finished(t_level *level, t_game_state *game_state,
 	}
 	else if (level->game_logic.death_start_time)
 	{
-		level->game_logic.player_health = 0;
+		level->game_logic.player.health = 0;
 		time = (SDL_GetTicks() - level->game_logic.death_start_time)
 			/ (1000.0 * DEATH_LENGTH_SEC);
 		if (time > 1)
@@ -121,7 +121,7 @@ static void	game_logic_win_lose(t_level *level, t_game_state *game_state)
 {
 	t_vec3	dist;
 
-	if (level->game_logic.player_health <= 0)
+	if (level->game_logic.player.health <= 0)
 	{
 		level->game_logic.reload_start_time = 0;
 		level->game_logic.death_start_time = SDL_GetTicks();
@@ -155,10 +155,10 @@ void	game_logic(t_level *level, t_game_state *game_state)
 	{
 		if (pick_up_pick_ups(level, level->game_logic.ammo_box,
 				level->game_logic.ammo_box_amount))
-			level->game_logic.player_ammo = PLAYER_AMMO_MAX;
+			level->game_logic.player.ammo = PLAYER_AMMO_MAX;
 		if (pick_up_pick_ups(level, level->game_logic.health_box,
 				level->game_logic.health_box_amount))
-			level->game_logic.player_health = PLAYER_HEALTH_MAX;
+			level->game_logic.player.health = PLAYER_HEALTH_MAX;
 	}
 	else
 		reset_pick_ups(level);

@@ -389,8 +389,8 @@ void	ui_physics_info(t_editor_ui *ui, t_level *level)
 	button(&ui->physics_debug, "physics debug");
 	if (!ui->physics_debug)
 		return ;
-	tmp.x = level->player_vel.x;
-	tmp.y = level->player_vel.z;
+	tmp.x = level->game_logic.player.vel.x;
+	tmp.y = level->game_logic.player.vel.z;
 	center_screen_print_line(tmp, 0xff0000ff);
 	sprintf(buf, "xz vel: %.2fm/s", level->ui.horizontal_velocity);
 	set_text_color(0xff0000ff);

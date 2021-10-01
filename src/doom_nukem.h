@@ -300,14 +300,6 @@ typedef struct s_projectile
 	float				damage;
 }						t_projectile;
 
-typedef struct	s_player_physics
-{
-	t_vec3				dir;
-	float				move_speed;
-	float				height;
-	t_vec3				wishdir;
-}						t_player_physics;
-
 // projectile_speed = 0 -> no projectile
 typedef struct s_enemy
 {
@@ -606,6 +598,17 @@ typedef struct s_item_pickup
 	t_vec3				pos;
 }						t_item_pickup;
 
+typedef struct	s_player
+{
+	t_vec3				vel;
+	t_vec3				dir;
+	float				move_speed;
+	float				height;
+	t_vec3				wishdir;
+	int					health;
+	int					ammo;
+}						t_player;
+
 typedef struct s_game_logic
 {
 	t_player_pos		spawn_pos;
@@ -615,8 +618,7 @@ typedef struct s_game_logic
 	unsigned int		win_start_time;
 	unsigned int		death_start_time;
 	unsigned int		reload_start_time;
-	int					player_health;
-	int					player_ammo;
+	t_player			player;
 
 	float				item_spin_speed;
 	int					enemy_animation_view_index;
@@ -668,7 +670,6 @@ typedef struct s_level
 	t_game_models		game_models;
 	t_game_logic		game_logic;
 	t_camera_path		main_menu_anim;
-	t_vec3				player_vel;
 	float				world_brightness;
 	float				skybox_brightness;
 	t_audio				audio;

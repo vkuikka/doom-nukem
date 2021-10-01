@@ -50,7 +50,7 @@ static void	input_uv(t_level *level, const Uint8 *keys)
 	}
 }
 
-static void	player_input(t_level *level, t_player_physics *player)
+static void	player_input(t_level *level, t_player *player)
 {
 	const Uint8	*keys;
 
@@ -139,7 +139,7 @@ static void	noclip(t_level *level, t_vec3 *wishdir, float delta_time)
 	level->cam.pos.y += wishdir->y * delta_time;
 	level->cam.pos.z += wishdir->z * delta_time;
 	level->ui.horizontal_velocity = vec_length(*wishdir);
-	level->player_vel = (t_vec3){0, 0, 0};
+	level->game_logic.player.vel = (t_vec3){0, 0, 0};
 }
 
 static void	rotate_wishdir(t_level *level, t_vec3 *wishdir)
@@ -244,16 +244,16 @@ void	apply_velocity(t_vec3 vel, float h, t_level *level, float delta_time)
 		vec_div(&vel, delta_time);
 		level->ui.horizontal_velocity = sqrt(vel.x * vel.x + vel.z * vel.z);
 	}
-	level->player_vel = vel;
+	level->game_logic.player.vel = vel;
 }
 
 static void	movement_physics(t_level *level, float delta_time,
-								t_player_physics *player)
+								t_player *player)
 {
 	t_vec3	vel;
 	int		in_air;
 
-	vel = level->player_vel;
+	vel = player->vel;
 	in_air = is_player_in_air(level, player->height);
 	vertical_movement(&player->wishdir, &vel, delta_time, in_air);
 	if (in_air || player->wishdir.y)
@@ -266,19 +266,20 @@ static void	movement_physics(t_level *level, float delta_time,
 
 void	player_movement(t_level *level)
 {
-	float				delta_time;
-	t_player_physics	player;
+	float		delta_time;
+	t_player	*player;
 
+	player = &level->game_logic.player;
 	delta_time = level->ui.frame_time / 1000.;
-	player.height = PLAYER_EYE_HEIGHT;
-	player_input(level, &player);
-	rotate_wishdir(level, &player.wishdir);
+	player->height = PLAYER_EYE_HEIGHT;
+	player_input(level, player);
+	rotate_wishdir(level, &player->wishdir);
 	if (level->ui.noclip)
-		return (noclip(level, &player.wishdir, delta_time));
-	movement_physics(level, delta_time, &player);
+		return (noclip(level, &player->wishdir, delta_time));
+	movement_physics(level, delta_time, player);
 	if (level->ui.physics_debug)
 	{
-		level->ui.wishdir.x = player.wishdir.x;
-		level->ui.wishdir.y = player.wishdir.z;
+		level->ui.wishdir.x = player->wishdir.x;
+		level->ui.wishdir.y = player->wishdir.z;
 	}
 }
