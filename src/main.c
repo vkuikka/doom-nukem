@@ -163,6 +163,7 @@ static void	merge_prop(t_level *level, t_obj *obj, t_vec3 pos, t_vec2 rotation)
 	while (k < obj->tri_amount)
 	{
 		level->visible.tris[i] = obj->tris[k];
+		level->visible.tris[i].index = 0;//not real fix (spray visible on wrong index)
 		for (int z = 0; z < 3 + obj->tris[k].isquad; z++)
 		{
 			if (rotation.x)
@@ -284,7 +285,7 @@ int	main(int argc, char **argv)
 	init_ui(window, level);
 	init_audio(level);
 	init_embedded(level);
-	init_player(&level->player);
+	// init_player(&level->player);
 	Mix_PlayMusic(level->audio.title_music, -1);
 	while (!level->level_initialized)
 	{

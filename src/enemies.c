@@ -15,6 +15,11 @@
 void	create_projectile(t_level *level, t_vec3 pos, t_vec3 dir,
 													t_enemy *enemy)
 {
+	(void)level;
+	(void)pos;
+	(void)dir;
+	(void)enemy;
+	/*
 	int	index;
 
 	index = level->all.tri_amount;
@@ -41,12 +46,13 @@ void	create_projectile(t_level *level, t_vec3 pos, t_vec3 dir,
 	level->all.tris[index].projectile->damage = enemy->attack_damage;
 	level->all.tris[index].projectile->speed = enemy->projectile_speed;
 	level->all.tris[index].projectile->dir = dir;
-	level->all.tris[index].isprojectile = 1;
 	level->all.tris[index].verts[0].txtr = enemy->projectile_uv[0];
 	level->all.tris[index].verts[1].txtr = enemy->projectile_uv[1];
 	level->all.tris[index].verts[2].txtr = enemy->projectile_uv[2];
+	*/
 }
 
+/*
 static void	remove_projectile(t_level *level, int remove)
 {
 	t_tri	*new_tris;
@@ -79,62 +85,10 @@ static void	remove_projectile(t_level *level, int remove)
 	init_screen_space_partition(level);
 	init_culling(level);
 }
+*/
 
-static void	calc_vectors(t_tri *tri)
-{
-	tri->v0v1.x = tri->verts[2].pos.x - tri->verts[0].pos.x;
-	tri->v0v1.y = tri->verts[2].pos.y - tri->verts[0].pos.y;
-	tri->v0v1.z = tri->verts[2].pos.z - tri->verts[0].pos.z;
-	tri->v0v2.x = tri->verts[1].pos.x - tri->verts[0].pos.x;
-	tri->v0v2.y = tri->verts[1].pos.y - tri->verts[0].pos.y;
-	tri->v0v2.z = tri->verts[1].pos.z - tri->verts[0].pos.z;
-}
-
-static float	find_angle(t_vec3 v1, t_vec3 v2)
-{
-	float	angle;
-
-	angle = M_PI - vec_angle(v1, v2);
-	if (isnan(angle))
-		return (0);
-	rotate_vertex(M_PI / 2, &v2, 0);
-	if (vec_dot(v1, v2) < 0)
-		angle *= -1;
-	return (angle);
-}
-
-static void	turn_sprite(t_tri *tri, t_vec3 dir)
-{
-	t_vec3	face_mid;
-	t_vec3	rot_vert;
-	t_vec3	normal;
-	float	angle;
-	int		vert;
-
-	vert = 0;
-	vec_cross(&normal, tri->v0v1, tri->v0v2);
-	normal.y = 0;
-	ft_memset(&face_mid, 0, sizeof(int) * 3);
-	while (vert < 3 + tri->isquad)
-		vec_add(&face_mid, face_mid, tri->verts[vert++].pos);
-	vec_div(&face_mid, (float)vert);
-	vec_sub(&rot_vert, dir, face_mid);
-	rot_vert.y = 0;
-	angle = find_angle(normal, rot_vert);
-	if (!angle)
-		return ;
-	while (vert--)
-	{
-		vec_sub(&rot_vert, tri->verts[vert].pos, face_mid);
-		rotate_vertex(angle, &rot_vert, 0);
-		vec_add(&tri->verts[vert].pos, rot_vert, face_mid);
-	}
-	calc_vectors(tri);
-	vec_cross(&tri->normal, tri->v0v2, tri->v0v1);
-	vec_normalize(&tri->normal);
-}
-
-void	move_enemy(t_tri *face, t_level *level, float time)
+/*
+static void	move_enemy(t_tri *face, t_level *level, float time)
 {
 	t_ray	e;
 	float	dist;
@@ -200,7 +154,9 @@ void	move_enemy(t_tri *face, t_level *level, float time)
 		}
 	}
 }
+*/
 
+/*
 static void	move_projectile(t_tri *face, t_level *level, float time)
 {
 	t_ray	e;
@@ -239,9 +195,12 @@ static void	move_projectile(t_tri *face, t_level *level, float time)
 		vec_add(&face->verts[i].pos, face->verts[i].pos, e.dir);
 	face->projectile->dist += vec_length(e.dir);
 }
+*/
 
 void	enemies_update_sprites(t_level *level)
 {
+	(void)level;
+	/*
 	static int	time = 0;
 	int			delta_time;
 	int			face;
@@ -263,4 +222,5 @@ void	enemies_update_sprites(t_level *level)
 		face++;
 	}
 	time = SDL_GetTicks();
+	*/
 }

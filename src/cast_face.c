@@ -23,15 +23,12 @@ float	cast_all(t_ray vec, t_level *level, int *index)
 	i = 0;
 	while (i < level->all.tri_amount)
 	{
-		if (!level->all.tris[i].isprojectile && !level->all.tris[i].isenemy)
+		tmp = cast_face(level->all.tris[i], vec, NULL);
+		if (tmp > 0 && tmp < res)
 		{
-			tmp = cast_face(level->all.tris[i], vec, NULL);
-			if (tmp > 0 && tmp < res)
-			{
-				res = tmp;
-				if (index)
-					*index = i;
-			}
+			res = tmp;
+			if (index)
+				*index = i;
 		}
 		i++;
 	}

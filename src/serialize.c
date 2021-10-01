@@ -175,46 +175,50 @@ void	serialize_vert(t_vert *vert, t_buffer *buf)
 
 void	deserialize_enemy(t_enemy *enemy, t_buffer *buf)
 {
-	int	i;
+	(void)enemy;
+	(void)buf;
+	// int	i;
 
-	i = 0;
-	deserialize_vec3(&enemy->dir, buf);
-	while (i < 3)
-	{
-		deserialize_vec2(&enemy->projectile_uv[i], buf);
-		i++;
-	}
-	deserialize_float(&enemy->move_speed, buf);
-	deserialize_float(&enemy->dist_limit, buf);
-	deserialize_float(&enemy->initial_health, buf);
-	deserialize_float(&enemy->remaining_health, buf);
-	deserialize_float(&enemy->attack_range, buf);
-	deserialize_float(&enemy->attack_frequency, buf);
-	deserialize_float(&enemy->projectile_speed, buf);
-	deserialize_float(&enemy->attack_damage, buf);
-	deserialize_float(&enemy->current_attack_delay, buf);
+	// i = 0;
+	// deserialize_vec3(&enemy->dir, buf);
+	// while (i < 3)
+	// {
+	// 	deserialize_vec2(&enemy->projectile_uv[i], buf);
+	// 	i++;
+	// }
+	// deserialize_float(&enemy->move_speed, buf);
+	// deserialize_float(&enemy->dist_limit, buf);
+	// deserialize_float(&enemy->initial_health, buf);
+	// deserialize_float(&enemy->remaining_health, buf);
+	// deserialize_float(&enemy->attack_range, buf);
+	// deserialize_float(&enemy->attack_frequency, buf);
+	// deserialize_float(&enemy->projectile_speed, buf);
+	// deserialize_float(&enemy->attack_damage, buf);
+	// deserialize_float(&enemy->current_attack_delay, buf);
 }
 
 void	serialize_enemy(t_enemy *enemy, t_buffer *buf)
 {
-	int	i;
+	(void)enemy;
+	(void)buf;
+	// int	i;
 
-	i = 0;
-	serialize_vec3(enemy->dir, buf);
-	while (i < 3)
-	{
-		serialize_vec2(enemy->projectile_uv[i], buf);
-		i++;
-	}
-	serialize_float(enemy->move_speed, buf);
-	serialize_float(enemy->dist_limit, buf);
-	serialize_float(enemy->initial_health, buf);
-	serialize_float(enemy->remaining_health, buf);
-	serialize_float(enemy->attack_range, buf);
-	serialize_float(enemy->attack_frequency, buf);
-	serialize_float(enemy->projectile_speed, buf);
-	serialize_float(enemy->attack_damage, buf);
-	serialize_float(enemy->current_attack_delay, buf);
+	// i = 0;
+	// serialize_vec3(enemy->dir, buf);
+	// while (i < 3)
+	// {
+	// 	serialize_vec2(enemy->projectile_uv[i], buf);
+	// 	i++;
+	// }
+	// serialize_float(enemy->move_speed, buf);
+	// serialize_float(enemy->dist_limit, buf);
+	// serialize_float(enemy->initial_health, buf);
+	// serialize_float(enemy->remaining_health, buf);
+	// serialize_float(enemy->attack_range, buf);
+	// serialize_float(enemy->attack_frequency, buf);
+	// serialize_float(enemy->projectile_speed, buf);
+	// serialize_float(enemy->attack_damage, buf);
+	// serialize_float(enemy->current_attack_delay, buf);
 }
 
 void	deserialize_projectile(t_projectile *projectile, t_buffer *buf)
@@ -298,8 +302,6 @@ void	deserialize_tri(t_tri *tri, t_buffer *buf)
 	deserialize_vec3(&tri->normal, buf);
 	deserialize_int(&tri->isquad, buf);
 	deserialize_int(&tri->isgrid, buf);
-	deserialize_int(&tri->isenemy, buf);
-	deserialize_int(&tri->isprojectile, buf);
 	deserialize_float(&tri->opacity, buf);
 	deserialize_float(&tri->reflectivity, buf);
 	deserialize_float(&tri->refractivity, buf);
@@ -310,20 +312,6 @@ void	deserialize_tri(t_tri *tri, t_buffer *buf)
 		if (!tri->perlin)
 			ft_error("failed to allocate memory for file");
 		deserialize_perlin_settings(tri->perlin, buf);
-	}
-	if (tri->isenemy)
-	{
-		tri->enemy = (t_enemy *)malloc(sizeof(t_enemy));
-		if (!tri->enemy)
-			ft_error("failed to allocate memory for file");
-		deserialize_enemy(tri->enemy, buf);
-	}
-	if (tri->isprojectile)
-	{
-		tri->projectile = (t_projectile *)malloc(sizeof(t_projectile));
-		if (!tri->projectile)
-			ft_error("failed to allocate memory for file");
-		deserialize_projectile(tri->projectile, buf);
 	}
 }
 
@@ -342,18 +330,12 @@ void	serialize_tri(t_tri *tri, t_buffer *buf)
 	serialize_vec3(tri->normal, buf);
 	serialize_int(tri->isquad, buf);
 	serialize_int(tri->isgrid, buf);
-	serialize_int(tri->isenemy, buf);
-	serialize_int(tri->isprojectile, buf);
 	serialize_float(tri->opacity, buf);
 	serialize_float(tri->reflectivity, buf);
 	serialize_float(tri->refractivity, buf);
 	serialize_int((int)tri->shader, buf);
 	if (tri->shader == SHADER_PERLIN)
 		serialize_perlin_settings(tri->perlin, buf);
-	if (tri->isenemy)
-		serialize_enemy(tri->enemy, buf);
-	if (tri->isprojectile)
-		serialize_projectile(tri->projectile, buf);
 }
 
 void	deserialize_obj(t_obj *obj, t_buffer *buf)

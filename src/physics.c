@@ -50,29 +50,29 @@ static void	input_uv(t_level *level, const Uint8 *keys)
 	}
 }
 
-static void	player_input(t_level *level, t_vec3 *wishdir, float *height)
+static void	player_input(t_level *level, t_player_physics *player)
 {
 	const Uint8	*keys;
 
 	keys = SDL_GetKeyboardState(NULL);
-	ft_bzero(wishdir, sizeof(t_vec3));
+	ft_bzero(&player->wishdir, sizeof(t_vec3));
 	if (level->ui.state.text_input_enable)
 		return ;
-	input_player_movement(wishdir, keys);
+	input_player_movement(&player->wishdir, keys);
 	input_uv(level, keys);
 	if (keys[SDL_SCANCODE_SPACE])
-		wishdir->y -= 1;
+		player->wishdir.y -= 1;
 	if (keys[SDL_SCANCODE_LSHIFT] && level->ui.noclip)
-		wishdir->y += 1;
+		player->wishdir.y += 1;
 	if (keys[SDL_SCANCODE_LCTRL] && !level->ui.noclip)
 	{
-		*height = CROUCHED_HEIGHT;
-		level->player.move_speed = CROUCH_SPEED;
+		player->height = CROUCHED_HEIGHT;
+		player->move_speed = CROUCH_SPEED;
 	}
 	else if (keys[SDL_SCANCODE_LSHIFT] && !level->ui.noclip)
-		level->player.move_speed = WALK_SPEED;
+		player->move_speed = WALK_SPEED;
 	else if (!level->ui.noclip)
-		level->player.move_speed = RUN_SPEED;
+		player->move_speed = RUN_SPEED;
 }
 
 // first if player to ground
@@ -247,39 +247,38 @@ void	apply_velocity(t_vec3 vel, float h, t_level *level, float delta_time)
 	level->player_vel = vel;
 }
 
-static void	movement_physics(t_level *level, t_vec3 wishdir,
-					float height, float delta_time)
+static void	movement_physics(t_level *level, float delta_time,
+								t_player_physics *player)
 {
 	t_vec3	vel;
 	int		in_air;
 
 	vel = level->player_vel;
-	in_air = is_player_in_air(level, height);
-	vertical_movement(&wishdir, &vel, delta_time, in_air);
-	if (in_air || wishdir.y)
-		air_movement(&wishdir, &vel, delta_time);
+	in_air = is_player_in_air(level, player->height);
+	vertical_movement(&player->wishdir, &vel, delta_time, in_air);
+	if (in_air || player->wishdir.y)
+		air_movement(&player->wishdir, &vel, delta_time);
 	else
-		horizontal_movement(&wishdir, &vel, delta_time,
-			level->player.move_speed);
-	apply_velocity(vel, height, level, delta_time);
+		horizontal_movement(&player->wishdir, &vel, delta_time,
+			player->move_speed);
+	apply_velocity(vel, player->height, level, delta_time);
 }
 
 void	player_movement(t_level *level)
 {
-	t_vec3	wishdir;
-	float	delta_time;
-	float	height;
+	float				delta_time;
+	t_player_physics	player;
 
-	height = PLAYER_EYE_HEIGHT;
 	delta_time = level->ui.frame_time / 1000.;
-	player_input(level, &wishdir, &height);
-	rotate_wishdir(level, &wishdir);
+	player.height = PLAYER_EYE_HEIGHT;
+	player_input(level, &player);
+	rotate_wishdir(level, &player.wishdir);
 	if (level->ui.noclip)
-		return (noclip(level, &wishdir, delta_time));
-	movement_physics(level, wishdir, height, delta_time);
+		return (noclip(level, &player.wishdir, delta_time));
+	movement_physics(level, delta_time, &player);
 	if (level->ui.physics_debug)
 	{
-		level->ui.wishdir.x = wishdir.x;
-		level->ui.wishdir.y = wishdir.z;
+		level->ui.wishdir.x = player.wishdir.x;
+		level->ui.wishdir.y = player.wishdir.z;
 	}
 }

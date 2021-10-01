@@ -181,10 +181,6 @@ void	remove_tri(t_level *level, int i)
 {
 	int	k;
 
-	if (level->all.tris[i].enemy)
-		free(level->all.tris[i].enemy);
-	if (level->all.tris[i].projectile)
-		free(level->all.tris[i].projectile);
 	k = i - 1;
 	while (++k < level->all.tri_amount - 1)
 	{

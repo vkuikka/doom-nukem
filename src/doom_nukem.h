@@ -300,22 +300,35 @@ typedef struct s_projectile
 	float				damage;
 }						t_projectile;
 
+typedef struct	s_player_physics
+{
+	t_vec3				dir;
+	float				move_speed;
+	float				height;
+	t_vec3				wishdir;
+}						t_player_physics;
+
 // projectile_speed = 0 -> no projectile
 typedef struct s_enemy
 {
+	t_vec3				pos;
 	t_vec3				dir;
-	t_vec2				projectile_uv[3];
+	// t_vec2				projectile_uv[3];
+	float				remaining_health;
+}						t_enemy;
+
+typedef struct s_enemy_settings
+{
 	float				move_speed;
 	float				dist_limit;
 	float				initial_health;
-	float				remaining_health;
 	float				attack_range;
 	float				attack_frequency;
 	float				projectile_speed;
 	float				projectile_scale;
 	float				attack_damage;
 	float				current_attack_delay;
-}						t_enemy;
+}						t_enemy_settings;
 
 // verts = vertex coordinates of 3d triangle
 // v0v1 = vector between vertices 1 and 0
@@ -327,10 +340,6 @@ typedef struct s_tri
 	t_vec3				v0v1;
 	t_vec3				v0v2;
 	t_vec3				normal;
-	int					isenemy;
-	t_enemy				*enemy;
-	int					isprojectile;
-	t_projectile		*projectile;
 	int					isquad;
 	int					isgrid;
 	int					isbreakable;
@@ -619,6 +628,7 @@ typedef struct s_game_logic
 	int					ammo_box_amount;
 	t_vec3				*enemy_spawn_pos;
 	int					enemy_amount;
+	t_enemy_settings	enemy_settings;
 }						t_game_logic;
 
 typedef struct s_camera_path
@@ -654,7 +664,6 @@ typedef struct s_level
 	t_light				*lights;
 	int					light_amount;
 	int					selected_light_index;
-	t_enemy				player;
 	t_bmp				main_menu_title;
 	t_game_models		game_models;
 	t_game_logic		game_logic;
@@ -803,7 +812,7 @@ void			loop_directory(char *directory, void *data,
 
 void			init_enemy(t_tri *face);
 void			init_ui(t_window *window, t_level *level);
-void			init_player(t_enemy *player);
+// void			init_player(t_enemy *player);
 void			init_audio(t_level *level);
 void			ui_render(t_window *window, t_level *level);
 void			set_text_color(int color);
