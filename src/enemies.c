@@ -12,44 +12,32 @@
 
 #include "doom_nukem.h"
 
-void	create_projectile(t_level *level, t_vec3 pos, t_vec3 dir,
-													t_enemy *enemy)
+void	create_projectile(t_game_logic *logic, t_vec3 pos,
+								t_vec3 dir, t_projectile get)
 {
-	(void)level;
-	(void)pos;
-	(void)dir;
-	(void)enemy;
-	/*
-	int	index;
+	int prev_amount;
+	int	i;
 
-	index = level->all.tri_amount;
-	free_culling(level);
-	level->all.tri_amount++;
-	level->all.tris = (t_tri *)ft_realloc(level->all.tris,
-			sizeof(t_tri) * (level->all.tri_amount - 1),
-			sizeof(t_tri) * level->all.tri_amount);
-	if (!level->all.tris)
-		ft_error("memory allocation failed");
-	level->visible.tris = (t_tri *)ft_realloc(level->visible.tris,
-			sizeof(t_tri) * (level->all.tri_amount - 1),
-			sizeof(t_tri) * level->all.tri_amount);
-	if (!level->visible.tris)
-		ft_error("memory allocation failed");
-	set_new_face(level, pos, dir, enemy->projectile_scale);
-	init_screen_space_partition(level);
-	init_culling(level);
-	level->all.tris[index].projectile
-		= (t_projectile *)malloc(sizeof(t_projectile));
-	if (!level->all.tris[index].projectile)
-		ft_error("memory allocation failed");
-	level->all.tris[index].projectile->dist = enemy->attack_range;
-	level->all.tris[index].projectile->damage = enemy->attack_damage;
-	level->all.tris[index].projectile->speed = enemy->projectile_speed;
-	level->all.tris[index].projectile->dir = dir;
-	level->all.tris[index].verts[0].txtr = enemy->projectile_uv[0];
-	level->all.tris[index].verts[1].txtr = enemy->projectile_uv[1];
-	level->all.tris[index].verts[2].txtr = enemy->projectile_uv[2];
-	*/
+	if (logic->projectile_amount + 1 <= logic->projectile_max)
+	{
+		prev_amount = logic->projectile_max;
+		if (!logic->projectile_max)
+			logic->projectile_max = 10;
+		else
+			logic->projectile_max *= 1.5;
+		logic->projectiles = (t_projectile *)ft_realloc(logic->projectiles,
+				sizeof(t_projectile) * prev_amount,
+				sizeof(t_projectile) * logic->projectile_max);
+		if (!logic->projectiles)
+			ft_error("memory allocation failed");
+	}
+	i = logic->projectile_amount;
+	logic->projectiles[i].pos = pos;
+	logic->projectiles[i].dir = dir;
+	logic->projectiles[i].damage = get.damage;
+	logic->projectiles[i].speed = get.speed;
+	logic->projectiles[i].dist = get.dist;
+	logic->projectile_amount++;
 }
 
 /*

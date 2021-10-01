@@ -56,56 +56,56 @@ void	copy_tri_settings(t_tri *a, t_tri *b)
 	a->refractivity = b->refractivity;
 	a->disable_distance_culling = b->disable_distance_culling;
 	a->disable_backface_culling = b->disable_backface_culling;
-	// if (a->enemy && b->enemy)
-	// {
-	// 	a->enemy->attack_damage = b->enemy->attack_damage;
-	// 	a->enemy->attack_frequency = b->enemy->attack_frequency;
-	// 	a->enemy->attack_range = b->enemy->attack_range;
-	// 	a->enemy->dist_limit = b->enemy->dist_limit;
-	// 	a->enemy->initial_health = b->enemy->initial_health;
-	// 	a->enemy->move_speed = b->enemy->move_speed;
-	// 	a->enemy->projectile_speed = b->enemy->projectile_speed;
-	// 	a->enemy->projectile_scale = b->enemy->projectile_scale;
-	// 	a->enemy->projectile_uv[0] = b->enemy->projectile_uv[0];
-	// 	a->enemy->projectile_uv[1] = b->enemy->projectile_uv[1];
-	// 	a->enemy->projectile_uv[2] = b->enemy->projectile_uv[2];
-	// }
 }
 
-static void	ui_config_enemy_projectile_settings(t_enemy_settings *enemy)
+static void	ui_config_projectile_settings(t_projectile *projectile)
 {
 	char	buf[100];
 
 	sprintf(buf,
 		"projectile speed: %.1fm/s (0 = no projectile)",
-		enemy->projectile_speed);
-	float_slider(&enemy->projectile_speed, buf, 0, 50);
-	sprintf(buf, "projectile scale: %.2f",
-		enemy->projectile_scale);
-	float_slider(&enemy->projectile_scale,
-		buf, 0.1, 5);
+		projectile->speed);
+	float_slider(&projectile->speed, buf, 0, 50);
+	// sprintf(buf, "projectile scale: %.2f",
+	// 	projectile.scale);
+	// float_slider(&projectile.scale,
+		// buf, 0.1, 5);
+	sprintf(buf, "distance limit: %.1fm",
+		projectile->dist);
+	float_slider(&projectile->dist, buf, 1, 10);
+	sprintf(buf, "attack damage: %.1f",
+		projectile->damage);
+	float_slider(&projectile->damage, buf, 0, 50);
 }
 
 static void	ui_config_enemy_settings(t_enemy_settings *enemy)
 {
 	char	buf[100];
 
-	sprintf(buf, "distance limit: %.1fm",
-		enemy->dist_limit);
-	float_slider(&enemy->dist_limit, buf, 1, 10);
 	sprintf(buf, "move speed: %.1fm/s",
 		enemy->move_speed);
 	float_slider(&enemy->move_speed, buf, 0, 10);
 	sprintf(buf, "attack frequency: %.2f seconds per attack",
 		enemy->attack_frequency);
 	float_slider(&enemy->attack_frequency, buf, 0, 5);
-	sprintf(buf, "attack damage: %.1f",
-		enemy->attack_damage);
-	float_slider(&enemy->attack_damage, buf, 0, 50);
 	sprintf(buf, "attack range: %.1fm",
 		enemy->attack_range);
 	float_slider(&enemy->attack_range, buf, 0, 10);
-	ui_config_enemy_projectile_settings(enemy);
+}
+
+void	ui_enemy_and_damage_settings(t_level *level)
+{
+	if (call("close", NULL))
+		level->ui.state.ui_location = UI_LOCATION_GAME_SETTINGS;
+	set_text_color(UI_INFO_TEXT_COLOR);
+	text("enemy settings");
+	ui_config_enemy_settings(&level->game_logic.enemy_settings);
+	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
+	text("enemy projectile settings");
+	ui_config_projectile_settings(&level->game_logic.enemy_projectile_settings);
+	set_text_color(UI_LEVEL_BAKED_COLOR);
+	text("player projectile settings");
+	ui_config_projectile_settings(&level->game_logic.player_projectile_settings);
 }
 
 static void	ui_config_face_perlin_settings(t_perlin_settings *p)
@@ -627,10 +627,12 @@ void	ui_game_settings(t_level *level)
 	int_slider((int *)&level->main_menu_anim.duration, buf, 2, 50);
 	// float_slider(&level->player.projectile_scale,
 	// 	"Player projectile scale: ", 0, 1.5);
+	if (call("enemy and damage settings", NULL))
+		level->ui.state.ui_location
+			= UI_LOCATION_ENEMY_AND_DAMAGE_SETTINGS;
 	call("add enemy spawn", &add_enemy_spawn_pos);
 	call("add ammo box", &add_ammo_box);
 	call("add health box", &add_health_box);
-	ui_config_enemy_settings(&level->game_logic.enemy_settings);
 	ui_game_settings_delete_selected(level);
 	float_slider(&level->game_logic.item_spin_speed, "item spin speed", 0, 0.1);
 	int_slider(&level->game_logic.enemy_animation_view_index, "view enemy animation", -1, 3);
@@ -777,6 +779,9 @@ int	editor_select(t_level *level)
 		ui_light_editor(level);
 	else if (level->ui.state.ui_location == UI_LOCATION_GAME_SETTINGS)
 		ui_game_settings(level);
+	else if (level->ui.state.ui_location
+		== UI_LOCATION_ENEMY_AND_DAMAGE_SETTINGS)
+		ui_enemy_and_damage_settings(level);
 	else if (level->ui.state.ui_location == UI_LOCATION_SHADER_EDITOR)
 		ui_shader_settings(level);
 	else

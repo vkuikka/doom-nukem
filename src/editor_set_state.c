@@ -24,13 +24,9 @@ void	set_obj(t_level *level, char *filename)
 	delete_all_lights(level);
 	free_culling(level);
 	free(level->all.tris);
-	free(level->visible.tris);
 	level->all = tmp;
-	level->visible.tris
-		= (t_tri *)malloc(sizeof(t_tri) * level->all.tri_amount);
 	if (!level->visible.tris)
 		ft_error("memory allocation failed\n");
-	init_screen_space_partition(level);
 	init_culling(level);
 }
 

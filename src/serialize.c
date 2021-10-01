@@ -626,7 +626,6 @@ void	deserialize_level(t_level *level, t_buffer *buf)
 	}
 	free_culling(level);
 	free(level->all.tris);
-	free(level->visible.tris);
 	deserialize_obj(&level->all, buf);
 	deserialize_doors(level, buf);
 	deserialize_lights(level, buf);
@@ -671,11 +670,8 @@ void	deserialize_level(t_level *level, t_buffer *buf)
 	i = -1;
 	while (++i < level->main_menu_anim.amount)
 		deserialize_player_pos(&level->main_menu_anim.pos[i], buf);
-	level->visible.tris = (t_tri *)malloc(sizeof(t_tri)
-			* level->all.tri_amount);
 	if (!level->visible.tris)
 		ft_error("memory allocation failed\n");
-	init_screen_space_partition(level);
 	init_culling(level);
 	level->level_initialized = TRUE;
 }

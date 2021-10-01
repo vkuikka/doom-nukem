@@ -292,36 +292,6 @@ typedef struct s_obj
 	t_bmp				texture;
 }						t_obj;
 
-typedef struct s_projectile
-{
-	t_vec3				dir;
-	float				speed;
-	float				dist;
-	float				damage;
-}						t_projectile;
-
-// projectile_speed = 0 -> no projectile
-typedef struct s_enemy
-{
-	t_vec3				pos;
-	t_vec3				dir;
-	// t_vec2				projectile_uv[3];
-	float				remaining_health;
-}						t_enemy;
-
-typedef struct s_enemy_settings
-{
-	float				move_speed;
-	float				dist_limit;
-	float				initial_health;
-	float				attack_range;
-	float				attack_frequency;
-	float				projectile_speed;
-	float				projectile_scale;
-	float				attack_damage;
-	float				current_attack_delay;
-}						t_enemy_settings;
-
 // verts = vertex coordinates of 3d triangle
 // v0v1 = vector between vertices 1 and 0
 // v0v2 = vector between vertices 2 and 0
@@ -463,7 +433,8 @@ typedef enum e_ui_location
 	UI_LOCATION_DOOR_ACTIVATION_BUTTON,
 	UI_LOCATION_LIGHT_EDITOR,
 	UI_LOCATION_SHADER_EDITOR,
-	UI_LOCATION_GAME_SETTINGS
+	UI_LOCATION_GAME_SETTINGS,
+	UI_LOCATION_ENEMY_AND_DAMAGE_SETTINGS
 }						t_ui_location;
 
 struct	s_level;
@@ -609,6 +580,32 @@ typedef struct	s_player
 	int					ammo;
 }						t_player;
 
+typedef struct s_enemy
+{
+	t_vec3				pos;
+	t_vec3				dir;
+	float				dir_rad;
+	float				remaining_health;
+	float				current_attack_delay;
+}						t_enemy;
+
+typedef struct s_enemy_settings
+{
+	float				move_speed;
+	float				initial_health;
+	float				attack_range;
+	float				attack_frequency;
+}						t_enemy_settings;
+
+typedef struct s_projectile
+{
+	t_vec3				dir;
+	t_vec3				pos;
+	float				speed;
+	float				dist;
+	float				damage;
+}						t_projectile;
+
 typedef struct s_game_logic
 {
 	t_player_pos		spawn_pos;
@@ -624,13 +621,22 @@ typedef struct s_game_logic
 	int					enemy_animation_view_index;
 	float				anim_duration_multiplier;
 
+	t_projectile		*projectiles;
+	int					projectile_amount;
+	int					projectile_max;
+	t_projectile		enemy_projectile_settings;
+	t_projectile		player_projectile_settings;
+
+	t_enemy_settings	enemy_settings;
+	t_enemy				*enemies;
+	int					alive_enemy_amount;
+
 	t_item_pickup		*health_box;
 	int					health_box_amount;
 	t_item_pickup		*ammo_box;
 	int					ammo_box_amount;
 	t_vec3				*enemy_spawn_pos;
 	int					enemy_amount;
-	t_enemy_settings	enemy_settings;
 }						t_game_logic;
 
 typedef struct s_camera_path
@@ -846,8 +852,8 @@ void			fake_analog_signal(t_bmp *img, unsigned int *pixels,
 					float amount);
 void			chromatic_abberation(unsigned int *pixels,
 					unsigned int *buf, int amount);
-void			create_projectile(t_level *level, t_vec3 pos,
-					t_vec3 dir, t_enemy *enemy);
+void			create_projectile(t_game_logic *logic, t_vec3 pos,
+								t_vec3 dir, t_projectile get);
 
 int				load_animation(char *get_filename, t_obj_animation *animation,
 					int amount);
