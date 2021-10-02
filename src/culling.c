@@ -433,6 +433,7 @@ void	cull_visible(t_level *l, t_vec3 side_normals[4])
 	int	i;
 
 	l->visible.tri_amount = 0;
+	visible_request_merge(l, l->all.tri_amount);
 	i = -1;
 	while (++i < l->all.tri_amount)
 	{

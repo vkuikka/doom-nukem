@@ -40,40 +40,15 @@ void	create_projectile(t_game_logic *logic, t_vec3 pos,
 	logic->projectile_amount++;
 }
 
-/*
-static void	remove_projectile(t_level *level, int remove)
+static void	remove_projectile(t_game_logic *logic, int i)
 {
-	t_tri	*new_tris;
-	int		i;
-
-	free_culling(level);
-	level->all.tri_amount--;
-	new_tris = (t_tri *)malloc(sizeof(t_tri) * level->all.tri_amount);
-	if (!new_tris)
-		ft_error("memory allocation failed");
-	level->visible.tris = (t_tri *)ft_realloc(level->visible.tris,
-			sizeof(t_tri) * level->all.tri_amount - 1,
-			sizeof(t_tri) * level->all.tri_amount);
-	if (!level->visible.tris)
-		ft_error("memory allocation failed");
-	free(level->all.tris[remove].projectile);
-	i = -1;
-	while (++i < level->all.tri_amount)
+	while (i < logic->projectile_amount - 1)
 	{
-		if (i < remove)
-			new_tris[i] = level->all.tris[i];
-		else
-		{
-			new_tris[i] = level->all.tris[i + 1];
-			new_tris[i].index = i;
-		}
+		logic->projectiles[i] = logic->projectiles[i + 1];
+		i++;
 	}
-	free(level->all.tris);
-	level->all.tris = new_tris;
-	init_screen_space_partition(level);
-	init_culling(level);
+	logic->projectile_amount--;
 }
-*/
 
 /*
 static void	move_enemy(t_tri *face, t_level *level, float time)
@@ -144,76 +119,55 @@ static void	move_enemy(t_tri *face, t_level *level, float time)
 }
 */
 
-/*
-static void	move_projectile(t_tri *face, t_level *level, float time)
+static int	projectile_collision(t_projectile *projectile, t_level *level, float time)
 {
-	t_ray	e;
-	float	dist;
-	t_vec3	player;
-	int		i;
 	int		hit_index;
+	float	dist;
+	t_ray	e;
 
-	player = level->cam.pos;
-	e.pos = face->verts[0].pos;
-	vec_add(&e.pos, e.pos, face->verts[1].pos);
-	vec_add(&e.pos, e.pos, face->verts[2].pos);
-	vec_div(&e.pos, 3);
-	vec_sub(&e.dir, player, e.pos);
-	if (vec_length(e.dir) <= PROJECTILE_DAMAGE_DIST && face->projectile->damage > 0)
+	e.pos = projectile->pos;
+	vec_sub(&e.dir, level->cam.pos, e.pos);
+	if (vec_length(e.dir) <= PROJECTILE_DAMAGE_DIST && projectile->damage > 0)
 	{
-		vec_mult(&level->player_vel, 0);
-		level->game_logic.player_health -= face->projectile->damage;
-		remove_projectile(level, face->index);
-		return ;
+		vec_mult(&level->game_logic.player.vel, 0.5);
+		level->game_logic.player.health -= projectile->damage;
+		return (TRUE);
 	}
-	e.dir = face->projectile->dir;
+	e.dir = projectile->dir;
 	dist = cast_all(e, level, &hit_index);
-	vec_mult(&e.dir, face->projectile->speed * time);
+	vec_mult(&e.dir, projectile->speed * time);
 	if (dist <= vec_length(e.dir)
-		|| face->projectile->dist > MAX_PROJECTILE_TRAVEL)
+		|| projectile->dist > MAX_PROJECTILE_TRAVEL)
 	{
-		if (dist <= vec_length(e.dir) && hit_index > 0 && level->all.tris[hit_index].isbreakable)
-			remove_projectile(level, hit_index);
-		else
-			remove_projectile(level, face->index);
-		return;
+		// if (dist <= vec_length(e.dir) && hit_index > 0 && level->all.tris[hit_index].isbreakable)
+			return (TRUE);
+		// else
+		// 	remove_projectile(level, index);
+		// return;
 	}
-	i = -1;
-	while (++i < 3 + face->isquad)
-		vec_add(&face->verts[i].pos, face->verts[i].pos, e.dir);
-	face->projectile->dist += vec_length(e.dir);
+	return (FALSE);
 }
-*/
 
 void	enemies_update_sprites(t_level *level)
 {
-	// static int	time = 0;
-	// int			delta_time;
-	float			time;
+	t_vec3			move_amount;
 	t_projectile	*proj;
+	float			time;
 	int				i;
 
 	i = 0;
 	time = level->ui.frame_time / 1000.0;
 	while (i < level->game_logic.projectile_amount)
 	{
-	// 	merge_sprite(level, level->game_logic.projectiles[i].pos, &level->game_models.light_sprite);
-		// if (level->all.tris[face].isenemy)
-		// {
-		// 	turn_sprite(&level->all.tris[face], level->cam.pos);
-		// 	move_enemy(&level->all.tris[face], level, delta_time / 1000.0);
-		// }
-		// else if (level->all.tris[face].isprojectile)
-		// {
-		// 	turn_sprite(&level->all.tris[face], level->cam.pos);
-		// 	move_projectile(&level->all.tris[face], level, delta_time / 1000.0);
-		// }
 		proj = &level->game_logic.projectiles[i];
-		t_vec3	move_amount;
-		move_amount = proj->dir;
-		vec_mult(&move_amount, proj->speed * time);
-		vec_add(&proj->pos, proj->pos, move_amount);
+		if (projectile_collision(proj, level, time))
+			remove_projectile(&level->game_logic, i);
+		else
+		{
+			move_amount = proj->dir;
+			vec_mult(&move_amount, proj->speed * time);
+			vec_add(&proj->pos, proj->pos, move_amount);
+		}
 		i++;
 	}
-	// time = SDL_GetTicks();
 }

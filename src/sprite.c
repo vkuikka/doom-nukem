@@ -72,7 +72,6 @@ void	merge_sprite(t_level *level, t_vec3 pos, t_bmp *texture)
 
 	visible_request_merge(level, 1);
 	i = level->visible.tri_amount;
-	(void)pos;
 	set_new_face(&level->visible.tris[i], pos, (t_vec3){0, 0, 0}, .1);
 	level->visible.tris[i].isquad = TRUE;
 	turn_sprite(&level->visible.tris[i], level->cam.pos);
