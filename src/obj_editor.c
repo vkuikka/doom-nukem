@@ -119,43 +119,44 @@ void	obj_editor_input(t_level *level, t_vec3 move_amount)
 		obj_editor_input_move(level, move_amount, avg, selected_vert_amount);
 }
 
-void	set_new_face_pos(t_obj *obj, int i, t_vec3 avg, float scale)
+void	set_new_face_pos(t_tri *tri, t_vec3 avg, float scale)
 {
-	obj->tris[i].verts[0].txtr.x = .5;
-	obj->tris[i].verts[0].txtr.y = 0.;
-	obj->tris[i].verts[1].txtr.x = 0.;
-	obj->tris[i].verts[1].txtr.y = 1.;
-	obj->tris[i].verts[2].txtr.x = 1.;
-	obj->tris[i].verts[2].txtr.y = 1.;
-	obj->tris[i].verts[0].pos = avg;
-	obj->tris[i].verts[1].pos = avg;
-	obj->tris[i].verts[2].pos = avg;
-	obj->tris[i].verts[0].pos.y -= 2 * scale;
-	obj->tris[i].verts[1].pos.y += 2 * scale;
-	obj->tris[i].verts[2].pos.y += 2 * scale;
-	obj->tris[i].verts[1].pos.x -= 2 * scale;
-	obj->tris[i].verts[2].pos.x += 2 * scale;
+	tri->verts[0].txtr.x = 0.;
+	tri->verts[0].txtr.y = 0.;
+	tri->verts[1].txtr.x = 0.;
+	tri->verts[1].txtr.y = 1.;
+	tri->verts[2].txtr.x = 1.;
+	tri->verts[2].txtr.y = 0.;
+	tri->verts[3].txtr.x = 1.;
+	tri->verts[3].txtr.y = 1.;
+	tri->verts[0].pos = avg;
+	tri->verts[1].pos = avg;
+	tri->verts[2].pos = avg;
+	tri->verts[3].pos = avg;
+	tri->verts[0].pos.x -= 2 * scale;
+	tri->verts[0].pos.y += 2 * scale;
+	tri->verts[1].pos.x -= 2 * scale;
+	tri->verts[1].pos.y -= 2 * scale;
+	tri->verts[2].pos.x += 2 * scale;
+	tri->verts[2].pos.y += 2 * scale;
+	tri->verts[3].pos.x += 2 * scale;
+	tri->verts[3].pos.y -= 2 * scale;
 }
 
-void	set_new_face(t_level *level, t_vec3 pos, t_vec3 dir, float scale)
+void	set_new_face(t_tri *tri, t_vec3 pos, t_vec3 dir, float scale)
 {
-	int		i;
 	t_vec3	tri_avg;
 
-	i = level->all.tri_amount - 1;
-	ft_bzero(&level->all.tris[i], sizeof(t_tri));
-	level->all.tris[i].index = i;
+	ft_bzero(tri, sizeof(t_tri));
 	tri_avg = dir;
+	tri->isquad = TRUE;
 	vec_mult(&tri_avg, 2);
 	vec_add(&tri_avg, pos, tri_avg);
-	set_new_face_pos(&level->all, i, tri_avg, scale);
-	vec_sub(&level->all.tris[i].v0v2,
-		level->all.tris[i].verts[1].pos, level->all.tris[i].verts[0].pos);
-	vec_sub(&level->all.tris[i].v0v1,
-		level->all.tris[i].verts[2].pos, level->all.tris[i].verts[0].pos);
-	vec_cross(&level->all.tris[i].normal,
-		level->all.tris[i].v0v2, level->all.tris[i].v0v1);
-	vec_normalize(&level->all.tris[i].normal);
+	set_new_face_pos(tri, tri_avg, scale);
+	vec_sub(&tri->v0v2, tri->verts[1].pos, tri->verts[0].pos);
+	vec_sub(&tri->v0v1, tri->verts[2].pos, tri->verts[0].pos);
+	vec_cross(&tri->normal, tri->v0v2, tri->v0v1);
+	vec_normalize(&tri->normal);
 }
 
 void	add_face(t_level *level)
@@ -172,7 +173,8 @@ void	add_face(t_level *level)
 			sizeof(t_tri) * level->all.tri_amount);
 	if (!level->visible.tris)
 		ft_error("memory allocation failed");
-	set_new_face(level, level->cam.pos, level->cam.front, 1);
+	set_new_face(&level->all.tris[level->all.tri_amount - 1], level->cam.pos, level->cam.front, 1);
+	level->all.tris[level->all.tri_amount - 1].index = level->all.tri_amount - 1;
 	init_screen_space_partition(level);
 	init_culling(level);
 }

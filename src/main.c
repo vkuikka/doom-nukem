@@ -141,23 +141,33 @@ static void	tick_forward(t_level *level, t_game_state *game_state)
 	enemies_update_sprites(level);
 }
 
+void	visible_request_merge(t_level *level, int amount)
+{
+	int	prev_amount;
+
+	if (!level->visible_max)
+		level->visible_max = 100;
+	if (amount + level->visible.tri_amount
+		>= level->visible_max)
+	{
+		prev_amount = level->visible_max;
+		while (amount + level->visible.tri_amount
+			>= level->visible_max)
+			level->visible_max *= 1.5;
+		level->visible.tris = (t_tri *)ft_realloc(level->visible.tris,
+				sizeof(t_tri) * prev_amount,
+				sizeof(t_tri) * level->visible_max);
+		if (!level->visible.tris)
+			ft_error("memory allocation failed");
+	}
+}
+
 static void	merge_prop(t_level *level, t_obj *obj, t_vec3 pos, t_vec2 rotation)
 {
 	int	i;
 	int	k;
 
-	if (!level->visible_max)
-		level->visible_max = level->all.tri_amount;
-	if (obj->tri_amount + level->visible.tri_amount
-		>= level->visible_max)
-	{
-		level->visible.tris = (t_tri *)ft_realloc(level->visible.tris,
-				sizeof(t_tri) * level->visible_max,
-				sizeof(t_tri) * (int)(level->visible_max * 1.5));
-		level->visible_max *= 1.5;
-		if (!level->visible.tris)
-			ft_error("memory allocation failed");
-	}
+	visible_request_merge(level, obj->tri_amount);
 	k = 0;
 	i = level->visible.tri_amount;
 	while (k < obj->tri_amount)
@@ -224,6 +234,10 @@ static void	merge_game_models(t_level *level, t_game_state game_state)
 			merge_prop(level, &level->game_models.enemy,
 				level->game_logic.enemy_spawn_pos[i], (t_vec2){0, rot + (M_PI / 3 * i)});
 	}
+
+	i = -1;
+	while (++i < level->game_logic.projectile_amount)
+		merge_sprite(level, level->game_logic.projectiles[i].pos, &level->game_models.light_sprite);
 }
 
 static void	viewmodel(t_window *window, t_level *level, t_game_state *game_state)

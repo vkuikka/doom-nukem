@@ -18,7 +18,7 @@ void	create_projectile(t_game_logic *logic, t_vec3 pos,
 	int prev_amount;
 	int	i;
 
-	if (logic->projectile_amount + 1 <= logic->projectile_max)
+	if (logic->projectile_amount + 1 >= logic->projectile_max)
 	{
 		prev_amount = logic->projectile_max;
 		if (!logic->projectile_max)
@@ -187,28 +187,33 @@ static void	move_projectile(t_tri *face, t_level *level, float time)
 
 void	enemies_update_sprites(t_level *level)
 {
-	(void)level;
-	/*
-	static int	time = 0;
-	int			delta_time;
-	int			face;
+	// static int	time = 0;
+	// int			delta_time;
+	float			time;
+	t_projectile	*proj;
+	int				i;
 
-	face = 0;
-	delta_time = SDL_GetTicks() - time;
-	while (face < level->all.tri_amount)
+	i = 0;
+	time = level->ui.frame_time / 1000.0;
+	while (i < level->game_logic.projectile_amount)
 	{
-		if (level->all.tris[face].isenemy)
-		{
-			turn_sprite(&level->all.tris[face], level->cam.pos);
-			move_enemy(&level->all.tris[face], level, delta_time / 1000.0);
-		}
-		else if (level->all.tris[face].isprojectile)
-		{
-			turn_sprite(&level->all.tris[face], level->cam.pos);
-			move_projectile(&level->all.tris[face], level, delta_time / 1000.0);
-		}
-		face++;
+	// 	merge_sprite(level, level->game_logic.projectiles[i].pos, &level->game_models.light_sprite);
+		// if (level->all.tris[face].isenemy)
+		// {
+		// 	turn_sprite(&level->all.tris[face], level->cam.pos);
+		// 	move_enemy(&level->all.tris[face], level, delta_time / 1000.0);
+		// }
+		// else if (level->all.tris[face].isprojectile)
+		// {
+		// 	turn_sprite(&level->all.tris[face], level->cam.pos);
+		// 	move_projectile(&level->all.tris[face], level, delta_time / 1000.0);
+		// }
+		proj = &level->game_logic.projectiles[i];
+		t_vec3	move_amount;
+		move_amount = proj->dir;
+		vec_mult(&move_amount, proj->speed * time);
+		vec_add(&proj->pos, proj->pos, move_amount);
+		i++;
 	}
-	time = SDL_GetTicks();
-	*/
+	// time = SDL_GetTicks();
 }

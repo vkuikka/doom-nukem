@@ -35,7 +35,7 @@ static float	find_angle(t_vec3 v1, t_vec3 v2)
 	return (angle);
 }
 
-void	turn_sprite(t_tri *tri, t_vec3 dir)
+static void	turn_sprite(t_tri *tri, t_vec3 look_at)
 {
 	t_vec3	face_mid;
 	t_vec3	rot_vert;
@@ -50,7 +50,7 @@ void	turn_sprite(t_tri *tri, t_vec3 dir)
 	while (vert < 3 + tri->isquad)
 		vec_add(&face_mid, face_mid, tri->verts[vert++].pos);
 	vec_div(&face_mid, (float)vert);
-	vec_sub(&rot_vert, dir, face_mid);
+	vec_sub(&rot_vert, look_at, face_mid);
 	rot_vert.y = 0;
 	angle = find_angle(normal, rot_vert);
 	if (!angle)
@@ -64,4 +64,18 @@ void	turn_sprite(t_tri *tri, t_vec3 dir)
 	calc_vectors(tri);
 	vec_cross(&tri->normal, tri->v0v2, tri->v0v1);
 	vec_normalize(&tri->normal);
+}
+
+void	merge_sprite(t_level *level, t_vec3 pos, t_bmp *texture)
+{
+	int	i;
+
+	visible_request_merge(level, 1);
+	i = level->visible.tri_amount;
+	(void)pos;
+	set_new_face(&level->visible.tris[i], pos, (t_vec3){0, 0, 0}, .1);
+	level->visible.tris[i].isquad = TRUE;
+	turn_sprite(&level->visible.tris[i], level->cam.pos);
+	level->visible.tris[i].texture = texture;
+	level->visible.tri_amount++;
 }

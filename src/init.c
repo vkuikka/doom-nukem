@@ -87,6 +87,8 @@ void	init_embedded(t_level *level)
 		= bmp_read_from_memory(&embed_health_pickup_texture_bmp[0], embed_health_pickup_texture_bmp_len);
 	level->game_models.enemy.texture = bmp_read("embed/enemy_texture.bmp");
 	level->game_models.viewmodel.texture = bmp_read("embed/viewmodel/viewmodel_texture.bmp");
+	level->game_models.light_sprite = bmp_read("embed/light_sprite.bmp");
+	// level->game_models.light_sprite = bmp_read("embed/spray.bmp");
 }
 
 static void	level_default_settings(t_level *level)
@@ -120,7 +122,7 @@ void	create_default_level(t_level *level)
 	level->bake_status = BAKE_NOT_BAKED;
 	level->normal_map = bmp_read("normal.bmp");
 	level->sky.img = bmp_read("skybox.bmp");
-	level->spray = bmp_read("spray.bmp");
+	level->spray = bmp_read("embed/spray.bmp");
 	load_obj("level/cache.obj", &level->all);
 	level->visible.tris
 		= (t_tri *)malloc(sizeof(t_tri) * level->all.tri_amount);

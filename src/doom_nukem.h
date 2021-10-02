@@ -560,6 +560,7 @@ typedef struct s_game_models
 	t_obj				viewmodel;
 	t_obj_animation		reload_animation;
 	t_bmp				projectile_texture;
+	t_bmp				light_sprite;
 }						t_game_models;
 
 typedef struct s_item_pickup
@@ -908,7 +909,7 @@ void			add_face(t_level *level);
 void			remove_faces(t_level *level);
 t_ivec2			put_text(char *text, t_window *window,
 					SDL_Texture *texture, t_ivec2 pos);
-void			set_new_face(t_level *level, t_vec3 pos, t_vec3 dir,
+void			set_new_face(t_tri *tri, t_vec3 pos, t_vec3 dir,
 					float scale);
 
 void			game_logic(t_level *level, t_game_state *game_state);
@@ -949,6 +950,10 @@ t_vec3			get_normal(int vec);
 void			handle_audio(t_level *level, t_game_state *game_state);
 int				is_player_in_air(t_level *level, float height);
 void			spray(t_camera cam, t_level *level);
+
+void			visible_request_merge(t_level *level, int amount);
+void			merge_sprite(t_level *level, t_vec3 pos, t_bmp *texture);
+
 void			set_obj(t_level *level, char *filename);
 void			set_texture(t_level *level, char *filename);
 void			set_normal_map(t_level *level, char *filename);
