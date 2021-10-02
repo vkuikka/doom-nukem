@@ -655,12 +655,12 @@ void	deserialize_level(t_level *level, t_buffer *buf)
 		level->game_logic.ammo_box[i].visible = 1;
 	}
 	deserialize_int(&level->game_logic.enemy_amount, buf);
-	level->game_logic.enemy_spawn_pos = (t_vec3 *)malloc(sizeof(t_vec3) * level->game_logic.enemy_amount);
-	if (!level->game_logic.enemy_spawn_pos)
+	level->game_logic.enemies = (t_enemy *)malloc(sizeof(t_enemy) * level->game_logic.enemy_amount);
+	if (!level->game_logic.enemies)
 		ft_error("memory allocation failed\n");
 	i = -1;
 	while (++i < level->game_logic.enemy_amount)
-		deserialize_vec3(&level->game_logic.enemy_spawn_pos[i], buf);
+		deserialize_vec3(&level->game_logic.enemies[i].spawn_pos, buf);
 	deserialize_int(&level->main_menu_anim.amount, buf);
 	deserialize_int((int *)&level->main_menu_anim.duration, buf);
 	deserialize_int(&level->main_menu_anim.loop, buf);
@@ -709,7 +709,7 @@ void	serialize_level(t_level *level, t_buffer *buf)
 	serialize_int(level->game_logic.enemy_amount, buf);
 	i = -1;
 	while (++i < level->game_logic.enemy_amount)
-		serialize_vec3(level->game_logic.enemy_spawn_pos[i], buf);
+		serialize_vec3(level->game_logic.enemies[i].spawn_pos, buf);
 	serialize_int(level->main_menu_anim.amount, buf);
 	serialize_int(level->main_menu_anim.duration, buf);
 	serialize_int(level->main_menu_anim.loop, buf);

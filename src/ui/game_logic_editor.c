@@ -142,14 +142,14 @@ void	delete_enemy_spawn_pos(t_level *level)
 	i = level->ui.state.logic_selected_index;
 	while (i < amount - 1)
 	{
-		level->game_logic.enemy_spawn_pos[i]
-			= level->game_logic.enemy_spawn_pos[i + 1];
+		level->game_logic.enemies[i].spawn_pos
+			= level->game_logic.enemies[i + 1].spawn_pos;
 		i++;
 	}
-	level->game_logic.enemy_spawn_pos
-		= (t_vec3 *)ft_realloc(level->game_logic.enemy_spawn_pos,
-			sizeof(t_vec3) * amount, sizeof(t_vec3) * (amount - 1));
-	if (!level->game_logic.enemy_spawn_pos)
+	level->game_logic.enemies
+		= (t_enemy *)ft_realloc(level->game_logic.enemies,
+			sizeof(t_enemy) * amount, sizeof(t_enemy) * (amount - 1));
+	if (!level->game_logic.enemies)
 		ft_error("memory allocation failed");
 	level->game_logic.enemy_amount--;
 	level->ui.state.logic_selected = GAME_LOGIC_SELECTED_NONE;
@@ -160,14 +160,14 @@ void	add_enemy_spawn_pos(t_level *level)
 	int	amount;
 
 	amount = level->game_logic.enemy_amount;
-	level->game_logic.enemy_spawn_pos
-		= (t_vec3 *)ft_realloc(level->game_logic.enemy_spawn_pos,
-			sizeof(t_vec3) * amount, sizeof(t_vec3) * (amount + 1));
-	if (!level->game_logic.enemy_spawn_pos)
+	level->game_logic.enemies
+		= (t_enemy *)ft_realloc(level->game_logic.enemies,
+			sizeof(t_enemy) * amount, sizeof(t_enemy) * (amount + 1));
+	if (!level->game_logic.enemies)
 		ft_error("memory allocation failed");
-	vec_add(&level->game_logic.enemy_spawn_pos[amount],
+	vec_add(&level->game_logic.enemies[amount].spawn_pos,
 		level->cam.pos, level->cam.front);
-	obj_pos_set_to_floor(&level->game_logic.enemy_spawn_pos[amount],
+	obj_pos_set_to_floor(&level->game_logic.enemies[amount].spawn_pos,
 		&level->game_models.enemy, level);
 	level->game_logic.enemy_amount++;
 }
@@ -198,7 +198,7 @@ void	game_logic_move_selected(t_level *level, t_vec3 move)
 	else if (level->ui.state.logic_selected == GAME_LOGIC_SELECTED_HEALTH)
 		move_selected_vec(level, move, &level->game_logic.health_box[i].pos);
 	else if (level->ui.state.logic_selected == GAME_LOGIC_SELECTED_ENEMY)
-		move_selected_vec(level, move, &level->game_logic.enemy_spawn_pos[i]);
+		move_selected_vec(level, move, &level->game_logic.enemies[i].spawn_pos);
 }
 
 static int	check_if_3d_closer(t_vec3 vert, float *dist, t_level *level)
@@ -265,7 +265,7 @@ void	game_logic_select_nearest_to_mouse_not_item(t_level *level, float *dist)
 	i = -1;
 	while (++i < level->game_logic.enemy_amount)
 	{
-		if (check_if_3d_closer(level->game_logic.enemy_spawn_pos[i], dist,
+		if (check_if_3d_closer(level->game_logic.enemies[i].spawn_pos, dist,
 				level))
 		{
 			level->ui.state.logic_selected = GAME_LOGIC_SELECTED_ENEMY;
@@ -314,6 +314,6 @@ void	game_logic_put_info(t_level *level, unsigned int *texture)
 			HEALTH_BOX_TEXT_COLOR, level);
 	i = -1;
 	while (++i < level->game_logic.enemy_amount)
-		render_text_3d("enemy", level->game_logic.enemy_spawn_pos[i],
+		render_text_3d("enemy", level->game_logic.enemies[i].spawn_pos,
 			ENEMY_SPAWN_TEXT_COLOR, level);
 }

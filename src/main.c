@@ -229,15 +229,30 @@ static void	merge_game_models(t_level *level, t_game_state game_state)
 			obj_copy(&level->game_models.enemy, &level->game_models.enemy_shoot);
 
 
-		i = -1;
-		while (++i < level->game_logic.enemy_amount)
-			merge_prop(level, &level->game_models.enemy,
-				level->game_logic.enemy_spawn_pos[i], (t_vec2){0, rot + (M_PI / 3 * i)});
+		if (game_state == GAME_STATE_INGAME)
+		{
+			i = -1;
+			while (++i < level->game_logic.enemy_amount)
+				if (level->game_logic.enemies[i].alive)
+					merge_prop(level, &level->game_models.enemy,
+						level->game_logic.enemies[i].pos,
+						(t_vec2){0, level->game_logic.enemies[i].dir_rad});
+		}
+		else
+		{
+			i = -1;
+			while (++i < level->game_logic.enemy_amount)
+				merge_prop(level, &level->game_models.enemy,
+					level->game_logic.enemies[i].spawn_pos, (t_vec2){0, rot + (M_PI / 3 * i)});
+		}
 	}
 
 	i = -1;
 	while (++i < level->game_logic.projectile_amount)
-		merge_sprite(level, level->game_logic.projectiles[i].pos, &level->game_models.light_sprite);
+		merge_sprite(level, level->game_logic.projectiles[i].pos, &level->game_models.projectile_sprite);
+	i = -1;
+	while (++i < level->light_amount)
+		merge_sprite(level, level->lights[i].pos, &level->game_models.light_sprite);
 }
 
 static void	viewmodel(t_window *window, t_level *level, t_game_state *game_state)

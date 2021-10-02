@@ -561,6 +561,7 @@ typedef struct s_game_models
 	t_obj_animation		reload_animation;
 	t_bmp				projectile_texture;
 	t_bmp				light_sprite;
+	t_bmp				projectile_sprite;
 }						t_game_models;
 
 typedef struct s_item_pickup
@@ -583,6 +584,8 @@ typedef struct	s_player
 
 typedef struct s_enemy
 {
+	t_vec3				spawn_pos;
+	int					alive;
 	t_vec3				pos;
 	t_vec3				dir;
 	float				dir_rad;
@@ -630,14 +633,12 @@ typedef struct s_game_logic
 
 	t_enemy_settings	enemy_settings;
 	t_enemy				*enemies;
-	int					alive_enemy_amount;
+	int					enemy_amount;
 
 	t_item_pickup		*health_box;
 	int					health_box_amount;
 	t_item_pickup		*ammo_box;
 	int					ammo_box_amount;
-	t_vec3				*enemy_spawn_pos;
-	int					enemy_amount;
 }						t_game_logic;
 
 typedef struct s_camera_path

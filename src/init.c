@@ -88,6 +88,7 @@ void	init_embedded(t_level *level)
 	level->game_models.enemy.texture = bmp_read("embed/enemy_texture.bmp");
 	level->game_models.viewmodel.texture = bmp_read("embed/viewmodel/viewmodel_texture.bmp");
 	level->game_models.light_sprite = bmp_read("embed/light_sprite.bmp");
+	level->game_models.projectile_sprite = bmp_read("embed/projectile_sprite.bmp");
 	// level->game_models.light_sprite = bmp_read("embed/spray.bmp");
 }
 
