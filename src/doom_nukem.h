@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/03 18:12:30 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/03 21:32:51 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,6 +85,7 @@
 # define VIEWMODEL_ANIM_FPS 2.0
 # define ITEM_PICKUP_DIST 1.4//m
 # define ITEM_SPAWN_TIME 30//s
+# define BOX_BLUR_GRADIENT_SIZE 30
 
 # define AMMO_BOX_TEXT_COLOR 0x037700ff
 # define HEALTH_BOX_TEXT_COLOR 0xf76565ff
@@ -521,7 +522,7 @@ typedef struct s_editor_ui
 	int					normal_map_disabled;
 	float				bloom_radius;
 	float				bloom_intensity;
-	int					bloom_iterations;
+	int					bloom_debug;
 
 	t_color_hsl			sun_color;
 	struct s_vec3		sun_dir;

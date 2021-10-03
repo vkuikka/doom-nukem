@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/03 19:11:08 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/04 01:23:10 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,12 +62,13 @@ static void	raytrace(t_cast_result *res, t_obj *obj, t_level *l)
 		res->color = shader_rule30(tmp);
 	else if (!res->baked || res->raytracing)
 	{
-		light = sunlight(l, res, lights(l, res));
+		light = lights(l, res);
+		res->light.r += light.r - l->world_brightness;
+		res->light.g += light.g - l->world_brightness;
+		res->light.b += light.b - l->world_brightness;
+		light = sunlight(l, res, light);
 		res->color
 			= brightness(res->color >> 8, light) + (res->color << 24 >> 24);
-		res->light.r += light.r;
-		res->light.g += light.g;
-		res->light.b += light.b;
 	}
 	trace_bounce(res, obj, l);
 }

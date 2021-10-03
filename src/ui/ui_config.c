@@ -720,11 +720,10 @@ void	ui_level_settings(t_level *level)
 	float_slider(&level->ui.render_distance, buf, 2, 50);
 	file_save("save level", ".doom-nukem", NULL);
 	sprintf(buf, "bloom radius: %.1f pixels", level->ui.bloom_radius);
-	float_slider(&level->ui.bloom_radius, buf, 0, 70);
+	float_slider(&level->ui.bloom_radius, buf, 0, 100);
 	sprintf(buf, "bloom intensity: %.1f", level->ui.bloom_intensity);
 	float_slider(&level->ui.bloom_intensity, buf, 0, 5);
-	sprintf(buf, "bloom iterations: %d", level->ui.bloom_iterations);
-	int_slider(&level->ui.bloom_iterations, buf, 0, 5);
+	button(&level->ui.bloom_debug, "bloom debug");
 }
 
 void	ui_editor(t_level *level)
