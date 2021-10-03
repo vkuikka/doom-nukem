@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/29 13:53:23 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/03 19:11:08 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,6 +65,9 @@ static void	raytrace(t_cast_result *res, t_obj *obj, t_level *l)
 		light = sunlight(l, res, lights(l, res));
 		res->color
 			= brightness(res->color >> 8, light) + (res->color << 24 >> 24);
+		res->light.r += light.r;
+		res->light.g += light.g;
+		res->light.b += light.b;
 	}
 	trace_bounce(res, obj, l);
 }
@@ -155,6 +158,9 @@ void	cast_result_set(t_cast_result *res, t_level *level)
 		res->baked = NULL;
 	res->reflection_depth = 0;
 	res->face_index = -1;
+	res->light.r = 0;
+	res->light.g = 0;
+	res->light.b = 0;
 }
 
 int	raycast(t_level *level, t_window *window, int thread_id)
@@ -180,6 +186,7 @@ int	raycast(t_level *level, t_window *window, int thread_id)
 				cast_all_color(level, &level->ssp[get_ssp(xy)], &res, TRUE);
 				window->frame_buffer[xy.x + (xy.y * RES_X)] = res.color;
 				window->depth_buffer[xy.x + (xy.y * RES_X)] = res.dist;
+				window->brightness_buffer[xy.x + (xy.y * RES_X)] = res.light;
 			}
 		}
 		xy.x += THREAD_AMOUNT;

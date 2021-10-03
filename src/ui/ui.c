@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/06 08:50:56 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/13 23:00:44 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/03 19:06:53 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -208,6 +208,9 @@ static void	init_ui_settings(t_editor_ui *ui)
 	ui->fog_color.lightness = 0;
 	ui->fog_color.color = 0xffffffff;
 	ui->normal_map_disabled = FALSE;
+	ui->bloom_intensity = 1;
+	ui->bloom_radius = 0;
+	ui->bloom_iterations = 0;
 }
 
 static void	init_color_slider(t_level *level)

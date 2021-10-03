@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   color.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/21 17:32:09 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/28 23:14:33 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/03 19:07:16 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -297,6 +297,8 @@ void	post_process(t_window *window, t_level *level)
 {
 	if (level->ui.blur)
 		blur_pixels(window->frame_buffer, level->ui.raycast_quality);
+	if (level->ui.bloom_intensity)
+		bloom(level, window);
 	fill_pixels(window->frame_buffer, level->ui.raycast_quality,
 		level->ui.smooth_pixels);
 	if (level->ui.chromatic_abberation)
