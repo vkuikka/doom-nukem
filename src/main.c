@@ -138,7 +138,7 @@ static void	tick_forward(t_level *level, t_game_state *game_state)
 	}
 	update_camera(level);
 	door_animate(level);
-	enemies_update_sprites(level);
+	enemies_update(level);
 }
 
 void	visible_request_merge(t_level *level, int amount)

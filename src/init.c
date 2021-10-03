@@ -92,6 +92,22 @@ void	init_embedded(t_level *level)
 	// level->game_models.light_sprite = bmp_read("embed/spray.bmp");
 }
 
+static void	projectile_default(t_projectile *projectile)
+{
+	projectile->speed = 10;
+	projectile->dist = 1;
+	projectile->damage = 10;
+}
+
+static void	init_enemy_settings(t_enemy_settings *enemy)
+{
+	enemy->dist_limit = 1;
+	enemy->move_speed = 2;
+	enemy->initial_health = 100;
+	enemy->attack_range = 1.5;
+	enemy->attack_frequency = 0.5;
+}
+
 static void	level_default_settings(t_level *level)
 {
 	level->game_logic.player.health = PLAYER_HEALTH_MAX;
@@ -104,6 +120,10 @@ static void	level_default_settings(t_level *level)
 	level->cam.look_up = 0;
 	level->main_menu_anim.duration = 2;
 	level->world_brightness = 0.5;
+	level->game_logic.win_pos.x = 10;
+	init_enemy_settings(&level->game_logic.enemy_settings);
+	projectile_default(&level->game_logic.enemy_projectile_settings);
+	projectile_default(&level->game_logic.player_projectile_settings);
 }
 
 void	create_default_level(t_level *level)
@@ -160,49 +180,6 @@ void	init_window(t_window **window)
 	if (!window[0]->depth_buffer || !window[0]->post_process_buf)
 		ft_error("init window memory allocation failed\n");
 }
-
-void	init_enemy(t_tri *face)
-{
-	(void)face;
-	// face->enemy = (t_enemy *)malloc(sizeof(t_enemy));
-	// if (!face->enemy)
-	// 	ft_error("memory allocation failed");
-	// ft_bzero(face->enemy, sizeof(t_enemy));
-	// face->enemy->move_speed = 2;
-	// face->enemy->dist_limit = 1;
-	// face->enemy->initial_health = 100;
-	// face->enemy->remaining_health = face->enemy->initial_health;
-	// face->enemy->projectile_speed = 0;
-	// face->enemy->projectile_scale = 1;
-	// face->enemy->attack_range = 1.5;
-	// face->enemy->attack_frequency = 0.5;
-	// face->enemy->attack_damage = 10;
-	// face->enemy->current_attack_delay = 0;
-	// face->enemy->projectile_uv[0].x = .5;
-	// face->enemy->projectile_uv[0].y = 0;
-	// face->enemy->projectile_uv[1].x = 0;
-	// face->enemy->projectile_uv[1].y = 1;
-	// face->enemy->projectile_uv[2].x = 1;
-	// face->enemy->projectile_uv[2].y = 1;
-}
-
-// void	init_player(t_enemy *player)
-// {
-// 	player->move_speed = RUN_SPEED;
-// 	player->initial_health = 100;
-// 	player->remaining_health = player->initial_health;
-// 	player->projectile_speed = 40;
-// 	player->projectile_scale = 0.5;
-// 	player->attack_frequency = 0.5;
-// 	player->attack_damage = -10;
-// 	player->current_attack_delay = 0;
-// 	player->projectile_uv[0].x = .5;
-// 	player->projectile_uv[0].y = 0;
-// 	player->projectile_uv[1].x = 0;
-// 	player->projectile_uv[1].y = 1;
-// 	player->projectile_uv[2].x = 1;
-// 	player->projectile_uv[2].y = 1;
-// }
 
 static void	init_audio_effects(t_level *l)
 {

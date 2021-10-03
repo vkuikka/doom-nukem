@@ -595,6 +595,7 @@ typedef struct s_enemy
 
 typedef struct s_enemy_settings
 {
+	float				dist_limit;
 	float				move_speed;
 	float				initial_health;
 	float				attack_range;
@@ -873,7 +874,8 @@ void			obj_editor_input(t_level *level, t_vec3 move_amount);
 void			player_movement(t_level *level);
 
 void			enemies_update_physics(t_level *level);
-void			enemies_update_sprites(t_level *level);
+void			enemies_update(t_level *level);
+void			spawn_enemies(t_level *level);
 
 void			fog(unsigned int *color, float dist, unsigned int fog_color,
 					t_level *level);

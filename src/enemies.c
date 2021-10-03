@@ -50,70 +50,70 @@ static void	remove_projectile(t_game_logic *logic, int i)
 	logic->projectile_amount--;
 }
 
-/*
-static void	move_enemy(t_tri *face, t_level *level, float time)
+static void	move_enemy(t_enemy *enemy, t_level *level, float time,
+					t_enemy_settings *settings)
 {
 	t_ray	e;
 	float	dist;
 	t_vec3	player;
 	t_vec3	tmp;
-	int		i;
 
 	player = level->cam.pos;
 	e.pos.x = 0;
 	e.pos.y = 0;
 	e.pos.z = 0;
-	i = -1;
-	while (++i < 3 + face->isquad)
-		vec_add(&e.pos, e.pos, face->verts[i].pos);
-	vec_div(&e.pos, 3 + face->isquad);
+	e.pos = enemy->pos;
 	vec_sub(&e.dir, player, e.pos);
 	dist = cast_all(e, level, NULL);
 	if (player.y > e.pos.y - ENEMY_MOVABLE_HEIGHT_DIFF
 		&& player.y < e.pos.y + ENEMY_MOVABLE_HEIGHT_DIFF)
 	{
 		if (dist > vec_length(e.dir))
-			face->enemy->dir = e.dir;
+			enemy->dir = e.dir;
 		if ((dist > vec_length(e.dir)
-				&& vec_length(e.dir) > face->enemy->dist_limit)
-			|| dist < vec_length(e.dir) - face->enemy->dist_limit)
+				&& vec_length(e.dir) > settings->dist_limit)
+			|| dist < vec_length(e.dir) - settings->dist_limit)
 		{
-			if (face->enemy->dir.x || face->enemy->dir.z)
+			if (enemy->dir.x || enemy->dir.z)
 			{
-				e.dir = face->enemy->dir;
+				e.dir = enemy->dir;
 				e.dir.y = 0;
 				vec_normalize(&e.dir);
-				vec_mult(&e.dir, face->enemy->move_speed * time);
+				vec_mult(&e.dir, settings->move_speed * time);
 				tmp = e.dir;
 				vec_add(&e.pos, e.pos, e.dir);
-				vec_sub(&tmp, face->enemy->dir, e.dir);
+				vec_sub(&tmp, enemy->dir, e.dir);
 				if (vec_dot(tmp, e.dir) > 0)
 				{
-					face->enemy->dir = tmp;
-					i = -1;
-					while (++i < 3 + face->isquad)
-						vec_add(&face->verts[i].pos, face->verts[i].pos, e.dir);
+					enemy->dir = tmp;
+					vec_add(&enemy->pos, enemy->pos, e.dir);
 				}
 			}
 		}
 	}
+}
+
+/*
+static void	enemy_attack()
+{
 	vec_sub(&tmp, player, e.pos);
-	face->enemy->current_attack_delay += time;
+	enemy->current_attack_delay += time;
 	if (dist > vec_length(tmp)
-		&& face->enemy->current_attack_delay >= face->enemy->attack_frequency)
+		&& enemy->current_attack_delay >= enemy->attack_frequency)
 	{
-		if (vec_length(tmp) < face->enemy->attack_range)
+		if (vec_length(tmp) < enemy->attack_range)
 		{
-			face->enemy->current_attack_delay = 0;
+			enemy->current_attack_delay = 0;
 			vec_mult(&level->player_vel, 0);
-			level->game_logic.player_health -= face->enemy->attack_damage;
+			level->game_logic.player_health -= enemy->attack_damage;
 		}
-		else if (face->enemy->projectile_speed)
+		else if (enemy->projectile_speed)
 		{
-			face->enemy->current_attack_delay = 0;
+			enemy->current_attack_delay = 0;
 			vec_sub(&e.dir, player, e.pos);
 			vec_normalize(&e.dir);
-			create_projectile(level, e.pos, e.dir, face->enemy);
+			create_projectile(&level->game_logic, e.pos, e.dir,
+				level->game_logic.enemy_projectile_settings);
 		}
 	}
 }
@@ -148,7 +148,30 @@ static int	projectile_collision(t_projectile *projectile, t_level *level, float 
 	return (FALSE);
 }
 
-void	enemies_update_sprites(t_level *level)
+static void	enemy_spawn(t_enemy *enemy, t_enemy_settings *settings)
+{
+	enemy->alive = TRUE;
+	enemy->current_attack_delay = 0;
+	enemy->dir = (t_vec3){1, 0, 0};
+	enemy->dir_rad = 0;
+	enemy->pos = enemy->spawn_pos;
+	enemy->remaining_health = settings->initial_health;
+}
+
+void	spawn_enemies(t_level *level)
+{
+	int	i;
+
+	i = 0;
+	while (i < level->game_logic.enemy_amount)
+	{
+		enemy_spawn(&level->game_logic.enemies[i],
+			&level->game_logic.enemy_settings);
+		i++;
+	}
+}
+
+void	enemies_update(t_level *level)
 {
 	t_vec3			move_amount;
 	t_projectile	*proj;
@@ -168,6 +191,13 @@ void	enemies_update_sprites(t_level *level)
 			vec_mult(&move_amount, proj->speed * time);
 			vec_add(&proj->pos, proj->pos, move_amount);
 		}
+		i++;
+	}
+	i = 0;
+	while (i < level->game_logic.enemy_amount)
+	{
+		move_enemy(&level->game_logic.enemies[i], level, time,
+			&level->game_logic.enemy_settings);
 		i++;
 	}
 }
