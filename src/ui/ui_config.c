@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/10/01 16:31:20y vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/04 21:08:31 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -441,6 +441,13 @@ void	ui_render_settings(t_level *level)
 	button(&ui->smooth_pixels, "smooth pixel (20ms expensive)");
 	button(&ui->blur, "blur (1ms cheap)");
 	button(&ui->state.ssp_visual, "ssp visualize");
+	sprintf(buf, "bloom radius: %.1f pixels", level->ui.bloom_radius);
+	float_slider(&level->ui.bloom_radius, buf, 0, 100);
+	sprintf(buf, "bloom intensity: %.1f", level->ui.bloom_intensity);
+	float_slider(&level->ui.bloom_intensity, buf, 0, 5);
+	sprintf(buf, "bloom limit: %.1f", level->ui.bloom_limit);
+	float_slider(&level->ui.bloom_limit, buf, 0, 5);
+	button(&level->ui.bloom_debug, "render bloom only");
 }
 
 void	ui_settings(t_level *level)
@@ -723,7 +730,9 @@ void	ui_level_settings(t_level *level)
 	float_slider(&level->ui.bloom_radius, buf, 0, 100);
 	sprintf(buf, "bloom intensity: %.1f", level->ui.bloom_intensity);
 	float_slider(&level->ui.bloom_intensity, buf, 0, 5);
-	button(&level->ui.bloom_debug, "bloom debug");
+	sprintf(buf, "bloom limit: %.1f", level->ui.bloom_limit);
+	float_slider(&level->ui.bloom_limit, buf, 0, 5);
+	button(&level->ui.bloom_debug, "render bloom only");
 }
 
 void	ui_editor(t_level *level)

@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/03 21:32:51 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/04 20:46:51 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -522,6 +522,7 @@ typedef struct s_editor_ui
 	int					normal_map_disabled;
 	float				bloom_radius;
 	float				bloom_intensity;
+	float				bloom_limit;
 	int					bloom_debug;
 
 	t_color_hsl			sun_color;
@@ -697,6 +698,14 @@ typedef struct s_buffer
 	int					next;
 	size_t				size;
 }						t_buffer;
+
+typedef struct s_bloom
+{
+	t_ivec2		upper_bound;
+	t_ivec2		lower_bound;
+	t_color		*pixel_light;
+	t_color		*buff;
+}				t_bloom;
 
 typedef struct s_window
 {

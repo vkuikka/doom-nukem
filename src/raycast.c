@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/04 01:23:10 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/04 21:04:19 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,13 +62,17 @@ static void	raytrace(t_cast_result *res, t_obj *obj, t_level *l)
 		res->color = shader_rule30(tmp);
 	else if (!res->baked || res->raytracing)
 	{
-		light = lights(l, res);
-		res->light.r += light.r - l->world_brightness;
-		res->light.g += light.g - l->world_brightness;
-		res->light.b += light.b - l->world_brightness;
-		light = sunlight(l, res, light);
+		light = sunlight(l, res, lights(l, res));
 		res->color
 			= brightness(res->color >> 8, light) + (res->color << 24 >> 24);
+		if (light.r - l->world_brightness > l->ui.bloom_limit
+			|| light.g - l->world_brightness > l->ui.bloom_limit
+			|| light.b - l->world_brightness > l->ui.bloom_limit)
+		{
+			res->light.r += light.r - l->world_brightness;
+			res->light.g += light.g - l->world_brightness;
+			res->light.b += light.b - l->world_brightness;
+		}
 	}
 	trace_bounce(res, obj, l);
 }
@@ -164,6 +168,13 @@ void	cast_result_set(t_cast_result *res, t_level *level)
 	res->light.b = 0;
 }
 
+void	set_render_result(t_window *window, t_cast_result res, unsigned int i)
+{
+	window->frame_buffer[i] = res.color;
+	window->depth_buffer[i] = res.dist;
+	window->brightness_buffer[i] = res.light;
+}
+
 int	raycast(t_level *level, t_window *window, int thread_id)
 {
 	t_cast_result	res;
@@ -185,9 +196,7 @@ int	raycast(t_level *level, t_window *window, int thread_id)
 				res.ray = ray_set(&level->cam, level->ui.fov, xy);
 				cast_result_set(&res, level);
 				cast_all_color(level, &level->ssp[get_ssp(xy)], &res, TRUE);
-				window->frame_buffer[xy.x + (xy.y * RES_X)] = res.color;
-				window->depth_buffer[xy.x + (xy.y * RES_X)] = res.dist;
-				window->brightness_buffer[xy.x + (xy.y * RES_X)] = res.light;
+				set_render_result(window, res, xy.x + xy.y * RES_X);
 			}
 		}
 		xy.x += THREAD_AMOUNT;
