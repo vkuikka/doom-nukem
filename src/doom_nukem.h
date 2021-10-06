@@ -40,7 +40,7 @@
 # define LIGHT_LOCATION_INFO_COLOR 0xffdd00ff
 # define PERLIN_OFFSET 123
 
-# define ENEMY_MOVABLE_HEIGHT_DIFF 1
+# define ENEMY_MOVABLE_HEIGHT_DIFF 3
 # define MAX_PROJECTILE_TRAVEL 100
 # define PROJECTILE_DAMAGE_DIST 3
 # define SPRAY_LINE_PRECISION 2
@@ -876,6 +876,7 @@ void			player_movement(t_level *level);
 void			enemies_update_physics(t_level *level);
 void			enemies_update(t_level *level);
 void			spawn_enemies(t_level *level);
+void			obj_pos_set_to_floor(t_vec3 *vec, t_obj *obj, t_level *level);
 
 void			fog(unsigned int *color, float dist, unsigned int fog_color,
 					t_level *level);

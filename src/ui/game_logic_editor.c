@@ -34,7 +34,7 @@ static float	obj_find_lowest_point(t_obj *obj)
 	return (min);
 }
 
-static void	obj_pos_set_to_floor(t_vec3 *vec, t_obj *obj, t_level *level)
+void	obj_pos_set_to_floor(t_vec3 *vec, t_obj *obj, t_level *level)
 {
 	t_ray	ray;
 	float	ground_dist;

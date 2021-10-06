@@ -33,6 +33,10 @@ void	create_projectile(t_game_logic *logic, t_vec3 pos,
 	}
 	i = logic->projectile_amount;
 	logic->projectiles[i].pos = pos;
+	t_vec3 tmp = dir;
+	vec_mult(&tmp, 3);
+	vec_add(&logic->projectiles[i].pos,
+		logic->projectiles[i].pos, tmp);
 	logic->projectiles[i].dir = dir;
 	logic->projectiles[i].damage = get.damage;
 	logic->projectiles[i].speed = get.speed;
@@ -58,6 +62,7 @@ static void	move_enemy(t_enemy *enemy, t_level *level, float time,
 	t_vec3	player;
 	t_vec3	tmp;
 
+	enemy->pos.y -= 3;
 	player = level->cam.pos;
 	e.pos.x = 0;
 	e.pos.y = 0;
@@ -91,6 +96,8 @@ static void	move_enemy(t_enemy *enemy, t_level *level, float time,
 			}
 		}
 	}
+	obj_pos_set_to_floor(&enemy->pos, &level->game_models.enemy, level);
+	enemy->dir_rad = -1 * atan2(enemy->dir.z, enemy->dir.x) - M_PI / 2;
 }
 
 /*
