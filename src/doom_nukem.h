@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/29 00:19:30 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/07 01:39:45 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@
 # define SSP_MAX_X 20
 # define SSP_MAX_Y 20
 
-# define NOCLIP_SPEED 50.0
+# define NOCLIP_SPEED 20.0
 # define GRAVITY 12		//	m/s^2
 # define JUMP_SPEED 5	//	m/s
 # define AIR_ACCEL 8	//	m/s^2
@@ -39,6 +39,7 @@
 # define DOOR_ACTIVATION_LOCATION_INFO_COLOR 0xcc2288ff
 # define LIGHT_LOCATION_INFO_COLOR 0xffdd00ff
 # define PERLIN_OFFSET 123
+# define SUN_SIZE 0.999	// 0.5 = half of skybox is sun
 
 # define ENEMY_MOVABLE_HEIGHT_DIFF 1
 # define MAX_PROJECTILE_TRAVEL 100
@@ -85,6 +86,7 @@
 # define VIEWMODEL_ANIM_FPS 2.0
 # define ITEM_PICKUP_DIST 1.4//m
 # define ITEM_SPAWN_TIME 30//s
+# define BOX_BLUR_GRADIENT_SIZE 30
 
 # define AMMO_BOX_TEXT_COLOR 0x037700ff
 # define HEALTH_BOX_TEXT_COLOR 0xf76565ff
@@ -169,21 +171,6 @@ typedef struct s_bmp
 	int					height;
 	int					*image;
 }						t_bmp;
-
-typedef struct s_window
-{
-	SDL_Renderer		*SDLrenderer;
-	SDL_Window			*SDLwindow;
-	SDL_Texture			*texture;//rename to frame_buffer
-	unsigned int		*frame_buffer;//rename to frame_buffer_pixels
-	float				*depth_buffer;
-	SDL_Texture			*raster_texture;
-	unsigned int		*raster_texture_pixels;
-	SDL_Texture			*text_texture;
-	SDL_Texture			*ui_texture;
-	unsigned int		*ui_texture_pixels;
-	unsigned int		*post_process_buf;
-}						t_window;
 
 typedef struct s_rect
 {
@@ -534,6 +521,10 @@ typedef struct s_editor_ui
 	int					spray_from_view;
 	float				spray_size;
 	int					normal_map_disabled;
+	float				bloom_radius;
+	float				bloom_intensity;
+	float				bloom_limit;
+	int					bloom_debug;
 
 	t_color_hsl			sun_color;
 	struct s_vec3		sun_dir;
@@ -690,6 +681,7 @@ typedef struct s_cast_result
 	float				dist;
 	int					raytracing;
 	unsigned int		color;
+	t_color				light;
 	int					face_index;
 	int					reflection_depth;
 	struct s_vec3		normal;
@@ -707,6 +699,30 @@ typedef struct s_buffer
 	int					next;
 	size_t				size;
 }						t_buffer;
+
+typedef struct s_bloom
+{
+	t_ivec2		upper_bound;
+	t_ivec2		lower_bound;
+	t_color		*pixel_light;
+	t_color		*buff;
+}				t_bloom;
+
+typedef struct s_window
+{
+	SDL_Renderer		*SDLrenderer;
+	SDL_Window			*SDLwindow;
+	SDL_Texture			*texture;//rename to frame_buffer
+	unsigned int		*frame_buffer;//rename to frame_buffer_pixels
+	float				*depth_buffer;
+	t_color				*brightness_buffer;
+	SDL_Texture			*raster_texture;
+	unsigned int		*raster_texture_pixels;
+	SDL_Texture			*text_texture;
+	SDL_Texture			*ui_texture;
+	unsigned int		*ui_texture_pixels;
+	unsigned int		*post_process_buf;
+}						t_window;
 
 void			vec_normalize(t_vec3 *vec);
 float			vec_dot(t_vec3 ve1, t_vec3 ve2);
@@ -837,7 +853,7 @@ void			enemies_update_sprites(t_level *level);
 
 void			fog(unsigned int *color, float dist, unsigned int fog_color,
 					t_level *level);
-int				skybox(t_level *l, t_cast_result res);
+void			skybox(t_level *l, t_cast_result *res);
 
 void			opacity(t_cast_result *res, t_level *l, t_obj *obj,
 					float opacity);
@@ -932,5 +948,8 @@ void			ui(t_window *window, t_level *level, t_game_state *game_state);
 void			render_ssp_visual_background(unsigned int *texture);
 void			render_ssp_visual_text(t_level *level);
 void			ui_render_background(t_window *window, t_level *level);
+void			bloom(t_level *level, t_window *window);
+t_color			int_to_color(unsigned int color);
+unsigned int	color_to_int(t_color color);
 
 #endif

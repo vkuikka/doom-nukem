@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/28 23:32:03 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/03 19:07:37 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@ static void	render_raycast(t_window *window, t_level *level, t_game_state *game_
 		ft_error("failed to lock texture\n");
 	if (level->render_is_first_pass || *game_state != GAME_STATE_INGAME)
 		ft_memset(window->frame_buffer, 0, RES_X * RES_Y * sizeof(int));
+	ft_memset(window->brightness_buffer, 0, RES_X * RES_Y * sizeof(t_color));
 	i = -1;
 	while (++i < THREAD_AMOUNT)
 	{
