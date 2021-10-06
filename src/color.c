@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/21 17:32:09 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/03 19:07:16 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/07 01:33:24 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,33 +68,62 @@ static t_color	get_skybox_brightness(t_level *l)
 	return (tmp);
 }
 
-int	skybox(t_level *l, t_cast_result res)
+static void	skybox_reset_result(t_level *l, t_cast_result *res)
 {
-	t_color	tmp;
+	res->ray.pos = (t_vec3){0, 0, 0};
+	res->texture = &l->sky.img;
+	res->normal_map = NULL;
+	res->baked = NULL;
+	res->spray_overlay = NULL;
+	res->raytracing = 0;
+}
+
+static float	skybox_sun_fade(t_color *col, t_cast_result *res, t_level *l)
+{
+	float	fade;
+
+	fade = vec_dot(l->ui.sun_dir, res->ray.dir);
+	if (fade < SUN_SIZE)
+		return (0);
+	fade = fade - SUN_SIZE;
+	fade = fade / (1.0 - SUN_SIZE);
+	fade = (sin(fade * M_PI - M_PI / 2) + 1) / 2;
+	col->r = l->ui.sun_color.r;
+	col->g = l->ui.sun_color.g;
+	col->b = l->ui.sun_color.b;
+	res->light.r += col->r;
+	res->light.g += col->g;
+	res->light.b += col->b;
+	return (fade);
+}
+
+void	skybox(t_level *l, t_cast_result *res)
+{
+	t_color	b;
+	t_color	sun;
 	t_obj	*obj;
+	float	fade;
 	int		i;
 
 	obj = &l->sky.visible;
-	if (res.reflection_depth)
+	if (res->reflection_depth)
 		obj = &l->sky.all;
-	tmp = get_skybox_brightness(l);
-	res.ray.pos = (t_vec3){0, 0, 0};
-	res.texture = &l->sky.img;
-	res.normal_map = NULL;
-	res.baked = NULL;
-	res.spray_overlay = NULL;
-	res.raytracing = 0;
-	i = 0;
-	while (i < obj->tri_amount)
+	b = get_skybox_brightness(l);
+	skybox_reset_result(l, res);
+	fade = skybox_sun_fade(&sun, res, l);
+	i = -1;
+	while (++i < obj->tri_amount)
 	{
-		if (0 < cast_face(obj->tris[i], res.ray, &res))
+		if (0 < cast_face(obj->tris[i], res->ray, res))
 		{
-			face_color(res.uv.x, res.uv.y, obj->tris[i], &res);
-			return (brightness(res.color >> 8, tmp) + 0xff);
+			face_color(res->uv.x, res->uv.y, obj->tris[i], res);
+			if (fade)
+				res->color = crossfade(brightness(res->color >> 8, b) >> 8,
+						color_to_int(sun) >> 8, fade * 0xff, 0xff);
+			else
+				res->color = brightness(res->color >> 8, b) + 0xff;
 		}
-		i++;
 	}
-	return (0);
 }
 
 void	fog(unsigned int *color, float dist, unsigned int fog_color,

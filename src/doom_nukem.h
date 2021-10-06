@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/04 20:46:51 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/07 01:39:45 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,7 @@
 # define DOOR_ACTIVATION_LOCATION_INFO_COLOR 0xcc2288ff
 # define LIGHT_LOCATION_INFO_COLOR 0xffdd00ff
 # define PERLIN_OFFSET 123
+# define SUN_SIZE 0.999	// 0.5 = half of skybox is sun
 
 # define ENEMY_MOVABLE_HEIGHT_DIFF 1
 # define MAX_PROJECTILE_TRAVEL 100
@@ -852,7 +853,7 @@ void			enemies_update_sprites(t_level *level);
 
 void			fog(unsigned int *color, float dist, unsigned int fog_color,
 					t_level *level);
-int				skybox(t_level *l, t_cast_result res);
+void			skybox(t_level *l, t_cast_result *res);
 
 void			opacity(t_cast_result *res, t_level *l, t_obj *obj,
 					float opacity);
@@ -948,5 +949,7 @@ void			render_ssp_visual_background(unsigned int *texture);
 void			render_ssp_visual_text(t_level *level);
 void			ui_render_background(t_window *window, t_level *level);
 void			bloom(t_level *level, t_window *window);
+t_color			int_to_color(unsigned int color);
+unsigned int	color_to_int(t_color color);
 
 #endif

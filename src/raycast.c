@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/04 21:04:19 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/07 01:39:36 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,7 +118,7 @@ void	cast_all_color(t_level *l, t_obj *obj, t_cast_result *res,
 		return ;
 	}
 	if (new_hit == -1)
-		res->color = skybox(l, *res);
+		skybox(l, res);
 	else
 	{
 		res->face_index = obj->tris[new_hit].index;
