@@ -62,6 +62,8 @@ static void	move_enemy(t_enemy *enemy, t_level *level, float time,
 	t_vec3	player;
 	t_vec3	tmp;
 
+	if (enemy->dead_start_time)
+		return ;
 	enemy->pos.y -= 3;
 	player = level->cam.pos;
 	e.pos.x = 0;
@@ -131,15 +133,31 @@ static int	projectile_collision(t_projectile *projectile, t_level *level, float 
 	int		hit_index;
 	float	dist;
 	t_ray	e;
+	int		i;
 
 	e.pos = projectile->pos;
 	vec_sub(&e.dir, level->cam.pos, e.pos);
-	if (vec_length(e.dir) <= PROJECTILE_DAMAGE_DIST && projectile->damage > 0)
+	if (vec_length(e.dir) <= PROJECTILE_DAMAGE_DIST)
 	{
 		vec_mult(&level->game_logic.player.vel, 0.5);
 		level->game_logic.player.health -= projectile->damage;
 		return (TRUE);
 	}
+
+	i = 0;
+	while (i < level->game_logic.enemy_amount)
+	{
+		e.pos = projectile->pos;
+		vec_sub(&e.dir, level->game_logic.enemies[i].pos, e.pos);
+		if (vec_length(e.dir) <= PROJECTILE_DAMAGE_DIST)
+		{
+			level->game_logic.enemies[i].remaining_health -= projectile->damage;
+			return (TRUE);
+		}
+		i++;
+	}
+
+
 	e.dir = projectile->dir;
 	dist = cast_all(e, level, &hit_index);
 	vec_mult(&e.dir, projectile->speed * time);
@@ -157,7 +175,7 @@ static int	projectile_collision(t_projectile *projectile, t_level *level, float 
 
 static void	enemy_spawn(t_enemy *enemy, t_enemy_settings *settings)
 {
-	enemy->alive = TRUE;
+	enemy->dead_start_time = 0;
 	enemy->current_attack_delay = 0;
 	enemy->dir = (t_vec3){1, 0, 0};
 	enemy->dir_rad = 0;
@@ -203,8 +221,12 @@ void	enemies_update(t_level *level)
 	i = 0;
 	while (i < level->game_logic.enemy_amount)
 	{
-		move_enemy(&level->game_logic.enemies[i], level, time,
-			&level->game_logic.enemy_settings);
+		if (!level->game_logic.enemies[i].dead_start_time
+			&& level->game_logic.enemies[i].remaining_health <= 0)
+			level->game_logic.enemies[i].dead_start_time = SDL_GetTicks();
+		else
+			move_enemy(&level->game_logic.enemies[i], level, time,
+				&level->game_logic.enemy_settings);
 		i++;
 	}
 }

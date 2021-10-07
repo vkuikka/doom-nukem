@@ -220,27 +220,42 @@ static void	merge_game_models(t_level *level, t_game_state game_state)
 				merge_prop(level, &level->game_models.health_pickup_box,
 					level->game_logic.health_box[i].pos, (t_vec2){0, rot + (M_PI / 3 * i)});
 
-		if (level->game_logic.enemy_animation_view_index == 0)
-			play_animation(&level->game_models.enemy, &level->game_models.enemy_run, 0,
-				level->game_logic.anim_duration_multiplier);
-		else if (level->game_logic.enemy_animation_view_index == 1)
-			play_animation(&level->game_models.enemy, &level->game_models.enemy_die, 0,
-				level->game_logic.anim_duration_multiplier);
-		else
-			obj_copy(&level->game_models.enemy, &level->game_models.enemy_shoot);
-
 
 		if (game_state == GAME_STATE_INGAME)
 		{
 			i = -1;
 			while (++i < level->game_logic.enemy_amount)
-				if (level->game_logic.enemies[i].alive)
-					merge_prop(level, &level->game_models.enemy,
-						level->game_logic.enemies[i].pos,
-						(t_vec2){0, level->game_logic.enemies[i].dir_rad});
+			{
+				if (level->game_logic.enemies[i].dead_start_time)
+					play_animation(&level->game_models.enemy, &level->game_models.enemy_die, level->game_logic.enemies[i].dead_start_time,
+						level->game_logic.anim_duration_multiplier);
+				else
+					play_animation(&level->game_models.enemy, &level->game_models.enemy_run, 0,
+						level->game_logic.anim_duration_multiplier);
+				// if (level->game_logic.enemy_animation_view_index == 0)
+				// else if (level->game_logic.enemy_animation_view_index == 1)
+				// else
+				// 	obj_copy(&level->game_models.enemy, &level->game_models.enemy_shoot);
+				merge_prop(level, &level->game_models.enemy,
+					level->game_logic.enemies[i].pos,
+					(t_vec2){0, level->game_logic.enemies[i].dir_rad});
+			}
 		}
 		else
 		{
+
+			if (level->game_logic.enemy_animation_view_index == 0)
+				play_animation(&level->game_models.enemy, &level->game_models.enemy_run, 0,
+					level->game_logic.anim_duration_multiplier);
+			else if (level->game_logic.enemy_animation_view_index == 1)
+				play_animation(&level->game_models.enemy, &level->game_models.enemy_die, 0,
+					level->game_logic.anim_duration_multiplier);
+			else
+				obj_copy(&level->game_models.enemy, &level->game_models.enemy_shoot);
+
+
+
+
 			i = -1;
 			while (++i < level->game_logic.enemy_amount)
 				merge_prop(level, &level->game_models.enemy,

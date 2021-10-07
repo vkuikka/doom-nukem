@@ -585,12 +585,13 @@ typedef struct	s_player
 typedef struct s_enemy
 {
 	t_vec3				spawn_pos;
-	int					alive;
+	unsigned int		dead_start_time;
 	t_vec3				pos;
 	t_vec3				dir;
 	float				dir_rad;
 	float				remaining_health;
 	float				current_attack_delay;
+	unsigned int		move_start_time;
 }						t_enemy;
 
 typedef struct s_enemy_settings
