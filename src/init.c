@@ -68,17 +68,15 @@ void	init_embedded(t_level *level)
 		&level->game_models.health_pickup_box);
 	int res = 0;
 	res += load_obj("embed/enemy_shoot.obj", &level->game_models.enemy_shoot);
-	res += load_animation("embed/enemy_run/enemy_run", &level->game_models.enemy_run, 10);
+	res += load_animation("embed/enemy_run/enemy_run", &level->game_models.enemy_run, 10, 1.0);
 	level->game_models.enemy = get_animation_target(&level->game_models.enemy_run);
-	level->game_models.enemy_run.duration = 1.0;
-	res += load_animation("embed/enemy_die/enemy_die", &level->game_models.enemy_die, 41);
+	res += load_animation("embed/enemy_die/enemy_die", &level->game_models.enemy_die, 41, 3.0);
+	level->game_models.enemy_die.loop = FALSE;
 	level->game_models.enemy = get_animation_target(&level->game_models.enemy_die);
-	level->game_models.enemy_die.duration = 3.0;
-	res += load_animation("embed/viewmodel/viewmodel", &level->game_models.reload_animation, 3);
-	level->game_models.reload_animation.duration = RELOAD_ANIMATION_DURATION;
+	res += load_animation("embed/viewmodel/viewmodel", &level->game_models.reload_animation, 3,
+			RELOAD_ANIMATION_DURATION);
 	level->game_models.viewmodel = get_animation_target(&level->game_models.reload_animation);
 	obj_copy(&level->game_models.enemy, &level->game_models.enemy_shoot);
-	level->game_logic.anim_duration_multiplier = 1.0;
 	if (res != 4)
 		ft_error("fix embed\n");
 	level->game_models.ammo_pickup_box.texture

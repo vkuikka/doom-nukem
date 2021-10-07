@@ -547,6 +547,8 @@ typedef struct s_obj_animation
 	t_obj				*keyframes;
 	int					keyframe_amount;
 	float				duration;
+	float				duration_multiplier;
+	int					loop;
 }						t_obj_animation;
 
 typedef struct s_game_models
@@ -625,7 +627,6 @@ typedef struct s_game_logic
 
 	float				item_spin_speed;
 	int					enemy_animation_view_index;
-	float				anim_duration_multiplier;
 
 	t_projectile		*projectiles;
 	int					projectile_amount;
@@ -860,10 +861,10 @@ void			create_projectile(t_game_logic *logic, t_vec3 pos,
 								t_vec3 dir, t_projectile get);
 
 int				load_animation(char *get_filename, t_obj_animation *animation,
-					int amount);
+					int amount, float duration);
 t_obj			get_animation_target(t_obj_animation *animation);
 void			play_animation(t_obj *target, t_obj_animation *animation,
-					unsigned int start_time, float anim_speed_modifier);
+						unsigned int start_time);
 void			obj_copy(t_obj *target, t_obj *source);
 
 void			uv_editor(t_level *level, unsigned int *pixels);

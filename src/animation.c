@@ -12,7 +12,8 @@
 
 #include "doom_nukem.h"
 
-int	load_animation(char *get_filename, t_obj_animation *animation, int amount)
+int	load_animation(char *get_filename, t_obj_animation *animation,
+							int amount, float duration)
 {
 	char	filename[100];
 	int		res;
@@ -42,6 +43,9 @@ int	load_animation(char *get_filename, t_obj_animation *animation, int amount)
 	{
 		;//free objs
 	}
+	animation->loop = TRUE;
+	animation->duration_multiplier = 1.0;
+	animation->duration = duration;
 	return (res);
 }
 
@@ -83,23 +87,35 @@ void	obj_copy(t_obj *target, t_obj *source)
 	}
 }
 
-void	play_animation(t_obj *target, t_obj_animation *animation,	
-						unsigned int start_time, float anim_speed_modifier)
+void	play_animation(t_obj *target, t_obj_animation *animation,
+						unsigned int start_time)
 {
 	float	time;
 	float	node_time;
 	float	elem_size;
 	t_ivec2	id;
 	int		i;
+	int		node_amount;
 
-	if (!anim_speed_modifier)
+	if (!animation->duration_multiplier)
 		return ;
 	time = (SDL_GetTicks() - start_time)
-		/ (1000.0 * animation->duration / anim_speed_modifier);
-	time = fmod(time, 1.0);
-	id.x = ((int)((animation->keyframe_amount - 0) * time) + 0) % animation->keyframe_amount;
-	id.y = ((int)((animation->keyframe_amount - 0) * time) + 1) % animation->keyframe_amount;
-	elem_size = 1.0 / (animation->keyframe_amount - 0);
+		/ (1000.0 * animation->duration / animation->duration_multiplier);
+	node_amount = animation->keyframe_amount;
+	if (start_time && !animation->loop)
+	{
+		node_amount--;
+		if (time >= 1.0)
+		{
+			obj_copy(target, &animation->keyframes[animation->keyframe_amount - 1]);
+			return ;
+		}
+	}
+	else
+		time = fmod(time, 1.0);
+	id.x = ((int)(node_amount * time) + 0) % animation->keyframe_amount;
+	id.y = ((int)(node_amount * time) + 1) % animation->keyframe_amount;
+	elem_size = 1.0 / node_amount;
 	node_time = (time - (elem_size * id.x)) / elem_size;
 	i = 0;
 	while (i < target->tri_amount)

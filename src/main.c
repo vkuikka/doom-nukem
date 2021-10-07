@@ -227,15 +227,15 @@ static void	merge_game_models(t_level *level, t_game_state game_state)
 			while (++i < level->game_logic.enemy_amount)
 			{
 				if (level->game_logic.enemies[i].dead_start_time)
-					play_animation(&level->game_models.enemy, &level->game_models.enemy_die, level->game_logic.enemies[i].dead_start_time,
-						level->game_logic.anim_duration_multiplier);
+					play_animation(&level->game_models.enemy, &level->game_models.enemy_die,
+						level->game_logic.enemies[i].dead_start_time);
 				else
-					play_animation(&level->game_models.enemy, &level->game_models.enemy_run, 0,
-						level->game_logic.anim_duration_multiplier);
-				// if (level->game_logic.enemy_animation_view_index == 0)
-				// else if (level->game_logic.enemy_animation_view_index == 1)
-				// else
-				// 	obj_copy(&level->game_models.enemy, &level->game_models.enemy_shoot);
+				{
+					//if
+						play_animation(&level->game_models.enemy, &level->game_models.enemy_run, 0);
+					//else
+						//obj_copy(&level->game_models.enemy, &level->game_models.enemy_shoot);
+				}
 				merge_prop(level, &level->game_models.enemy,
 					level->game_logic.enemies[i].pos,
 					(t_vec2){0, level->game_logic.enemies[i].dir_rad});
@@ -245,11 +245,9 @@ static void	merge_game_models(t_level *level, t_game_state game_state)
 		{
 
 			if (level->game_logic.enemy_animation_view_index == 0)
-				play_animation(&level->game_models.enemy, &level->game_models.enemy_run, 0,
-					level->game_logic.anim_duration_multiplier);
+				play_animation(&level->game_models.enemy, &level->game_models.enemy_run, 0);
 			else if (level->game_logic.enemy_animation_view_index == 1)
-				play_animation(&level->game_models.enemy, &level->game_models.enemy_die, 0,
-					level->game_logic.anim_duration_multiplier);
+				play_animation(&level->game_models.enemy, &level->game_models.enemy_die, 0);
 			else
 				obj_copy(&level->game_models.enemy, &level->game_models.enemy_shoot);
 
@@ -277,7 +275,7 @@ static void	viewmodel(t_window *window, t_level *level, t_game_state *game_state
 		return ;
 	play_animation(&level->game_models.viewmodel,
 	&level->game_models.reload_animation,
-	level->game_logic.reload_start_time, 1.0);
+	level->game_logic.reload_start_time);
 	level->visible.tri_amount = 0;
 	merge_prop(level, &level->game_models.viewmodel, level->cam.pos, (t_vec2){level->cam.look_up, level->cam.look_side});
 	screen_space_partition(level);

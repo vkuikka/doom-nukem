@@ -638,9 +638,18 @@ void	ui_game_settings(t_level *level)
 	int_slider(&level->game_logic.enemy_animation_view_index, "view enemy animation", -1, 3);
 	level->game_logic.enemy_animation_view_index
 	 = clamp(level->game_logic.enemy_animation_view_index, 0, 2);
-	sprintf(buf, "enemy animation speed %.2fx",
-		level->game_logic.anim_duration_multiplier);
-	float_slider(&level->game_logic.anim_duration_multiplier, buf, 0, 2.0);
+	if (level->game_logic.enemy_animation_view_index == 0)
+	{
+		sprintf(buf, "enemy animation speed %.2fx",
+			level->game_models.enemy_run.duration_multiplier);
+		float_slider(&level->game_models.enemy_run.duration_multiplier, buf, 0, 2.0);
+	}
+	else if (level->game_logic.enemy_animation_view_index == 1)
+	{
+		sprintf(buf, "enemy animation speed %.2fx",
+			level->game_models.enemy_die.duration_multiplier);
+		float_slider(&level->game_models.enemy_die.duration_multiplier, buf, 0, 2.0);
+	}
 	set_text_color(UI_INFO_TEXT_COLOR);
 	ui_render_info(&level->ui, level);
 }
