@@ -62,9 +62,7 @@ static void	move_enemy(t_enemy *enemy, t_level *level, float time,
 	t_vec3	player;
 	t_vec3	tmp;
 
-	if (enemy->dead_start_time)
-		return ;
-	enemy->pos.y -= 3;
+	enemy->pos.y -= 1.5;
 	player = level->cam.pos;
 	e.pos.x = 0;
 	e.pos.y = 0;
@@ -102,31 +100,38 @@ static void	move_enemy(t_enemy *enemy, t_level *level, float time,
 	enemy->dir_rad = -1 * atan2(enemy->dir.z, enemy->dir.x) - M_PI / 2;
 }
 
-/*
-static void	enemy_attack()
+static void	enemy_attack(t_enemy *enemy, t_level *level, float time)
 {
-	vec_sub(&tmp, player, e.pos);
+	t_projectile		*projectile_settings;
+	t_enemy_settings	*settings;
+	t_vec3				tmp;
+
+	projectile_settings = &level->game_logic.enemy_projectile_settings;
+	settings = &level->game_logic.enemy_settings;
+	vec_sub(&tmp, level->cam.pos, enemy->pos);
 	enemy->current_attack_delay += time;
-	if (dist > vec_length(tmp)
-		&& enemy->current_attack_delay >= enemy->attack_frequency)
+	//if calc dist to enemy (enemy see dist) tai laita anemy->can_see_player
+	if (enemy->current_attack_delay >= settings->attack_frequency)
 	{
-		if (vec_length(tmp) < enemy->attack_range)
+		if (vec_length(tmp) < settings->melee_range)
 		{
 			enemy->current_attack_delay = 0;
-			vec_mult(&level->player_vel, 0);
-			level->game_logic.player_health -= enemy->attack_damage;
+			vec_mult(&level->game_logic.player.vel, 0.5);
+			level->game_logic.player.health -= projectile_settings->damage;
 		}
-		else if (enemy->projectile_speed)
+		else if (projectile_settings->speed)
 		{
 			enemy->current_attack_delay = 0;
-			vec_sub(&e.dir, player, e.pos);
-			vec_normalize(&e.dir);
-			create_projectile(&level->game_logic, e.pos, e.dir,
+			t_vec3 pos = enemy->pos;
+			pos.y -= 1.0;
+			t_vec3	dir;
+			vec_sub(&dir, level->cam.pos, pos);
+			vec_normalize(&dir);
+			create_projectile(&level->game_logic, pos, dir,
 				level->game_logic.enemy_projectile_settings);
 		}
 	}
 }
-*/
 
 static int	projectile_collision(t_projectile *projectile, t_level *level, float time)
 {
@@ -221,12 +226,17 @@ void	enemies_update(t_level *level)
 	i = 0;
 	while (i < level->game_logic.enemy_amount)
 	{
-		if (!level->game_logic.enemies[i].dead_start_time
-			&& level->game_logic.enemies[i].remaining_health <= 0)
-			level->game_logic.enemies[i].dead_start_time = SDL_GetTicks();
-		else
-			move_enemy(&level->game_logic.enemies[i], level, time,
-				&level->game_logic.enemy_settings);
+		if (!level->game_logic.enemies[i].dead_start_time)
+		{
+			if (level->game_logic.enemies[i].remaining_health <= 0)
+				level->game_logic.enemies[i].dead_start_time = SDL_GetTicks();
+			else
+			{
+				move_enemy(&level->game_logic.enemies[i], level, time,
+					&level->game_logic.enemy_settings);
+				enemy_attack(&level->game_logic.enemies[i], level, time);
+			}
+		}
 		i++;
 	}
 }

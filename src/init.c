@@ -102,7 +102,7 @@ static void	init_enemy_settings(t_enemy_settings *enemy)
 	enemy->dist_limit = 1;
 	enemy->move_speed = 2;
 	enemy->initial_health = 100;
-	enemy->attack_range = 1.5;
+	enemy->melee_range = 1.5;
 	enemy->attack_frequency = 0.5;
 }
 

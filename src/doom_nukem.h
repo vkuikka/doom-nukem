@@ -601,7 +601,7 @@ typedef struct s_enemy_settings
 	float				dist_limit;
 	float				move_speed;
 	float				initial_health;
-	float				attack_range;
+	float				melee_range;
 	float				attack_frequency;
 }						t_enemy_settings;
 

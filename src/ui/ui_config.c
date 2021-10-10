@@ -88,9 +88,9 @@ static void	ui_config_enemy_settings(t_enemy_settings *enemy)
 	sprintf(buf, "attack frequency: %.2f seconds per attack",
 		enemy->attack_frequency);
 	float_slider(&enemy->attack_frequency, buf, 0, 5);
-	sprintf(buf, "attack range: %.1fm",
-		enemy->attack_range);
-	float_slider(&enemy->attack_range, buf, 0, 10);
+	sprintf(buf, "melee range: %.1fm",
+		enemy->melee_range);
+	float_slider(&enemy->melee_range, buf, 0, 10);
 }
 
 void	ui_enemy_and_damage_settings(t_level *level)
