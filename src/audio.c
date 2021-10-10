@@ -38,7 +38,10 @@ void	handle_audio(t_level *level, t_game_state *game_state)
 		&& *game_state != GAME_STATE_DEAD)
 	{
 		if (level->game_logic.player.ammo)
-			Mix_PlayChannel(AUDIO_GUNSHOT_CHANNEL, level->audio.gunshot, 0);
+		{
+			if (!level->game_logic.reload_start_time)
+				Mix_PlayChannel(AUDIO_GUNSHOT_CHANNEL, level->audio.gunshot, 0);
+		}
 		else
 			Mix_PlayChannel(AUDIO_RELOAD_CHANNEL, level->audio.reload, 0);
 	}

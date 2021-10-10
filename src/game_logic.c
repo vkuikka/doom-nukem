@@ -29,10 +29,13 @@ static void	player_shoot(t_level *level)
 {
 	if (level->game_logic.player.ammo)
 	{
-		level->game_logic.player.ammo--;
-		create_projectile(&level->game_logic, level->cam.pos,
-			level->cam.front,
-			level->game_logic.player_projectile_settings);
+		if (!level->game_logic.reload_start_time)
+		{
+			level->game_logic.player.ammo--;
+			create_projectile(&level->game_logic, level->cam.pos,
+				level->cam.front,
+				level->game_logic.player_projectile_settings);
+		}
 	}
 	else
 		level->game_logic.reload_start_time = SDL_GetTicks();

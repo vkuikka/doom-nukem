@@ -271,13 +271,24 @@ static void	merge_game_models(t_level *level, t_game_state game_state)
 
 static void	viewmodel(t_window *window, t_level *level, t_game_state *game_state)
 {
+	static t_vec2	delta_vel = {0, 0};
+
 	if (*game_state != GAME_STATE_INGAME)
 		return ;
-	play_animation(&level->game_models.viewmodel,
-	&level->game_models.reload_animation,
-	level->game_logic.reload_start_time);
+	if (level->game_logic.reload_start_time)
+		play_animation(&level->game_models.viewmodel,
+		&level->game_models.reload_animation,
+		level->game_logic.reload_start_time);
 	level->visible.tri_amount = 0;
-	merge_prop(level, &level->game_models.viewmodel, level->cam.pos, (t_vec2){level->cam.look_up, level->cam.look_side});
+	delta_vel.x -= level->cam.look_side;
+	delta_vel.y -= level->cam.look_up;
+	delta_vel.x *= .3;
+	delta_vel.y *= .8;
+	delta_vel.x = clamp(delta_vel.x, -0.2, 0.2);
+	delta_vel.y = clamp(delta_vel.y, -0.6, 0.6);
+	merge_prop(level, &level->game_models.viewmodel, level->cam.pos, (t_vec2){level->cam.look_up + delta_vel.y, level->cam.look_side + delta_vel.x});
+	delta_vel.x = level->cam.look_side;
+	delta_vel.y = level->cam.look_up;
 	screen_space_partition(level);
 	level->render_is_first_pass = TRUE;
 	render_raycast(window, level, game_state);
