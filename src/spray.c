@@ -6,23 +6,45 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/01 18:48:35 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/07 15:58:33 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/11 16:59:37 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
 
-static void	draw_line(t_level *l, t_vec2 line[2], t_tri *tri, float y_percent)
+static void	spray_point(t_level *l, t_vec2 texture, t_vec2 steps, t_tri *tri)
+{
+	t_vec2			point;
+	int				texture_coord;
+	int				spray_coord;
+	unsigned int	fade;
+
+	texture_coord = (int)texture.x + (int)texture.y * l->texture.width;
+	spray_coord = (int)(l->spray.width * steps.x)
+		+ (int)(l->spray.height * steps.y) *l->spray.width;
+	if (spray_coord >= l->spray.width * l->spray.height || spray_coord < 0)
+		return ;
+	point.x = texture.x / l->texture.width;
+	point.y = 1 - texture.y / l->texture.height;
+	fade = ((unsigned int )l->spray.image[spray_coord] << 8 * 3) >> 8 * 3;
+	if (fade == 0)
+		return ;
+	if (point_in_tri(point,
+			tri->verts[0].txtr, tri->verts[1].txtr, tri->verts[2].txtr)
+		|| point_in_tri(point,
+			tri->verts[3].txtr, tri->verts[1].txtr, tri->verts[2].txtr))
+		l->spray_overlay[texture_coord]
+			= crossfade(l->texture.image[texture_coord] >> 8,
+				l->spray.image[spray_coord] >> 8, fade, 0xff);
+}
+
+static void	spray_line(t_level *l, t_vec2 line[2], t_tri *tri, t_vec2 axis_step)
 {
 	t_vec2	increment;
 	t_vec2	texture;
-	int		spray_coord;
-	int		texture_coord;
 	int		steps;
 	int		i;
-	t_vec2	point;
 
-	i = 0;
 	texture.x = line[0].x;
 	texture.y = line[0].y;
 	steps = fmax(ft_abs(line[1].x - line[0].x), ft_abs(line[1].y - line[0].y))
@@ -31,43 +53,23 @@ static void	draw_line(t_level *l, t_vec2 line[2], t_tri *tri, float y_percent)
 		return ;
 	increment.x = (line[1].x - line[0].x) / (float)steps;
 	increment.y = (line[1].y - line[0].y) / (float)steps;
-	while (i <= steps && i < 99999)
+	i = -1;
+	while (++i <= steps && i < 99999)
 	{
-		if (texture.x < l->texture.width && texture.x > 0
-			&& texture.y < l->texture.height && texture.y > 0)
+		if ((int)texture.x < l->texture.width && texture.x > 0
+			&& (int)texture.y < l->texture.height && texture.y > 0)
 		{
-			texture_coord = (int)texture.x + (int)texture.y * l->texture.width;
-			if (texture_coord < l->texture.width * l->texture.height
-				&& texture_coord >= 0)
-			{
-				spray_coord = (int)(l->spray.width * (float)i / steps)
-					+ (int)(l->spray.height * y_percent) * l->spray.width;
-				if (spray_coord < l->spray.width * l->spray.height
-					&& spray_coord >= 0 && l->spray.image[spray_coord] << 8 * 3 != 0
-					&& l->texture.image[texture_coord] << 8 * 3 != 0)
-				{
-					point.x = texture.x / l->texture.width;
-					point.y = 1 - texture.y / l->texture.height;
-					l->spray.image[spray_coord]
-						= (l->spray.image[spray_coord] >> 8 << 8) + 0xff;
-					if (point_in_tri(point, tri->verts[0].txtr,
-							tri->verts[1].txtr, tri->verts[2].txtr)
-						|| point_in_tri(point, tri->verts[3].txtr,
-							tri->verts[1].txtr, tri->verts[2].txtr))
-						l->spray_overlay[texture_coord]
-							= l->spray.image[spray_coord];
-				}
-			}
+			axis_step.x = (float)i / steps;
+			spray_point(l, texture, axis_step, tri);
 		}
-		texture.x += increment.x;
-		texture.y += increment.y;
-		i++;
+		vec2_add(&texture, texture, increment);
 	}
 }
 
 static void	square_step(t_vec2 square[4], t_level *l, t_tri *tri, float step)
 {
 	t_vec2	line[2];
+	t_vec2	axis_step;
 
 	line[0] = square[1];
 	line[1] = square[3];
@@ -75,7 +77,8 @@ static void	square_step(t_vec2 square[4], t_level *l, t_tri *tri, float step)
 	vec2_mult(&line[1], -step);
 	vec2_add(&line[0], square[0], line[0]);
 	vec2_add(&line[1], square[2], line[1]);
-	draw_line(l, line, tri, step);
+	axis_step.y = step;
+	spray_line(l, line, tri, axis_step);
 }
 
 static void	draw_square(t_level *l, t_vec2 square[4], t_tri *tri)
