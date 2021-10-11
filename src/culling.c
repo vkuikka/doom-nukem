@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/20 17:50:56 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/11 18:24:04 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/11 18:40:58 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -271,14 +271,31 @@ static void	reflection_culling_first_bounce(t_level *level, int i)
 	k = -1;
 	while (++k < level->all.tris[i].reflection_obj_all.tri_amount)
 		if ((!level->ui.distance_culling
-			|| distance_culling(level->all.tris[i].reflection_obj_all.tris[k],
-				level->cam.pos, level->ui.render_distance))
+				|| distance_culling(
+					level->all.tris[i].reflection_obj_all.tris[k],
+					level->cam.pos, level->ui.render_distance))
 			&& (level->all.tris[i].reflection_obj_all.tris[k].isgrid
 				|| frustrum_culling(side_normals, pos,
 					level->all.tris[i].reflection_obj_all.tris[k])))
 			level->all.tris[i].reflection_obj_first_bounce.tris[
 				level->all.tris[i].reflection_obj_first_bounce.tri_amount++]
 				= level->all.tris[i].reflection_obj_all.tris[k];
+}
+
+static int	face_distance_culling(t_tri t1, t_tri t2, t_level *level)
+{
+	int	i;
+
+	i = 0;
+	if (!level->ui.distance_culling)
+		return (1);
+	while (i < 3 + t1.isquad)
+	{
+		if (distance_culling(t2, t1.verts[i].pos, level->ui.render_distance))
+			return (1);
+		i++;
+	}
+	return (0);
 }
 
 void	reflection_culling(t_level *level, int i)
@@ -300,6 +317,8 @@ void	reflection_culling(t_level *level, int i)
 		if ((level->all.tris[k].isenemy || level->all.tris[k].isgrid
 				|| cull_behind(level->all.tris[i].normal,
 					avg, level->all.tris[k]))
+			&& face_distance_culling(level->all.tris[i],
+				level->all.tris[k], level)
 			&& reflection_backface(level->all.tris[k], level->all.tris[i]))
 			level->all.tris[i].reflection_obj_all.tris[amount++]
 				= level->all.tris[k];
