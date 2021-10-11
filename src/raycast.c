@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/07 01:39:36 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/11 18:58:59 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,8 @@ static void	raytrace(t_cast_result *res, t_obj *obj, t_level *l)
 		res->color = shader_perlin(tmp, l, res);
 	if (l->all.tris[res->face_index].shader == SHADER_RULE_30)
 		res->color = shader_rule30(tmp);
-	else if (!res->baked || res->raytracing)
+	else if (!res->baked || res->raytracing || obj->tris[res->face_index].isgrid
+		|| obj->tris[res->face_index].shader != SHADER_NONE)
 	{
 		light = sunlight(l, res, lights(l, res));
 		res->color

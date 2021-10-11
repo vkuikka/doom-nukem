@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/22 10:29:09 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/29 00:20:42 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/11 18:57:35 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -187,7 +187,8 @@ int	bake(void *d)
 	while (tri < l->all.tri_amount)
 	{
 		res.face_index = tri;
-		bake_face(&res, l);
+		if (!l->all.tris[tri].isgrid && l->all.tris[tri].shader == SHADER_NONE)
+			bake_face(&res, l);
 		tri++;
 		l->bake_progress = 100 * (float)tri / (float)l->all.tri_amount;
 	}
