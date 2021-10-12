@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/08 14:38:45 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/12 15:15:25 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/10/12 17:13:19 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,7 +121,7 @@ static void	projectile_default(t_projectile *projectile)
 
 static void	init_enemy_settings(t_enemy_settings *enemy)
 {
-	enemy->dist_limit = 1;
+	enemy->dist_limit = 30;
 	enemy->move_speed = 2;
 	enemy->initial_health = 100;
 	enemy->melee_range = 1.5;

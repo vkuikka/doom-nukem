@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/14 17:08:49 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/12 12:55:49 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/10/12 15:28:41 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,6 +61,7 @@ static void	enemy_spawn(t_enemy *enemy, t_enemy_settings *settings)
 	enemy->remaining_health = settings->initial_health;
 	enemy->move_start_time = SDL_GetTicks()
 		+ (rand() % (int)(1000 * settings->move_duration));
+	enemy->move_to = enemy->pos;
 }
 
 void	spawn_enemies(t_level *level)

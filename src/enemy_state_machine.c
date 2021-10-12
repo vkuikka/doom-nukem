@@ -6,15 +6,15 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/12 09:35:17 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/10/12 15:13:15 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/10/12 17:32:02 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
 
-static void	enemy_look_at_player(t_enemy *enemy, t_level *level)
+static void	enemy_turn(t_enemy *enemy)
 {
-	vec_sub(&enemy->dir, level->cam.pos, enemy->pos);
+	vec_sub(&enemy->dir, enemy->move_to, enemy->pos);
 	enemy->dir.y = 0;
 	vec_normalize(&enemy->dir);
 	enemy->dir_rad = -1 * atan2(enemy->dir.z, enemy->dir.x) - M_PI / 2;
@@ -23,9 +23,10 @@ static void	enemy_look_at_player(t_enemy *enemy, t_level *level)
 static void	enemy_vision(t_enemy *enemy, t_level *level,
 					t_enemy_settings *settings)
 {
-	t_ray	e;
-	float	dist;
+	float	enemy_view_dist;
 	t_vec3	player;
+	float	dist;
+	t_ray	e;
 
 	enemy->can_see_player = FALSE;
 	player = level->cam.pos;
@@ -36,12 +37,18 @@ static void	enemy_vision(t_enemy *enemy, t_level *level,
 	if (player.y > e.pos.y - ENEMY_MOVABLE_HEIGHT_DIFF
 		&& player.y < e.pos.y + ENEMY_MOVABLE_HEIGHT_DIFF)
 	{
-		if ((dist > vec_length(e.dir)
-				&& vec_length(e.dir) > settings->dist_limit)
-			|| dist < vec_length(e.dir) - settings->dist_limit)
+		if (level->ui.fog)
+			enemy_view_dist = level->ui.render_distance;
+		else
+			enemy_view_dist = settings->dist_limit;
+		if (dist > vec_length(e.dir) && dist < enemy_view_dist)
 		{
+			(void)settings;
+			// 	&& vec_length(e.dir) > settings->dist_limit)
+			// || dist < vec_length(e.dir) - settings->dist_limit)
 			enemy->can_see_player = TRUE;
-			enemy_look_at_player(enemy, level);
+			enemy->move_to = level->cam.pos;
+			enemy_turn(enemy);
 		}
 	}
 }
@@ -85,15 +92,12 @@ static void	enemy_move(t_enemy *enemy, t_level *level)
 		enemy->move_start_time = 0;
 		enemy->shoot_start_time = SDL_GetTicks();
 	}
-	if (enemy->can_see_player)
-	{
-		tmp = enemy->dir;
-		vec_mult(&tmp, level->game_logic.enemy_settings.move_speed
-			* (level->ui.frame_time / 1000.0));
-		vec_add(&enemy->pos, enemy->pos, tmp);
-		enemy->pos.y -= 1.5;
-		obj_pos_set_to_floor(&enemy->pos, &level->game_models.enemy, level);
-	}
+	tmp = enemy->move_to;
+	vec_mult(&tmp, level->game_logic.enemy_settings.move_speed
+		* (level->ui.frame_time / 1000.0));
+	vec_add(&enemy->pos, enemy->pos, tmp);
+	enemy->pos.y -= 1.5;
+	obj_pos_set_to_floor(&enemy->pos, &level->game_models.enemy, level);
 }
 
 void	enemy_state_machine(t_enemy *enemy, t_level *level)

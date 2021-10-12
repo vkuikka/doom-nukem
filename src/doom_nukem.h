@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/12 14:30:12 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/10/12 15:27:47 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -589,6 +589,7 @@ typedef struct s_enemy
 	t_vec3				spawn_pos;
 	unsigned int		dead_start_time;
 	t_vec3				pos;
+	t_vec3				move_to;
 	t_vec3				dir;
 	float				dir_rad;
 	float				remaining_health;
