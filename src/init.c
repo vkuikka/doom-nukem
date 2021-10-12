@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   init.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/08 14:38:45 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/03 19:05:11 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/12 19:42:58 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,35 +53,88 @@ static void	init_fonts(t_editor_ui *ui)
 	}
 }
 
-void	init_embedded(t_level *level)
+void	init_animation(t_level *level)
+{
+	int	res;
+
+	res = 0;
+	res += load_obj("embed/enemy_shoot.obj",
+			&level->game_models.enemy_shoot);
+	res += load_animation("embed/enemy_run/enemy_run",
+			&level->game_models.enemy_run, 10, 1.0);
+	level->game_models.enemy
+		= get_animation_target(&level->game_models.enemy_run);
+	res += load_animation("embed/enemy_die/enemy_die",
+			&level->game_models.enemy_die, 41, 3.0);
+	level->game_models.enemy_die.loop = FALSE;
+	level->game_models.enemy
+		= get_animation_target(&level->game_models.enemy_die);
+	res += load_animation("embed/viewmodel/viewmodel",
+			&level->game_models.reload_animation, 3, RELOAD_ANIMATION_DURATION);
+	level->game_models.viewmodel
+		= get_animation_target(&level->game_models.reload_animation);
+	if (res != 4)
+		ft_error("animation read fail");
+}
+
+void	init_textures(t_level *level)
 {
 	level->main_menu_title
 		= bmp_read_from_memory(&embed_title_bmp[0], embed_title_bmp_len);
+	level->game_models.ammo_pickup_box.texture
+		= bmp_read_from_memory(&embed_ammo_pickup_texture_bmp[0],
+			embed_ammo_pickup_texture_bmp_len);
+	level->game_models.health_pickup_box.texture
+		= bmp_read_from_memory(&embed_health_pickup_texture_bmp[0],
+			embed_health_pickup_texture_bmp_len);
+	level->game_models.enemy.texture
+		= bmp_read("embed/enemy_texture.bmp");
+	level->game_models.viewmodel.texture
+		= bmp_read("embed/viewmodel/viewmodel_texture.bmp");
+	level->game_models.light_sprite
+		= bmp_read("embed/light_sprite.bmp");
+	level->game_models.projectile_sprite
+		= bmp_read("embed/projectile_sprite.bmp");
+}
+
+void	init_embedded(t_level *level)
+{
 	load_obj_from_memory(&embed_skybox_obj[0], embed_skybox_obj_len,
 		&level->sky.all);
 	load_obj_from_memory(&embed_skybox_obj[0], embed_skybox_obj_len,
 		&level->sky.visible);
-	init_fonts(&level->ui);
 	load_obj_from_memory(&embed_pickup_box_obj[0], embed_pickup_box_obj_len,
 		&level->game_models.ammo_pickup_box);
 	load_obj_from_memory(&embed_pickup_box_obj[0], embed_pickup_box_obj_len,
 		&level->game_models.health_pickup_box);
-	int res = load_obj("embed/enemy.obj", &level->game_models.enemy);
-	res += load_obj("embed/viewmodel/viewmodel_0.obj", &level->game_models.viewmodel);
-	if (res != 2)
-		ft_error("fix embed\n");
-	level->game_models.ammo_pickup_box.texture
-		= bmp_read_from_memory(&embed_ammo_pickup_texture_bmp[0], embed_ammo_pickup_texture_bmp_len);
-	level->game_models.health_pickup_box.texture
-		= bmp_read_from_memory(&embed_health_pickup_texture_bmp[0], embed_health_pickup_texture_bmp_len);
-	level->game_models.enemy.texture = bmp_read("embed/enemy_texture.bmp");
-	level->game_models.viewmodel.texture = bmp_read("embed/viewmodel/viewmodel_texture.bmp");
+	init_animation(level);
+	init_textures(level);
+	init_fonts(&level->ui);
+}
+
+static void	projectile_default(t_projectile *projectile)
+{
+	projectile->speed = 10;
+	projectile->dist = 1;
+	projectile->damage = 10;
+}
+
+static void	init_enemy_settings(t_enemy_settings *enemy)
+{
+	enemy->dist_limit = 30;
+	enemy->move_speed = 2;
+	enemy->initial_health = 100;
+	enemy->melee_range = 1.5;
+	enemy->attack_frequency = 0.5;
+	enemy->move_duration = 3.0;
+	enemy->shoot_duration = 2.0;
+	enemy->melee_damage = 30;
 }
 
 static void	level_default_settings(t_level *level)
 {
-	level->game_logic.player_health = PLAYER_HEALTH_MAX;
-	level->game_logic.player_ammo = PLAYER_AMMO_MAX;
+	level->game_logic.player.health = PLAYER_HEALTH_MAX;
+	level->game_logic.player.ammo = PLAYER_AMMO_MAX;
 	level->game_logic.win_dist = INITIAL_LEVEL_WIN_DIST;
 	level->cam.pos.x = 0;
 	level->cam.pos.y = -PLAYER_EYE_HEIGHT;
@@ -90,6 +143,10 @@ static void	level_default_settings(t_level *level)
 	level->cam.look_up = 0;
 	level->main_menu_anim.duration = 2;
 	level->world_brightness = 0.5;
+	level->game_logic.win_pos.x = 10;
+	init_enemy_settings(&level->game_logic.enemy_settings);
+	projectile_default(&level->game_logic.enemy_projectile_settings);
+	projectile_default(&level->game_logic.player_projectile_settings);
 }
 
 void	create_default_level(t_level *level)
@@ -109,7 +166,7 @@ void	create_default_level(t_level *level)
 	level->bake_status = BAKE_NOT_BAKED;
 	level->normal_map = bmp_read("normal.bmp");
 	level->sky.img = bmp_read("skybox.bmp");
-	level->spray = bmp_read("spray.bmp");
+	level->spray = bmp_read("embed/spray.bmp");
 	load_obj("level/cache.obj", &level->all);
 	level->visible.tris
 		= (t_tri *)malloc(sizeof(t_tri) * level->all.tri_amount);
@@ -148,49 +205,6 @@ void	init_window(t_window **window)
 		= (unsigned int *)malloc(sizeof(unsigned int) * (RES_X * RES_Y));
 	if (!window[0]->depth_buffer || !window[0]->post_process_buf)
 		ft_error("init window memory allocation failed\n");
-}
-
-void	init_enemy(t_tri *face)
-{
-	face->isenemy = 1;
-	face->enemy = (t_enemy *)malloc(sizeof(t_enemy));
-	if (!face->enemy)
-		ft_error("memory allocation failed");
-	ft_bzero(face->enemy, sizeof(t_enemy));
-	face->enemy->move_speed = 2;
-	face->enemy->dist_limit = 1;
-	face->enemy->initial_health = 100;
-	face->enemy->remaining_health = face->enemy->initial_health;
-	face->enemy->projectile_speed = 0;
-	face->enemy->projectile_scale = 1;
-	face->enemy->attack_range = 1.5;
-	face->enemy->attack_frequency = 0.5;
-	face->enemy->attack_damage = 10;
-	face->enemy->current_attack_delay = 0;
-	face->enemy->projectile_uv[0].x = .5;
-	face->enemy->projectile_uv[0].y = 0;
-	face->enemy->projectile_uv[1].x = 0;
-	face->enemy->projectile_uv[1].y = 1;
-	face->enemy->projectile_uv[2].x = 1;
-	face->enemy->projectile_uv[2].y = 1;
-}
-
-void	init_player(t_enemy *player)
-{
-	player->move_speed = RUN_SPEED;
-	player->initial_health = 100;
-	player->remaining_health = player->initial_health;
-	player->projectile_speed = 40;
-	player->projectile_scale = 0.5;
-	player->attack_frequency = 0.5;
-	player->attack_damage = -10;
-	player->current_attack_delay = 0;
-	player->projectile_uv[0].x = .5;
-	player->projectile_uv[0].y = 0;
-	player->projectile_uv[1].x = 0;
-	player->projectile_uv[1].y = 1;
-	player->projectile_uv[2].x = 1;
-	player->projectile_uv[2].y = 1;
 }
 
 static void	init_audio_effects(t_level *l)

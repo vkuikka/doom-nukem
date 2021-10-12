@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/03 19:07:37 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/12 19:43:07 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,8 @@ static void	render_finish(t_window *window, t_level *level)
 	SDL_RenderCopy(window->SDLrenderer, window->texture, NULL, NULL);
 }
 
-static void	render_raycast(t_window *window, t_level *level, t_game_state *game_state)
+static void	render_raycast(t_window *window, t_level *level,
+								t_game_state *game_state)
 {
 	SDL_Thread	*threads[THREAD_AMOUNT];
 	t_rthread	thread_data[THREAD_AMOUNT];
@@ -113,7 +114,8 @@ static void	render(t_window *window, t_level *level, t_game_state *game_state)
 			SDL_UnlockTexture(window->texture);
 			SDL_RenderCopy(window->SDLrenderer, window->texture, NULL, NULL);
 		}
-		level->ui.raycast_time = SDL_GetTicks() - raycast_time - level->ui.post_time;
+		level->ui.raycast_time = SDL_GetTicks()
+			- raycast_time - level->ui.post_time;
 		raster_time = SDL_GetTicks();
 		if (*game_state == GAME_STATE_EDITOR)
 			render_raster(window, level);
@@ -134,96 +136,28 @@ static void	tick_forward(t_level *level, t_game_state *game_state)
 	{
 		if (*game_state != GAME_STATE_EDITOR)
 			game_logic(level, game_state);
-		if (*game_state != GAME_STATE_DEAD)
-			player_movement(level);
+		player_movement(level);
 	}
 	update_camera(level);
 	door_animate(level);
-	enemies_update_sprites(level);
-}
-
-static void	merge_prop(t_level *level, t_obj *obj, t_vec3 pos, t_vec2 rotation)
-{
-	int	i;
-	int	k;
-
-	if (!level->visible_max)
-		level->visible_max = level->all.tri_amount;
-	if (obj->tri_amount + level->visible.tri_amount
-		>= level->visible_max)
+	if (*game_state == GAME_STATE_INGAME)
 	{
-		level->visible.tris = (t_tri *)ft_realloc(level->visible.tris,
-				sizeof(t_tri) * level->visible_max,
-				sizeof(t_tri) * (int)(level->visible_max * 1.5));
-		level->visible_max *= 1.5;
-		if (!level->visible.tris)
-			ft_error("memory allocation failed");
-	}
-	k = 0;
-	i = level->visible.tri_amount;
-	while (k < obj->tri_amount)
-	{
-		level->visible.tris[i] = obj->tris[k];
-		for (int z = 0; z < 3 + obj->tris[k].isquad; z++)
-		{
-			if (rotation.x)
-				rotate_vertex(rotation.x, &level->visible.tris[i].verts[z].pos, 1);
-			if (rotation.y)
-				rotate_vertex(rotation.y, &level->visible.tris[i].verts[z].pos, 0);
-			level->visible.tris[i].verts[z].pos.x += pos.x;
-			level->visible.tris[i].verts[z].pos.y += pos.y;
-			level->visible.tris[i].verts[z].pos.z += pos.z;
-		}
-		if (rotation.y)
-		{
-			vec_sub(&level->visible.tris[i].v0v2, level->visible.tris[i].verts[1].pos,
-				level->visible.tris[i].verts[0].pos);
-			vec_sub(&level->visible.tris[i].v0v1, level->visible.tris[i].verts[2].pos,
-				level->visible.tris[i].verts[0].pos);
-			vec_cross(&level->visible.tris[i].normal, level->visible.tris[i].v0v2,
-				level->visible.tris[i].v0v1);
-			vec_normalize(&level->visible.tris[i].normal);
-		}
-		level->visible.tris[i].texture = &obj->texture;
-		i++;
-		k++;
-	}
-	level->visible.tri_amount = i;
-}
-
-static void	merge_game_models(t_level *level, t_game_state game_state)
-{
-	static float	rot = 0;
-	int				i;
-
-	rot += .03;
-	if ((game_state == GAME_STATE_EDITOR
-		&& level->ui.state.ui_location == UI_LOCATION_GAME_SETTINGS)
-		|| game_state == GAME_STATE_INGAME)
-	{
-		i = -1;
-		while (++i < level->game_logic.ammo_box_amount)
-			if (level->game_logic.ammo_box[i].visible)
-				merge_prop(level, &level->game_models.ammo_pickup_box,
-					level->game_logic.ammo_box[i].pos, (t_vec2){0, rot + (M_PI / 3 * i)});
-		i = -1;
-		while (++i < level->game_logic.health_box_amount)
-			if (level->game_logic.health_box[i].visible)
-				merge_prop(level, &level->game_models.health_pickup_box,
-					level->game_logic.health_box[i].pos, (t_vec2){0, rot + (M_PI / 3 * i)});
-		i = -1;
-		while (++i < level->game_logic.enemy_amount)
-			merge_prop(level, &level->game_models.enemy,
-				level->game_logic.enemy_spawn_pos[i], (t_vec2){0, rot + (M_PI / 3 * i)});
+		projectiles_update(level);
+		enemies_update(level);
 	}
 }
 
-static void	viewmodel(t_window *window, t_level *level, t_game_state *game_state)
+static void	viewmodel(t_window *window, t_level *level,
+								t_game_state *game_state)
 {
 	if (*game_state != GAME_STATE_INGAME)
 		return ;
+	if (level->game_logic.reload_start_time)
+		play_animation(&level->game_models.viewmodel,
+			&level->game_models.reload_animation,
+			level->game_logic.reload_start_time);
 	level->visible.tri_amount = 0;
-	merge_prop(level, &level->game_models.viewmodel, level->cam.pos, (t_vec2){level->cam.look_up, level->cam.look_side});
+	merge_viewmodel(level);
 	screen_space_partition(level);
 	level->render_is_first_pass = TRUE;
 	render_raycast(window, level, game_state);
@@ -274,7 +208,6 @@ int	main(int argc, char **argv)
 	init_ui(window, level);
 	init_audio(level);
 	init_embedded(level);
-	init_player(&level->player);
 	Mix_PlayMusic(level->audio.title_music, -1);
 	while (!level->level_initialized)
 	{

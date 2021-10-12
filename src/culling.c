@@ -314,7 +314,7 @@ void	reflection_culling(t_level *level, int i)
 	k = -1;
 	while (++k < level->all.tri_amount)
 	{
-		if ((level->all.tris[k].isenemy || level->all.tris[k].isgrid
+		if ((level->all.tris[k].isgrid
 				|| cull_behind(level->all.tris[i].normal,
 					avg, level->all.tris[k]))
 			&& face_distance_culling(level->all.tris[i],
@@ -336,7 +336,7 @@ void	opacity_culling(t_level *level, int i, t_obj *obj)
 	k = 0;
 	while (k < obj->tri_amount)
 	{
-		if ((obj->tris[k].isenemy || obj->tris[k].isgrid
+		if ((obj->tris[k].isgrid
 				|| cull_ahead(level->all.tris[i].normal,
 					level->all.tris[i].verts[0].pos, obj->tris[k]))
 			&& backface_culling(level->cam.pos, obj->tris[k]))
@@ -463,6 +463,7 @@ void	cull_visible(t_level *l, t_vec3 side_normals[4])
 	int	i;
 
 	l->visible.tri_amount = 0;
+	visible_request_merge(l, l->all.tri_amount);
 	i = -1;
 	while (++i < l->all.tri_amount)
 	{

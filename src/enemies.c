@@ -3,264 +3,86 @@
 /*                                                        :::      ::::::::   */
 /*   enemies.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/14 17:08:49 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/22 22:25:53 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/12 15:28:41 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
 
-void	create_projectile(t_level *level, t_vec3 pos, t_vec3 dir,
-													t_enemy *enemy)
+void	delete_enemy(t_level *level)
 {
-	int	index;
+	int	amount;
+	int	i;
 
-	index = level->all.tri_amount;
-	free_culling(level);
-	level->all.tri_amount++;
-	level->all.tris = (t_tri *)ft_realloc(level->all.tris,
-			sizeof(t_tri) * (level->all.tri_amount - 1),
-			sizeof(t_tri) * level->all.tri_amount);
-	if (!level->all.tris)
+	amount = level->game_logic.enemy_amount;
+	i = level->ui.state.logic_selected_index;
+	while (i < amount - 1)
+	{
+		level->game_logic.enemies[i].spawn_pos
+			= level->game_logic.enemies[i + 1].spawn_pos;
+		i++;
+	}
+	level->game_logic.enemies
+		= (t_enemy *)ft_realloc(level->game_logic.enemies,
+			sizeof(t_enemy) * amount, sizeof(t_enemy) * (amount - 1));
+	if (!level->game_logic.enemies)
 		ft_error("memory allocation failed");
-	level->visible.tris = (t_tri *)ft_realloc(level->visible.tris,
-			sizeof(t_tri) * (level->all.tri_amount - 1),
-			sizeof(t_tri) * level->all.tri_amount);
-	if (!level->visible.tris)
-		ft_error("memory allocation failed");
-	set_new_face(level, pos, dir, enemy->projectile_scale);
-	init_screen_space_partition(level);
-	init_culling(level);
-	level->all.tris[index].projectile
-		= (t_projectile *)malloc(sizeof(t_projectile));
-	if (!level->all.tris[index].projectile)
-		ft_error("memory allocation failed");
-	level->all.tris[index].projectile->dist = enemy->attack_range;
-	level->all.tris[index].projectile->damage = enemy->attack_damage;
-	level->all.tris[index].projectile->speed = enemy->projectile_speed;
-	level->all.tris[index].projectile->dir = dir;
-	level->all.tris[index].isprojectile = 1;
-	level->all.tris[index].verts[0].txtr = enemy->projectile_uv[0];
-	level->all.tris[index].verts[1].txtr = enemy->projectile_uv[1];
-	level->all.tris[index].verts[2].txtr = enemy->projectile_uv[2];
+	level->game_logic.enemy_amount--;
+	level->ui.state.logic_selected = GAME_LOGIC_SELECTED_NONE;
 }
 
-static void	remove_projectile(t_level *level, int remove)
+void	add_enemy(t_level *level)
 {
-	t_tri	*new_tris;
-	int		i;
+	int	amount;
 
-	free_culling(level);
-	level->all.tri_amount--;
-	new_tris = (t_tri *)malloc(sizeof(t_tri) * level->all.tri_amount);
-	if (!new_tris)
+	amount = level->game_logic.enemy_amount;
+	level->game_logic.enemies
+		= (t_enemy *)ft_realloc(level->game_logic.enemies,
+			sizeof(t_enemy) * amount, sizeof(t_enemy) * (amount + 1));
+	if (!level->game_logic.enemies)
 		ft_error("memory allocation failed");
-	level->visible.tris = (t_tri *)ft_realloc(level->visible.tris,
-			sizeof(t_tri) * level->all.tri_amount - 1,
-			sizeof(t_tri) * level->all.tri_amount);
-	if (!level->visible.tris)
-		ft_error("memory allocation failed");
-	free(level->all.tris[remove].projectile);
+	vec_add(&level->game_logic.enemies[amount].spawn_pos,
+		level->cam.pos, level->cam.front);
+	obj_pos_set_to_floor(&level->game_logic.enemies[amount].spawn_pos,
+		&level->game_models.enemy, level);
+	level->game_logic.enemy_amount++;
+}
+
+static void	enemy_spawn(t_enemy *enemy, t_enemy_settings *settings)
+{
+	enemy->dead_start_time = 0;
+	enemy->current_attack_delay = 0;
+	enemy->dir = (t_vec3){1, 0, 0};
+	enemy->dir_rad = 0;
+	enemy->pos = enemy->spawn_pos;
+	enemy->remaining_health = settings->initial_health;
+	enemy->move_start_time = SDL_GetTicks()
+		+ (rand() % (int)(1000 * settings->move_duration));
+	enemy->move_to = enemy->pos;
+}
+
+void	spawn_enemies(t_level *level)
+{
+	int	i;
+
+	i = 0;
+	while (i < level->game_logic.enemy_amount)
+	{
+		enemy_spawn(&level->game_logic.enemies[i],
+			&level->game_logic.enemy_settings);
+		i++;
+	}
+}
+
+void	enemies_update(t_level *level)
+{
+	int				i;
+
 	i = -1;
-	while (++i < level->all.tri_amount)
-	{
-		if (i < remove)
-			new_tris[i] = level->all.tris[i];
-		else
-		{
-			new_tris[i] = level->all.tris[i + 1];
-			new_tris[i].index = i;
-		}
-	}
-	free(level->all.tris);
-	level->all.tris = new_tris;
-	init_screen_space_partition(level);
-	init_culling(level);
-}
-
-static void	calc_vectors(t_tri *tri)
-{
-	tri->v0v1.x = tri->verts[2].pos.x - tri->verts[0].pos.x;
-	tri->v0v1.y = tri->verts[2].pos.y - tri->verts[0].pos.y;
-	tri->v0v1.z = tri->verts[2].pos.z - tri->verts[0].pos.z;
-	tri->v0v2.x = tri->verts[1].pos.x - tri->verts[0].pos.x;
-	tri->v0v2.y = tri->verts[1].pos.y - tri->verts[0].pos.y;
-	tri->v0v2.z = tri->verts[1].pos.z - tri->verts[0].pos.z;
-}
-
-static float	find_angle(t_vec3 v1, t_vec3 v2)
-{
-	float	angle;
-
-	angle = M_PI - vec_angle(v1, v2);
-	if (isnan(angle))
-		return (0);
-	rotate_vertex(M_PI / 2, &v2, 0);
-	if (vec_dot(v1, v2) < 0)
-		angle *= -1;
-	return (angle);
-}
-
-static void	turn_sprite(t_tri *tri, t_vec3 dir)
-{
-	t_vec3	face_mid;
-	t_vec3	rot_vert;
-	t_vec3	normal;
-	float	angle;
-	int		vert;
-
-	vert = 0;
-	vec_cross(&normal, tri->v0v1, tri->v0v2);
-	normal.y = 0;
-	ft_memset(&face_mid, 0, sizeof(int) * 3);
-	while (vert < 3 + tri->isquad)
-		vec_add(&face_mid, face_mid, tri->verts[vert++].pos);
-	vec_div(&face_mid, (float)vert);
-	vec_sub(&rot_vert, dir, face_mid);
-	rot_vert.y = 0;
-	angle = find_angle(normal, rot_vert);
-	if (!angle)
-		return ;
-	while (vert--)
-	{
-		vec_sub(&rot_vert, tri->verts[vert].pos, face_mid);
-		rotate_vertex(angle, &rot_vert, 0);
-		vec_add(&tri->verts[vert].pos, rot_vert, face_mid);
-	}
-	calc_vectors(tri);
-	vec_cross(&tri->normal, tri->v0v2, tri->v0v1);
-	vec_normalize(&tri->normal);
-}
-
-void	move_enemy(t_tri *face, t_level *level, float time)
-{
-	t_ray	e;
-	float	dist;
-	t_vec3	player;
-	t_vec3	tmp;
-	int		i;
-
-	player = level->cam.pos;
-	e.pos.x = 0;
-	e.pos.y = 0;
-	e.pos.z = 0;
-	i = -1;
-	while (++i < 3 + face->isquad)
-		vec_add(&e.pos, e.pos, face->verts[i].pos);
-	vec_div(&e.pos, 3 + face->isquad);
-	vec_sub(&e.dir, player, e.pos);
-	dist = cast_all(e, level, NULL);
-	if (player.y > e.pos.y - ENEMY_MOVABLE_HEIGHT_DIFF
-		&& player.y < e.pos.y + ENEMY_MOVABLE_HEIGHT_DIFF)
-	{
-		if (dist > vec_length(e.dir))
-			face->enemy->dir = e.dir;
-		if ((dist > vec_length(e.dir)
-				&& vec_length(e.dir) > face->enemy->dist_limit)
-			|| dist < vec_length(e.dir) - face->enemy->dist_limit)
-		{
-			if (face->enemy->dir.x || face->enemy->dir.z)
-			{
-				e.dir = face->enemy->dir;
-				e.dir.y = 0;
-				vec_normalize(&e.dir);
-				vec_mult(&e.dir, face->enemy->move_speed * time);
-				tmp = e.dir;
-				vec_add(&e.pos, e.pos, e.dir);
-				vec_sub(&tmp, face->enemy->dir, e.dir);
-				if (vec_dot(tmp, e.dir) > 0)
-				{
-					face->enemy->dir = tmp;
-					i = -1;
-					while (++i < 3 + face->isquad)
-						vec_add(&face->verts[i].pos, face->verts[i].pos, e.dir);
-				}
-			}
-		}
-	}
-	vec_sub(&tmp, player, e.pos);
-	face->enemy->current_attack_delay += time;
-	if (dist > vec_length(tmp)
-		&& face->enemy->current_attack_delay >= face->enemy->attack_frequency)
-	{
-		if (vec_length(tmp) < face->enemy->attack_range)
-		{
-			face->enemy->current_attack_delay = 0;
-			vec_mult(&level->player_vel, 0);
-			level->game_logic.player_health -= face->enemy->attack_damage;
-		}
-		else if (face->enemy->projectile_speed)
-		{
-			face->enemy->current_attack_delay = 0;
-			vec_sub(&e.dir, player, e.pos);
-			vec_normalize(&e.dir);
-			create_projectile(level, e.pos, e.dir, face->enemy);
-		}
-	}
-}
-
-static void	move_projectile(t_tri *face, t_level *level, float time)
-{
-	t_ray	e;
-	float	dist;
-	t_vec3	player;
-	int		i;
-	int		hit_index;
-
-	player = level->cam.pos;
-	e.pos = face->verts[0].pos;
-	vec_add(&e.pos, e.pos, face->verts[1].pos);
-	vec_add(&e.pos, e.pos, face->verts[2].pos);
-	vec_div(&e.pos, 3);
-	vec_sub(&e.dir, player, e.pos);
-	if (vec_length(e.dir) <= PROJECTILE_DAMAGE_DIST && face->projectile->damage > 0)
-	{
-		vec_mult(&level->player_vel, 0);
-		level->game_logic.player_health -= face->projectile->damage;
-		remove_projectile(level, face->index);
-		return ;
-	}
-	e.dir = face->projectile->dir;
-	dist = cast_all(e, level, &hit_index);
-	vec_mult(&e.dir, face->projectile->speed * time);
-	if (dist <= vec_length(e.dir)
-		|| face->projectile->dist > MAX_PROJECTILE_TRAVEL)
-	{
-		if (dist <= vec_length(e.dir) && hit_index > 0 && level->all.tris[hit_index].isbreakable)
-			remove_projectile(level, hit_index);
-		else
-			remove_projectile(level, face->index);
-		return;
-	}
-	i = -1;
-	while (++i < 3 + face->isquad)
-		vec_add(&face->verts[i].pos, face->verts[i].pos, e.dir);
-	face->projectile->dist += vec_length(e.dir);
-}
-
-void	enemies_update_sprites(t_level *level)
-{
-	static int	time = 0;
-	int			delta_time;
-	int			face;
-
-	face = 0;
-	delta_time = SDL_GetTicks() - time;
-	while (face < level->all.tri_amount)
-	{
-		if (level->all.tris[face].isenemy)
-		{
-			turn_sprite(&level->all.tris[face], level->cam.pos);
-			move_enemy(&level->all.tris[face], level, delta_time / 1000.0);
-		}
-		else if (level->all.tris[face].isprojectile)
-		{
-			turn_sprite(&level->all.tris[face], level->cam.pos);
-			move_projectile(&level->all.tris[face], level, delta_time / 1000.0);
-		}
-		face++;
-	}
-	time = SDL_GetTicks();
+	while (++i < level->game_logic.enemy_amount)
+		if (!level->game_logic.enemies[i].dead_start_time)
+			enemy_state_machine(&level->game_logic.enemies[i], level);
 }

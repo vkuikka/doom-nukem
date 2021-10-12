@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/10 22:47:18 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/25 16:32:15 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/10/12 18:27:40 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,22 +17,25 @@ static void	player_reload(t_level *level)
 	float	time;
 
 	time = (SDL_GetTicks() - level->game_logic.reload_start_time)
-		/ (1000 * VIEWMODEL_ANIM_FPS);
+		/ (1000 * level->game_models.reload_animation.duration);
 	if (time > 1)
 	{
 		level->game_logic.reload_start_time = 0;
-		level->game_logic.player_ammo = PLAYER_AMMO_MAX;
+		level->game_logic.player.ammo = PLAYER_AMMO_MAX;
 	}
 }
 
 static void	player_shoot(t_level *level)
 {
-	if (level->game_logic.player_ammo)
+	if (level->game_logic.player.ammo)
 	{
-		level->game_logic.player_ammo--;
-		level->player.dir = level->cam.front;
-		create_projectile(level, level->cam.pos,
-			level->cam.front, &level->player);
+		if (!level->game_logic.reload_start_time)
+		{
+			level->game_logic.player.ammo--;
+			create_projectile(&level->game_logic, level->cam.pos,
+				level->cam.front,
+				level->game_logic.player_projectile_settings);
+		}
 	}
 	else
 		level->game_logic.reload_start_time = SDL_GetTicks();
@@ -55,7 +58,7 @@ static void	game_finished(t_level *level, t_game_state *game_state,
 	}
 	else if (level->game_logic.death_start_time)
 	{
-		level->game_logic.player_health = 0;
+		level->game_logic.player.health = 0;
 		time = (SDL_GetTicks() - level->game_logic.death_start_time)
 			/ (1000.0 * DEATH_LENGTH_SEC);
 		if (time > 1)
@@ -119,44 +122,41 @@ static void	game_logic_win_lose(t_level *level, t_game_state *game_state)
 {
 	t_vec3	dist;
 
-	if (level->game_logic.player_health <= 0)
+	if (level->game_logic.player.health <= 0)
 	{
 		level->game_logic.reload_start_time = 0;
 		level->game_logic.death_start_time = SDL_GetTicks();
-		*game_state = GAME_STATE_DEAD;
 		level->cam.look_up = 1;
 	}
 	else if (*game_state == GAME_STATE_INGAME)
 	{
 		vec_sub(&dist, level->game_logic.win_pos, level->cam.pos);
 		if (vec_length(dist) < level->game_logic.win_dist)
-			*game_state = GAME_STATE_WIN;
-		if (*game_state == GAME_STATE_WIN)
 			level->game_logic.win_start_time = SDL_GetTicks();
 	}
 }
 
 void	game_logic(t_level *level, t_game_state *game_state)
 {
-	handle_audio(level, game_state);
+	handle_audio(level);
 	if (level->game_logic.win_start_time || level->game_logic.death_start_time)
-	{
 		game_finished(level, game_state, 0);
+	if (level->game_logic.death_start_time)
 		return ;
-	}
-	if (level->game_logic.reload_start_time && *game_state != GAME_STATE_DEAD)
+	if (level->game_logic.reload_start_time)
 		player_reload(level);
-	if (level->ui.state.m1_click && level->ui.state.mouse_capture
-		&& *game_state != GAME_STATE_DEAD)
+	if (level->ui.state.m1_click && level->ui.state.mouse_capture)
 		player_shoot(level);
+	if (level->game_logic.win_start_time)
+		return ;
 	if (*game_state == GAME_STATE_INGAME)
 	{
 		if (pick_up_pick_ups(level, level->game_logic.ammo_box,
 				level->game_logic.ammo_box_amount))
-			level->game_logic.player_ammo = PLAYER_AMMO_MAX;
+			level->game_logic.player.ammo = PLAYER_AMMO_MAX;
 		if (pick_up_pick_ups(level, level->game_logic.health_box,
 				level->game_logic.health_box_amount))
-			level->game_logic.player_health = PLAYER_HEALTH_MAX;
+			level->game_logic.player.health = PLAYER_HEALTH_MAX;
 	}
 	else
 		reset_pick_ups(level);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   serialize.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/06 14:13:02 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/29 14:05:36 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/12 20:06:40 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -173,64 +173,44 @@ void	serialize_vert(t_vert *vert, t_buffer *buf)
 	serialize_vec2(vert->txtr, buf);
 }
 
-void	deserialize_enemy(t_enemy *enemy, t_buffer *buf)
+void	deserialize_enemy_settings(t_enemy_settings *enemy, t_buffer *buf)
 {
-	int	i;
-
-	i = 0;
-	deserialize_vec3(&enemy->dir, buf);
-	while (i < 3)
-	{
-		deserialize_vec2(&enemy->projectile_uv[i], buf);
-		i++;
-	}
-	deserialize_float(&enemy->move_speed, buf);
 	deserialize_float(&enemy->dist_limit, buf);
+	deserialize_float(&enemy->move_speed, buf);
 	deserialize_float(&enemy->initial_health, buf);
-	deserialize_float(&enemy->remaining_health, buf);
-	deserialize_float(&enemy->attack_range, buf);
+	deserialize_float(&enemy->melee_range, buf);
+	deserialize_float(&enemy->melee_damage, buf);
 	deserialize_float(&enemy->attack_frequency, buf);
-	deserialize_float(&enemy->projectile_speed, buf);
-	deserialize_float(&enemy->attack_damage, buf);
-	deserialize_float(&enemy->current_attack_delay, buf);
+	deserialize_float(&enemy->move_duration, buf);
+	deserialize_float(&enemy->shoot_duration, buf);
 }
 
-void	serialize_enemy(t_enemy *enemy, t_buffer *buf)
+void	serialize_enemy_settings(t_enemy_settings *enemy, t_buffer *buf)
 {
-	int	i;
-
-	i = 0;
-	serialize_vec3(enemy->dir, buf);
-	while (i < 3)
-	{
-		serialize_vec2(enemy->projectile_uv[i], buf);
-		i++;
-	}
-	serialize_float(enemy->move_speed, buf);
 	serialize_float(enemy->dist_limit, buf);
+	serialize_float(enemy->move_speed, buf);
 	serialize_float(enemy->initial_health, buf);
-	serialize_float(enemy->remaining_health, buf);
-	serialize_float(enemy->attack_range, buf);
+	serialize_float(enemy->melee_range, buf);
+	serialize_float(enemy->melee_damage, buf);
 	serialize_float(enemy->attack_frequency, buf);
-	serialize_float(enemy->projectile_speed, buf);
-	serialize_float(enemy->attack_damage, buf);
-	serialize_float(enemy->current_attack_delay, buf);
+	serialize_float(enemy->move_duration, buf);
+	serialize_float(enemy->shoot_duration, buf);
 }
 
 void	deserialize_projectile(t_projectile *projectile, t_buffer *buf)
 {
-	deserialize_vec3(&projectile->dir, buf);
 	deserialize_float(&projectile->speed, buf);
 	deserialize_float(&projectile->dist, buf);
 	deserialize_float(&projectile->damage, buf);
+	deserialize_float(&projectile->scale, buf);
 }
 
 void	serialize_projectile(t_projectile *projectile, t_buffer *buf)
 {
-	serialize_vec3(projectile->dir, buf);
 	serialize_float(projectile->speed, buf);
 	serialize_float(projectile->dist, buf);
 	serialize_float(projectile->damage, buf);
+	serialize_float(projectile->scale, buf);
 }
 
 void	deserialize_player_pos(t_player_pos *pos, t_buffer *buf)
@@ -298,8 +278,6 @@ void	deserialize_tri(t_tri *tri, t_buffer *buf)
 	deserialize_vec3(&tri->normal, buf);
 	deserialize_int(&tri->isquad, buf);
 	deserialize_int(&tri->isgrid, buf);
-	deserialize_int(&tri->isenemy, buf);
-	deserialize_int(&tri->isprojectile, buf);
 	deserialize_float(&tri->opacity, buf);
 	deserialize_float(&tri->reflectivity, buf);
 	deserialize_float(&tri->refractivity, buf);
@@ -310,20 +288,6 @@ void	deserialize_tri(t_tri *tri, t_buffer *buf)
 		if (!tri->perlin)
 			ft_error("failed to allocate memory for file");
 		deserialize_perlin_settings(tri->perlin, buf);
-	}
-	if (tri->isenemy)
-	{
-		tri->enemy = (t_enemy *)malloc(sizeof(t_enemy));
-		if (!tri->enemy)
-			ft_error("failed to allocate memory for file");
-		deserialize_enemy(tri->enemy, buf);
-	}
-	if (tri->isprojectile)
-	{
-		tri->projectile = (t_projectile *)malloc(sizeof(t_projectile));
-		if (!tri->projectile)
-			ft_error("failed to allocate memory for file");
-		deserialize_projectile(tri->projectile, buf);
 	}
 }
 
@@ -342,18 +306,12 @@ void	serialize_tri(t_tri *tri, t_buffer *buf)
 	serialize_vec3(tri->normal, buf);
 	serialize_int(tri->isquad, buf);
 	serialize_int(tri->isgrid, buf);
-	serialize_int(tri->isenemy, buf);
-	serialize_int(tri->isprojectile, buf);
 	serialize_float(tri->opacity, buf);
 	serialize_float(tri->reflectivity, buf);
 	serialize_float(tri->refractivity, buf);
 	serialize_int((int)tri->shader, buf);
 	if (tri->shader == SHADER_PERLIN)
 		serialize_perlin_settings(tri->perlin, buf);
-	if (tri->isenemy)
-		serialize_enemy(tri->enemy, buf);
-	if (tri->isprojectile)
-		serialize_projectile(tri->projectile, buf);
 }
 
 void	deserialize_obj(t_obj *obj, t_buffer *buf)
@@ -644,7 +602,9 @@ void	deserialize_level(t_level *level, t_buffer *buf)
 	}
 	free_culling(level);
 	free(level->all.tris);
-	free(level->visible.tris);
+	deserialize_projectile(&level->game_logic.player_projectile_settings, buf);
+	deserialize_projectile(&level->game_logic.enemy_projectile_settings, buf);
+	deserialize_enemy_settings(&level->game_logic.enemy_settings, buf);
 	deserialize_obj(&level->all, buf);
 	deserialize_doors(level, buf);
 	deserialize_lights(level, buf);
@@ -674,12 +634,12 @@ void	deserialize_level(t_level *level, t_buffer *buf)
 		level->game_logic.ammo_box[i].visible = 1;
 	}
 	deserialize_int(&level->game_logic.enemy_amount, buf);
-	level->game_logic.enemy_spawn_pos = (t_vec3 *)malloc(sizeof(t_vec3) * level->game_logic.enemy_amount);
-	if (!level->game_logic.enemy_spawn_pos)
+	level->game_logic.enemies = (t_enemy *)malloc(sizeof(t_enemy) * level->game_logic.enemy_amount);
+	if (!level->game_logic.enemies)
 		ft_error("memory allocation failed\n");
 	i = -1;
 	while (++i < level->game_logic.enemy_amount)
-		deserialize_vec3(&level->game_logic.enemy_spawn_pos[i], buf);
+		deserialize_vec3(&level->game_logic.enemies[i].spawn_pos, buf);
 	deserialize_int(&level->main_menu_anim.amount, buf);
 	deserialize_int((int *)&level->main_menu_anim.duration, buf);
 	deserialize_int(&level->main_menu_anim.loop, buf);
@@ -689,11 +649,8 @@ void	deserialize_level(t_level *level, t_buffer *buf)
 	i = -1;
 	while (++i < level->main_menu_anim.amount)
 		deserialize_player_pos(&level->main_menu_anim.pos[i], buf);
-	level->visible.tris = (t_tri *)malloc(sizeof(t_tri)
-			* level->all.tri_amount);
 	if (!level->visible.tris)
 		ft_error("memory allocation failed\n");
-	init_screen_space_partition(level);
 	init_culling(level);
 	level->level_initialized = TRUE;
 }
@@ -714,6 +671,9 @@ void	serialize_level(t_level *level, t_buffer *buf)
 		serialize_int(level->spray_overlay[i], buf);
 		i++;
 	}
+	serialize_projectile(&level->game_logic.player_projectile_settings, buf);
+	serialize_projectile(&level->game_logic.enemy_projectile_settings, buf);
+	serialize_enemy_settings(&level->game_logic.enemy_settings, buf);
 	serialize_obj(&level->all, buf);
 	serialize_doors(level, buf);
 	serialize_lights(level, buf);
@@ -731,7 +691,7 @@ void	serialize_level(t_level *level, t_buffer *buf)
 	serialize_int(level->game_logic.enemy_amount, buf);
 	i = -1;
 	while (++i < level->game_logic.enemy_amount)
-		serialize_vec3(level->game_logic.enemy_spawn_pos[i], buf);
+		serialize_vec3(level->game_logic.enemies[i].spawn_pos, buf);
 	serialize_int(level->main_menu_anim.amount, buf);
 	serialize_int(level->main_menu_anim.duration, buf);
 	serialize_int(level->main_menu_anim.loop, buf);

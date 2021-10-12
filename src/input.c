@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   input.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/10 22:39:12 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/16 17:57:22 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/12 17:55:00 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,11 +126,10 @@ static void	set_mouse_input_location(t_level *level, t_game_state game_state)
 	level->ui.state.m1_click = FALSE;
 }
 
-static void	mouse_input(t_level *level, SDL_Event event,
-										t_game_state game_state)
+static void	mouse_input(t_level *level, SDL_Event event)
 {
 	if (event.type == SDL_MOUSEMOTION && level->ui.state.mouse_capture
-		&& game_state != GAME_STATE_DEAD)
+		&& !level->game_logic.death_start_time)
 	{
 		level->cam.look_side += (float)event.motion.xrel / 600;
 		level->cam.look_up -= (float)event.motion.yrel / 600;
@@ -225,7 +224,7 @@ void	read_input(t_window *window, t_level *level,
 		if (event.type == SDL_QUIT
 			|| event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
 			exit(0);
-		mouse_input(level, event, *game_state);
+		mouse_input(level, event);
 		if (level->ui.state.text_input_enable)
 			typing_input(level, event);
 		else if (event.type == SDL_KEYDOWN && event.key.repeat == 0)

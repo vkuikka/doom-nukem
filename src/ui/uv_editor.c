@@ -144,36 +144,6 @@ void	set_fourth_vertex_uv(t_tri *a)
 	a->verts[3].txtr.y = res.y;
 }
 
-static void	draw_uv(t_level *level, t_uv_parameters param, t_vec2 uv[3],
-															t_ivec2 mouse)
-{
-	t_ivec2	color;
-	t_vec2	start;
-	t_vec2	stop;
-	int		next;
-	int		k;
-
-	k = 0;
-	start.x = 0;
-	start.y = 0;
-	while (k < 3)
-	{
-		next = (k + 1) % 3;
-		start.x = param.scale.x * uv[k].x;
-		start.y = param.scale.y * (1 - uv[k].y);
-		stop.x = param.scale.x * uv[next].x;
-		stop.y = param.scale.y * (1 - uv[next].y);
-		vec2_add(&start, start, param.offset);
-		vec2_add(&stop, stop, param.offset);
-		color.x = WF_PROJECTILE_COL >> 8;
-		color.y = WF_PROJECTILE_COL >> 8;
-		uv_print_line(start, stop, color, param.pixels);
-		put_uv_vertex(start, WF_PROJECTILE_COL, param.pixels);
-		find_closest_to_mouse(level, &uv[k], &start, &mouse);
-		k++;
-	}
-}
-
 int	get_uv_wf_line_settings(int k, t_vec2 *start, t_vec2 *stop,
 			t_uv_parameters param)
 {
@@ -240,7 +210,6 @@ static void	uv_wireframe_selected(t_level *level,
 			t_uv_parameters param, t_ivec2 *mouse)
 {
 	int		i;
-	int		k;
 
 	i = -1;
 	while (++i < level->all.tri_amount)
@@ -249,16 +218,6 @@ static void	uv_wireframe_selected(t_level *level,
 		{
 			param.tri = &level->all.tris[i];
 			draw_face_uv(level, param, *mouse);
-			if (level->all.tris[i].enemy)
-			{
-				draw_uv(level, param,
-					level->all.tris[i].enemy->projectile_uv, *mouse);
-				k = -1;
-				while (++k < 3)
-					find_closest_to_mouse(level,
-						&level->all.tris[i].enemy->projectile_uv[k],
-						&(t_vec2){0, 0}, mouse);
-			}
 		}
 	}
 }
@@ -268,7 +227,6 @@ static void	uv_wireframe(t_level *level, t_ivec2 offset,
 {
 	t_ivec2			mouse;
 	t_uv_parameters	param;
-	int				i;
 
 	mouse = level->ui.state.mouse;
 	param.offset.x = offset.x;
@@ -276,44 +234,8 @@ static void	uv_wireframe(t_level *level, t_ivec2 offset,
 	param.scale.x = level->texture.width * image_scale;
 	param.scale.y = level->texture.height * image_scale;
 	param.pixels = pixels;
-	if (nothing_selected(level))
-	{
-		draw_uv(level, param, level->player.projectile_uv, mouse);
-		i = -1;
-		while (++i < 3)
-			find_closest_to_mouse(level, &level->player.projectile_uv[i],
-				&(t_vec2){0, 0}, &mouse);
-	}
-	else
-		uv_wireframe_selected(level, param, &mouse);
+	uv_wireframe_selected(level, param, &mouse);
 	update_uv_closest_vertex(level, image_scale, offset, mouse);
-}
-
-static void	match_projectile_uv(t_level *level)
-{
-	int	i;
-	int	copy_index;
-
-	i = 0;
-	copy_index = -1;
-	while (i < level->all.tri_amount)
-	{
-		if (level->all.tris[i].selected && level->all.tris[i].isenemy)
-		{
-			if (copy_index != -1)
-			{
-				level->all.tris[i].enemy->projectile_uv[0]
-					= level->all.tris[copy_index].enemy->projectile_uv[0];
-				level->all.tris[i].enemy->projectile_uv[1]
-					= level->all.tris[copy_index].enemy->projectile_uv[1];
-				level->all.tris[i].enemy->projectile_uv[2]
-					= level->all.tris[copy_index].enemy->projectile_uv[2];
-			}
-			else
-				copy_index = i;
-		}
-		i++;
-	}
 }
 
 void	draw_texture(t_level *level, unsigned int *pixels,
@@ -365,7 +287,6 @@ void	uv_editor(t_level *level, unsigned int *pixels)
 			uv_pixel_put(x, y, UI_BACKGROUND_COL, pixels);
 	}
 	draw_texture(level, pixels, image_scale, offset);
-	match_projectile_uv(level);
 	uv_wireframe(level, offset, pixels, image_scale);
 }
 

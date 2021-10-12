@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   vectors.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/07 18:13:00 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/27 23:46:47 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/12 14:29:32 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -158,4 +158,10 @@ void	vec_div(t_vec3 *res, float div)
 	res->x = res->x / div;
 	res->y = res->y / div;
 	res->z = res->z / div;
+}
+
+float	vec_dist(t_vec3 ve1, t_vec3 ve2)
+{
+	vec_sub(&ve1, ve1, ve2);
+	return (vec_length(ve1));
 }

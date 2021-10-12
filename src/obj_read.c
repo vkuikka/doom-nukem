@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/13 18:10:48 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/10/12 12:38:06 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -234,6 +234,14 @@ static int	obj_get_face_amount(char **file)
 	return (res);
 }
 
+void	tri_optimize(t_tri *tri)
+{
+	vec_sub(&tri->v0v2, tri->verts[1].pos, tri->verts[0].pos);
+	vec_sub(&tri->v0v1, tri->verts[2].pos, tri->verts[0].pos);
+	vec_cross(&tri->normal, tri->v0v2, tri->v0v1);
+	vec_normalize(&tri->normal);
+}
+
 static int	load_obj_internal(char **file, t_obj *obj)
 {
 	int		i;
@@ -251,12 +259,7 @@ static int	load_obj_internal(char **file, t_obj *obj)
 	while (i < obj->tri_amount)
 	{
 		obj->tris[i].index = i;
-		vec_sub(&obj->tris[i].v0v2, obj->tris[i].verts[1].pos,
-			obj->tris[i].verts[0].pos);
-		vec_sub(&obj->tris[i].v0v1, obj->tris[i].verts[2].pos,
-			obj->tris[i].verts[0].pos);
-		vec_cross(&obj->tris[i].normal, obj->tris[i].v0v2, obj->tris[i].v0v1);
-		vec_normalize(&obj->tris[i].normal);
+		tri_optimize(&obj->tris[i]);
 		i++;
 	}
 	return (TRUE);

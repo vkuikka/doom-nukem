@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/09 21:56:12 by alcohen           #+#    #+#             */
-/*   Updated: 2021/09/25 15:59:27 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/10/12 17:53:53 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,17 +32,20 @@ static void	handle_jump_sound(t_level *level)
 	}
 }
 
-void	handle_audio(t_level *level, t_game_state *game_state)
+void	handle_audio(t_level *level)
 {
 	if (level->ui.state.m1_click && level->ui.state.mouse_capture
-		&& *game_state != GAME_STATE_DEAD)
+		&& !level->game_logic.death_start_time)
 	{
-		if (level->game_logic.player_ammo)
-			Mix_PlayChannel(AUDIO_GUNSHOT_CHANNEL, level->audio.gunshot, 0);
+		if (level->game_logic.player.ammo)
+		{
+			if (!level->game_logic.reload_start_time)
+				Mix_PlayChannel(AUDIO_GUNSHOT_CHANNEL, level->audio.gunshot, 0);
+		}
 		else
 			Mix_PlayChannel(AUDIO_RELOAD_CHANNEL, level->audio.reload, 0);
 	}
-	else if (level->game_logic.player_health <= 0)
+	else if (level->game_logic.player.health <= 0)
 	{
 		Mix_HaltMusic();
 		Mix_PlayChannel(AUDIO_DEATH_CHANNEL, level->audio.death, 0);

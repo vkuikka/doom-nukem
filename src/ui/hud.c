@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/19 18:48:10 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/21 23:34:17 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/10/12 18:08:27 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,16 +89,16 @@ void	ingame_hud(t_level *level, unsigned int *pixels)
 	level->ui.state.current_font = level->ui.hud_font;
 	set_text_color(HUD_TEXT_COLOR);
 	crosshair(pixels, RES_X / 2, RES_Y / 2);
-	sprintf(buf, "%d+", level->game_logic.player_health);
+	sprintf(buf, "%d+", level->game_logic.player.health);
 	render_text(buf, HUD_FONT_SIZE / 4, RES_Y - HUD_FONT_SIZE);
-	sprintf(buf, "%d", level->game_logic.player_ammo);
+	sprintf(buf, "%d", level->game_logic.player.ammo);
 	render_text(buf, RES_X - ((HUD_FONT_SIZE / 2) * strlen(buf)),
 		RES_Y - HUD_FONT_SIZE);
 }
 
-void	hud(t_level *level, unsigned int *pixels, t_game_state game_state)
+void	hud(t_level *level, unsigned int *pixels)
 {
-	if (game_state == GAME_STATE_DEAD)
+	if (level->game_logic.death_start_time)
 	{
 		level->ui.state.current_font = level->ui.win_lose_font;
 		death_overlay(pixels);
@@ -107,7 +107,7 @@ void	hud(t_level *level, unsigned int *pixels, t_game_state game_state)
 			RES_X / 2 - HUD_GAME_EVENT_FONT_SIZE,
 			RES_Y / 2 - HUD_GAME_EVENT_FONT_SIZE / 2);
 	}
-	else if (game_state == GAME_STATE_WIN)
+	else if (level->game_logic.win_start_time)
 	{
 		level->ui.state.current_font = level->ui.win_lose_font;
 		set_text_color(cycle_rgb(SDL_GetTicks()));

@@ -218,7 +218,7 @@ float	perlin_opacity(t_vec3 *pos, float perlin, t_level *l,
 static unsigned int	depth_grid_visualizer(t_vec3 pos,
 											t_level *level, t_cast_result *res)
 {
-	if (fmod((pos.x), 4) > 2 ^ fmod((pos.z), 4) > 2)
+	if ((fmod((pos.x), 4) > 2) ^ (fmod((pos.z), 4) > 2))
 		return (0xffffffff);
 	if (level->all.tris[res->face_index].opacity)
 		return (0);
