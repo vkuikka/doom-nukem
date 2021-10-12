@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   serialize.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/06 14:13:02 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/29 14:05:36 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/12 19:37:40 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -173,68 +173,44 @@ void	serialize_vert(t_vert *vert, t_buffer *buf)
 	serialize_vec2(vert->txtr, buf);
 }
 
-void	deserialize_enemy(t_enemy *enemy, t_buffer *buf)
+void	deserialize_enemy_settings(t_enemy *enemy, t_buffer *buf)
 {
-	(void)enemy;
-	(void)buf;
-	// int	i;
-
-	// i = 0;
-	// deserialize_vec3(&enemy->dir, buf);
-	// while (i < 3)
-	// {
-	// 	deserialize_vec2(&enemy->projectile_uv[i], buf);
-	// 	i++;
-	// }
-	// deserialize_float(&enemy->move_speed, buf);
-	// deserialize_float(&enemy->dist_limit, buf);
-	// deserialize_float(&enemy->initial_health, buf);
-	// deserialize_float(&enemy->remaining_health, buf);
-	// deserialize_float(&enemy->attack_range, buf);
-	// deserialize_float(&enemy->attack_frequency, buf);
-	// deserialize_float(&enemy->projectile_speed, buf);
-	// deserialize_float(&enemy->attack_damage, buf);
-	// deserialize_float(&enemy->current_attack_delay, buf);
+	deserialize_float(&dist_limit, buf);
+	deserialize_float(&move_speed, buf);
+	deserialize_float(&initial_health, buf);
+	deserialize_float(&melee_range, buf);
+	deserialize_float(&melee_damage, buf);
+	deserialize_float(&attack_frequency, buf);
+	deserialize_float(&move_duration, buf);
+	deserialize_float(&shoot_duration, buf);
 }
 
-void	serialize_enemy(t_enemy *enemy, t_buffer *buf)
+void	serialize_enemy_settings(t_enemy *enemy, t_buffer *buf)
 {
-	(void)enemy;
-	(void)buf;
-	// int	i;
-
-	// i = 0;
-	// serialize_vec3(enemy->dir, buf);
-	// while (i < 3)
-	// {
-	// 	serialize_vec2(enemy->projectile_uv[i], buf);
-	// 	i++;
-	// }
-	// serialize_float(enemy->move_speed, buf);
-	// serialize_float(enemy->dist_limit, buf);
-	// serialize_float(enemy->initial_health, buf);
-	// serialize_float(enemy->remaining_health, buf);
-	// serialize_float(enemy->attack_range, buf);
-	// serialize_float(enemy->attack_frequency, buf);
-	// serialize_float(enemy->projectile_speed, buf);
-	// serialize_float(enemy->attack_damage, buf);
-	// serialize_float(enemy->current_attack_delay, buf);
+	serialize_float(dist_limit, buf);
+	serialize_float(move_speed, buf);
+	serialize_float(initial_health, buf);
+	serialize_float(melee_range, buf);
+	serialize_float(melee_damage, buf);
+	serialize_float(attack_frequency, buf);
+	serialize_float(move_duration, buf);
+	serialize_float(shoot_duration, buf);
 }
 
 void	deserialize_projectile(t_projectile *projectile, t_buffer *buf)
 {
-	deserialize_vec3(&projectile->dir, buf);
 	deserialize_float(&projectile->speed, buf);
 	deserialize_float(&projectile->dist, buf);
 	deserialize_float(&projectile->damage, buf);
+	deserialize_float(&projectile->scale, buf);
 }
 
 void	serialize_projectile(t_projectile *projectile, t_buffer *buf)
 {
-	serialize_vec3(projectile->dir, buf);
 	serialize_float(projectile->speed, buf);
 	serialize_float(projectile->dist, buf);
 	serialize_float(projectile->damage, buf);
+	serialize_float(projectile->scale, buf);
 }
 
 void	deserialize_player_pos(t_player_pos *pos, t_buffer *buf)
@@ -626,6 +602,9 @@ void	deserialize_level(t_level *level, t_buffer *buf)
 	}
 	free_culling(level);
 	free(level->all.tris);
+	deserialize_projectile(&level->game_logic.player_projectile_settings, buf);
+	deserialize_projectile(&level->game_logic.enemy_projectile_settings, buf);
+	deserialize_enemy_settings(&level->game_logic.enemy_settings, buf);
 	deserialize_obj(&level->all, buf);
 	deserialize_doors(level, buf);
 	deserialize_lights(level, buf);
@@ -692,6 +671,9 @@ void	serialize_level(t_level *level, t_buffer *buf)
 		serialize_int(level->spray_overlay[i], buf);
 		i++;
 	}
+	serialize_projectile(&level->game_logic.player_projectile_settings, buf);
+	serialize_projectile(&level->game_logic.enemy_projectile_settings, buf);
+	serialize_enemy_settings(&level->game_logic.enemy_settings, buf);
 	serialize_obj(&level->all, buf);
 	serialize_doors(level, buf);
 	serialize_lights(level, buf);
