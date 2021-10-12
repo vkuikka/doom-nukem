@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/06 14:13:02 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/10/12 19:37:40 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/10/12 20:06:40 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -173,28 +173,28 @@ void	serialize_vert(t_vert *vert, t_buffer *buf)
 	serialize_vec2(vert->txtr, buf);
 }
 
-void	deserialize_enemy_settings(t_enemy *enemy, t_buffer *buf)
+void	deserialize_enemy_settings(t_enemy_settings *enemy, t_buffer *buf)
 {
-	deserialize_float(&dist_limit, buf);
-	deserialize_float(&move_speed, buf);
-	deserialize_float(&initial_health, buf);
-	deserialize_float(&melee_range, buf);
-	deserialize_float(&melee_damage, buf);
-	deserialize_float(&attack_frequency, buf);
-	deserialize_float(&move_duration, buf);
-	deserialize_float(&shoot_duration, buf);
+	deserialize_float(&enemy->dist_limit, buf);
+	deserialize_float(&enemy->move_speed, buf);
+	deserialize_float(&enemy->initial_health, buf);
+	deserialize_float(&enemy->melee_range, buf);
+	deserialize_float(&enemy->melee_damage, buf);
+	deserialize_float(&enemy->attack_frequency, buf);
+	deserialize_float(&enemy->move_duration, buf);
+	deserialize_float(&enemy->shoot_duration, buf);
 }
 
-void	serialize_enemy_settings(t_enemy *enemy, t_buffer *buf)
+void	serialize_enemy_settings(t_enemy_settings *enemy, t_buffer *buf)
 {
-	serialize_float(dist_limit, buf);
-	serialize_float(move_speed, buf);
-	serialize_float(initial_health, buf);
-	serialize_float(melee_range, buf);
-	serialize_float(melee_damage, buf);
-	serialize_float(attack_frequency, buf);
-	serialize_float(move_duration, buf);
-	serialize_float(shoot_duration, buf);
+	serialize_float(enemy->dist_limit, buf);
+	serialize_float(enemy->move_speed, buf);
+	serialize_float(enemy->initial_health, buf);
+	serialize_float(enemy->melee_range, buf);
+	serialize_float(enemy->melee_damage, buf);
+	serialize_float(enemy->attack_frequency, buf);
+	serialize_float(enemy->move_duration, buf);
+	serialize_float(enemy->shoot_duration, buf);
 }
 
 void	deserialize_projectile(t_projectile *projectile, t_buffer *buf)

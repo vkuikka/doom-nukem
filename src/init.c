@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/08 14:38:45 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/12 17:13:19 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/10/12 19:42:58 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -198,6 +198,9 @@ void	init_window(t_window **window)
 	window[0]->frame_buffer = NULL;
 	window[0]->depth_buffer
 		= (float *)malloc(sizeof(float) * (RES_X * RES_Y));
+	window[0]->brightness_buffer
+		= (t_color *)malloc(sizeof(t_color) * (RES_X * RES_Y));
+	ft_memset((void *)window[0]->brightness_buffer, 0, sizeof(t_color) * (RES_X * RES_Y));
 	window[0]->post_process_buf
 		= (unsigned int *)malloc(sizeof(unsigned int) * (RES_X * RES_Y));
 	if (!window[0]->depth_buffer || !window[0]->post_process_buf)
