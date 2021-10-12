@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/22 17:08:10 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/10/12 12:14:49 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/10/12 12:45:49 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,7 @@ void	obj_copy(t_obj *target, t_obj *source)
 	}
 }
 
-t_obj get_animation_target(t_obj_animation *animation)
+t_obj	get_animation_target(t_obj_animation *animation)
 {
 	t_obj	res;
 
@@ -112,7 +112,8 @@ void	play_animation(t_obj *target, t_obj_animation *animation,
 		node_amount--;
 		if (time >= 1.0)
 		{
-			obj_copy(target, &animation->keyframes[animation->keyframe_amount - 1]);
+			obj_copy(target,
+				&animation->keyframes[animation->keyframe_amount - 1]);
 			return ;
 		}
 	}
@@ -126,7 +127,7 @@ void	play_animation(t_obj *target, t_obj_animation *animation,
 	while (i < target->tri_amount)
 	{
 		tri_lerp(&target->tris[i], &animation->keyframes[id.x].tris[i],
-				&animation->keyframes[id.y].tris[i], node_time);
+			&animation->keyframes[id.y].tris[i], node_time);
 		i++;
 	}
 }

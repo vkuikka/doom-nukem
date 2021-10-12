@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/22 23:13:42 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/12 22:09:32 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/10/12 13:57:49 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,12 +39,6 @@ void	transform_quad(t_tri *tri, t_vec3 dir)
 			}
 		}
 	}
-}
-
-void	tri_optimize(t_tri *tri)
-{
-	vec_sub(&tri->v0v2, tri->verts[1].pos, tri->verts[0].pos);
-	vec_sub(&tri->v0v1, tri->verts[2].pos, tri->verts[0].pos);
 }
 
 void	move_selected(t_level *l, t_vec3 dir)
@@ -173,8 +167,10 @@ void	add_face(t_level *level)
 			sizeof(t_tri) * level->all.tri_amount);
 	if (!level->visible.tris)
 		ft_error("memory allocation failed");
-	set_new_face(&level->all.tris[level->all.tri_amount - 1], level->cam.pos, level->cam.front, 1);
-	level->all.tris[level->all.tri_amount - 1].index = level->all.tri_amount - 1;
+	set_new_face(&level->all.tris[level->all.tri_amount - 1],
+		level->cam.pos, level->cam.front, 1);
+	level->all.tris[level->all.tri_amount - 1].index
+		= level->all.tri_amount - 1;
 	init_screen_space_partition(level);
 	init_culling(level);
 }

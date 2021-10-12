@@ -3,24 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   sprite.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/14 17:08:49 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/22 22:25:53 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/12 13:50:55 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
-
-static void	calc_vectors(t_tri *tri)
-{
-	tri->v0v1.x = tri->verts[2].pos.x - tri->verts[0].pos.x;
-	tri->v0v1.y = tri->verts[2].pos.y - tri->verts[0].pos.y;
-	tri->v0v1.z = tri->verts[2].pos.z - tri->verts[0].pos.z;
-	tri->v0v2.x = tri->verts[1].pos.x - tri->verts[0].pos.x;
-	tri->v0v2.y = tri->verts[1].pos.y - tri->verts[0].pos.y;
-	tri->v0v2.z = tri->verts[1].pos.z - tri->verts[0].pos.z;
-}
 
 static float	find_angle(t_vec3 v1, t_vec3 v2)
 {
@@ -43,10 +33,10 @@ static void	turn_sprite(t_tri *tri, t_vec3 look_at)
 	float	angle;
 	int		vert;
 
-	vert = 0;
-	vec_cross(&normal, tri->v0v1, tri->v0v2);
+	normal = tri->normal;
 	normal.y = 0;
-	ft_memset(&face_mid, 0, sizeof(int) * 3);
+	face_mid = (t_vec3){0, 0, 0};
+	vert = 0;
 	while (vert < 3 + tri->isquad)
 		vec_add(&face_mid, face_mid, tri->verts[vert++].pos);
 	vec_div(&face_mid, (float)vert);
@@ -61,9 +51,6 @@ static void	turn_sprite(t_tri *tri, t_vec3 look_at)
 		rotate_vertex(angle, &rot_vert, 0);
 		vec_add(&tri->verts[vert].pos, rot_vert, face_mid);
 	}
-	calc_vectors(tri);
-	vec_cross(&tri->normal, tri->v0v2, tri->v0v1);
-	vec_normalize(&tri->normal);
 }
 
 void	merge_sprite(t_level *level, t_vec3 pos, t_bmp *texture)
@@ -75,6 +62,7 @@ void	merge_sprite(t_level *level, t_vec3 pos, t_bmp *texture)
 	set_new_face(&level->visible.tris[i], pos, (t_vec3){0, 0, 0}, .1);
 	level->visible.tris[i].isquad = TRUE;
 	turn_sprite(&level->visible.tris[i], level->cam.pos);
+	tri_optimize(&level->visible.tris[i]);
 	level->visible.tris[i].texture = texture;
 	level->visible.tri_amount++;
 }

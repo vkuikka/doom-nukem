@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/08 14:38:45 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/12 04:51:11 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/10/12 15:15:25 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,40 +53,63 @@ static void	init_fonts(t_editor_ui *ui)
 	}
 }
 
-void	init_embedded(t_level *level)
+void	init_animation(t_level *level)
+{
+	int	res;
+
+	res = 0;
+	res += load_obj("embed/enemy_shoot.obj",
+			&level->game_models.enemy_shoot);
+	res += load_animation("embed/enemy_run/enemy_run",
+			&level->game_models.enemy_run, 10, 1.0);
+	level->game_models.enemy
+		= get_animation_target(&level->game_models.enemy_run);
+	res += load_animation("embed/enemy_die/enemy_die",
+			&level->game_models.enemy_die, 41, 3.0);
+	level->game_models.enemy_die.loop = FALSE;
+	level->game_models.enemy
+		= get_animation_target(&level->game_models.enemy_die);
+	res += load_animation("embed/viewmodel/viewmodel",
+			&level->game_models.reload_animation, 3, RELOAD_ANIMATION_DURATION);
+	level->game_models.viewmodel
+		= get_animation_target(&level->game_models.reload_animation);
+	if (res != 4)
+		ft_error("animation read fail");
+}
+
+void	init_textures(t_level *level)
 {
 	level->main_menu_title
 		= bmp_read_from_memory(&embed_title_bmp[0], embed_title_bmp_len);
+	level->game_models.ammo_pickup_box.texture
+		= bmp_read_from_memory(&embed_ammo_pickup_texture_bmp[0],
+			embed_ammo_pickup_texture_bmp_len);
+	level->game_models.health_pickup_box.texture
+		= bmp_read_from_memory(&embed_health_pickup_texture_bmp[0],
+			embed_health_pickup_texture_bmp_len);
+	level->game_models.enemy.texture
+		= bmp_read("embed/enemy_texture.bmp");
+	level->game_models.viewmodel.texture
+		= bmp_read("embed/viewmodel/viewmodel_texture.bmp");
+	level->game_models.light_sprite
+		= bmp_read("embed/light_sprite.bmp");
+	level->game_models.projectile_sprite
+		= bmp_read("embed/projectile_sprite.bmp");
+}
+
+void	init_embedded(t_level *level)
+{
 	load_obj_from_memory(&embed_skybox_obj[0], embed_skybox_obj_len,
 		&level->sky.all);
 	load_obj_from_memory(&embed_skybox_obj[0], embed_skybox_obj_len,
 		&level->sky.visible);
-	init_fonts(&level->ui);
 	load_obj_from_memory(&embed_pickup_box_obj[0], embed_pickup_box_obj_len,
 		&level->game_models.ammo_pickup_box);
 	load_obj_from_memory(&embed_pickup_box_obj[0], embed_pickup_box_obj_len,
 		&level->game_models.health_pickup_box);
-	int res = 0;
-	res += load_obj("embed/enemy_shoot.obj", &level->game_models.enemy_shoot);
-	res += load_animation("embed/enemy_run/enemy_run", &level->game_models.enemy_run, 10, 1.0);
-	level->game_models.enemy = get_animation_target(&level->game_models.enemy_run);
-	res += load_animation("embed/enemy_die/enemy_die", &level->game_models.enemy_die, 41, 3.0);
-	level->game_models.enemy_die.loop = FALSE;
-	level->game_models.enemy = get_animation_target(&level->game_models.enemy_die);
-	res += load_animation("embed/viewmodel/viewmodel", &level->game_models.reload_animation, 3,
-			RELOAD_ANIMATION_DURATION);
-	level->game_models.viewmodel = get_animation_target(&level->game_models.reload_animation);
-	obj_copy(&level->game_models.enemy, &level->game_models.enemy_shoot);
-	if (res != 4)
-		ft_error("fix embed\n");
-	level->game_models.ammo_pickup_box.texture
-		= bmp_read_from_memory(&embed_ammo_pickup_texture_bmp[0], embed_ammo_pickup_texture_bmp_len);
-	level->game_models.health_pickup_box.texture
-		= bmp_read_from_memory(&embed_health_pickup_texture_bmp[0], embed_health_pickup_texture_bmp_len);
-	level->game_models.enemy.texture = bmp_read("embed/enemy_texture.bmp");
-	level->game_models.viewmodel.texture = bmp_read("embed/viewmodel/viewmodel_texture.bmp");
-	level->game_models.light_sprite = bmp_read("embed/light_sprite.bmp");
-	level->game_models.projectile_sprite = bmp_read("embed/projectile_sprite.bmp");
+	init_animation(level);
+	init_textures(level);
+	init_fonts(&level->ui);
 }
 
 static void	projectile_default(t_projectile *projectile)
@@ -105,6 +128,7 @@ static void	init_enemy_settings(t_enemy_settings *enemy)
 	enemy->attack_frequency = 0.5;
 	enemy->move_duration = 3.0;
 	enemy->shoot_duration = 2.0;
+	enemy->melee_damage = 30;
 }
 
 static void	level_default_settings(t_level *level)

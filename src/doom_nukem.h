@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/12 11:50:54 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/10/12 14:30:12 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -604,6 +604,7 @@ typedef struct s_enemy_settings
 	float				move_speed;
 	float				initial_health;
 	float				melee_range;
+	float				melee_damage;
 	float				attack_frequency;
 	float				move_duration;
 	float				shoot_duration;
@@ -616,6 +617,7 @@ typedef struct s_projectile
 	float				speed;
 	float				dist;
 	float				damage;
+	float				scale;
 }						t_projectile;
 
 typedef struct s_game_logic
@@ -760,6 +762,7 @@ void			vec_avg(t_vec3 *res, t_vec3 ve1, t_vec3 ve2);
 float			vec_angle(t_vec3 v1, t_vec3 v2);
 void			vec_mult(t_vec3 *res, float mult);
 void			vec_div(t_vec3 *res, float div);
+float			vec_dist(t_vec3 ve1, t_vec3 ve2);
 t_vec3			vec_interpolate(t_vec3 a, t_vec3 b, float f);
 float			lerp(float a, float b, float f);
 float			vec2_length(t_vec2 vec);
@@ -804,6 +807,7 @@ void			free_file2d(char **file);
 int				load_obj(char *filename, t_obj *obj);
 void			load_obj_from_memory(unsigned char *data,
 					unsigned int size, t_obj *obj);
+void			tri_optimize(t_tri *tri);
 t_bmp			bmp_read(char *str);
 t_bmp			bmp_read_from_memory(unsigned char *data,
 					unsigned int size);

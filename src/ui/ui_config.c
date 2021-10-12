@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/10/12 11:31:18 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/10/12 12:32:29 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,10 +66,10 @@ static void	ui_config_projectile_settings(t_projectile *projectile)
 		"projectile speed: %.1fm/s (0 = no projectile)",
 		projectile->speed);
 	float_slider(&projectile->speed, buf, 0, 50);
-	// sprintf(buf, "projectile scale: %.2f",
-	// 	projectile.scale);
-	// float_slider(&projectile.scale,
-		// buf, 0.1, 5);
+	sprintf(buf, "projectile scale: %.2f",
+		projectile->scale);
+	float_slider(&projectile->scale,
+		buf, 0.1, 5);
 	sprintf(buf, "distance limit: %.1fm",
 		projectile->dist);
 	float_slider(&projectile->dist, buf, 1, 10);
@@ -111,7 +111,8 @@ void	ui_enemy_and_damage_settings(t_level *level)
 	ui_config_projectile_settings(&level->game_logic.enemy_projectile_settings);
 	set_text_color(UI_LEVEL_BAKED_COLOR);
 	text("player projectile settings");
-	ui_config_projectile_settings(&level->game_logic.player_projectile_settings);
+	ui_config_projectile_settings(
+		&level->game_logic.player_projectile_settings);
 }
 
 static void	ui_config_face_perlin_settings(t_perlin_settings *p)
@@ -615,6 +616,31 @@ void	ui_game_settings_delete_selected(t_level *level)
 		call("delete enemy", &delete_enemy);
 }
 
+void	ui_animation_settings(t_level *level)
+{
+	char	buf[100];
+
+	float_slider(&level->game_logic.item_spin_speed, "item spin speed", 0, 0.1);
+	int_slider(&level->game_logic.enemy_animation_view_index,
+		"view enemy animation", -1, 3);
+	level->game_logic.enemy_animation_view_index
+		= clamp(level->game_logic.enemy_animation_view_index, 0, 2);
+	if (level->game_logic.enemy_animation_view_index == 0)
+	{
+		sprintf(buf, "enemy animation speed %.2fx",
+			level->game_models.enemy_run.duration_multiplier);
+		float_slider(&level->game_models.enemy_run.duration_multiplier,
+			buf, 0, 2.0);
+	}
+	else if (level->game_logic.enemy_animation_view_index == 1)
+	{
+		sprintf(buf, "enemy animation speed %.2fx",
+			level->game_models.enemy_die.duration_multiplier);
+		float_slider(&level->game_models.enemy_die.duration_multiplier,
+			buf, 0, 2.0);
+	}
+}
+
 void	ui_game_settings(t_level *level)
 {
 	char	buf[100];
@@ -631,8 +657,6 @@ void	ui_game_settings(t_level *level)
 		level->main_menu_anim.duration);
 	button(&level->main_menu_anim.loop, "main menu anim edge loop");
 	int_slider((int *)&level->main_menu_anim.duration, buf, 2, 50);
-	// float_slider(&level->player.projectile_scale,
-	// 	"Player projectile scale: ", 0, 1.5);
 	if (call("enemy and damage settings", NULL))
 		level->ui.state.ui_location
 			= UI_LOCATION_ENEMY_AND_DAMAGE_SETTINGS;
@@ -640,22 +664,7 @@ void	ui_game_settings(t_level *level)
 	call("add ammo box", &add_ammo_box);
 	call("add health box", &add_health_box);
 	ui_game_settings_delete_selected(level);
-	float_slider(&level->game_logic.item_spin_speed, "item spin speed", 0, 0.1);
-	int_slider(&level->game_logic.enemy_animation_view_index, "view enemy animation", -1, 3);
-	level->game_logic.enemy_animation_view_index
-	 = clamp(level->game_logic.enemy_animation_view_index, 0, 2);
-	if (level->game_logic.enemy_animation_view_index == 0)
-	{
-		sprintf(buf, "enemy animation speed %.2fx",
-			level->game_models.enemy_run.duration_multiplier);
-		float_slider(&level->game_models.enemy_run.duration_multiplier, buf, 0, 2.0);
-	}
-	else if (level->game_logic.enemy_animation_view_index == 1)
-	{
-		sprintf(buf, "enemy animation speed %.2fx",
-			level->game_models.enemy_die.duration_multiplier);
-		float_slider(&level->game_models.enemy_die.duration_multiplier, buf, 0, 2.0);
-	}
+	ui_animation_settings(level);
 	set_text_color(UI_INFO_TEXT_COLOR);
 	ui_render_info(&level->ui, level);
 }

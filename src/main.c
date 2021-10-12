@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/12 11:53:35 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/10/12 14:00:29 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,8 @@ static void	render_finish(t_window *window, t_level *level)
 	SDL_RenderCopy(window->SDLrenderer, window->texture, NULL, NULL);
 }
 
-static void	render_raycast(t_window *window, t_level *level, t_game_state *game_state)
+static void	render_raycast(t_window *window, t_level *level,
+								t_game_state *game_state)
 {
 	SDL_Thread	*threads[THREAD_AMOUNT];
 	t_rthread	thread_data[THREAD_AMOUNT];
@@ -112,7 +113,8 @@ static void	render(t_window *window, t_level *level, t_game_state *game_state)
 			SDL_UnlockTexture(window->texture);
 			SDL_RenderCopy(window->SDLrenderer, window->texture, NULL, NULL);
 		}
-		level->ui.raycast_time = SDL_GetTicks() - raycast_time - level->ui.post_time;
+		level->ui.raycast_time = SDL_GetTicks()
+			- raycast_time - level->ui.post_time;
 		raster_time = SDL_GetTicks();
 		if (*game_state == GAME_STATE_EDITOR)
 			render_raster(window, level);
@@ -145,14 +147,15 @@ static void	tick_forward(t_level *level, t_game_state *game_state)
 	}
 }
 
-static void	viewmodel(t_window *window, t_level *level, t_game_state *game_state)
+static void	viewmodel(t_window *window, t_level *level,
+								t_game_state *game_state)
 {
 	if (*game_state != GAME_STATE_INGAME)
 		return ;
 	if (level->game_logic.reload_start_time)
 		play_animation(&level->game_models.viewmodel,
-		&level->game_models.reload_animation,
-		level->game_logic.reload_start_time);
+			&level->game_models.reload_animation,
+			level->game_logic.reload_start_time);
 	level->visible.tri_amount = 0;
 	merge_viewmodel(level);
 	screen_space_partition(level);
