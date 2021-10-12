@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/21 17:32:09 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/07 01:33:24 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/11 19:12:09 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,6 +82,8 @@ static float	skybox_sun_fade(t_color *col, t_cast_result *res, t_level *l)
 {
 	float	fade;
 
+	if (!l->ui.sun_color.r && !l->ui.sun_color.g && !l->ui.sun_color.b)
+		return (0);
 	fade = vec_dot(l->ui.sun_dir, res->ray.dir);
 	if (fade < SUN_SIZE)
 		return (0);
@@ -413,7 +415,7 @@ void	face_color(float u, float v, t_tri t, t_cast_result *res)
 	res->color = res->texture->image[x + (y * res->texture->width)];
 	if (res->spray_overlay && res->spray_overlay[x + y * res->texture->width])
 		res->color = res->spray_overlay[x + y * res->texture->width];
-	if (res->baked && !res->raytracing)
+	if (res->baked && !res->raytracing && !t.isgrid && t.shader == SHADER_NONE)
 		res->color = brightness(
 				res->color >> 8, res->baked[x + y * res->texture->width])
 			+ (res->color << 24 >> 24);

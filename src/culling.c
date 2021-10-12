@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   culling.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/20 17:50:56 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/25 16:22:56 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/10/11 18:40:58 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -241,13 +241,10 @@ static void	vertex_directions(t_vec3 corner[4], t_level *l, int i, t_vec3 pos)
 	vec_normalize(&corner[3]);
 }
 
-static void	reflection_culling_first_bounce(t_level *level, int i)
+static t_vec3	camera_to_reflection(t_level *level, int i)
 {
-	t_vec3	pos;
 	t_vec3	normal;
-	t_vec3	corner[4];
-	t_vec3	side_normals[4];
-	int		k;
+	t_vec3	pos;
 
 	ft_memset(&pos, 0, sizeof(t_vec3));
 	level->all.tris[i].reflection_obj_first_bounce.tri_amount = 0;
@@ -256,18 +253,49 @@ static void	reflection_culling_first_bounce(t_level *level, int i)
 	vec_mult(&normal, vec_dot(pos, normal));
 	vec_add(&pos, level->cam.pos, normal);
 	vec_add(&pos, pos, normal);
+	return (pos);
+}
+
+static void	reflection_culling_first_bounce(t_level *level, int i)
+{
+	t_vec3	pos;
+	t_vec3	corner[4];
+	t_vec3	side_normals[4];
+	int		k;
+
+	pos = camera_to_reflection(level, i);
 	vertex_directions(corner, level, i, pos);
 	calculate_side_normals(side_normals, corner);
 	if (!level->all.tris[i].isquad)
 		side_normals[3] = side_normals[0];
 	k = -1;
 	while (++k < level->all.tris[i].reflection_obj_all.tri_amount)
-		if (level->all.tris[i].reflection_obj_all.tris[k].isgrid
-			|| frustrum_culling(side_normals, pos,
-				level->all.tris[i].reflection_obj_all.tris[k]))
+		if ((!level->ui.distance_culling
+				|| distance_culling(
+					level->all.tris[i].reflection_obj_all.tris[k],
+					level->cam.pos, level->ui.render_distance))
+			&& (level->all.tris[i].reflection_obj_all.tris[k].isgrid
+				|| frustrum_culling(side_normals, pos,
+					level->all.tris[i].reflection_obj_all.tris[k])))
 			level->all.tris[i].reflection_obj_first_bounce.tris[
 				level->all.tris[i].reflection_obj_first_bounce.tri_amount++]
 				= level->all.tris[i].reflection_obj_all.tris[k];
+}
+
+static int	face_distance_culling(t_tri t1, t_tri t2, t_level *level)
+{
+	int	i;
+
+	i = 0;
+	if (!level->ui.distance_culling)
+		return (1);
+	while (i < 3 + t1.isquad)
+	{
+		if (distance_culling(t2, t1.verts[i].pos, level->ui.render_distance))
+			return (1);
+		i++;
+	}
+	return (0);
 }
 
 void	reflection_culling(t_level *level, int i)
@@ -289,6 +317,8 @@ void	reflection_culling(t_level *level, int i)
 		if ((level->all.tris[k].isenemy || level->all.tris[k].isgrid
 				|| cull_behind(level->all.tris[i].normal,
 					avg, level->all.tris[k]))
+			&& face_distance_culling(level->all.tris[i],
+				level->all.tris[k], level)
 			&& reflection_backface(level->all.tris[k], level->all.tris[i]))
 			level->all.tris[i].reflection_obj_all.tris[amount++]
 				= level->all.tris[k];
