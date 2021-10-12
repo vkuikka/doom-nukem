@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/12 11:39:40 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/10/12 13:04:13 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/10/12 17:52:25 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ void	visible_request_merge(t_level *level, int amount)
 
 //level->visible.tris[i].index = 0;
 //not real fix (spray visible on wrong index)
-static void	merge_prop(t_level *level, t_obj *obj, t_vec3 pos, t_vec2 rotation)
+static void	merge_mesh(t_level *level, t_obj *obj, t_vec3 pos, t_vec2 rotation)
 {
 	int	i;
 	int	k;
@@ -83,7 +83,7 @@ static void	merge_enemies_runtime(t_level *level)
 				play_animation(&level->game_models.enemy,
 					&level->game_models.enemy_run, 0);
 		}
-		merge_prop(level, &level->game_models.enemy,
+		merge_mesh(level, &level->game_models.enemy,
 			level->game_logic.enemies[i].pos,
 			(t_vec2){0, level->game_logic.enemies[i].dir_rad});
 	}
@@ -103,7 +103,7 @@ static void	merge_enemies_editor(t_level *level, float rot)
 		obj_copy(&level->game_models.enemy, &level->game_models.enemy_shoot);
 	i = -1;
 	while (++i < level->game_logic.enemy_amount)
-		merge_prop(level, &level->game_models.enemy,
+		merge_mesh(level, &level->game_models.enemy,
 			level->game_logic.enemies[i].spawn_pos,
 			(t_vec2){0, rot + (M_PI / 3 * i)});
 }
@@ -115,13 +115,13 @@ static void	merge_pickups(t_level *level, float rot)
 	i = -1;
 	while (++i < level->game_logic.ammo_box_amount)
 		if (level->game_logic.ammo_box[i].visible)
-			merge_prop(level, &level->game_models.ammo_pickup_box,
+			merge_mesh(level, &level->game_models.ammo_pickup_box,
 				level->game_logic.ammo_box[i].pos,
 				(t_vec2){0, rot + (M_PI / 3 * i)});
 	i = -1;
 	while (++i < level->game_logic.health_box_amount)
 		if (level->game_logic.health_box[i].visible)
-			merge_prop(level, &level->game_models.health_pickup_box,
+			merge_mesh(level, &level->game_models.health_pickup_box,
 				level->game_logic.health_box[i].pos,
 				(t_vec2){0, rot + (M_PI / 3 * i)});
 }
@@ -174,6 +174,6 @@ void	merge_viewmodel(t_level *level)
 	t_vec2	sway;
 
 	sway = viewmodel_sway(level);
-	merge_prop(level, &level->game_models.viewmodel, level->cam.pos,
+	merge_mesh(level, &level->game_models.viewmodel, level->cam.pos,
 		(t_vec2){level->cam.look_up + sway.y, level->cam.look_side + sway.x});
 }

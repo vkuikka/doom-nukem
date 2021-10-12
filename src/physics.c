@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/10 01:23:16 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/12 23:49:15 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/10/12 17:45:04 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,8 @@ static void	player_input(t_level *level, t_player *player)
 
 	keys = SDL_GetKeyboardState(NULL);
 	ft_bzero(&player->wishdir, sizeof(t_vec3));
-	if (level->ui.state.text_input_enable)
+	if (level->ui.state.text_input_enable
+		|| level->game_logic.death_start_time)
 		return ;
 	input_player_movement(&player->wishdir, keys);
 	input_uv(level, keys);

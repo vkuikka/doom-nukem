@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/09 21:56:12 by alcohen           #+#    #+#             */
-/*   Updated: 2021/09/25 15:59:27 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/10/12 17:53:53 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,10 +32,10 @@ static void	handle_jump_sound(t_level *level)
 	}
 }
 
-void	handle_audio(t_level *level, t_game_state *game_state)
+void	handle_audio(t_level *level)
 {
 	if (level->ui.state.m1_click && level->ui.state.mouse_capture
-		&& *game_state != GAME_STATE_DEAD)
+		&& !level->game_logic.death_start_time)
 	{
 		if (level->game_logic.player.ammo)
 		{

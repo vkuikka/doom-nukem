@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/12 15:27:47 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/10/12 18:08:46 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -397,11 +397,9 @@ typedef enum e_bake
 
 typedef enum e_game_state
 {
-	GAME_STATE_MAIN_MENU = 0,
+	GAME_STATE_MAIN_MENU,
 	GAME_STATE_EDITOR,
-	GAME_STATE_INGAME,
-	GAME_STATE_DEAD,
-	GAME_STATE_WIN
+	GAME_STATE_INGAME
 }						t_game_state;
 
 typedef enum e_game_logic_selected
@@ -864,8 +862,7 @@ void			camera_path_add_pos(t_camera_path *path, t_camera c);
 void			camera_path_delete_pos(t_camera_path *path, int index);
 void			main_menu(t_level *level, unsigned int *pixels,
 					t_game_state *game_state);
-void			hud(t_level *level, unsigned int *pixels,
-					t_game_state game_state);
+void			hud(t_level *level, unsigned int *pixels);
 void			fake_analog_signal(t_bmp *img, unsigned int *pixels,
 					float amount);
 void			chromatic_abberation(unsigned int *pixels,
@@ -966,7 +963,7 @@ void			delete_all_lights(t_level *level);
 void			set_fourth_vertex_uv(t_tri *a);
 void			start_bake(t_level *level);
 t_vec3			get_normal(int vec);
-void			handle_audio(t_level *level, t_game_state *game_state);
+void			handle_audio(t_level *level);
 int				is_player_in_air(t_level *level, float height);
 void			spray(t_camera cam, t_level *level);
 

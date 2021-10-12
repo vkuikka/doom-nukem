@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/12 14:00:29 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/10/12 17:45:20 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,8 +135,7 @@ static void	tick_forward(t_level *level, t_game_state *game_state)
 	{
 		if (*game_state != GAME_STATE_EDITOR)
 			game_logic(level, game_state);
-		if (*game_state != GAME_STATE_DEAD)
-			player_movement(level);
+		player_movement(level);
 	}
 	update_camera(level);
 	door_animate(level);

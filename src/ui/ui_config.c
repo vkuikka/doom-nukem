@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/10/12 12:32:29 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/10/12 18:09:10 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -873,7 +873,7 @@ void	ui(t_window *window, t_level *level, t_game_state *game_state)
 	else if (*game_state == GAME_STATE_MAIN_MENU)
 		ui_main_menu(window, level, game_state);
 	else
-		hud(level, window->ui_texture_pixels, *game_state);
+		hud(level, window->ui_texture_pixels);
 	ui_render_background(window, level);
 	ui_render_nonfatal_errors(level);
 }
