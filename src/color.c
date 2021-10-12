@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/21 17:32:09 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/11 19:12:09 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/13 01:02:32 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,19 +113,17 @@ void	skybox(t_level *l, t_cast_result *res)
 	b = get_skybox_brightness(l);
 	skybox_reset_result(l, res);
 	fade = skybox_sun_fade(&sun, res, l);
-	i = -1;
-	while (++i < obj->tri_amount)
-	{
-		if (0 < cast_face(obj->tris[i], res->ray, res))
-		{
-			face_color(res->uv.x, res->uv.y, obj->tris[i], res);
-			if (fade)
-				res->color = crossfade(brightness(res->color >> 8, b) >> 8,
-						color_to_int(sun) >> 8, fade * 0xff, 0xff);
-			else
-				res->color = brightness(res->color >> 8, b) + 0xff;
-		}
-	}
+	i = 0;
+	while (i < obj->tri_amount && 0 >= cast_face(obj->tris[i], res->ray, res))
+		i++;
+	if (i == obj->tri_amount)
+		return ;
+	face_color(res->uv.x, res->uv.y, obj->tris[i], res);
+	if (fade)
+		res->color = crossfade(brightness(res->color >> 8, b) >> 8,
+				color_to_int(sun) >> 8, fade * 0xff, 0xff);
+	else
+		res->color = brightness(res->color >> 8, b) + 0xff;
 }
 
 void	fog(unsigned int *color, float dist, unsigned int fog_color,
