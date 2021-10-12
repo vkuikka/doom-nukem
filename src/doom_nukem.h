@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   doom_nukem.h                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/29 00:19:30 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/12 07:07:58 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -594,6 +594,8 @@ typedef struct s_enemy
 	float				remaining_health;
 	float				current_attack_delay;
 	unsigned int		move_start_time;
+	unsigned int		shoot_start_time;
+	int					can_see_player;
 }						t_enemy;
 
 typedef struct s_enemy_settings
@@ -603,6 +605,8 @@ typedef struct s_enemy_settings
 	float				initial_health;
 	float				melee_range;
 	float				attack_frequency;
+	float				move_duration;
+	float				shoot_duration;
 }						t_enemy_settings;
 
 typedef struct s_projectile

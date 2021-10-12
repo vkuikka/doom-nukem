@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/28 23:32:03 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/12 06:59:45 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -231,10 +231,10 @@ static void	merge_game_models(t_level *level, t_game_state game_state)
 						level->game_logic.enemies[i].dead_start_time);
 				else
 				{
-					//if
+					if (level->game_logic.enemies[i].shoot_start_time)
+						obj_copy(&level->game_models.enemy, &level->game_models.enemy_shoot);
+					else
 						play_animation(&level->game_models.enemy, &level->game_models.enemy_run, 0);
-					//else
-						//obj_copy(&level->game_models.enemy, &level->game_models.enemy_shoot);
 				}
 				merge_prop(level, &level->game_models.enemy,
 					level->game_logic.enemies[i].pos,
@@ -243,24 +243,18 @@ static void	merge_game_models(t_level *level, t_game_state game_state)
 		}
 		else
 		{
-
 			if (level->game_logic.enemy_animation_view_index == 0)
 				play_animation(&level->game_models.enemy, &level->game_models.enemy_run, 0);
 			else if (level->game_logic.enemy_animation_view_index == 1)
 				play_animation(&level->game_models.enemy, &level->game_models.enemy_die, 0);
 			else
 				obj_copy(&level->game_models.enemy, &level->game_models.enemy_shoot);
-
-
-
-
 			i = -1;
 			while (++i < level->game_logic.enemy_amount)
 				merge_prop(level, &level->game_models.enemy,
 					level->game_logic.enemies[i].spawn_pos, (t_vec2){0, rot + (M_PI / 3 * i)});
 		}
 	}
-
 	i = -1;
 	while (++i < level->game_logic.projectile_amount)
 		merge_sprite(level, level->game_logic.projectiles[i].pos, &level->game_models.projectile_sprite);

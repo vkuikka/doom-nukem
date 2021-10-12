@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ui_config.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/28 23:33:23 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/12 04:53:03 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,6 +91,12 @@ static void	ui_config_enemy_settings(t_enemy_settings *enemy)
 	sprintf(buf, "melee range: %.1fm",
 		enemy->melee_range);
 	float_slider(&enemy->melee_range, buf, 0, 10);
+	sprintf(buf, "move time: %.1fm",
+		enemy->move_duration);
+	float_slider(&enemy->move_duration, buf, 0, 10);
+	sprintf(buf, "shoot time: %.1fm",
+		enemy->shoot_duration);
+	float_slider(&enemy->shoot_duration, buf, 0, 10);
 }
 
 void	ui_enemy_and_damage_settings(t_level *level)

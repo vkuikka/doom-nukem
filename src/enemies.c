@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   enemies.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/14 17:08:49 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/22 22:25:53 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/12 07:51:52 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -186,6 +186,8 @@ static void	enemy_spawn(t_enemy *enemy, t_enemy_settings *settings)
 	enemy->dir_rad = 0;
 	enemy->pos = enemy->spawn_pos;
 	enemy->remaining_health = settings->initial_health;
+	enemy->move_start_time = SDL_GetTicks()
+		+ (rand() % (int)(1000 * settings->move_duration));
 }
 
 void	spawn_enemies(t_level *level)
@@ -198,6 +200,40 @@ void	spawn_enemies(t_level *level)
 		enemy_spawn(&level->game_logic.enemies[i],
 			&level->game_logic.enemy_settings);
 		i++;
+	}
+}
+
+static void	enemy_state_machine(t_enemy *enemy, t_level *level)
+{
+	float	time;
+
+	if (enemy->dead_start_time)
+		return ;
+	if (enemy->remaining_health <= 0)
+		enemy->dead_start_time = SDL_GetTicks();
+	else if (enemy->move_start_time)
+	{
+		time = (SDL_GetTicks() - enemy->move_start_time)
+			/ (1000.0 * level->game_logic.enemy_settings.move_duration);
+		if (time >= 1.0)
+		{
+			enemy->move_start_time = 0;
+			enemy->shoot_start_time = SDL_GetTicks();
+		}
+		time = level->ui.frame_time / 1000.0;
+		move_enemy(enemy, level, time,
+			&level->game_logic.enemy_settings);
+	}
+	else
+	{
+		time = (SDL_GetTicks() - enemy->shoot_start_time)
+			/ (1000.0 * level->game_logic.enemy_settings.shoot_duration);
+		if (time >= 1.0)
+		{
+			enemy->shoot_start_time = 0;
+			enemy->move_start_time = SDL_GetTicks();
+		}
+		enemy_attack(enemy, level, time);
 	}
 }
 
@@ -223,20 +259,7 @@ void	enemies_update(t_level *level)
 		}
 		i++;
 	}
-	i = 0;
-	while (i < level->game_logic.enemy_amount)
-	{
-		if (!level->game_logic.enemies[i].dead_start_time)
-		{
-			if (level->game_logic.enemies[i].remaining_health <= 0)
-				level->game_logic.enemies[i].dead_start_time = SDL_GetTicks();
-			else
-			{
-				move_enemy(&level->game_logic.enemies[i], level, time,
-					&level->game_logic.enemy_settings);
-				enemy_attack(&level->game_logic.enemies[i], level, time);
-			}
-		}
-		i++;
-	}
+	i = -1;
+	while (++i < level->game_logic.enemy_amount)
+		enemy_state_machine(&level->game_logic.enemies[i], level);
 }
