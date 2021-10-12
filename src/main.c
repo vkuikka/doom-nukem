@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/12 06:59:45 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/10/12 08:06:59 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -263,9 +263,26 @@ static void	merge_game_models(t_level *level, t_game_state game_state)
 		merge_sprite(level, level->lights[i].pos, &level->game_models.light_sprite);
 }
 
-static void	viewmodel(t_window *window, t_level *level, t_game_state *game_state)
+static t_vec2	viewmodel_sway(t_level *level)
 {
 	static t_vec2	delta_vel = {0, 0};
+	t_vec2			res;
+
+	delta_vel.x -= level->cam.look_side;
+	delta_vel.y -= level->cam.look_up;
+	delta_vel.x *= .3;
+	delta_vel.y *= .8;
+	delta_vel.x = clamp(delta_vel.x, -0.2, 0.2);
+	delta_vel.y = clamp(delta_vel.y, -0.6, 0.6);
+	res = delta_vel;
+	delta_vel.x = level->cam.look_side;
+	delta_vel.y = level->cam.look_up;
+	return (res);
+}
+
+static void	viewmodel(t_window *window, t_level *level, t_game_state *game_state)
+{
+	t_vec2	sway;
 
 	if (*game_state != GAME_STATE_INGAME)
 		return ;
@@ -273,16 +290,10 @@ static void	viewmodel(t_window *window, t_level *level, t_game_state *game_state
 		play_animation(&level->game_models.viewmodel,
 		&level->game_models.reload_animation,
 		level->game_logic.reload_start_time);
+	sway = viewmodel_sway(level);
 	level->visible.tri_amount = 0;
-	delta_vel.x -= level->cam.look_side;
-	delta_vel.y -= level->cam.look_up;
-	delta_vel.x *= .3;
-	delta_vel.y *= .8;
-	delta_vel.x = clamp(delta_vel.x, -0.2, 0.2);
-	delta_vel.y = clamp(delta_vel.y, -0.6, 0.6);
-	merge_prop(level, &level->game_models.viewmodel, level->cam.pos, (t_vec2){level->cam.look_up + delta_vel.y, level->cam.look_side + delta_vel.x});
-	delta_vel.x = level->cam.look_side;
-	delta_vel.y = level->cam.look_up;
+	merge_prop(level, &level->game_models.viewmodel, level->cam.pos,
+		(t_vec2){level->cam.look_up + sway.y, level->cam.look_side + sway.x});
 	screen_space_partition(level);
 	level->render_is_first_pass = TRUE;
 	render_raycast(window, level, game_state);

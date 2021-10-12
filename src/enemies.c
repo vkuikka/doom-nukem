@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/14 17:08:49 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/12 07:51:52 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/10/12 09:16:14 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,50 +54,43 @@ static void	remove_projectile(t_game_logic *logic, int i)
 	logic->projectile_amount--;
 }
 
-static void	move_enemy(t_enemy *enemy, t_level *level, float time,
+static void	enemy_vision(t_enemy *enemy, t_level *level,
 					t_enemy_settings *settings)
 {
 	t_ray	e;
 	float	dist;
 	t_vec3	player;
-	t_vec3	tmp;
 
-	enemy->pos.y -= 1.5;
+	enemy->can_see_player = FALSE;
 	player = level->cam.pos;
 	e.pos.x = 0;
 	e.pos.y = 0;
 	e.pos.z = 0;
 	e.pos = enemy->pos;
-	vec_sub(&e.dir, player, e.pos);
+	e.pos.y -= 1.7;//enemy eye height
+	vec_sub(&e.dir, player, enemy->pos);
 	dist = cast_all(e, level, NULL);
 	if (player.y > e.pos.y - ENEMY_MOVABLE_HEIGHT_DIFF
 		&& player.y < e.pos.y + ENEMY_MOVABLE_HEIGHT_DIFF)
 	{
-		if (dist > vec_length(e.dir))
-			enemy->dir = e.dir;
 		if ((dist > vec_length(e.dir)
 				&& vec_length(e.dir) > settings->dist_limit)
 			|| dist < vec_length(e.dir) - settings->dist_limit)
 		{
-			if (enemy->dir.x || enemy->dir.z)
-			{
-				e.dir = enemy->dir;
-				e.dir.y = 0;
-				vec_normalize(&e.dir);
-				vec_mult(&e.dir, settings->move_speed * time);
-				tmp = e.dir;
-				vec_add(&e.pos, e.pos, e.dir);
-				vec_sub(&tmp, enemy->dir, e.dir);
-				if (vec_dot(tmp, e.dir) > 0)
-				{
-					enemy->dir = tmp;
-					vec_add(&enemy->pos, enemy->pos, e.dir);
-				}
-			}
+			enemy->can_see_player = TRUE;
 		}
 	}
-	obj_pos_set_to_floor(&enemy->pos, &level->game_models.enemy, level);
-	enemy->dir_rad = -1 * atan2(enemy->dir.z, enemy->dir.x) - M_PI / 2;
+}
+
+static void	enemy_look_at_player(t_enemy *enemy, t_level *level)
+{
+	if (enemy->can_see_player)
+	{
+		vec_sub(&enemy->dir, level->cam.pos, enemy->pos);
+		enemy->dir.y = 0;
+		vec_normalize(&enemy->dir);
+		enemy->dir_rad = -1 * atan2(enemy->dir.z, enemy->dir.x) - M_PI / 2;
+	}
 }
 
 static void	enemy_attack(t_enemy *enemy, t_level *level, float time)
@@ -210,8 +203,13 @@ static void	enemy_state_machine(t_enemy *enemy, t_level *level)
 	if (enemy->dead_start_time)
 		return ;
 	if (enemy->remaining_health <= 0)
+	{
 		enemy->dead_start_time = SDL_GetTicks();
-	else if (enemy->move_start_time)
+		return ;
+	}
+	enemy_vision(enemy, level, &level->game_logic.enemy_settings);
+	enemy_look_at_player(enemy, level);
+	if (enemy->move_start_time)
 	{
 		time = (SDL_GetTicks() - enemy->move_start_time)
 			/ (1000.0 * level->game_logic.enemy_settings.move_duration);
@@ -220,9 +218,14 @@ static void	enemy_state_machine(t_enemy *enemy, t_level *level)
 			enemy->move_start_time = 0;
 			enemy->shoot_start_time = SDL_GetTicks();
 		}
-		time = level->ui.frame_time / 1000.0;
-		move_enemy(enemy, level, time,
-			&level->game_logic.enemy_settings);
+		if (enemy->can_see_player)
+		{
+			t_vec3 tmp = enemy->dir;
+			vec_mult(&tmp, level->game_logic.enemy_settings.move_speed * (level->ui.frame_time / 1000.0));
+			vec_add(&enemy->pos, enemy->pos, tmp);
+			enemy->pos.y -= 1.5;//enemy max step
+			obj_pos_set_to_floor(&enemy->pos, &level->game_models.enemy, level);
+		}
 	}
 	else
 	{
@@ -233,7 +236,8 @@ static void	enemy_state_machine(t_enemy *enemy, t_level *level)
 			enemy->shoot_start_time = 0;
 			enemy->move_start_time = SDL_GetTicks();
 		}
-		enemy_attack(enemy, level, time);
+		if (enemy->can_see_player)
+			enemy_attack(enemy, level, time);
 	}
 }
 
