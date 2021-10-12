@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/12 07:07:58 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/10/12 11:50:54 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -826,9 +826,13 @@ void			go_in_dir(char *path, char *folder);
 void			loop_directory(char *directory, void *data,
 					void (*f)(int, char *, void *));
 
+void			merge_game_models(t_level *level, t_game_state game_state);
+void			merge_viewmodel(t_level *level);
+
 void			init_enemy(t_tri *face);
 void			init_ui(t_window *window, t_level *level);
-// void			init_player(t_enemy *player);
+void			projectiles_update(t_level *level);
+void			enemy_state_machine(t_enemy *enemy, t_level *level);
 void			init_audio(t_level *level);
 void			ui_render(t_window *window, t_level *level);
 void			set_text_color(int color);
@@ -926,12 +930,12 @@ void			game_logic(t_level *level, t_game_state *game_state);
 void			game_logic_put_info(t_level *level, unsigned int *texture);
 void			game_logic_select_nearest_to_mouse(t_level *level);
 void			game_logic_move_selected(t_level *level, t_vec3 move_amount);
-void			add_enemy_spawn_pos(t_level *level);
+void			add_enemy(t_level *level);
 void			add_ammo_box(t_level *level);
 void			add_health_box(t_level *level);
 void			delete_health_box(t_level *level);
 void			delete_ammo_box(t_level *level);
-void			delete_enemy_spawn_pos(t_level *level);
+void			delete_enemy(t_level *level);
 
 void			door_animate(t_level *level);
 void			door_put_text(t_level *level);

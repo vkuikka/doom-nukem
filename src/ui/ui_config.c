@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/10/12 04:53:03 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/10/12 11:31:18 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -612,7 +612,7 @@ void	ui_game_settings_delete_selected(t_level *level)
 	else if (level->ui.state.logic_selected == GAME_LOGIC_SELECTED_HEALTH)
 		call("delete health box", &delete_health_box);
 	else if (level->ui.state.logic_selected == GAME_LOGIC_SELECTED_ENEMY)
-		call("delete enemy", &delete_enemy_spawn_pos);
+		call("delete enemy", &delete_enemy);
 }
 
 void	ui_game_settings(t_level *level)
@@ -636,7 +636,7 @@ void	ui_game_settings(t_level *level)
 	if (call("enemy and damage settings", NULL))
 		level->ui.state.ui_location
 			= UI_LOCATION_ENEMY_AND_DAMAGE_SETTINGS;
-	call("add enemy spawn", &add_enemy_spawn_pos);
+	call("add enemy", &add_enemy);
 	call("add ammo box", &add_ammo_box);
 	call("add health box", &add_health_box);
 	ui_game_settings_delete_selected(level);
