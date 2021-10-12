@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ui_config.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/10/12 19:43:19 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/10/12 21:13:55 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,6 @@ void	copy_tri_settings(t_tri *a, t_tri *b)
 	a->opacity_precise = b->opacity_precise;
 	a->reflectivity = b->reflectivity;
 	a->refractivity = b->refractivity;
-	a->disable_distance_culling = b->disable_distance_culling;
 	a->disable_backface_culling = b->disable_backface_culling;
 }
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   doom_nukem.h                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/12 19:55:04 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/10/12 21:13:45 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -292,7 +292,6 @@ typedef struct s_tri
 	int					isquad;
 	int					isgrid;
 	int					isbreakable;
-	int					disable_distance_culling;
 	int					disable_backface_culling;
 	float				opacity;
 	float				reflectivity;

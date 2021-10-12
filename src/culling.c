@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/20 17:50:56 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/11 18:40:58 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/12 21:13:40 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -471,7 +471,6 @@ void	cull_visible(t_level *l, t_vec3 side_normals[4])
 			|| (cull_behind(l->cam.front, l->cam.pos, l->all.tris[i])
 				&& frustrum_culling(side_normals, l->cam.pos, l->all.tris[i])
 				&& (!l->ui.distance_culling
-					|| l->all.tris[i].disable_distance_culling
 					|| distance_culling(l->all.tris[i], l->cam.pos,
 						l->ui.render_distance))
 				&& (!l->ui.backface_culling
