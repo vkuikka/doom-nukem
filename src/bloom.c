@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/01 15:59:43 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/15 16:52:23 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/15 17:01:54 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -238,7 +238,7 @@ int	bloom_init(void *data_pointer)
 	return (0);
 }
 
-static int	buffer_check(t_color **buff)
+static int	buffer_alloc(t_color **buff)
 {
 	if (!*buff)
 	{
@@ -256,7 +256,7 @@ void	bloom(t_level *level, t_window *window)
 	t_rthread		thread_data[THREAD_AMOUNT];
 	int				i;
 
-	if (!buffer_check(&buff))
+	if (!buff && !buffer_alloc(&buff))
 		return ;
 	ft_memset(buff, 0, sizeof(t_color) * RES_X * RES_Y);
 	get_buff(buff);
