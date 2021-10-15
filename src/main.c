@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/12 19:43:07 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/10/15 12:10:21 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,45 +21,6 @@ static void	update_camera(t_level *l)
 	vec_cross(&l->cam.side, l->cam.up, l->cam.front);
 	l->cam.fov_y = l->ui.fov;
 	l->cam.fov_x = l->ui.fov * ((float)RES_X / RES_Y);
-}
-
-static void	render_finish(t_window *window, t_level *level)
-{
-	post_process(window, level);
-	SDL_UnlockTexture(window->texture);
-	SDL_RenderCopy(window->SDLrenderer, window->texture, NULL, NULL);
-}
-
-static void	render_raycast(t_window *window, t_level *level,
-								t_game_state *game_state)
-{
-	SDL_Thread	*threads[THREAD_AMOUNT];
-	t_rthread	thread_data[THREAD_AMOUNT];
-	int			i;
-	int			thread_casts;
-
-	if (SDL_LockTexture(window->texture, NULL,
-			(void **)&window->frame_buffer, &(int){0}) != 0)
-		ft_error("failed to lock texture\n");
-	if (level->render_is_first_pass || *game_state != GAME_STATE_INGAME)
-		ft_memset(window->frame_buffer, 0, RES_X * RES_Y * sizeof(int));
-	ft_memset(window->brightness_buffer, 0, RES_X * RES_Y * sizeof(t_color));
-	i = -1;
-	while (++i < THREAD_AMOUNT)
-	{
-		thread_data[i].id = i;
-		thread_data[i].level = level;
-		thread_data[i].window = window;
-		threads[i] = SDL_CreateThread(init_raycast, "asd",
-				(void *)&thread_data[i]);
-	}
-	i = -1;
-	while (++i < THREAD_AMOUNT)
-	{
-		SDL_WaitThread(threads[i], &thread_casts);
-		level->ui.total_raycasts += thread_casts;
-	}
-	render_finish(window, level);
 }
 
 static void	render_raster(t_window *window, t_level *level)
@@ -106,14 +67,7 @@ static void	render(t_window *window, t_level *level, t_game_state *game_state)
 		raycast_time = SDL_GetTicks();
 		if (!level->ui.wireframe
 			|| (level->ui.wireframe && level->ui.wireframe_on_top))
-		{
 			render_raycast(window, level, game_state);
-			level->ui.post_time = SDL_GetTicks();
-			post_process(window, level);
-			level->ui.post_time = SDL_GetTicks() - level->ui.post_time;
-			SDL_UnlockTexture(window->texture);
-			SDL_RenderCopy(window->SDLrenderer, window->texture, NULL, NULL);
-		}
 		level->ui.raycast_time = SDL_GetTicks()
 			- raycast_time - level->ui.post_time;
 		raster_time = SDL_GetTicks();

@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/12 21:13:45 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/15 11:49:34 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -1009,5 +1009,7 @@ void			ui_render_background(t_window *window, t_level *level);
 void			bloom(t_level *level, t_window *window);
 t_color			int_to_color(unsigned int color);
 unsigned int	color_to_int(t_color color);
+void			render_raycast(t_window *window, t_level *level,
+								t_game_state *game_state);
 
 #endif
