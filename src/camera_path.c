@@ -142,7 +142,7 @@ void	camera_path_set(t_camera_path *path, t_camera *cam)
 {
 	float	time;
 
-	ft_memset(cam, 0, sizeof(t_camera));
+	memset(cam, 0, sizeof(t_camera));
 	if (path->amount == 0)
 		return ;
 	if (path->amount == 1)

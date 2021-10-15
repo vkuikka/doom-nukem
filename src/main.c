@@ -23,13 +23,6 @@ static void	update_camera(t_level *l)
 	l->cam.fov_x = l->ui.fov * ((float)RES_X / RES_Y);
 }
 
-static void	render_finish(t_window *window, t_level *level)
-{
-	post_process(window, level);
-	SDL_UnlockTexture(window->texture);
-	SDL_RenderCopy(window->SDLrenderer, window->texture, NULL, NULL);
-}
-
 static void	render_raycast(t_window *window, t_level *level,
 								t_game_state *game_state)
 {
@@ -42,8 +35,9 @@ static void	render_raycast(t_window *window, t_level *level,
 			(void **)&window->frame_buffer, &(int){0}) != 0)
 		ft_error("failed to lock texture\n");
 	if (level->render_is_first_pass || *game_state != GAME_STATE_INGAME)
-		ft_memset(window->frame_buffer, 0, RES_X * RES_Y * sizeof(int));
-	ft_memset(window->brightness_buffer, 0, RES_X * RES_Y * sizeof(t_color));
+		memset(window->frame_buffer, 0, RES_X * RES_Y * sizeof(int));
+	if (level->ui.bloom_intensity)
+		memset(window->brightness_buffer, 0, RES_X * RES_Y * sizeof(t_color));
 	i = -1;
 	while (++i < THREAD_AMOUNT)
 	{
@@ -59,7 +53,6 @@ static void	render_raycast(t_window *window, t_level *level,
 		SDL_WaitThread(threads[i], &thread_casts);
 		level->ui.total_raycasts += thread_casts;
 	}
-	render_finish(window, level);
 }
 
 static void	render_raster(t_window *window, t_level *level)
@@ -67,7 +60,7 @@ static void	render_raster(t_window *window, t_level *level)
 	if (SDL_LockTexture(window->raster_texture, NULL,
 			(void **)&window->raster_texture_pixels, &(int){0}) != 0)
 		ft_error("failed to lock texture\n");
-	ft_memset(window->raster_texture_pixels, 0, RES_X * RES_Y * sizeof(int));
+	memset(window->raster_texture_pixels, 0, RES_X * RES_Y * sizeof(int));
 	wireframe(window->raster_texture_pixels, level);
 	if (level->ui.state.gizmo_active)
 		gizmo_render(level, window->raster_texture_pixels);
@@ -83,7 +76,7 @@ static void	render_ui(t_window *window, t_level *level,
 	if (SDL_LockTexture(window->ui_texture, NULL,
 			(void **)&window->ui_texture_pixels, &dummy_for_sdl) != 0)
 		ft_error("failed to lock texture\n");
-	ft_memset(window->ui_texture_pixels, 0, RES_X * RES_Y * 4);
+	memset(window->ui_texture_pixels, 0, RES_X * RES_Y * 4);
 	ui(window, level, game_state);
 	SDL_UnlockTexture(window->ui_texture);
 	SDL_RenderCopy(window->SDLrenderer, window->ui_texture, NULL, NULL);
