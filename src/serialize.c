@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/06 14:13:02 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/10/15 14:06:56 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/15 14:46:24 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -491,8 +491,12 @@ void	serialize_door(t_door *door, t_buffer *buf)
 	serialize_float(door->transition_time, buf);
 }
 
-void	free_doors(t_level *level, t_buffer *buf)
+void	free_doors(t_level *level)
 {
+	int	i;
+	int	k;
+
+	i = 0;
 	while (i < level->doors.door_amount)
 	{
 		free(level->doors.door[i].indices);
@@ -514,7 +518,6 @@ void	free_doors(t_level *level, t_buffer *buf)
 void	deserialize_doors(t_level *level, t_buffer *buf)
 {
 	int	i;
-	int	k;
 
 	i = 0;
 	deserialize_int(&level->doors.door_amount, buf);
@@ -619,7 +622,8 @@ void	deserialize_level(t_level *level, t_buffer *buf)
 	deserialize_float(&level->skybox_brightness, buf);
 	deserialize_player_pos(&level->game_logic.spawn_pos, buf);
 	deserialize_int(&level->game_logic.health_box_amount, buf);
-	level->game_logic.health_box = (t_item_pickup *)malloc(sizeof(t_item_pickup) * level->game_logic.health_box_amount);
+	level->game_logic.health_box = (t_item_pickup *)malloc(
+			sizeof(t_item_pickup) * level->game_logic.health_box_amount);
 	if (!level->game_logic.health_box)
 		ft_error("memory allocation failed (deserialize level, health)");
 	i = -1;
@@ -630,7 +634,8 @@ void	deserialize_level(t_level *level, t_buffer *buf)
 		level->game_logic.health_box[i].visible = 1;
 	}
 	deserialize_int(&level->game_logic.ammo_box_amount, buf);
-	level->game_logic.ammo_box = (t_item_pickup *)malloc(sizeof(t_item_pickup) * level->game_logic.ammo_box_amount);
+	level->game_logic.ammo_box = (t_item_pickup *)malloc(
+			sizeof(t_item_pickup) * level->game_logic.ammo_box_amount);
 	if (!level->game_logic.ammo_box)
 		ft_error("memory allocation failed (deserialize level, ammo)");
 	i = -1;
@@ -641,7 +646,8 @@ void	deserialize_level(t_level *level, t_buffer *buf)
 		level->game_logic.ammo_box[i].visible = 1;
 	}
 	deserialize_int(&level->game_logic.enemy_amount, buf);
-	level->game_logic.enemies = (t_enemy *)malloc(sizeof(t_enemy) * level->game_logic.enemy_amount);
+	level->game_logic.enemies = (t_enemy *)malloc(
+			sizeof(t_enemy) * level->game_logic.enemy_amount);
 	if (!level->game_logic.enemies)
 		ft_error("memory allocation failed (deserialize level, enemies)");
 	i = -1;
@@ -650,7 +656,8 @@ void	deserialize_level(t_level *level, t_buffer *buf)
 	deserialize_int(&level->main_menu_anim.amount, buf);
 	deserialize_int((int *)&level->main_menu_anim.duration, buf);
 	deserialize_int(&level->main_menu_anim.loop, buf);
-	level->main_menu_anim.pos = (t_player_pos *)malloc(sizeof(t_player_pos) * level->main_menu_anim.amount);
+	level->main_menu_anim.pos = (t_player_pos *)malloc(
+			sizeof(t_player_pos) * level->main_menu_anim.amount);
 	if (!level->main_menu_anim.pos)
 		ft_error("memory allocation failed (deserialize level, menu anim pos)");
 	i = -1;
