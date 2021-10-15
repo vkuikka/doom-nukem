@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/06 14:13:02 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/10/15 14:46:24 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/15 15:12:42 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -578,20 +578,25 @@ void	serialize_lights(t_level *level, t_buffer *buf)
 	}
 }
 
-void	deserialize_level(t_level *level, t_buffer *buf)
+static int	check_file_header(t_buffer *buf)
 {
 	char	*str;
-	int		i;
 
 	str = deserialize_string(ft_strlen("doom-nukem"), buf);
 	if (ft_strcmp(str, "doom-nukem"))
 	{
 		nonfatal_error("not valid doom-nukem map");
 		free(str);
-		return ;
+		return (1);
 	}
 	free(str);
-	deserialize_settings(level, buf);
+	return (0);
+}
+
+static void	deserialize_level_images(t_level *level, t_buffer *buf)
+{
+	int	i;
+
 	free(level->texture.image);
 	deserialize_bmp(&level->texture, buf);
 	free(level->normal_map.image);
@@ -610,18 +615,12 @@ void	deserialize_level(t_level *level, t_buffer *buf)
 		deserialize_int((int *)&level->spray_overlay[i], buf);
 		i++;
 	}
-	free_culling(level);
-	free(level->all.tris);
-	deserialize_projectile(&level->game_logic.player_projectile_settings, buf);
-	deserialize_projectile(&level->game_logic.enemy_projectile_settings, buf);
-	deserialize_enemy_settings(&level->game_logic.enemy_settings, buf);
-	deserialize_obj(&level->all, buf);
-	deserialize_doors(level, buf);
-	deserialize_lights(level, buf);
-	deserialize_float(&level->world_brightness, buf);
-	deserialize_float(&level->skybox_brightness, buf);
-	deserialize_player_pos(&level->game_logic.spawn_pos, buf);
-	deserialize_int(&level->game_logic.health_box_amount, buf);
+}
+
+static void	deserialize_pickups(t_level *level, t_buffer *buf)
+{
+	int	i;
+
 	level->game_logic.health_box = (t_item_pickup *)malloc(
 			sizeof(t_item_pickup) * level->game_logic.health_box_amount);
 	if (!level->game_logic.health_box)
@@ -645,6 +644,13 @@ void	deserialize_level(t_level *level, t_buffer *buf)
 		level->game_logic.ammo_box[i].start_time = 0;
 		level->game_logic.ammo_box[i].visible = 1;
 	}
+}
+
+static void	deserialize_enemies(t_level *level, t_buffer *buf)
+{
+	int	i;
+
+	deserialize_enemy_settings(&level->game_logic.enemy_settings, buf);
 	deserialize_int(&level->game_logic.enemy_amount, buf);
 	level->game_logic.enemies = (t_enemy *)malloc(
 			sizeof(t_enemy) * level->game_logic.enemy_amount);
@@ -653,6 +659,12 @@ void	deserialize_level(t_level *level, t_buffer *buf)
 	i = -1;
 	while (++i < level->game_logic.enemy_amount)
 		deserialize_vec3(&level->game_logic.enemies[i].spawn_pos, buf);
+}
+
+static void	deserialize_menu_anim(t_level *level, t_buffer *buf)
+{
+	int	i;
+
 	deserialize_int(&level->main_menu_anim.amount, buf);
 	deserialize_int((int *)&level->main_menu_anim.duration, buf);
 	deserialize_int(&level->main_menu_anim.loop, buf);
@@ -663,6 +675,28 @@ void	deserialize_level(t_level *level, t_buffer *buf)
 	i = -1;
 	while (++i < level->main_menu_anim.amount)
 		deserialize_player_pos(&level->main_menu_anim.pos[i], buf);
+}
+
+void	deserialize_level(t_level *level, t_buffer *buf)
+{
+	if (check_file_header(buf))
+		return ;
+	deserialize_settings(level, buf);
+	deserialize_level_images(level, buf);
+	free_culling(level);
+	free(level->all.tris);
+	deserialize_projectile(&level->game_logic.player_projectile_settings, buf);
+	deserialize_projectile(&level->game_logic.enemy_projectile_settings, buf);
+	deserialize_obj(&level->all, buf);
+	deserialize_doors(level, buf);
+	deserialize_lights(level, buf);
+	deserialize_float(&level->world_brightness, buf);
+	deserialize_float(&level->skybox_brightness, buf);
+	deserialize_player_pos(&level->game_logic.spawn_pos, buf);
+	deserialize_int(&level->game_logic.health_box_amount, buf);
+	deserialize_pickups(level, buf);
+	deserialize_enemies(level, buf);
+	deserialize_menu_anim(level, buf);
 	init_culling(level);
 	level->level_initialized = TRUE;
 }
@@ -685,7 +719,6 @@ void	serialize_level(t_level *level, t_buffer *buf)
 	}
 	serialize_projectile(&level->game_logic.player_projectile_settings, buf);
 	serialize_projectile(&level->game_logic.enemy_projectile_settings, buf);
-	serialize_enemy_settings(&level->game_logic.enemy_settings, buf);
 	serialize_obj(&level->all, buf);
 	serialize_doors(level, buf);
 	serialize_lights(level, buf);
@@ -700,6 +733,7 @@ void	serialize_level(t_level *level, t_buffer *buf)
 	i = -1;
 	while (++i < level->game_logic.ammo_box_amount)
 		serialize_vec3(level->game_logic.ammo_box[i].pos, buf);
+	serialize_enemy_settings(&level->game_logic.enemy_settings, buf);
 	serialize_int(level->game_logic.enemy_amount, buf);
 	i = -1;
 	while (++i < level->game_logic.enemy_amount)
