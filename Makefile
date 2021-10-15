@@ -16,7 +16,7 @@ SRC = main.c render_raycast.c input.c game_logic.c color.c culling.c culling_occ
 SRC_UI = color_hsl.c door_editor.c distortion.c gizmo.c hud.c light_editor.c main_menu.c nonfatal_error.c ui_config.c ui_elements.c ui.c uv_editor.c game_logic_editor.c
 SRC_SERIALIZATION = read_write.c serialize.c deserialize.c serialize_primitive.c deserialize_primitive.c
 LIB = libft/libft.a -L x86_64-w64-mingw32/lib/
-INCLUDE = -I src/ -I serialization/serialization.h -I libft/includes -I ./ -I src/ -I x86_64-w64-mingw32/include/ -I x86_64-w64-mingw32/include/SDL2
+INCLUDE = -I src/serialization/serialization.h -I libft/includes -I ./ -I src/ -I x86_64-w64-mingw32/include/ -I x86_64-w64-mingw32/include/SDL2
 AUDIO_EFFECT = d_death.ogg doorsliding.wav gunshot.wav jump.wav osrsMonsterDeath.wav teleport.wav windowShatter.wav door.wav gettinghit.wav jetpack.wav osrsDeath.wav reload.wav victory.wav
 MUSIC = ingame.ogg main_menu.ogg
 AUDIO_FILES=$(addprefix music/, $(MUSIC))
@@ -50,7 +50,7 @@ ifeq ($(OS),Windows_NT)
 	del src\embed.h
 else
 	$(foreach file, $(EMBED), xxd -i $(file) >> embed.h;)
-	-gcc -g $(FLAGS) -O3 -fsanitize=address $(SDL_HEADER) $(SDL_FRAMEWORKS) -F ./ $(FILES) src/filesystem_macos.c $(LIB) $(INCLUDE) -o $(NAME) -rpath @executable_path
+	-gcc $(FLAGS) -O3 -fsanitize=address $(SDL_HEADER) $(SDL_FRAMEWORKS) -F ./ $(FILES) src/filesystem_macos.c $(LIB) $(INCLUDE) -o $(NAME) -rpath @executable_path
 	rm embed.h
 endif
 

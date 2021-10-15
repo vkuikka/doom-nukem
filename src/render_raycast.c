@@ -52,7 +52,8 @@ void	render_raycast(t_window *window, t_level *level,
 			(void **)&window->frame_buffer, &(int){0}) != 0)
 		ft_error("failed to lock texture\n");
 	if (level->render_is_first_pass || *game_state != GAME_STATE_INGAME)
-		ft_memset(window->frame_buffer, 0, RES_X * RES_Y * sizeof(int));
-	ft_memset(window->brightness_buffer, 0, RES_X * RES_Y * sizeof(t_color));
+		memset(window->frame_buffer, 0, RES_X * RES_Y * sizeof(int));
+	if (level->ui.bloom_intensity)
+		memset(window->brightness_buffer, 0, RES_X * RES_Y * sizeof(t_color));
 	create_threads(level, window);
 }
