@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   screen_space_partition.c                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/09 12:03:36 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/25 16:38:53 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/10/15 11:39:09 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -228,20 +228,25 @@ void	screen_space_partition(t_level *level)
 	}
 }
 
+static void	free_ssp(t_level *level)
+{
+	int	i;
+
+	i = 0;
+	while (i < SSP_MAX_X * SSP_MAX_Y)
+	{
+		free(level->ssp[i].tris);
+		i++;
+	}
+	free(level->ssp);
+}
+
 void	init_screen_space_partition(t_level *level)
 {
 	int	i;
 
 	if (level->ssp)
-	{
-		i = 0;
-		while (i < SSP_MAX_X * SSP_MAX_Y)
-		{
-			free(level->ssp[i].tris);
-			i++;
-		}
-		free(level->ssp);
-	}
+		free_ssp(level);
 	level->ssp = (t_obj *)malloc(sizeof(t_obj) * SSP_MAX_X * SSP_MAX_Y);
 	if (!level->ssp)
 		ft_error("memory allocation failed");
