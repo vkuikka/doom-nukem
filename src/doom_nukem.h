@@ -903,7 +903,7 @@ void			player_movement(t_level *level);
 void			enemies_update_physics(t_level *level);
 void			enemies_update(t_level *level);
 void			spawn_enemies(t_level *level);
-void			obj_pos_set_to_floor(t_vec3 *vec, t_obj *obj, t_level *level);
+int				obj_pos_set_to_floor(t_vec3 *vec, t_obj *obj, t_level *level);
 
 void			fog(unsigned int *color, float dist, unsigned int fog_color,
 					t_level *level);

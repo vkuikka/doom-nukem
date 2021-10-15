@@ -89,12 +89,13 @@ static void	enemy_move(t_enemy *enemy, t_level *level)
 		enemy->move_start_time = 0;
 		enemy->shoot_start_time = SDL_GetTicks();
 	}
-	tmp = enemy->move_to;
+	tmp = enemy->dir;
 	vec_mult(&tmp, level->game_logic.enemy_settings.move_speed
 		* (level->ui.frame_time / 1000.0));
 	vec_add(&enemy->pos, enemy->pos, tmp);
 	enemy->pos.y -= 1.5;
-	obj_pos_set_to_floor(&enemy->pos, &level->game_models.enemy, level);
+	if (!obj_pos_set_to_floor(&enemy->pos, &level->game_models.enemy, level))
+		enemy->pos.y += 1.5;
 }
 
 void	enemy_state_machine(t_enemy *enemy, t_level *level)

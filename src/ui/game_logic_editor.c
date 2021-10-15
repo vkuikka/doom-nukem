@@ -34,7 +34,7 @@ static float	obj_find_lowest_point(t_obj *obj)
 	return (min);
 }
 
-void	obj_pos_set_to_floor(t_vec3 *vec, t_obj *obj, t_level *level)
+int	obj_pos_set_to_floor(t_vec3 *vec, t_obj *obj, t_level *level)
 {
 	t_ray	ray;
 	float	ground_dist;
@@ -47,6 +47,7 @@ void	obj_pos_set_to_floor(t_vec3 *vec, t_obj *obj, t_level *level)
 	else
 		ground_dist -= obj_find_lowest_point(obj);
 	vec->y += ground_dist;
+	return (ground_dist != FALSE);
 }
 
 void	add_health_box(t_level *level)
