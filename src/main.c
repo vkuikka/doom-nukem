@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/15 13:31:45 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/15 16:40:46 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,21 +55,32 @@ static void	render_ui(t_window *window, t_level *level,
 	SDL_SetRenderTarget(window->SDLrenderer, NULL);
 }
 
+static void	render_finish(t_window *window, t_level *level)
+{
+	level->ui.post_time = SDL_GetTicks();
+	post_process(window, level);
+	level->ui.post_time = SDL_GetTicks() - level->ui.post_time;
+	SDL_UnlockTexture(window->texture);
+	SDL_RenderCopy(window->SDLrenderer, window->texture, NULL, NULL);
+}
+
 static void	render(t_window *window, t_level *level, t_game_state *game_state)
 {
-	unsigned int	raycast_time;
 	unsigned int	raster_time;
 	unsigned int	ui_time;
 
 	if (level->level_initialized)
 	{
 		level->ui.total_raycasts = 0;
-		raycast_time = SDL_GetTicks();
+		level->ui.raycast_time = SDL_GetTicks();
 		if (!level->ui.wireframe
 			|| (level->ui.wireframe && level->ui.wireframe_on_top))
+		{
 			render_raycast(window, level, game_state);
+			render_finish(window, level);
+		}
 		level->ui.raycast_time = SDL_GetTicks()
-			- raycast_time - level->ui.post_time;
+			- level->ui.raycast_time - level->ui.post_time;
 		raster_time = SDL_GetTicks();
 		if (*game_state == GAME_STATE_EDITOR)
 			render_raster(window, level);

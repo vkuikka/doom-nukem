@@ -6,20 +6,11 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/15 11:42:17 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/15 12:12:32 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/15 16:34:57 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
-
-static void	render_finish(t_window *window, t_level *level)
-{
-	level->ui.post_time = SDL_GetTicks();
-	post_process(window, level);
-	level->ui.post_time = SDL_GetTicks() - level->ui.post_time;
-	SDL_UnlockTexture(window->texture);
-	SDL_RenderCopy(window->SDLrenderer, window->texture, NULL, NULL);
-}
 
 static void	wait_threads(t_level *level, SDL_Thread *threads[THREAD_AMOUNT])
 {
@@ -64,5 +55,4 @@ void	render_raycast(t_window *window, t_level *level,
 		ft_memset(window->frame_buffer, 0, RES_X * RES_Y * sizeof(int));
 	ft_memset(window->brightness_buffer, 0, RES_X * RES_Y * sizeof(t_color));
 	create_threads(level, window);
-	render_finish(window, level);
 }
