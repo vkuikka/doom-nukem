@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   enemy_state_machine.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/12 09:35:17 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/10/12 17:32:02 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/10/15 12:31:12 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,9 +43,6 @@ static void	enemy_vision(t_enemy *enemy, t_level *level,
 			enemy_view_dist = settings->dist_limit;
 		if (dist > vec_length(e.dir) && dist < enemy_view_dist)
 		{
-			(void)settings;
-			// 	&& vec_length(e.dir) > settings->dist_limit)
-			// || dist < vec_length(e.dir) - settings->dist_limit)
 			enemy->can_see_player = TRUE;
 			enemy->move_to = level->cam.pos;
 			enemy_turn(enemy);

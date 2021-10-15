@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   2d_intersect.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alcohen <alcohen@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/26 15:15:59 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/08/28 23:03:51 by alcohen          ###   ########.fr       */
+/*   Updated: 2021/10/15 11:33:00 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,6 +90,32 @@ static void	calc_quad_uv(t_tri *tri)
 		= tri->verts[2].txtr.y + (tri->verts[1].txtr.y - tri->verts[0].txtr.y);
 }
 
+int	check_uv_edge(int i, int j, t_tri t1, t_tri t2)
+{
+	int		res;
+
+	res = 0;
+	if (i == 2 + t1.isquad)
+	{
+		if (j == 2 + t2.isquad)
+			res = line_intersect(t1.verts[i].txtr, t1.verts[0].txtr,
+					t2.verts[j].txtr, t2.verts[0].txtr);
+		else
+			res = line_intersect(t1.verts[i].txtr, t1.verts[0].txtr,
+					t2.verts[j].txtr, t2.verts[j + 1].txtr);
+	}
+	else
+	{
+		if (j == 2 + t2.isquad)
+			res = line_intersect(t1.verts[i].txtr, t1.verts[i + 1].txtr,
+					t2.verts[j].txtr, t2.verts[0].txtr);
+		else
+			res = line_intersect(t1.verts[i].txtr, t1.verts[i + 1].txtr,
+					t2.verts[j].txtr, t2.verts[j + 1].txtr);
+	}
+	return (res);
+}
+
 /*
 ** Returns true if two faces overlap in texture coordinates
 */
@@ -113,36 +139,8 @@ int	tri_uv_intersect(t_tri t1, t_tri t2)
 		j = 0;
 		while (j < 3 + t2.isquad)
 		{
-			if (i == 2 + t1.isquad)
-			{
-				if (j == 2 + t2.isquad)
-				{
-					if (line_intersect(t1.verts[i].txtr, t1.verts[0].txtr,
-							t2.verts[j].txtr, t2.verts[0].txtr))
-						return (1);
-				}
-				else
-				{
-					if (line_intersect(t1.verts[i].txtr, t1.verts[0].txtr,
-							t2.verts[j].txtr, t2.verts[j + 1].txtr))
-						return (1);
-				}
-			}
-			else
-			{
-				if (j == 2 + t2.isquad)
-				{
-					if (line_intersect(t1.verts[i].txtr, t1.verts[i + 1].txtr,
-							t2.verts[j].txtr, t2.verts[0].txtr))
-						return (1);
-				}
-				else
-				{
-					if (line_intersect(t1.verts[i].txtr, t1.verts[i + 1].txtr,
-							t2.verts[j].txtr, t2.verts[j + 1].txtr))
-						return (1);
-				}
-			}
+			if (check_uv_edge(i, j, t1, t2))
+				return (1);
 			j++;
 		}
 		i++;

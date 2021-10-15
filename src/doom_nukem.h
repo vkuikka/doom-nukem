@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/12 21:13:45 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/15 15:47:38 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@
 # define LIGHT_LOCATION_INFO_COLOR 0xffdd00ff
 # define PERLIN_OFFSET 123
 # define SUN_SIZE 0.999	// 0.5 = half of skybox is sun
+# define SSP_INITIAL_SIZE 5
 
 # define ENEMY_MOVABLE_HEIGHT_DIFF 3
 # define MAX_PROJECTILE_TRAVEL 100
@@ -115,7 +116,6 @@
 
 # define UV_PADDING 3
 
-# define SERIALIZE_INITIAL_BUFFER_SIZE 512
 # define OCCLUSION_CULLING_FLOAT_ERROR_MAGIC_NUMBER 10
 
 # define AUDIO_GUNSHOT_CHANNEL 0
@@ -1009,5 +1009,10 @@ void			ui_render_background(t_window *window, t_level *level);
 void			bloom(t_level *level, t_window *window);
 t_color			int_to_color(unsigned int color);
 unsigned int	color_to_int(t_color color);
+void			render_raycast(t_window *window, t_level *level,
+								t_game_state *game_state);
+
+void			deserialize_level(t_level *level, t_buffer *buf);
+void			serialize_level(t_level *level, t_buffer *buf);
 
 #endif
