@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/09 12:03:36 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/10/15 14:01:50 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/15 14:40:30 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -201,10 +201,10 @@ static void	find_ssp_index(t_tri tri, t_level *level)
 	}
 }
 
-static void    ssp_set_all(t_level *level, t_tri tri)
+static void	ssp_set_all(t_level *level, t_tri tri)
 {
-	int    x;
-	int    y;
+	int	x;
+	int	y;
 
 	y = 0;
 	while (y < SSP_MAX_Y)
