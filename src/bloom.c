@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/01 15:59:43 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/11 19:24:58 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/15 16:52:23 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -238,15 +238,25 @@ int	bloom_init(void *data_pointer)
 	return (0);
 }
 
+static int	buffer_check(t_color **buff)
+{
+	if (!*buff)
+	{
+		*buff = (t_color *)malloc(sizeof(t_color) * RES_X * RES_Y);
+		if (!*buff)
+			return (0);
+	}
+	return (1);
+}
+
 void	bloom(t_level *level, t_window *window)
 {
-	SDL_Thread	*threads[THREAD_AMOUNT];
-	t_rthread	thread_data[THREAD_AMOUNT];
-	t_color		*buff;
-	int			i;
+	static t_color	*buff = NULL;
+	SDL_Thread		*threads[THREAD_AMOUNT];
+	t_rthread		thread_data[THREAD_AMOUNT];
+	int				i;
 
-	buff = (t_color *)malloc(sizeof(t_color) * RES_X * RES_Y);
-	if (!buff)
+	if (!buffer_check(&buff))
 		return ;
 	ft_memset(buff, 0, sizeof(t_color) * RES_X * RES_Y);
 	get_buff(buff);
@@ -263,5 +273,4 @@ void	bloom(t_level *level, t_window *window)
 	while (++i < THREAD_AMOUNT)
 		SDL_WaitThread(threads[i], NULL);
 	bloom_apply(window, buff, level);
-	free(buff);
 }
