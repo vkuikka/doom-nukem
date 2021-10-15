@@ -6,16 +6,17 @@
 #    By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/12/08 13:46:11 by vkuikka           #+#    #+#              #
-#    Updated: 2021/10/15 11:50:05 by vkuikka          ###   ########.fr        #
+#    Updated: 2021/10/15 15:44:56 by vkuikka          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = dnukem
 SRCDIR = src/
-SRC = main.c render_raycast.c input.c game_logic.c color.c culling.c culling_occlusion.c vectors.c init.c file_read.c raycast.c obj_read.c bmp_read.c find_quads.c wireframe.c editor_set_state.c physics.c enemies.c enemy_state_machine.c shaders.c select.c serialize.c screen_space_partition.c uv_overlap.c 2d_intersect.c obj_editor.c door_runtime.c bake.c spray.c audio.c cast_face.c camera_path.c shader_perlin.c bloom.c animation.c sprite.c projectile.c dynamic_geometry.c
+SRC = main.c render_raycast.c input.c game_logic.c color.c culling.c culling_occlusion.c vectors.c init.c file_read.c raycast.c obj_read.c bmp_read.c find_quads.c wireframe.c editor_set_state.c physics.c enemies.c enemy_state_machine.c shaders.c select.c screen_space_partition.c uv_overlap.c 2d_intersect.c obj_editor.c door_runtime.c bake.c spray.c audio.c cast_face.c camera_path.c shader_perlin.c bloom.c animation.c sprite.c projectile.c dynamic_geometry.c
 SRC_UI = color_hsl.c door_editor.c distortion.c gizmo.c hud.c light_editor.c main_menu.c nonfatal_error.c ui_config.c ui_elements.c ui.c uv_editor.c game_logic_editor.c
+SRC_SERIALIZATION = read_write.c serialize.c deserialize.c serialize_primitive.c deserialize_primitive.c
 LIB = libft/libft.a -L x86_64-w64-mingw32/lib/
-INCLUDE = libft/includes -I ./ -I src/ -I x86_64-w64-mingw32/include/ -I x86_64-w64-mingw32/include/SDL2
+INCLUDE = -I src/ -I serialization/serialization.h -I libft/includes -I ./ -I src/ -I x86_64-w64-mingw32/include/ -I x86_64-w64-mingw32/include/SDL2
 AUDIO_EFFECT = d_death.ogg doorsliding.wav gunshot.wav jump.wav osrsMonsterDeath.wav teleport.wav windowShatter.wav door.wav gettinghit.wav jetpack.wav osrsDeath.wav reload.wav victory.wav
 MUSIC = ingame.ogg main_menu.ogg
 AUDIO_FILES=$(addprefix music/, $(MUSIC))
@@ -33,7 +34,9 @@ FLAGS = -Wall -Wextra -Werror
 
 .PHONY: clean fclean re all
 UI_FILES=$(addprefix ui/, $(SRC_UI))
+SERIALIZATION_FILES=$(addprefix serialization/, $(SRC_SERIALIZATION))
 SRC += $(UI_FILES)
+SRC += $(SERIALIZATION_FILES)
 FILES=$(addprefix src/, $(SRC))
 
 all: $(NAME)
@@ -47,7 +50,7 @@ ifeq ($(OS),Windows_NT)
 	del src\embed.h
 else
 	$(foreach file, $(EMBED), xxd -i $(file) >> embed.h;)
-	-gcc $(FLAGS) -O3 -fsanitize=address $(SDL_HEADER) $(SDL_FRAMEWORKS) -F ./ $(FILES) src/filesystem_macos.c $(LIB) -I $(INCLUDE) -o $(NAME) -rpath @executable_path
+	-gcc -g $(FLAGS) -O3 -fsanitize=address $(SDL_HEADER) $(SDL_FRAMEWORKS) -F ./ $(FILES) src/filesystem_macos.c $(LIB) $(INCLUDE) -o $(NAME) -rpath @executable_path
 	rm embed.h
 endif
 
