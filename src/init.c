@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   init.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/08 14:38:45 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/12 19:42:58 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/10/15 12:17:48 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -176,13 +176,8 @@ void	create_default_level(t_level *level)
 	init_culling(level);
 }
 
-void	init_window(t_window **window)
+static void	init_window_struct(t_window **window)
 {
-	if (SDL_Init(SDL_INIT_EVERYTHING))
-		ft_error("could not initialize SDL\n");
-	*window = (t_window *)malloc(sizeof(t_window));
-	if (!*window)
-		ft_error("memory allocation failed\n");
 	window[0]->SDLwindow = SDL_CreateWindow("DOOM NUKEM",
 			SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
 			RES_X, RES_Y, SDL_WINDOW_ALLOW_HIGHDPI);
@@ -200,11 +195,22 @@ void	init_window(t_window **window)
 		= (float *)malloc(sizeof(float) * (RES_X * RES_Y));
 	window[0]->brightness_buffer
 		= (t_color *)malloc(sizeof(t_color) * (RES_X * RES_Y));
-	ft_memset((void *)window[0]->brightness_buffer, 0, sizeof(t_color) * (RES_X * RES_Y));
+	ft_memset((void *)window[0]->brightness_buffer, 0,
+		sizeof(t_color) * (RES_X * RES_Y));
 	window[0]->post_process_buf
 		= (unsigned int *)malloc(sizeof(unsigned int) * (RES_X * RES_Y));
 	if (!window[0]->depth_buffer || !window[0]->post_process_buf)
 		ft_error("init window memory allocation failed\n");
+}
+
+void	init_window(t_window **window)
+{
+	if (SDL_Init(SDL_INIT_EVERYTHING))
+		ft_error("could not initialize SDL\n");
+	*window = (t_window *)malloc(sizeof(t_window));
+	if (!*window)
+		ft_error("memory allocation failed\n");
+	init_window_struct(window);
 }
 
 static void	init_audio_effects(t_level *l)
