@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/09 12:03:36 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/10/15 11:39:09 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/15 14:01:50 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -201,10 +201,27 @@ static void	find_ssp_index(t_tri tri, t_level *level)
 	}
 }
 
+static void    ssp_set_all(t_level *level, t_tri tri)
+{
+	int    x;
+	int    y;
+
+	y = 0;
+	while (y < SSP_MAX_Y)
+	{
+		x = 0;
+		while (x < SSP_MAX_X)
+		{
+			ssp_set_tri(tri, level, x, y);
+			x++;
+		}
+		y++;
+	}
+}
+
 void	screen_space_partition(t_level *level)
 {
 	int	i;
-	int	k;
 
 	i = -1;
 	while (++i < SSP_MAX_X * SSP_MAX_Y)
@@ -213,40 +230,17 @@ void	screen_space_partition(t_level *level)
 	while (i < level->visible.tri_amount)
 	{
 		if (level->visible.tris[i].isgrid)
-		{
-			k = 0;
-			while (k < SSP_MAX_X * SSP_MAX_Y)
-			{
-				level->ssp[k].tris[level->ssp[k].tri_amount++]
-					= level->visible.tris[i];
-				k++;
-			}
-		}
+			ssp_set_all(level, level->visible.tris[i]);
 		else
 			find_ssp_index(level->visible.tris[i], level);
 		i++;
 	}
 }
 
-static void	free_ssp(t_level *level)
-{
-	int	i;
-
-	i = 0;
-	while (i < SSP_MAX_X * SSP_MAX_Y)
-	{
-		free(level->ssp[i].tris);
-		i++;
-	}
-	free(level->ssp);
-}
-
 void	init_screen_space_partition(t_level *level)
 {
 	int	i;
 
-	if (level->ssp)
-		free_ssp(level);
 	level->ssp = (t_obj *)malloc(sizeof(t_obj) * SSP_MAX_X * SSP_MAX_Y);
 	if (!level->ssp)
 		ft_error("memory allocation failed");
@@ -254,15 +248,10 @@ void	init_screen_space_partition(t_level *level)
 	while (i < SSP_MAX_X * SSP_MAX_Y)
 	{
 		level->ssp[i].tris = (t_tri *)malloc(sizeof(t_tri)
-				* level->all.tri_amount);
+				* SSP_INITIAL_SIZE);
 		if (!level->ssp[i].tris)
 			ft_error("memory allocation failed");
-		i++;
-	}
-	i = 0;
-	while (i < SSP_MAX_X * SSP_MAX_Y)
-	{
-		level->ssp_max[i] = level->all.tri_amount;
+		level->ssp_max[i] = SSP_INITIAL_SIZE;
 		i++;
 	}
 }

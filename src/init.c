@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/08 14:38:45 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/15 12:17:48 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/15 14:00:05 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -168,11 +168,6 @@ void	create_default_level(t_level *level)
 	level->sky.img = bmp_read("skybox.bmp");
 	level->spray = bmp_read("embed/spray.bmp");
 	load_obj("level/cache.obj", &level->all);
-	level->visible.tris
-		= (t_tri *)malloc(sizeof(t_tri) * level->all.tri_amount);
-	if (!level->visible.tris)
-		ft_error("memory allocation failed\n");
-	init_screen_space_partition(level);
 	init_culling(level);
 }
 

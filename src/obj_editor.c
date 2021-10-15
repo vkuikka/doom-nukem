@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   obj_editor.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/22 23:13:42 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/10/12 13:57:49 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/10/15 14:05:09 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -162,16 +162,10 @@ void	add_face(t_level *level)
 			sizeof(t_tri) * level->all.tri_amount);
 	if (!level->all.tris)
 		ft_error("memory allocation failed");
-	level->visible.tris = (t_tri *)ft_realloc(level->visible.tris,
-			sizeof(t_tri) * level->all.tri_amount - 1,
-			sizeof(t_tri) * level->all.tri_amount);
-	if (!level->visible.tris)
-		ft_error("memory allocation failed");
 	set_new_face(&level->all.tris[level->all.tri_amount - 1],
 		level->cam.pos, level->cam.front, 1);
 	level->all.tris[level->all.tri_amount - 1].index
 		= level->all.tri_amount - 1;
-	init_screen_space_partition(level);
 	init_culling(level);
 }
 
@@ -207,10 +201,7 @@ void	remove_faces(t_level *level)
 	level->all.tri_amount = amount;
 	level->all.tris = (t_tri *)ft_realloc(level->all.tris,
 			sizeof(t_tri) * original_amount, sizeof(t_tri) * amount);
-	level->visible.tris = (t_tri *)ft_realloc(level->visible.tris,
-			sizeof(t_tri) * original_amount, sizeof(t_tri) * amount);
-	if (!level->visible.tris || !level->all.tris)
+	if (!level->all.tris)
 		ft_error("memory allocation failed");
-	init_screen_space_partition(level);
 	init_culling(level);
 }

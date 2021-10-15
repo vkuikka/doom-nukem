@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   serialize.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/06 14:13:02 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/10/12 20:06:40 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/10/15 14:06:56 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -281,7 +281,7 @@ void	deserialize_tri(t_tri *tri, t_buffer *buf)
 	deserialize_float(&tri->opacity, buf);
 	deserialize_float(&tri->reflectivity, buf);
 	deserialize_float(&tri->refractivity, buf);
-	deserialize_int((int*)&tri->shader, buf);
+	deserialize_int((int *)&tri->shader, buf);
 	if (tri->shader == SHADER_PERLIN)
 	{
 		tri->perlin = (t_perlin_settings *)malloc(sizeof(t_perlin_settings));
@@ -322,7 +322,7 @@ void	deserialize_obj(t_obj *obj, t_buffer *buf)
 	deserialize_int(&obj->tri_amount, buf);
 	obj->tris = (t_tri *)malloc(sizeof(t_tri) * obj->tri_amount);
 	if (!obj->tris)
-		ft_error("failed to allocate memory for file");
+		ft_error("failed to allocate memory for file (deserialize_obj)");
 	ft_bzero(obj->tris, sizeof(t_tri) * obj->tri_amount);
 	while (i < obj->tri_amount)
 	{
@@ -354,7 +354,7 @@ void	deserialize_bmp(t_bmp *bmp, t_buffer *buf)
 	deserialize_int(&bmp->height, buf);
 	bmp->image = (int *)malloc(sizeof(int) * bmp->width * bmp->height);
 	if (!bmp->image)
-		ft_error("failed to allocate memory for file");
+		ft_error("failed to allocate memory for file (deserialize_bmp)");
 	y = 0;
 	while (y < bmp->height)
 	{
@@ -396,7 +396,7 @@ char	*deserialize_string(int len, t_buffer *buf)
 
 	str = (char *)malloc(sizeof(char) * len + 1);
 	if (!str)
-		ft_error("serialize memory allocation failed");
+		ft_error("memory allocation failed (deserialize_string)");
 	i = 0;
 	while (i < len)
 	{
@@ -420,42 +420,45 @@ void	serialize_string(char *str, t_buffer *buf)
 	}
 }
 
+static void	malloc_door(t_door *door)
+{
+	door->indices = (int *)malloc(sizeof(int) * door->indice_amount);
+	door->isquad = (int *)malloc(sizeof(int) * door->indice_amount);
+	door->pos1 = (t_vec3 **)malloc(sizeof(t_vec3 *) * door->indice_amount);
+	door->pos2 = (t_vec3 **)malloc(sizeof(t_vec3 *) * door->indice_amount);
+	if (!door->pos1 || !door->pos2 || !door->isquad || !door->indices)
+		ft_error("memory allocation failed (deserialize malloc_door)");
+}
+
+static void	deserialize_door_pos(t_door *door, t_buffer *buf, int door_index)
+{
+	int	i;
+
+	i = 0;
+	while (i < 4)
+	{
+		deserialize_vec3(&door->pos1[door_index][i], buf);
+		deserialize_vec3(&door->pos2[door_index][i], buf);
+		i++;
+	}
+}
+
 void	deserialize_door(t_door *door, t_buffer *buf)
 {
 	int	i;
-	int	k;
 
-	i = 0;
 	deserialize_int(&door->indice_amount, buf);
-	door->indices = (int *)malloc(sizeof(int) * door->indice_amount);
-	if (!door->indices)
-		ft_error("memory allocation failed\n");
-	door->isquad = (int *)malloc(sizeof(int) * door->indice_amount);
-	if (!door->isquad)
-		ft_error("memory allocation failed\n");
-	door->pos1 = (t_vec3 **)malloc(sizeof(t_vec3 *) * door->indice_amount);
-	if (!door->pos1)
-		ft_error("memory allocation failed\n");
-	door->pos2 = (t_vec3 **)malloc(sizeof(t_vec3 *) * door->indice_amount);
-	if (!door->pos2)
-		ft_error("memory allocation failed\n");
+	malloc_door(door);
+	i = 0;
 	while (i < door->indice_amount)
 	{
 		deserialize_int(&door->indices[i], buf);
 		deserialize_int(&door->isquad[i], buf);
 		door->pos1[i] = (t_vec3 *)malloc(sizeof(t_vec3) * 4);
-		if (!door->pos1[i])
-			ft_error("memory allocation failed\n");
 		door->pos2[i] = (t_vec3 *)malloc(sizeof(t_vec3) * 4);
-		if (!door->pos2[i])
-			ft_error("memory allocation failed\n");
-		k = 0;
-		while (k < 4)
-		{
-			deserialize_vec3(&door->pos1[i][k], buf);
-			deserialize_vec3(&door->pos2[i][k], buf);
-			k++;
-		}
+		if (!door->pos1[i] || !door->pos2[i])
+			ft_error("memory allocation failed (deserialize_door)");
+		deserialize_door_pos(door, buf, i);
 		i++;
 	}
 	deserialize_int(&door->is_activation_pos_active, buf);
@@ -488,12 +491,8 @@ void	serialize_door(t_door *door, t_buffer *buf)
 	serialize_float(door->transition_time, buf);
 }
 
-void	deserialize_doors(t_level *level, t_buffer *buf)
+void	free_doors(t_level *level, t_buffer *buf)
 {
-	int	i;
-	int	k;
-
-	i = 0;
 	while (i < level->doors.door_amount)
 	{
 		free(level->doors.door[i].indices);
@@ -510,11 +509,19 @@ void	deserialize_doors(t_level *level, t_buffer *buf)
 		i++;
 	}
 	free(level->doors.door);
+}
+
+void	deserialize_doors(t_level *level, t_buffer *buf)
+{
+	int	i;
+	int	k;
+
+	i = 0;
 	deserialize_int(&level->doors.door_amount, buf);
 	level->doors.door = (t_door *)malloc(sizeof(t_door)
 			* level->doors.door_amount);
 	if (!level->doors.door)
-		ft_error("memory allocation failed\n");
+		ft_error("memory allocation failed (deserialize doors)\n");
 	i = -1;
 	while (++i < level->doors.door_amount)
 		deserialize_door(&level->doors.door[i], buf);
@@ -540,7 +547,7 @@ void	deserialize_lights(t_level *level, t_buffer *buf)
 	deserialize_int(&level->light_amount, buf);
 	level->lights = (t_light *)malloc(sizeof(t_light) * level->light_amount);
 	if (!level->lights)
-		ft_error("memory allocation failed\n");
+		ft_error("memory allocation failed (deserialize_lights)");
 	i = 0;
 	while (i < level->light_amount)
 	{
@@ -593,7 +600,7 @@ void	deserialize_level(t_level *level, t_buffer *buf)
 	level->spray_overlay = (unsigned *)malloc(
 			sizeof(unsigned) * level->texture.width * level->texture.height);
 	if (!level->spray_overlay)
-		ft_error("failed to allocate memory for file");
+		ft_error("memory allocation failed (deserialize level, spray_overlay)");
 	i = 0;
 	while (i < level->texture.height * level->texture.width)
 	{
@@ -614,7 +621,7 @@ void	deserialize_level(t_level *level, t_buffer *buf)
 	deserialize_int(&level->game_logic.health_box_amount, buf);
 	level->game_logic.health_box = (t_item_pickup *)malloc(sizeof(t_item_pickup) * level->game_logic.health_box_amount);
 	if (!level->game_logic.health_box)
-		ft_error("memory allocation failed\n");
+		ft_error("memory allocation failed (deserialize level, health)");
 	i = -1;
 	while (++i < level->game_logic.health_box_amount)
 	{
@@ -625,7 +632,7 @@ void	deserialize_level(t_level *level, t_buffer *buf)
 	deserialize_int(&level->game_logic.ammo_box_amount, buf);
 	level->game_logic.ammo_box = (t_item_pickup *)malloc(sizeof(t_item_pickup) * level->game_logic.ammo_box_amount);
 	if (!level->game_logic.ammo_box)
-		ft_error("memory allocation failed\n");
+		ft_error("memory allocation failed (deserialize level, ammo)");
 	i = -1;
 	while (++i < level->game_logic.ammo_box_amount)
 	{
@@ -636,7 +643,7 @@ void	deserialize_level(t_level *level, t_buffer *buf)
 	deserialize_int(&level->game_logic.enemy_amount, buf);
 	level->game_logic.enemies = (t_enemy *)malloc(sizeof(t_enemy) * level->game_logic.enemy_amount);
 	if (!level->game_logic.enemies)
-		ft_error("memory allocation failed\n");
+		ft_error("memory allocation failed (deserialize level, enemies)");
 	i = -1;
 	while (++i < level->game_logic.enemy_amount)
 		deserialize_vec3(&level->game_logic.enemies[i].spawn_pos, buf);
@@ -645,12 +652,10 @@ void	deserialize_level(t_level *level, t_buffer *buf)
 	deserialize_int(&level->main_menu_anim.loop, buf);
 	level->main_menu_anim.pos = (t_player_pos *)malloc(sizeof(t_player_pos) * level->main_menu_anim.amount);
 	if (!level->main_menu_anim.pos)
-		ft_error("memory allocation failed\n");
+		ft_error("memory allocation failed (deserialize level, menu anim pos)");
 	i = -1;
 	while (++i < level->main_menu_anim.amount)
 		deserialize_player_pos(&level->main_menu_anim.pos[i], buf);
-	if (!level->visible.tris)
-		ft_error("memory allocation failed\n");
 	init_culling(level);
 	level->level_initialized = TRUE;
 }

@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/15 12:10:21 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/15 13:31:45 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -163,6 +163,8 @@ int	main(int argc, char **argv)
 	init_audio(level);
 	init_embedded(level);
 	Mix_PlayMusic(level->audio.title_music, -1);
+	init_screen_space_partition(level);
+	init_culling(level);
 	while (!level->level_initialized)
 	{
 		read_input(window, level, &game_state);

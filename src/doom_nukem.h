@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/15 11:49:34 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/15 13:59:26 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@
 # define LIGHT_LOCATION_INFO_COLOR 0xffdd00ff
 # define PERLIN_OFFSET 123
 # define SUN_SIZE 0.999	// 0.5 = half of skybox is sun
+# define SSP_INITIAL_SIZE 5
 
 # define ENEMY_MOVABLE_HEIGHT_DIFF 3
 # define MAX_PROJECTILE_TRAVEL 100
