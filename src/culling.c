@@ -246,7 +246,7 @@ static t_vec3	camera_to_reflection(t_level *level, int i)
 	t_vec3	normal;
 	t_vec3	pos;
 
-	ft_memset(&pos, 0, sizeof(t_vec3));
+	memset(&pos, 0, sizeof(t_vec3));
 	level->all.tris[i].reflection_obj_first_bounce.tri_amount = 0;
 	vec_sub(&pos, level->all.tris[i].verts[0].pos, level->cam.pos);
 	normal = level->all.tris[i].normal;
@@ -305,7 +305,7 @@ void	reflection_culling(t_level *level, int i)
 	int		k;
 
 	level->all.tris[i].reflection_obj_all.tri_amount = 0;
-	ft_memset(&avg, 0, sizeof(t_vec3));
+	memset(&avg, 0, sizeof(t_vec3));
 	k = -1;
 	while (++k < 3 + level->all.tris[i].isquad)
 		vec_add(&avg, avg, level->all.tris[i].verts[k].pos);

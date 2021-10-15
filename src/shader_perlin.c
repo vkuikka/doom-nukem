@@ -115,8 +115,8 @@ void	perlin_init(t_tri *t)
 	t->perlin->swirl_interval = 10;
 	t->perlin->dir.x = -1;
 	t->perlin->dir.y = 0;
-	ft_memset(&t->perlin->color_1, 0, sizeof(t_color_hsl));
-	ft_memset(&t->perlin->color_2, 0, sizeof(t_color_hsl));
+	memset(&t->perlin->color_1, 0, sizeof(t_color_hsl));
+	memset(&t->perlin->color_2, 0, sizeof(t_color_hsl));
 	t->perlin->color_2.lightness = -1;
 }
 

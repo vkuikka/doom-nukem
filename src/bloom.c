@@ -258,7 +258,7 @@ void	bloom(t_level *level, t_window *window)
 
 	if (!buff && !buffer_alloc(&buff))
 		return ;
-	ft_memset(buff, 0, sizeof(t_color) * RES_X * RES_Y);
+	memset(buff, 0, sizeof(t_color) * RES_X * RES_Y);
 	get_buff(buff);
 	i = -1;
 	while (++i < THREAD_AMOUNT)

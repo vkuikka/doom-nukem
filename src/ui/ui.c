@@ -173,8 +173,8 @@ void	init_ui_state(t_level *level)
 	level->ui.state.save_filename = (char *)malloc(sizeof(char) * NAME_MAX);
 	if (!level->ui.state.save_filename)
 		ft_error("memory allocation failed\n");
-	ft_memset(level->ui.state.extension, 0, NAME_MAX - 1);
-	ft_memset(level->ui.state.save_filename, 0, NAME_MAX - 1);
+	memset(level->ui.state.extension, 0, NAME_MAX - 1);
+	memset(level->ui.state.save_filename, 0, NAME_MAX - 1);
 	level->ui.state.uv_pos.x = 0;
 	level->ui.state.uv_pos.y = 0;
 	level->ui.state.uv_zoom = 1;

@@ -28,7 +28,7 @@ static void	render_raster(t_window *window, t_level *level)
 	if (SDL_LockTexture(window->raster_texture, NULL,
 			(void **)&window->raster_texture_pixels, &(int){0}) != 0)
 		ft_error("failed to lock texture\n");
-	ft_memset(window->raster_texture_pixels, 0, RES_X * RES_Y * sizeof(int));
+	memset(window->raster_texture_pixels, 0, RES_X * RES_Y * sizeof(int));
 	wireframe(window->raster_texture_pixels, level);
 	if (level->ui.state.gizmo_active)
 		gizmo_render(level, window->raster_texture_pixels);
@@ -44,7 +44,7 @@ static void	render_ui(t_window *window, t_level *level,
 	if (SDL_LockTexture(window->ui_texture, NULL,
 			(void **)&window->ui_texture_pixels, &dummy_for_sdl) != 0)
 		ft_error("failed to lock texture\n");
-	ft_memset(window->ui_texture_pixels, 0, RES_X * RES_Y * 4);
+	memset(window->ui_texture_pixels, 0, RES_X * RES_Y * 4);
 	ui(window, level, game_state);
 	SDL_UnlockTexture(window->ui_texture);
 	SDL_RenderCopy(window->SDLrenderer, window->ui_texture, NULL, NULL);

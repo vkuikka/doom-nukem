@@ -190,8 +190,7 @@ static void	init_window_struct(t_window **window)
 		= (float *)malloc(sizeof(float) * (RES_X * RES_Y));
 	window[0]->brightness_buffer
 		= (t_color *)malloc(sizeof(t_color) * (RES_X * RES_Y));
-	ft_memset((void *)window[0]->brightness_buffer, 0,
-		sizeof(t_color) * (RES_X * RES_Y));
+	memset((void *)window[0]->brightness_buffer, 0, sizeof(t_color) * (RES_X * RES_Y));
 	window[0]->post_process_buf
 		= (unsigned int *)malloc(sizeof(unsigned int) * (RES_X * RES_Y));
 	if (!window[0]->depth_buffer || !window[0]->post_process_buf)
