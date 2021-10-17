@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/09 12:03:36 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/10/15 14:40:30 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/17 20:12:14 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ int	get_ssp_coordinate(int coord, int horizontal)
 	return ((int)((float)coord / RES_Y * SSP_MAX_Y));
 }
 
-static void	calculate_corner_vectors(t_vec3 result[2], t_camera c,
+static void	ssp_edge_vectors(t_vec3 result[2], t_camera c,
 											float px, int horizontal)
 {
 	float	ym;
@@ -66,7 +66,7 @@ static int	horizontal(t_tri tri, int x, t_camera cam, int side)
 	t_vec3	vert;
 	int		i;
 
-	calculate_corner_vectors(corners, cam, (float)x, 1);
+	ssp_edge_vectors(corners, cam, (float)x, 1);
 	vec_cross(&normal, corners[side], corners[!side]);
 	i = 0;
 	while (i < 3 + tri.isquad)
@@ -86,7 +86,7 @@ static int	vertical(t_tri tri, int x, t_camera cam, int side)
 	t_vec3	vert;
 	int		i;
 
-	calculate_corner_vectors(corners, cam, (float)x, 0);
+	ssp_edge_vectors(corners, cam, (float)x, 0);
 	vec_cross(&normal, corners[!side], corners[side]);
 	i = 0;
 	while (i < 3 + tri.isquad)

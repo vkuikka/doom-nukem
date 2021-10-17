@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   culling_occlusion.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/26 04:05:50 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/12 11:35:51 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/10/17 20:14:41 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ static int	vec3_point_in_tri(t_vec3 *p, t_vec3 *a, t_vec3 *b, t_vec3 *c)
 			A, A1 + A2 + A3, OCCLUSION_CULLING_FLOAT_ERROR_MAGIC_NUMBER));
 }
 
-static int	point_in_face(t_vec3 *p, t_tri *face)
+static int	vec3_point_in_face(t_vec3 *p, t_tri *face)
 {
 	if (vec3_point_in_tri(p,
 			&face->verts[0].pos, &face->verts[1].pos, &face->verts[2].pos))
@@ -93,7 +93,7 @@ static int	is_bface_in_aface(t_tri a, t_tri b, t_level *level)
 	}
 	i = -1;
 	while (++i < vert_amount)
-		if (!point_in_face(&b.verts[i].pos, &a))
+		if (!vec3_point_in_face(&b.verts[i].pos, &a))
 			return (0);
 	return (1);
 }
