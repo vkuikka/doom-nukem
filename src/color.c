@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/21 17:32:09 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/13 01:02:32 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/17 18:29:00 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -361,7 +361,7 @@ t_vec3	get_normal(int vec)
 	return (dir);
 }
 
-static void	wrap_coords(int *x, int *y, int max_x, int max_y)
+static void	wrap_coords_inverted(int *x, int *y, int max_x, int max_y)
 {
 	if (*y < 0)
 		*y = max_y - (*y % max_y);
@@ -389,7 +389,7 @@ static void	normal_map(float u, float v, t_tri t, t_cast_result *res)
 				+ t.verts[1].txtr.y * res->normal_map->height * v
 				+ t.verts[2].txtr.y * res->normal_map->height * u)
 			/ (float)(u + v + w));
-	wrap_coords(&x, &y, res->normal_map->width, res->normal_map->height);
+	wrap_coords_inverted(&x, &y, res->normal_map->width, res->normal_map->height);
 	res->normal
 		= get_normal(res->normal_map->image[x + (y * res->normal_map->width)]);
 }
@@ -409,7 +409,7 @@ void	face_color(float u, float v, t_tri t, t_cast_result *res)
 				+ t.verts[1].txtr.y * res->texture->height * v
 				+ t.verts[2].txtr.y * res->texture->height * u)
 			/ (float)(u + v + w));
-	wrap_coords(&x, &y, res->texture->width, res->texture->height);
+	wrap_coords_inverted(&x, &y, res->texture->width, res->texture->height);
 	res->color = res->texture->image[x + (y * res->texture->width)];
 	if (res->spray_overlay && res->spray_overlay[x + y * res->texture->width])
 		res->color = res->spray_overlay[x + y * res->texture->width];
