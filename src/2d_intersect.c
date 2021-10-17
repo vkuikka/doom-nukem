@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/26 15:15:59 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/15 11:33:00 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/17 19:39:29 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,19 +32,6 @@ int	point_in_tri(t_vec2 pt, t_vec2 v1, t_vec2 v2, t_vec2 v3)
 	has_pos = (d1 > 0) || (d2 > 0) || (d3 > 0);
 	return (!(has_neg && has_pos));
 }
-
-/*
-** Given three colinear points q, p, r, the function checks if point q lies on
-* line segment 'pr'
-*/
-//unused what going on
-// static int	on_segment(t_vec2 q, t_vec2 p, t_vec2 r)
-// {
-// 	if (q.x <= fmax(p.x, r.x) && q.x >= fmin(p.x, r.x)
-// 		&& q.y <= fmax(p.y, r.y) && q.y >= fmin(p.y, r.y))
-// 		return (TRUE);
-// 	return (FALSE);
-// }
 
 // https://www.geeksforgeeks.org/orientation-3-ordered-points/
 // Returns 0 (colinear, point is on the line (not segment)),
