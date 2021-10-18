@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/11 18:58:59 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/18 22:29:49 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -181,26 +181,23 @@ int	raycast(t_level *level, t_window *window, int thread_id)
 	t_cast_result	res;
 	t_ivec2			xy;
 
-	xy.x = thread_id;
+	xy.x = thread_id * level->ui.raycast_quality;
 	res.raycast_amount = 0;
 	while (xy.x < RES_X)
 	{
-		xy.y = -1;
-		while (++xy.y < RES_Y)
+		xy.y = 0;
+		while (xy.y < RES_Y)
 		{
 			if (!level->render_is_first_pass
 				&& window->frame_buffer[xy.x + xy.y * RES_X])
 				continue ;
-			if (!(xy.x % level->ui.raycast_quality)
-				&& !(xy.y % level->ui.raycast_quality))
-			{
-				res.ray = ray_set(&level->cam, level->ui.fov, xy);
-				cast_result_set(&res, level);
-				cast_all_color(level, &level->ssp[get_ssp(xy)], &res, TRUE);
-				set_render_result(window, res, xy.x + xy.y * RES_X);
-			}
+			res.ray = ray_set(&level->cam, level->ui.fov, xy);
+			cast_result_set(&res, level);
+			cast_all_color(level, &level->ssp[get_ssp(xy)], &res, TRUE);
+			set_render_result(window, res, xy.x + xy.y * RES_X);
+			xy.y += level->ui.raycast_quality;
 		}
-		xy.x += THREAD_AMOUNT;
+		xy.x += THREAD_AMOUNT * level->ui.raycast_quality;
 	}
 	return (res.raycast_amount);
 }
