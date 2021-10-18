@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/21 17:32:09 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/18 17:49:59 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/18 21:58:01 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -218,30 +218,49 @@ int	smooth_color(unsigned int *pixels, int gap, int x, int y)
 	return (smooth_color_kernel(pixels, gap, x, y));
 }
 
-void	fill_pixels(unsigned int *grid, int gap, int smooth)
+static void	fill_one_pixel(unsigned int *grid, int gap, t_ivec2 coord, int s)
 {
-	int	color;
 	int	x;
 	int	y;
+	int	color;
+	int	tmp;
 
-	y = -1;
-	while (++y < RES_Y)
+	color = grid[coord.x + coord.y * RES_X];
+	if (coord.x + gap > RES_X)
+		return;
+	if (coord.y + gap > RES_Y)
+		return;
+	x = 0;
+	while (x < gap)
 	{
-		x = -1;
-		color = 0;
-		while (++x < RES_X)
+		y = 0;
+		while (y < gap)
 		{
-			if (smooth && (x % gap || y % gap))
-				grid[x + (y * RES_X)] = smooth_color(grid, gap, x, y);
-			else if (!(x % gap))
-			{
-				color = grid[x + (y * RES_X)];
-				if ((y + 1) % gap && y + 1 < RES_Y)
-					grid[x + ((y + 1) * RES_X)] = color;
-			}
+			tmp = coord.x + x + (coord.y + y) * RES_X;
+			if (s)
+				grid[tmp] = smooth_color(grid, gap, coord.x + x, coord.y + y);
 			else
-				grid[x + (y * RES_X)] = color;
+				grid[tmp] = color;
+			y++;
 		}
+		x++;
+	}
+}
+
+void	fill_pixels(unsigned int *grid, int gap, int smooth)
+{
+	t_ivec2	i;
+
+	i.y = 0;
+	while (i.y < RES_Y - gap)
+	{
+		i.x = 0;
+		while (i.x < RES_X - gap)
+		{
+			fill_one_pixel(grid, gap, i, smooth);
+			i.x += gap;
+		}
+		i.y += gap;
 	}
 }
 
