@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/21 17:32:09 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/17 18:29:00 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/18 17:49:59 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -389,7 +389,8 @@ static void	normal_map(float u, float v, t_tri t, t_cast_result *res)
 				+ t.verts[1].txtr.y * res->normal_map->height * v
 				+ t.verts[2].txtr.y * res->normal_map->height * u)
 			/ (float)(u + v + w));
-	wrap_coords_inverted(&x, &y, res->normal_map->width, res->normal_map->height);
+	wrap_coords_inverted(&x, &y, res->normal_map->width,
+		res->normal_map->height);
 	res->normal
 		= get_normal(res->normal_map->image[x + (y * res->normal_map->width)]);
 }
