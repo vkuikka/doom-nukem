@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/15 15:47:38 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/18 16:07:24 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -268,7 +268,7 @@ typedef struct s_perlin_settings
 	t_color_hsl			color_2;
 }						t_perlin_settings;
 
-struct s_tri;
+struct	s_tri;
 
 // tris = array of triangles that make the object
 // tri_amount = amount of triangles
@@ -561,7 +561,7 @@ typedef struct s_item_pickup
 	t_vec3				pos;
 }						t_item_pickup;
 
-typedef struct	s_player
+typedef struct s_player
 {
 	t_vec3				vel;
 	t_vec3				dir;
@@ -883,13 +883,13 @@ void			fake_analog_signal(t_bmp *img, unsigned int *pixels,
 void			chromatic_abberation(unsigned int *pixels,
 					unsigned int *buf, int amount);
 void			create_projectile(t_game_logic *logic, t_vec3 pos,
-								t_vec3 dir, t_projectile get);
+					t_vec3 dir, t_projectile get);
 
 int				load_animation(char *get_filename, t_obj_animation *animation,
 					int amount, float duration);
 t_obj			get_animation_target(t_obj_animation *animation);
 void			play_animation(t_obj *target, t_obj_animation *animation,
-						unsigned int start_time);
+					unsigned int start_time);
 void			obj_copy(t_obj *target, t_obj *source);
 
 void			uv_editor(t_level *level, unsigned int *pixels);
@@ -1010,7 +1010,7 @@ void			bloom(t_level *level, t_window *window);
 t_color			int_to_color(unsigned int color);
 unsigned int	color_to_int(t_color color);
 void			render_raycast(t_window *window, t_level *level,
-								t_game_state *game_state);
+					t_game_state *game_state);
 
 void			deserialize_level(t_level *level, t_buffer *buf);
 void			serialize_level(t_level *level, t_buffer *buf);
