@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/01 15:59:43 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/20 23:05:36 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/20 23:54:17 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,20 +86,18 @@ void	box_blur(t_color *pixels, t_level *level, int thread)
 	t_bloom	b;
 	t_ivec2	i;
 
-	i.x = thread;
 	b.buff = get_buff(NULL);
 	b.pixel_light = pixels;
+	i.x = thread * level->ui.raycast_quality;
 	while (i.x < RES_X)
 	{
 		i.y = 0;
 		while (i.y < RES_Y)
 		{
-			if (!(i.y % level->ui.raycast_quality)
-				&& !(i.x % level->ui.raycast_quality))
-				box_avg(i, level, b);
-			i.y++;
+			box_avg(i, level, b);
+			i.y += level->ui.raycast_quality;
 		}
-		i.x += THREAD_AMOUNT;
+		i.x += THREAD_AMOUNT * level->ui.raycast_quality;
 	}
 }
 
@@ -167,9 +165,9 @@ void	bloom_apply(t_window *window, t_color *buff, t_level *level)
 			tmp.g = clamp(tmp.g, 0, 1);
 			tmp.b = clamp(tmp.b, 0, 1);
 			window->frame_buffer[p.x + p.y * RES_X] = color_to_int(tmp);
-			p.y++;
+			p.y += level->ui.raycast_quality;
 		}
-		p.x++;
+		p.x += level->ui.raycast_quality;
 	}
 }
 
