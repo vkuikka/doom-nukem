@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/18 16:07:24 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/20 15:19:34 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -495,6 +495,7 @@ typedef struct s_editor_ui
 	float				bloom_intensity;
 	float				bloom_limit;
 	int					bloom_debug;
+	int					ssao_radius;
 
 	t_color_hsl			sun_color;
 	t_vec3				sun_dir;
@@ -749,6 +750,7 @@ typedef struct s_window
 	unsigned int		*frame_buffer;//rename to frame_buffer_pixels
 	float				*depth_buffer;
 	t_color				*brightness_buffer;
+	t_vec3				*normal_buffer;
 	SDL_Texture			*raster_texture;
 	unsigned int		*raster_texture_pixels;
 	SDL_Texture			*text_texture;
@@ -1014,5 +1016,6 @@ void			render_raycast(t_window *window, t_level *level,
 
 void			deserialize_level(t_level *level, t_buffer *buf);
 void			serialize_level(t_level *level, t_buffer *buf);
+void			ssao(t_window *win, t_level *level);
 
 #endif

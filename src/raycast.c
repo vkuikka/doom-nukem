@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/18 22:29:49 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/20 22:05:09 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,14 +133,14 @@ void	cast_all_color(t_level *l, t_obj *obj, t_cast_result *res,
 		fog(&res->color, res->dist, l->ui.fog_color.color, l);
 }
 
-t_ray	ray_set(t_camera *cam, float fov, t_ivec2 xy)
+t_ray	ray_set(t_camera *cam, t_ivec2 xy)
 {
 	t_ray	res;
 	float	xm;
 	float	ym;
 
-	xm = fov * ((float)RES_X / RES_Y);
-	ym = fov;
+	xm = cam->fov_x;
+	ym = cam->fov_y;
 	xm = xm / RES_X * xy.x - xm / 2;
 	ym = ym / RES_Y * xy.y - ym / 2;
 	res.dir.x = cam->front.x + cam->up.x * ym + cam->side.x * xm;
@@ -174,6 +174,7 @@ void	set_render_result(t_window *window, t_cast_result res, unsigned int i)
 	window->frame_buffer[i] = res.color;
 	window->depth_buffer[i] = res.dist;
 	window->brightness_buffer[i] = res.light;
+	window->normal_buffer[i] = res.normal;
 }
 
 int	raycast(t_level *level, t_window *window, int thread_id)
@@ -191,7 +192,7 @@ int	raycast(t_level *level, t_window *window, int thread_id)
 			if (!level->render_is_first_pass
 				&& window->frame_buffer[xy.x + xy.y * RES_X])
 				continue ;
-			res.ray = ray_set(&level->cam, level->ui.fov, xy);
+			res.ray = ray_set(&level->cam, xy);
 			cast_result_set(&res, level);
 			cast_all_color(level, &level->ssp[get_ssp(xy)], &res, TRUE);
 			set_render_result(window, res, xy.x + xy.y * RES_X);

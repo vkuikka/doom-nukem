@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/06 08:50:56 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/10/04 20:51:18 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/20 22:03:57 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -182,19 +182,20 @@ void	init_ui_state(t_level *level)
 	go_in_dir(level->ui.state.directory, "level");
 }
 
-static void	init_ui_settings_bloom(t_editor_ui *ui)
+static void	init_ui_settings_post_process(t_editor_ui *ui)
 {
+	ui->blur = FALSE;
+	ui->smooth_pixels = FALSE;
 	ui->bloom_intensity = 0;
 	ui->bloom_radius = 40;
 	ui->bloom_limit = 0;
 	ui->bloom_debug = FALSE;
+	ui->ssao_radius = 10;
 }
 
 static void	init_ui_settings(t_editor_ui *ui)
 {
 	ui->noclip = TRUE;
-	ui->blur = FALSE;
-	ui->smooth_pixels = FALSE;
 	ui->backface_culling = TRUE;
 	ui->occlusion_culling = FALSE;
 	ui->distance_culling = FALSE;
@@ -216,7 +217,7 @@ static void	init_ui_settings(t_editor_ui *ui)
 	ui->fog_color.lightness = 0;
 	ui->fog_color.color = 0xffffffff;
 	ui->normal_map_disabled = FALSE;
-	init_ui_settings_bloom(ui);
+	init_ui_settings_post_process(ui);
 }
 
 static void	init_color_slider(t_level *level)

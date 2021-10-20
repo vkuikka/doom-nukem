@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/01 15:59:43 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/15 17:01:54 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/20 22:05:59 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ float	gradient_function(t_vec2 diff, t_vec2 mid, float div, t_vec2 i)
 	return (new);
 }
 
-int	init_gradient(float *arr)
+void	init_gradient(float *arr)
 {
 	t_vec2	i;
 	t_vec2	mid;
@@ -54,7 +54,6 @@ int	init_gradient(float *arr)
 			arr[(int)i.x + (int)i.y * BOX_BLUR_GRADIENT_SIZE]
 				= gradient_function(diff, mid, div, i);
 	}
-	return (0);
 }
 
 float	get_grad(t_ivec2 i, t_ivec2 start, int radius)
@@ -69,8 +68,7 @@ float	get_grad(t_ivec2 i, t_ivec2 start, int radius)
 				* BOX_BLUR_GRADIENT_SIZE * BOX_BLUR_GRADIENT_SIZE);
 		if (!gradient_table)
 			return (0);
-		if (init_gradient(gradient_table))
-			return (0);
+		init_gradient(gradient_table);
 	}
 	x = ((float)(i.x - start.x) / (radius * 2)) * BOX_BLUR_GRADIENT_SIZE;
 	y = ((float)(i.y - start.y) / (radius * 2)) * BOX_BLUR_GRADIENT_SIZE;

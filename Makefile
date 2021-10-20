@@ -6,13 +6,13 @@
 #    By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/12/08 13:46:11 by vkuikka           #+#    #+#              #
-#    Updated: 2021/10/15 15:44:56 by vkuikka          ###   ########.fr        #
+#    Updated: 2021/10/20 22:01:40 by vkuikka          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = dnukem
 SRCDIR = src/
-SRC = main.c render_raycast.c input.c game_logic.c color.c culling.c culling_occlusion.c vectors.c init.c file_read.c raycast.c obj_read.c bmp_read.c find_quads.c wireframe.c editor_set_state.c physics.c enemies.c enemy_state_machine.c shaders.c select.c screen_space_partition.c uv_overlap.c 2d_intersect.c obj_editor.c door_runtime.c bake.c spray.c audio.c cast_face.c camera_path.c shader_perlin.c bloom.c animation.c sprite.c projectile.c dynamic_geometry.c
+SRC = main.c ssao.c render_raycast.c input.c game_logic.c color.c culling.c culling_occlusion.c vectors.c init.c file_read.c raycast.c obj_read.c bmp_read.c find_quads.c wireframe.c editor_set_state.c physics.c enemies.c enemy_state_machine.c shaders.c select.c screen_space_partition.c uv_overlap.c 2d_intersect.c obj_editor.c door_runtime.c bake.c spray.c audio.c cast_face.c camera_path.c shader_perlin.c bloom.c animation.c sprite.c projectile.c dynamic_geometry.c
 SRC_UI = color_hsl.c door_editor.c distortion.c gizmo.c hud.c light_editor.c main_menu.c nonfatal_error.c ui_config.c ui_elements.c ui.c uv_editor.c game_logic_editor.c
 SRC_SERIALIZATION = read_write.c serialize.c deserialize.c serialize_primitive.c deserialize_primitive.c
 LIB = libft/libft.a -L x86_64-w64-mingw32/lib/
