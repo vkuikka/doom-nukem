@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/10/20 22:17:02 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/20 23:29:17 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -746,7 +746,9 @@ void	ui_level_settings(t_level *level)
 	sprintf(buf, "render distance: %.1fm", level->ui.render_distance);
 	float_slider(&level->ui.render_distance, buf, 2, 50);
 	file_save("save level", ".doom-nukem", NULL);
-	int_slider(&level->ui.ssao_radius, "ssao radius", 1, 30);
+	int_slider(&level->ui.ssao_radius, "ssao radius", 0, 30);
+	float_slider(&level->ui.ssao_intensity, "ssao intensity", 1, 10);
+	button(&level->ui.ssao_debug, "ssao debug");
 }
 
 void	ui_editor(t_level *level)
