@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/08 14:38:45 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/20 22:12:12 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/21 22:28:36 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -175,7 +175,7 @@ static void	check_buffers(t_window *window)
 {
 	if (!window->depth_buffer
 		|| !window->post_process_buf
-		|| !window->normal_buffer)
+		|| !window->pixel_pos_buffer)
 		ft_error("init window memory allocation failed\n");
 }
 
@@ -196,7 +196,7 @@ static void	init_window_struct(t_window **window)
 	window[0]->frame_buffer = NULL;
 	window[0]->depth_buffer
 		= (float *)malloc(sizeof(float) * (RES_X * RES_Y));
-	window[0]->normal_buffer
+	window[0]->pixel_pos_buffer
 		= (t_vec3 *)malloc(sizeof(t_vec3) * (RES_X * RES_Y));
 	window[0]->brightness_buffer
 		= (t_color *)malloc(sizeof(t_color) * (RES_X * RES_Y));

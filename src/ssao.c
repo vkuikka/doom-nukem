@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/03 14:38:16 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/20 23:22:04 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/21 22:58:47 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ static float	surrounding_diff(int x, int y, t_level *level, t_window *win)
 {
 	float	avg;
 	float	val;
-	int		count;
+	float	count;
 	int		radius = level->ui.ssao_radius * level->ui.raycast_quality;
 	t_ivec2	i;
 	t_ivec2	start;
@@ -49,39 +49,40 @@ static float	surrounding_diff(int x, int y, t_level *level, t_window *win)
 		{
 			if (i.x < RES_X && i.y < RES_Y && i.x > 0 && i.y > 0)
 			{
-				// t_vec3	v1;
-				// t_vec3	v2;
-				// v1 = px_to_vec(&level->cam, x, y);
-				// v2 = px_to_vec(&level->cam, i.x, i.y);
-				// vec_normalize(&v1);
-				// vec_normalize(&v2);
-				// vec_mult(&v1, win->depth_buffer[x + y * RES_X]);
-				// vec_mult(&v2, win->depth_buffer[i.x + i.y * RES_X]);
-				// float	v1_to_v2;
-				// vec_sub(&v1, v2, v1);
-				// v1_to_v2 = vec_dot(v1, win->normal_buffer[i.x + i.y * RES_X]);
-
-				val = vec_dot(win->normal_buffer[x + y * RES_X], win->normal_buffer[i.x + i.y * RES_X]);
-				float dist = win->depth_buffer[i.x + i.y * RES_X];
-				// float dist2 = win->depth_buffer[x + y * RES_X];
-				if (dist != FLT_MAX)
-				if (val > -0.1)
+				float dist2 = win->depth_buffer[i.x + i.y * RES_X];
+				float dist1 = win->depth_buffer[x + y * RES_X];
+				float diff = dist1 - dist2;
+				t_vec3	v1;
+				t_vec3	v2;
+				v2 = win->pixel_pos_buffer[i.x + i.y * RES_X];
+				v1 = win->pixel_pos_buffer[x + y * RES_X];
+				vec_sub(&v2, v2, v1);
+				vec_normalize(&v2);
+				vec_normalize(&v1);
+				val = -vec_dot(v2, v1);
+				if (dist2 != FLT_MAX && !isnan(val))
 				{
-					val = 1 - fabs(val);
+					if (diff > 1)
+					{
+						val /= diff;
+						count += diff;
+					}
 					val *= circle_gradient(i, start, radius * 2);
 					avg += val;
-					count++;
 				}
+				else if (dist2 == FLT_MAX)
+					avg -= circle_gradient(i, start, radius * 2);
+				count++;
 			}
+			else
+				avg -= circle_gradient(i, start, radius * 2);
 			i.y += level->ui.raycast_quality;
 		}
 		i.x += level->ui.raycast_quality;
 	}
-	if (avg)
+	if (avg && count)
 		avg = avg / (float)count;
 	avg *= level->ui.ssao_intensity;
-
-
 	if (avg > 1)
 		return (1);
 	else if (avg < 0)
@@ -94,7 +95,6 @@ void	ssao_calculate(t_window *win, t_level *level, int thread_id)
 	t_ivec2	i;
 	float	darkness;
 
-	i.x = 0;
 	i.x = thread_id * level->ui.raycast_quality;
 	while (i.x < RES_X)
 	{
@@ -104,16 +104,11 @@ void	ssao_calculate(t_window *win, t_level *level, int thread_id)
 			if (win->depth_buffer[i.x + i.y * RES_X] != FLT_MAX)
 			{
 				darkness = surrounding_diff(i.x, i.y, level, win);
-				// if (x == RES_X / 2 && y == RES_Y / 2)
-				// 	win->frame_buffer[x + y * RES_X] = 0xff0000ff;
-				// else
 				if (level->ui.ssao_debug)
 					win->frame_buffer[i.x + i.y * RES_X] = crossfade((unsigned)0xffffff, (unsigned)0, darkness * 0xff, 0xff);
 				else
 					win->frame_buffer[i.x + i.y * RES_X] = crossfade((unsigned)win->frame_buffer[i.x + i.y * RES_X] >> 8, (unsigned)0x000000ff >> 8, darkness * 0xff, 0xff);
 			}
-			// win->frame_buffer[x + y * RES_X] = darkness;
-			// win->depth_buffer[];
 			i.y += level->ui.raycast_quality;
 		}
 		i.x += THREAD_AMOUNT * level->ui.raycast_quality;

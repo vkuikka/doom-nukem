@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/20 23:06:26 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/21 22:22:32 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -752,7 +752,7 @@ typedef struct s_window
 	unsigned int		*frame_buffer;//rename to frame_buffer_pixels
 	float				*depth_buffer;
 	t_color				*brightness_buffer;
-	t_vec3				*normal_buffer;
+	t_vec3				*pixel_pos_buffer;
 	SDL_Texture			*raster_texture;
 	unsigned int		*raster_texture_pixels;
 	SDL_Texture			*text_texture;
