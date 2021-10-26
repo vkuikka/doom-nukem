@@ -133,14 +133,14 @@ void	cast_all_color(t_level *l, t_obj *obj, t_cast_result *res,
 		fog(&res->color, res->dist, l->ui.fog_color.color, l);
 }
 
-t_ray	ray_set(t_camera *cam, float fov, t_ivec2 xy)
+t_ray	ray_set(t_camera *cam, t_ivec2 xy)
 {
 	t_ray	res;
 	float	xm;
 	float	ym;
 
-	xm = fov * ((float)RES_X / RES_Y);
-	ym = fov;
+	xm = cam->fov_y * ((float)RES_X / RES_Y);
+	ym = cam->fov_y;
 	xm = xm / RES_X * xy.x - xm / 2;
 	ym = ym / RES_Y * xy.y - ym / 2;
 	res.dir.x = cam->front.x + cam->up.x * ym + cam->side.x * xm;
@@ -191,7 +191,7 @@ int	raycast(t_level *level, t_window *window, int thread_id)
 			if (!level->render_is_first_pass
 				&& window->frame_buffer[xy.x + xy.y * RES_X])
 				continue ;
-			res.ray = ray_set(&level->cam, level->ui.fov, xy);
+			res.ray = ray_set(&level->cam, xy);
 			cast_result_set(&res, level);
 			cast_all_color(level, &level->ssp[get_ssp(xy)], &res, TRUE);
 			set_render_result(window, res, xy.x + xy.y * RES_X);

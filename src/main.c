@@ -19,8 +19,8 @@ static void	update_camera(t_level *l)
 	rot_cam(&l->cam.front, l->cam.lon, l->cam.lat);
 	rot_cam(&l->cam.up, l->cam.lon, l->cam.lat + (M_PI / 2));
 	vec_cross(&l->cam.side, l->cam.up, l->cam.front);
-	l->cam.fov_y = l->ui.fov;
-	l->cam.fov_x = l->ui.fov * ((float)RES_X / RES_Y);
+	l->cam.fov_y = tanf(l->ui.fov / 2);
+	l->cam.fov_x = tanf(l->ui.fov / 2) * ((float)RES_X / RES_Y);
 }
 
 static void	render_raster(t_window *window, t_level *level)

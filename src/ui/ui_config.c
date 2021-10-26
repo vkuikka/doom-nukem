@@ -423,7 +423,7 @@ void	ui_render_settings(t_level *level)
 	sprintf(buf, "render scale: %d (%.0f%%)", ui->raycast_quality,
 		100.0 / (float)ui->raycast_quality);
 	int_slider(&ui->raycast_quality, buf, 1, 20);
-	fov_angle = ui->fov + 0.01;
+	fov_angle = ui->fov;
 	fov_angle *= 180.0 / M_PI;
 	sprintf(buf, "fov: %d", (int)fov_angle);
 	float_slider(&ui->fov, buf, M_PI / 6, M_PI);
