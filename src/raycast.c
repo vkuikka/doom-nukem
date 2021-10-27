@@ -190,13 +190,14 @@ int	raycast(t_level *level, t_window *window, int thread_id)
 		xy.y = 0;
 		while (xy.y < RES_Y)
 		{
-			if (!level->render_is_first_pass
-				&& window->frame_buffer[xy.x + xy.y * RES_X])
-				continue ;
-			res.ray = ray_set(&level->cam, xy);
-			cast_result_set(&res, level);
-			cast_all_color(level, &level->ssp[get_ssp(xy)], &res, TRUE);
-			set_render_result(window, res, xy.x + xy.y * RES_X);
+			if (level->render_is_first_pass
+				|| !window->frame_buffer[xy.x + xy.y * RES_X])
+			{
+				res.ray = ray_set(&level->cam, xy);
+				cast_result_set(&res, level);
+				cast_all_color(level, &level->ssp[get_ssp(xy)], &res, TRUE);
+				set_render_result(window, res, xy.x + xy.y * RES_X);
+			}
 			xy.y += level->ui.raycast_quality;
 		}
 		xy.x += THREAD_AMOUNT * level->ui.raycast_quality;
