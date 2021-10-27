@@ -139,7 +139,7 @@ t_ray	ray_set(t_camera *cam, t_ivec2 xy)
 	float	xm;
 	float	ym;
 
-	xm = cam->fov_x;
+	xm = cam->fov_y * ((float)RES_X / RES_Y);
 	ym = cam->fov_y;
 	xm = xm / RES_X * xy.x - xm / 2;
 	ym = ym / RES_Y * xy.y - ym / 2;
