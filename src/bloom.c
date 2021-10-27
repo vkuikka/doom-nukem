@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/01 15:59:43 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/25 16:49:25 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/27 17:18:50 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,8 @@ static t_color	*get_buff(t_color *set)
 	return (buff);
 }
 
-static void	make_bounds(t_ivec2 *upper, t_ivec2 *lower, t_level *level, t_ivec2 p)
+static void	make_bounds(t_ivec2 *upper, t_ivec2 *lower,
+						t_level *level, t_ivec2 p)
 {
 	upper->x = p.x + level->ui.bloom_radius;
 	upper->y = p.y + level->ui.bloom_radius;
