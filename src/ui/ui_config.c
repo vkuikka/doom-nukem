@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/10/27 19:14:40 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/27 19:26:15 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -450,13 +450,25 @@ void	ui_render_settings(t_level *level)
 	float		fov_angle;
 
 	ui = &level->ui;
-  sprintf(buf, "render scale: %d (%.0f%%)", ui->raycast_quality,
+	sprintf(buf, "render scale: %d (%.0f%%)", ui->raycast_quality,
 		100.0 / (float)ui->raycast_quality);
 	int_slider(&ui->raycast_quality, buf, 1, 20);
 	fov_angle = ui->fov;
 	fov_angle *= 180.0 / M_PI;
 	sprintf(buf, "fov: %d", (int)fov_angle);
 	float_slider(&ui->fov, buf, M_PI / 6, M_PI);
+}
+
+void	ui_settings_volume(t_level *level)
+{
+	sprintf(buf, "music volume: %.0f%%",
+		100 * (level->audio.music_volume / MIX_MAX_VOLUME));
+	float_slider(&level->audio.music_volume, buf, 0, MIX_MAX_VOLUME);
+	Mix_VolumeMusic(level->audio.music_volume);
+	sprintf(buf, "sound effect volume: %.0f%%",
+		100 * (level->audio.sound_effect_volume / MIX_MAX_VOLUME));
+	float_slider(&level->audio.sound_effect_volume, buf, 0, MIX_MAX_VOLUME);
+	Mix_Volume(-1, level->audio.sound_effect_volume);
 }
 
 void	ui_settings(t_level *level)
@@ -479,14 +491,7 @@ void	ui_settings(t_level *level)
 	if (!level->ui.spray_from_view)
 		float_slider(&level->ui.spray_size, buf, 0.1, 5);
 	ui_render_settings(level);
-	sprintf(buf, "music volume: %.0f%%",
-		100 * (level->audio.music_volume / MIX_MAX_VOLUME));
-	float_slider(&level->audio.music_volume, buf, 0, MIX_MAX_VOLUME);
-	Mix_VolumeMusic(level->audio.music_volume);
-	sprintf(buf, "sound effect volume: %.0f%%",
-		100 * (level->audio.sound_effect_volume / MIX_MAX_VOLUME));
-	float_slider(&level->audio.sound_effect_volume, buf, 0, MIX_MAX_VOLUME);
-	Mix_Volume(-1, level->audio.sound_effect_volume);
+	ui_settings_volume(level);
 	if (call("post process settings", NULL))
 		level->ui.main_menu = MAIN_MENU_LOCATION_POST_PROCESS;
 }
