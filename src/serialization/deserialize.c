@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/15 15:17:07 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/15 16:04:41 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/27 23:16:02 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,6 +116,8 @@ void	deserialize_tri(t_tri *tri, t_buffer *buf)
 	deserialize_vec3(&tri->normal, buf);
 	deserialize_int(&tri->isquad, buf);
 	deserialize_int(&tri->isgrid, buf);
+	deserialize_int(&tri->isbreakable, buf);
+	deserialize_int(&tri->opacity_precise, buf);
 	deserialize_float(&tri->opacity, buf);
 	deserialize_float(&tri->reflectivity, buf);
 	deserialize_float(&tri->refractivity, buf);

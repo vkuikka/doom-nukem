@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/27 19:12:04 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/27 23:14:16 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -296,7 +296,7 @@ typedef struct s_tri
 	int					isquad;
 	int					isgrid;
 	int					isbreakable;
-	int					disable_backface_culling;
+	int					isbroken;
 	float				opacity;
 	float				reflectivity;
 	float				refractivity;
