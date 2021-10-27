@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/10/27 17:16:18 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/27 19:14:40 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -413,6 +413,35 @@ void	ui_physics_info(t_editor_ui *ui, t_level *level)
 	render_text("camera", RES_X / 2, RES_Y / 2 + (UI_ELEMENT_HEIGHT * 3));
 }
 
+void	ui_post_process_settings(t_level *level)
+{
+	char		buf[100];
+	t_editor_ui	*ui;
+
+	ui = &level->ui;
+	if (call("back", NULL))
+		level->ui.main_menu = MAIN_MENU_LOCATION_SETTINGS;
+	set_text_color(UI_POST_PROCESS_OTHER);
+	int_slider(&ui->chromatic_abberation, "chroma (20ms expensive)", 0, 30);
+	float_slider(&ui->sharpen, "sharpen (60ms very expensive)", 0.0, 5.0);
+	button(&ui->smooth_pixels, "smooth pixel (20ms expensive)");
+	button(&ui->blur, "blur (1ms cheap)");
+	set_text_color(UI_POST_PROCESS_BLOOM);
+	sprintf(buf, "bloom radius: %.1f pixels", level->ui.bloom_radius);
+	float_slider(&level->ui.bloom_radius, buf, 0, 100);
+	sprintf(buf, "bloom intensity: %.1f", level->ui.bloom_intensity);
+	float_slider(&level->ui.bloom_intensity, buf, 0, 5);
+	sprintf(buf, "bloom limit: %.1f", level->ui.bloom_limit);
+	float_slider(&level->ui.bloom_limit, buf, 0, 5);
+	set_text_color(UI_POST_PROCESS_SSAO);
+	int_slider(&level->ui.ssao_radius, "ssao radius", 0, 40);
+	float_slider(&level->ui.ssao_intensity, "ssao intensity", 1, 10);
+	set_text_color(UI_POST_PROCESS_DEBUG);
+	button(&level->ui.bloom_debug, "render bloom only");
+	button(&level->ui.ssao_debug, "render ssao only");
+	button(&ui->state.ssp_visual, "ssp visualize");
+}
+
 void	ui_render_settings(t_level *level)
 {
 	char		buf[100];
@@ -427,18 +456,6 @@ void	ui_render_settings(t_level *level)
 	fov_angle *= 180.0 / M_PI;
 	sprintf(buf, "fov: %d", (int)fov_angle);
 	float_slider(&ui->fov, buf, M_PI / 6, M_PI);
-	int_slider(&ui->chromatic_abberation, "chroma (20ms expensive)", 0, 30);
-	float_slider(&ui->sharpen, "sharpen (60ms very expensive)", 0.0, 5.0);
-	button(&ui->smooth_pixels, "smooth pixel (20ms expensive)");
-	button(&ui->blur, "blur (1ms cheap)");
-	button(&ui->state.ssp_visual, "ssp visualize");
-	sprintf(buf, "bloom radius: %.1f pixels", level->ui.bloom_radius);
-	float_slider(&level->ui.bloom_radius, buf, 0, 100);
-	sprintf(buf, "bloom intensity: %.1f", level->ui.bloom_intensity);
-	float_slider(&level->ui.bloom_intensity, buf, 0, 5);
-	sprintf(buf, "bloom limit: %.1f", level->ui.bloom_limit);
-	float_slider(&level->ui.bloom_limit, buf, 0, 5);
-	button(&level->ui.bloom_debug, "render bloom only");
 }
 
 void	ui_settings(t_level *level)
@@ -468,6 +485,8 @@ void	ui_settings(t_level *level)
 		100 * (level->audio.sound_effect_volume / MIX_MAX_VOLUME));
 	float_slider(&level->audio.sound_effect_volume, buf, 0, MIX_MAX_VOLUME);
 	Mix_Volume(-1, level->audio.sound_effect_volume);
+	if (call("post process settings", NULL))
+		level->ui.main_menu = MAIN_MENU_LOCATION_POST_PROCESS;
 }
 
 void	ui_door_settings(t_level *level)
@@ -746,9 +765,6 @@ void	ui_level_settings(t_level *level)
 	sprintf(buf, "render distance: %.1fm", level->ui.render_distance);
 	float_slider(&level->ui.render_distance, buf, 2, 50);
 	file_save("save level", ".doom-nukem", NULL);
-	int_slider(&level->ui.ssao_radius, "ssao radius", 0, 40);
-	float_slider(&level->ui.ssao_intensity, "ssao intensity", 1, 10);
-	button(&level->ui.ssao_debug, "ssao debug");
 }
 
 void	ui_editor(t_level *level)
@@ -845,6 +861,8 @@ void	ui_main_menu(t_window *window, t_level *level, t_game_state *game_state)
 		set_text_color(UI_INFO_TEXT_COLOR);
 		ui_render_info(&level->ui, level);
 	}
+	else if (level->ui.main_menu == MAIN_MENU_LOCATION_POST_PROCESS)
+		ui_post_process_settings(level);
 	else
 		ui_render_directory(level);
 }

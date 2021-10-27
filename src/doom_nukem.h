@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/27 17:12:26 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/27 19:12:04 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,6 +113,10 @@
 # define UI_LEVEL_BAKING_COLOR 0xccaa33ff
 # define UI_LEVEL_NOT_BAKED_COLOR 0xcc3333ff
 # define UI_SHADER_SETTINGS 0xc77dffff
+# define UI_POST_PROCESS_BLOOM 0xc77dffff
+# define UI_POST_PROCESS_SSAO 0x77c7f2ff
+# define UI_POST_PROCESS_OTHER 0x33aa33ff
+# define UI_POST_PROCESS_DEBUG 0xf76565ff
 
 # define UV_PADDING 3
 
@@ -404,7 +408,8 @@ typedef enum e_main_menu
 	MAIN_MENU_LOCATION_MAIN,
 	MAIN_MENU_LOCATION_SETTINGS,
 	MAIN_MENU_LOCATION_SPRAY_SELECT,
-	MAIN_MENU_LOCATION_LEVEL_SELECT
+	MAIN_MENU_LOCATION_LEVEL_SELECT,
+	MAIN_MENU_LOCATION_POST_PROCESS
 }						t_main_menu;
 
 typedef enum e_ui_location
