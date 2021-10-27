@@ -289,7 +289,8 @@ void	ui_render_directory_header(t_level *level)
 		text("Save file");
 	if (call("close", NULL))
 	{
-		if (level->ui.state.open_file == &open_level)
+		if (level->ui.state.open_file == &open_level
+			|| level->ui.state.open_file == &set_spray)
 			level->ui.main_menu = MAIN_MENU_LOCATION_MAIN;
 		else
 			level->ui.state.ui_location = UI_LOCATION_MAIN;
@@ -450,6 +451,7 @@ void	ui_settings(t_level *level)
 		level->ui.main_menu = MAIN_MENU_LOCATION_MAIN;
 	if (call("select spray", NULL))
 	{
+		level->ui.state.ui_location = UI_LOCATION_FILE_OPEN;
 		level->ui.main_menu = MAIN_MENU_LOCATION_SPRAY_SELECT;
 		ft_strcpy(level->ui.state.extension, ".bmp");
 		level->ui.state.open_file = &set_spray;
