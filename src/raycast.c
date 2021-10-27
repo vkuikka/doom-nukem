@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/27 17:18:09 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/28 02:12:07 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,19 @@ static void	trace_bounce(t_cast_result *res, t_obj *obj, t_level *l)
 	}
 }
 
-static void	raytrace(t_cast_result *res, t_obj *obj, t_level *l)
+static void	add_lightness(t_level *l, t_color light, t_cast_result *res)
+{
+	if (light.r - l->world_brightness > l->ui.bloom_limit
+		|| light.g - l->world_brightness > l->ui.bloom_limit
+		|| light.b - l->world_brightness > l->ui.bloom_limit)
+	{
+		res->light.r += light.r - l->world_brightness;
+		res->light.g += light.g - l->world_brightness;
+		res->light.b += light.b - l->world_brightness;
+	}
+}
+
+void	raytrace(t_cast_result *res, t_obj *obj, t_level *l)
 {
 	t_color	light;
 	t_vec3	tmp;
@@ -60,20 +72,14 @@ static void	raytrace(t_cast_result *res, t_obj *obj, t_level *l)
 		res->color = shader_perlin(tmp, l, res);
 	if (l->all.tris[res->face_index].shader == SHADER_RULE_30)
 		res->color = shader_rule30(tmp);
-	else if (!res->baked || res->raytracing || obj->tris[res->face_index].isgrid
-		|| obj->tris[res->face_index].shader != SHADER_NONE)
+	else if (!res->baked || res->raytracing
+		|| l->all.tris[res->face_index].isgrid
+		|| l->all.tris[res->face_index].shader != SHADER_NONE)
 	{
 		light = sunlight(l, res, lights(l, res));
 		res->color
 			= brightness(res->color >> 8, light) + (res->color << 24 >> 24);
-		if (light.r - l->world_brightness > l->ui.bloom_limit
-			|| light.g - l->world_brightness > l->ui.bloom_limit
-			|| light.b - l->world_brightness > l->ui.bloom_limit)
-		{
-			res->light.r += light.r - l->world_brightness;
-			res->light.g += light.g - l->world_brightness;
-			res->light.b += light.b - l->world_brightness;
-		}
+		add_lightness(l, light, res);
 	}
 	trace_bounce(res, obj, l);
 }
