@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/10/27 19:26:15 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/27 19:27:47 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -461,6 +461,8 @@ void	ui_render_settings(t_level *level)
 
 void	ui_settings_volume(t_level *level)
 {
+	char		buf[100];
+
 	sprintf(buf, "music volume: %.0f%%",
 		100 * (level->audio.music_volume / MIX_MAX_VOLUME));
 	float_slider(&level->audio.music_volume, buf, 0, MIX_MAX_VOLUME);
