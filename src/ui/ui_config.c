@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/10/12 21:13:55 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/27 19:27:47 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -216,6 +216,7 @@ void	ui_config_selected_faces(t_level *level)
 	int	selected_index;
 	int	i;
 
+	set_text_color(WF_SELECTED_COL);
 	selected_index = 0;
 	selected_amount = get_selected_amount(level);
 	i = -1;
@@ -414,6 +415,46 @@ void	ui_physics_info(t_editor_ui *ui, t_level *level)
 	render_text("camera", RES_X / 2, RES_Y / 2 + (UI_ELEMENT_HEIGHT * 3));
 }
 
+void	ui_post_process_go_back(t_level *level)
+{
+	if (call("back", NULL))
+	{
+		if (level->ui.state.ui_location
+			== UI_LOCATION_POST_PROCESS_SETTINGS)
+			level->ui.state.ui_location = UI_LOCATION_MAIN;
+		else
+			level->ui.main_menu = MAIN_MENU_LOCATION_SETTINGS;
+	}
+}
+
+void	ui_post_process_settings(t_level *level)
+{
+	char		buf[100];
+	t_editor_ui	*ui;
+
+	ui = &level->ui;
+	ui_post_process_go_back(level);
+	set_text_color(UI_POST_PROCESS_OTHER);
+	int_slider(&ui->chromatic_abberation, "chroma (20ms expensive)", 0, 30);
+	float_slider(&ui->sharpen, "sharpen (60ms very expensive)", 0.0, 5.0);
+	button(&ui->smooth_pixels, "smooth pixel (20ms expensive)");
+	button(&ui->blur, "blur (1ms cheap)");
+	set_text_color(UI_POST_PROCESS_BLOOM);
+	sprintf(buf, "bloom radius: %.1f pixels", level->ui.bloom_radius);
+	float_slider(&level->ui.bloom_radius, buf, 0, 100);
+	sprintf(buf, "bloom intensity: %.1f", level->ui.bloom_intensity);
+	float_slider(&level->ui.bloom_intensity, buf, 0, 5);
+	sprintf(buf, "bloom limit: %.1f", level->ui.bloom_limit);
+	float_slider(&level->ui.bloom_limit, buf, 0, 5);
+	set_text_color(UI_POST_PROCESS_SSAO);
+	int_slider(&level->ui.ssao_radius, "ssao radius", 0, 40);
+	float_slider(&level->ui.ssao_intensity, "ssao intensity", 1, 10);
+	set_text_color(UI_POST_PROCESS_DEBUG);
+	button(&level->ui.bloom_debug, "render bloom only");
+	button(&level->ui.ssao_debug, "render ssao only");
+	button(&ui->state.ssp_visual, "ssp visualize");
+}
+
 void	ui_render_settings(t_level *level)
 {
 	char		buf[100];
@@ -428,18 +469,20 @@ void	ui_render_settings(t_level *level)
 	fov_angle *= 180.0 / M_PI;
 	sprintf(buf, "fov: %d", (int)fov_angle);
 	float_slider(&ui->fov, buf, M_PI / 6, M_PI);
-	int_slider(&ui->chromatic_abberation, "chroma (20ms expensive)", 0, 30);
-	float_slider(&ui->sharpen, "sharpen (60ms very expensive)", 0.0, 5.0);
-	button(&ui->smooth_pixels, "smooth pixel (20ms expensive)");
-	button(&ui->blur, "blur (1ms cheap)");
-	button(&ui->state.ssp_visual, "ssp visualize");
-	sprintf(buf, "bloom radius: %.1f pixels", level->ui.bloom_radius);
-	float_slider(&level->ui.bloom_radius, buf, 0, 100);
-	sprintf(buf, "bloom intensity: %.1f", level->ui.bloom_intensity);
-	float_slider(&level->ui.bloom_intensity, buf, 0, 5);
-	sprintf(buf, "bloom limit: %.1f", level->ui.bloom_limit);
-	float_slider(&level->ui.bloom_limit, buf, 0, 5);
-	button(&level->ui.bloom_debug, "render bloom only");
+}
+
+void	ui_settings_volume(t_level *level)
+{
+	char		buf[100];
+
+	sprintf(buf, "music volume: %.0f%%",
+		100 * (level->audio.music_volume / MIX_MAX_VOLUME));
+	float_slider(&level->audio.music_volume, buf, 0, MIX_MAX_VOLUME);
+	Mix_VolumeMusic(level->audio.music_volume);
+	sprintf(buf, "sound effect volume: %.0f%%",
+		100 * (level->audio.sound_effect_volume / MIX_MAX_VOLUME));
+	float_slider(&level->audio.sound_effect_volume, buf, 0, MIX_MAX_VOLUME);
+	Mix_Volume(-1, level->audio.sound_effect_volume);
 }
 
 void	ui_settings(t_level *level)
@@ -462,14 +505,9 @@ void	ui_settings(t_level *level)
 	if (!level->ui.spray_from_view)
 		float_slider(&level->ui.spray_size, buf, 0.1, 5);
 	ui_render_settings(level);
-	sprintf(buf, "music volume: %.0f%%",
-		100 * (level->audio.music_volume / MIX_MAX_VOLUME));
-	float_slider(&level->audio.music_volume, buf, 0, MIX_MAX_VOLUME);
-	Mix_VolumeMusic(level->audio.music_volume);
-	sprintf(buf, "sound effect volume: %.0f%%",
-		100 * (level->audio.sound_effect_volume / MIX_MAX_VOLUME));
-	float_slider(&level->audio.sound_effect_volume, buf, 0, MIX_MAX_VOLUME);
-	Mix_Volume(-1, level->audio.sound_effect_volume);
+	ui_settings_volume(level);
+	if (call("post process settings", NULL))
+		level->ui.main_menu = MAIN_MENU_LOCATION_POST_PROCESS;
 }
 
 void	ui_door_settings(t_level *level)
@@ -743,7 +781,7 @@ void	ui_level_settings(t_level *level)
 	button(&level->ui.backface_culling, "backface culling");
 	if (level->ui.backface_culling)
 		button(&level->ui.occlusion_culling,
-			"occlusion culling (O(n^2)) (Horrible trash)");
+			"occlusion culling (O(n^2))");
 	button(&level->ui.distance_culling, "distance culling");
 	sprintf(buf, "render distance: %.1fm", level->ui.render_distance);
 	float_slider(&level->ui.render_distance, buf, 2, 50);
@@ -766,13 +804,13 @@ void	ui_editor(t_level *level)
 	}
 	button(&ui->raytracing, "raytrace lights");
 	button(&ui->vertex_select_mode, "vertex select mode");
+	if (call("post process settings", NULL))
+		level->ui.state.ui_location = UI_LOCATION_POST_PROCESS_SETTINGS;
 	call("cull static", &static_culling);
-	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
 	call("edit uv", &enable_uv_editor);
 	call("edit doors", &enable_door_editor);
 	if (nothing_selected(level) && level->bake_status != BAKE_BAKING)
 		ui_level_settings(level);
-	set_text_color(WF_SELECTED_COL);
 	ui_config_selected_faces(level);
 	set_text_color(UI_INFO_TEXT_COLOR);
 	ui_render_info(&level->ui, level);
@@ -829,6 +867,8 @@ void	select_editor_ui(t_level *level)
 	else if (level->ui.state.ui_location == UI_LOCATION_FILE_SAVE
 		|| level->ui.state.ui_location == UI_LOCATION_FILE_OPEN)
 		ui_render_directory(level);
+	else if (level->ui.state.ui_location == UI_LOCATION_POST_PROCESS_SETTINGS)
+		ui_post_process_settings(level);
 	else if (editor_select(level))
 		ui_editor(level);
 }
@@ -844,6 +884,8 @@ void	ui_main_menu(t_window *window, t_level *level, t_game_state *game_state)
 		set_text_color(UI_INFO_TEXT_COLOR);
 		ui_render_info(&level->ui, level);
 	}
+	else if (level->ui.main_menu == MAIN_MENU_LOCATION_POST_PROCESS)
+		ui_post_process_settings(level);
 	else
 		ui_render_directory(level);
 }

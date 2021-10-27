@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/08 14:38:45 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/15 17:14:44 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/21 22:28:36 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -171,6 +171,14 @@ void	create_default_level(t_level *level)
 	init_culling(level);
 }
 
+static void	check_buffers(t_window *window)
+{
+	if (!window->depth_buffer
+		|| !window->post_process_buf
+		|| !window->pixel_pos_buffer)
+		ft_error("init window memory allocation failed\n");
+}
+
 static void	init_window_struct(t_window **window)
 {
 	window[0]->SDLwindow = SDL_CreateWindow("DOOM NUKEM",
@@ -188,14 +196,15 @@ static void	init_window_struct(t_window **window)
 	window[0]->frame_buffer = NULL;
 	window[0]->depth_buffer
 		= (float *)malloc(sizeof(float) * (RES_X * RES_Y));
+	window[0]->pixel_pos_buffer
+		= (t_vec3 *)malloc(sizeof(t_vec3) * (RES_X * RES_Y));
 	window[0]->brightness_buffer
 		= (t_color *)malloc(sizeof(t_color) * (RES_X * RES_Y));
 	memset((void *)window[0]->brightness_buffer, 0,
 		sizeof(t_color) * (RES_X * RES_Y));
 	window[0]->post_process_buf
 		= (unsigned int *)malloc(sizeof(unsigned int) * (RES_X * RES_Y));
-	if (!window[0]->depth_buffer || !window[0]->post_process_buf)
-		ft_error("init window memory allocation failed\n");
+	check_buffers(*window);
 }
 
 void	init_window(t_window **window)

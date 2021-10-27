@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/27 20:22:03 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/27 17:18:09 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -169,11 +169,13 @@ void	cast_result_set(t_cast_result *res, t_level *level)
 	res->light.b = 0;
 }
 
-void	set_render_result(t_window *window, t_cast_result res, unsigned int i)
+static void	set_render_result(t_window *window,
+								t_cast_result res, unsigned int i)
 {
 	window->frame_buffer[i] = res.color;
 	window->depth_buffer[i] = res.dist;
 	window->brightness_buffer[i] = res.light;
+	window->pixel_pos_buffer[i] = res.ray.dir;
 }
 
 int	raycast(t_level *level, t_window *window, int thread_id)

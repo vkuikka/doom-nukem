@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/18 16:07:24 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/27 19:12:04 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,7 +86,7 @@
 # define RELOAD_ANIMATION_DURATION 2.0//s
 # define ITEM_PICKUP_DIST 1.4//m
 # define ITEM_SPAWN_TIME 30//s
-# define BOX_BLUR_GRADIENT_SIZE 30
+# define RADIAL_GRADIENT_RESOLUTION 30
 
 # define AMMO_BOX_TEXT_COLOR 0x037700ff
 # define HEALTH_BOX_TEXT_COLOR 0xf76565ff
@@ -113,6 +113,10 @@
 # define UI_LEVEL_BAKING_COLOR 0xccaa33ff
 # define UI_LEVEL_NOT_BAKED_COLOR 0xcc3333ff
 # define UI_SHADER_SETTINGS 0xc77dffff
+# define UI_POST_PROCESS_BLOOM 0xc77dffff
+# define UI_POST_PROCESS_SSAO 0x77c7f2ff
+# define UI_POST_PROCESS_OTHER 0x33aa33ff
+# define UI_POST_PROCESS_DEBUG 0xf76565ff
 
 # define UV_PADDING 3
 
@@ -404,7 +408,8 @@ typedef enum e_main_menu
 	MAIN_MENU_LOCATION_MAIN,
 	MAIN_MENU_LOCATION_SETTINGS,
 	MAIN_MENU_LOCATION_SPRAY_SELECT,
-	MAIN_MENU_LOCATION_LEVEL_SELECT
+	MAIN_MENU_LOCATION_LEVEL_SELECT,
+	MAIN_MENU_LOCATION_POST_PROCESS
 }						t_main_menu;
 
 typedef enum e_ui_location
@@ -417,6 +422,7 @@ typedef enum e_ui_location
 	UI_LOCATION_DOOR_ACTIVATION_BUTTON,
 	UI_LOCATION_LIGHT_EDITOR,
 	UI_LOCATION_SHADER_EDITOR,
+	UI_LOCATION_POST_PROCESS_SETTINGS,
 	UI_LOCATION_GAME_SETTINGS,
 	UI_LOCATION_ENEMY_AND_DAMAGE_SETTINGS
 }						t_ui_location;
@@ -495,6 +501,9 @@ typedef struct s_editor_ui
 	float				bloom_intensity;
 	float				bloom_limit;
 	int					bloom_debug;
+	int					ssao_radius;
+	float				ssao_intensity;
+	int					ssao_debug;
 
 	t_color_hsl			sun_color;
 	t_vec3				sun_dir;
@@ -749,6 +758,7 @@ typedef struct s_window
 	unsigned int		*frame_buffer;//rename to frame_buffer_pixels
 	float				*depth_buffer;
 	t_color				*brightness_buffer;
+	t_vec3				*pixel_pos_buffer;
 	SDL_Texture			*raster_texture;
 	unsigned int		*raster_texture_pixels;
 	SDL_Texture			*text_texture;
@@ -1014,5 +1024,8 @@ void			render_raycast(t_window *window, t_level *level,
 
 void			deserialize_level(t_level *level, t_buffer *buf);
 void			serialize_level(t_level *level, t_buffer *buf);
+
+float			radial_gradient(t_ivec2 pixel, t_ivec2 lower_bound, float diameter);
+void			ssao(t_window *window, t_level *level);
 
 #endif

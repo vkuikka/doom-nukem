@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/21 17:32:09 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/18 22:21:16 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/20 23:25:08 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -347,6 +347,8 @@ void	post_process(t_window *window, t_level *level)
 		blur_pixels(window->frame_buffer, level->ui.raycast_quality);
 	if (level->ui.bloom_intensity)
 		bloom(level, window);
+	if (level->ui.ssao_radius && level->ui.ssao_intensity)
+		ssao(window, level);
 	fill_pixels(window->frame_buffer, level->ui.raycast_quality,
 		level->ui.smooth_pixels);
 	if (level->ui.chromatic_abberation)

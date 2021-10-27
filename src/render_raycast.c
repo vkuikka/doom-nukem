@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/15 11:42:17 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/15 16:34:57 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/20 23:01:38 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ static void	create_threads(t_level *level, t_window *window)
 		thread_data[i].id = i;
 		thread_data[i].level = level;
 		thread_data[i].window = window;
-		threads[i] = SDL_CreateThread(init_raycast, "asd",
+		threads[i] = SDL_CreateThread(init_raycast, "raycast",
 				(void *)&thread_data[i]);
 		i++;
 	}

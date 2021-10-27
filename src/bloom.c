@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/01 15:59:43 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/15 17:01:54 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/27 17:18:50 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,63 +21,8 @@ static t_color	*get_buff(t_color *set)
 	return (buff);
 }
 
-float	gradient_function(t_vec2 diff, t_vec2 mid, float div, t_vec2 i)
-{
-	float	new;
-
-	vec2_sub(&diff, mid, i);
-	new = 1 - (vec2_length(diff) / div);
-	new = asin(new * 2 - 1) / M_PI + 0.5;
-	if (new < 0 || isnan(new))
-		new = 0;
-	return (new);
-}
-
-int	init_gradient(float *arr)
-{
-	t_vec2	i;
-	t_vec2	mid;
-	t_vec2	diff;
-	float	div;
-
-	mid.x = BOX_BLUR_GRADIENT_SIZE / 2;
-	mid.y = BOX_BLUR_GRADIENT_SIZE / 2;
-	diff.x = BOX_BLUR_GRADIENT_SIZE / 2;
-	diff.y = 0;
-	vec2_sub(&diff, mid, diff);
-	div = vec2_length(diff);
-	i.x = -1;
-	while (++i.x < BOX_BLUR_GRADIENT_SIZE)
-	{
-		i.y = -1;
-		while (++i.y < BOX_BLUR_GRADIENT_SIZE)
-			arr[(int)i.x + (int)i.y * BOX_BLUR_GRADIENT_SIZE]
-				= gradient_function(diff, mid, div, i);
-	}
-	return (0);
-}
-
-float	get_grad(t_ivec2 i, t_ivec2 start, int radius)
-{
-	static float	*gradient_table = NULL;
-	int				x;
-	int				y;
-
-	if (!gradient_table)
-	{
-		gradient_table = (float *)malloc(sizeof(float)
-				* BOX_BLUR_GRADIENT_SIZE * BOX_BLUR_GRADIENT_SIZE);
-		if (!gradient_table)
-			return (0);
-		if (init_gradient(gradient_table))
-			return (0);
-	}
-	x = ((float)(i.x - start.x) / (radius * 2)) * BOX_BLUR_GRADIENT_SIZE;
-	y = ((float)(i.y - start.y) / (radius * 2)) * BOX_BLUR_GRADIENT_SIZE;
-	return (gradient_table[x + y * BOX_BLUR_GRADIENT_SIZE]);
-}
-
-void	make_bounds(t_ivec2 *upper, t_ivec2 *lower, t_level *level, t_ivec2 p)
+static void	make_bounds(t_ivec2 *upper, t_ivec2 *lower,
+						t_level *level, t_ivec2 p)
 {
 	upper->x = p.x + level->ui.bloom_radius;
 	upper->y = p.y + level->ui.bloom_radius;
@@ -105,7 +50,7 @@ float	add_to_buffer(t_bloom b, t_level *level, t_ivec2 i, unsigned int t)
 	unsigned int	tmp;
 
 	tmp = i.x + i.y * RES_X;
-	grad = get_grad(i, b.lower_bound, level->ui.bloom_radius);
+	grad = radial_gradient(i, b.lower_bound, level->ui.bloom_radius * 2);
 	b.buff[t].r += b.pixel_light[tmp].r * level->ui.bloom_intensity * grad;
 	b.buff[t].g += b.pixel_light[tmp].g * level->ui.bloom_intensity * grad;
 	b.buff[t].b += b.pixel_light[tmp].b * level->ui.bloom_intensity * grad;
@@ -142,20 +87,18 @@ void	box_blur(t_color *pixels, t_level *level, int thread)
 	t_bloom	b;
 	t_ivec2	i;
 
-	i.x = thread;
 	b.buff = get_buff(NULL);
 	b.pixel_light = pixels;
+	i.x = thread * level->ui.raycast_quality;
 	while (i.x < RES_X)
 	{
 		i.y = 0;
 		while (i.y < RES_Y)
 		{
-			if (!(i.y % level->ui.raycast_quality)
-				&& !(i.x % level->ui.raycast_quality))
-				box_avg(i, level, b);
-			i.y++;
+			box_avg(i, level, b);
+			i.y += level->ui.raycast_quality;
 		}
-		i.x += THREAD_AMOUNT;
+		i.x += THREAD_AMOUNT * level->ui.raycast_quality;
 	}
 }
 
@@ -223,9 +166,9 @@ void	bloom_apply(t_window *window, t_color *buff, t_level *level)
 			tmp.g = clamp(tmp.g, 0, 1);
 			tmp.b = clamp(tmp.b, 0, 1);
 			window->frame_buffer[p.x + p.y * RES_X] = color_to_int(tmp);
-			p.y++;
+			p.y += level->ui.raycast_quality;
 		}
-		p.x++;
+		p.x += level->ui.raycast_quality;
 	}
 }
 
@@ -266,7 +209,7 @@ void	bloom(t_level *level, t_window *window)
 		thread_data[i].id = i;
 		thread_data[i].level = level;
 		thread_data[i].window = window;
-		threads[i] = SDL_CreateThread(bloom_init, "asd",
+		threads[i] = SDL_CreateThread(bloom_init, "bloom",
 				(void *)&thread_data[i]);
 	}
 	i = -1;
