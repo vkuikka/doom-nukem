@@ -216,6 +216,7 @@ void	ui_config_selected_faces(t_level *level)
 	int	selected_index;
 	int	i;
 
+	set_text_color(WF_SELECTED_COL);
 	selected_index = 0;
 	selected_amount = get_selected_amount(level);
 	i = -1;
@@ -414,14 +415,25 @@ void	ui_physics_info(t_editor_ui *ui, t_level *level)
 	render_text("camera", RES_X / 2, RES_Y / 2 + (UI_ELEMENT_HEIGHT * 3));
 }
 
+void	ui_post_process_go_back(t_level *level)
+{
+	if (call("back", NULL))
+	{
+		if (level->ui.state.ui_location
+			== UI_LOCATION_POST_PROCESS_SETTINGS)
+			level->ui.state.ui_location = UI_LOCATION_MAIN;
+		else
+			level->ui.main_menu = MAIN_MENU_LOCATION_SETTINGS;
+	}
+}
+
 void	ui_post_process_settings(t_level *level)
 {
 	char		buf[100];
 	t_editor_ui	*ui;
 
 	ui = &level->ui;
-	if (call("back", NULL))
-		level->ui.main_menu = MAIN_MENU_LOCATION_SETTINGS;
+	ui_post_process_go_back(level);
 	set_text_color(UI_POST_PROCESS_OTHER);
 	int_slider(&ui->chromatic_abberation, "chroma (20ms expensive)", 0, 30);
 	float_slider(&ui->sharpen, "sharpen (60ms very expensive)", 0.0, 5.0);
@@ -792,13 +804,13 @@ void	ui_editor(t_level *level)
 	}
 	button(&ui->raytracing, "raytrace lights");
 	button(&ui->vertex_select_mode, "vertex select mode");
+	if (call("post process settings", NULL))
+		level->ui.state.ui_location = UI_LOCATION_POST_PROCESS_SETTINGS;
 	call("cull static", &static_culling);
-	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
 	call("edit uv", &enable_uv_editor);
 	call("edit doors", &enable_door_editor);
 	if (nothing_selected(level) && level->bake_status != BAKE_BAKING)
 		ui_level_settings(level);
-	set_text_color(WF_SELECTED_COL);
 	ui_config_selected_faces(level);
 	set_text_color(UI_INFO_TEXT_COLOR);
 	ui_render_info(&level->ui, level);
@@ -855,6 +867,8 @@ void	select_editor_ui(t_level *level)
 	else if (level->ui.state.ui_location == UI_LOCATION_FILE_SAVE
 		|| level->ui.state.ui_location == UI_LOCATION_FILE_OPEN)
 		ui_render_directory(level);
+	else if (level->ui.state.ui_location == UI_LOCATION_POST_PROCESS_SETTINGS)
+		ui_post_process_settings(level);
 	else if (editor_select(level))
 		ui_editor(level);
 }

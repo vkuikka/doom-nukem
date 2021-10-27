@@ -400,5 +400,7 @@ int	call(char *str, void (*f)(t_level *))
 	if (tmp && *f)
 		(*f)(level);
 	state->ui_text_y_pos += UI_ELEMENT_HEIGHT;
+	if (tmp)
+		level->ui.state.m1_drag = FALSE;
 	return (tmp);
 }
