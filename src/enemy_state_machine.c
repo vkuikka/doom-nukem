@@ -50,26 +50,24 @@ static void	enemy_vision(t_enemy *enemy, t_level *level,
 	}
 }
 
-static void	enemy_attack(t_enemy *enemy, t_level *level, float time)
+static void	enemy_attack(t_enemy *enemy, t_level *level)
 {
 	t_enemy_settings	*settings;
 	t_vec3				tmp;
 	t_vec3				pos;
 
 	settings = &level->game_logic.enemy_settings;
-	enemy->current_attack_delay += time;
-	if (enemy->current_attack_delay < settings->attack_frequency)
+	if (SDL_GetTicks() < enemy->current_attack_delay + settings->attack_frequency)
 		return ;
+	enemy->current_attack_delay = SDL_GetTicks();
 	vec_sub(&tmp, level->cam.pos, enemy->pos);
 	if (vec_length(tmp) < settings->melee_range)
 	{
-		enemy->current_attack_delay = 0;
 		vec_mult(&level->game_logic.player.vel, 0.5);
 		level->game_logic.player.health -= settings->melee_damage;
 	}
 	else if (level->game_logic.enemy_projectile_settings.speed)
 	{
-		enemy->current_attack_delay = 0;
 		pos = enemy->pos;
 		pos.y -= 1.0;
 		create_projectile(&level->game_logic, pos, enemy->dir,
@@ -119,7 +117,7 @@ void	enemy_state_machine(t_enemy *enemy, t_level *level)
 			enemy->shoot_start_time = 0;
 			enemy->move_start_time = SDL_GetTicks();
 		}
-		if (enemy->can_see_player)
-			enemy_attack(enemy, level, time);
+		else if (enemy->can_see_player)
+			enemy_attack(enemy, level);
 	}
 }
