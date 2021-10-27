@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/27 23:14:16 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/27 23:50:37 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -616,6 +616,7 @@ typedef struct s_projectile
 	float				dist;
 	float				damage;
 	float				scale;
+	int					shot_by_player;
 }						t_projectile;
 
 typedef struct s_game_logic
