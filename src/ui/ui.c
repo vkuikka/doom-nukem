@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/06 08:50:56 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/10/20 22:55:13 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/26 20:30:04 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -190,7 +190,7 @@ static void	init_ui_settings_post_process(t_editor_ui *ui)
 	ui->bloom_radius = 40;
 	ui->bloom_limit = 0;
 	ui->bloom_debug = FALSE;
-	ui->ssao_radius = 10;
+	ui->ssao_radius = 0;
 	ui->ssao_intensity = 1;
 	ui->ssao_debug = 0;
 }

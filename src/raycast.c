@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/21 22:58:19 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/26 21:01:43by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -169,7 +169,7 @@ void	cast_result_set(t_cast_result *res, t_level *level)
 	res->light.b = 0;
 }
 
-static void	set_render_result(t_level *level, t_window *window,
+static void	set_render_result(t_window *window,
 								t_cast_result res, unsigned int i)
 {
 	window->frame_buffer[i] = res.color;
@@ -196,7 +196,7 @@ int	raycast(t_level *level, t_window *window, int thread_id)
 			res.ray = ray_set(&level->cam, xy);
 			cast_result_set(&res, level);
 			cast_all_color(level, &level->ssp[get_ssp(xy)], &res, TRUE);
-			set_render_result(level, window, res, xy.x + xy.y * RES_X);
+			set_render_result(window, res, xy.x + xy.y * RES_X);
 			xy.y += level->ui.raycast_quality;
 		}
 		xy.x += THREAD_AMOUNT * level->ui.raycast_quality;
