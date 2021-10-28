@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/08 14:38:45 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/21 22:28:36 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/27 23:52:12 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,7 +146,9 @@ static void	level_default_settings(t_level *level)
 	level->game_logic.win_pos.x = 10;
 	init_enemy_settings(&level->game_logic.enemy_settings);
 	projectile_default(&level->game_logic.enemy_projectile_settings);
+	level->game_logic.enemy_projectile_settings.shot_by_player = FALSE;
 	projectile_default(&level->game_logic.player_projectile_settings);
+	level->game_logic.player_projectile_settings.shot_by_player = TRUE;
 }
 
 void	create_default_level(t_level *level)

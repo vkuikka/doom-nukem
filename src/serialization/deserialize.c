@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/15 15:17:07 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/15 16:04:41 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/28 00:01:13 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,17 +105,16 @@ void	deserialize_tri(t_tri *tri, t_buffer *buf)
 {
 	int	i;
 
-	i = 0;
-	while (i < 4)
-	{
+	i = -1;
+	while (++i < 4)
 		deserialize_vert(&tri->verts[i], buf);
-		i++;
-	}
 	deserialize_vec3(&tri->v0v1, buf);
 	deserialize_vec3(&tri->v0v2, buf);
 	deserialize_vec3(&tri->normal, buf);
 	deserialize_int(&tri->isquad, buf);
 	deserialize_int(&tri->isgrid, buf);
+	deserialize_int(&tri->isbreakable, buf);
+	deserialize_int(&tri->opacity_precise, buf);
 	deserialize_float(&tri->opacity, buf);
 	deserialize_float(&tri->reflectivity, buf);
 	deserialize_float(&tri->refractivity, buf);
@@ -416,7 +415,9 @@ void	deserialize_level(t_level *level, t_buffer *buf)
 	free_culling(level);
 	free(level->all.tris);
 	deserialize_projectile(&level->game_logic.player_projectile_settings, buf);
+	level->game_logic.player_projectile_settings.shot_by_player = TRUE;
 	deserialize_projectile(&level->game_logic.enemy_projectile_settings, buf);
+	level->game_logic.enemy_projectile_settings.shot_by_player = FALSE;
 	deserialize_obj(&level->all, buf);
 	deserialize_doors(level, buf);
 	deserialize_lights(level, buf);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main_menu.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/19 18:51:47 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/02 19:18:11 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/10/27 23:09:28 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,6 +71,19 @@ static int	main_menu_button_text(char *text, int index,
 	return (FALSE);
 }
 
+static void	fix_faces(t_level *level)
+{
+	int	i;
+
+	i = 0;
+	while (i < level->all.tri_amount)
+	{
+		if (level->all.tris[i].isbroken)
+			level->all.tris[i].isbroken = FALSE;
+		i++;
+	}
+}
+
 void	main_menu_buttons_level(t_game_state *game_state, int *state_changed,
 						t_level *level, unsigned int *pixels)
 {
@@ -83,6 +96,7 @@ void	main_menu_buttons_level(t_game_state *game_state, int *state_changed,
 		level->game_logic.player.health = PLAYER_HEALTH_MAX;
 		level->game_logic.player.ammo = PLAYER_AMMO_MAX;
 		spawn_enemies(level);
+		fix_faces(level);
 		Mix_PlayMusic(level->audio.game_music, -1);
 	}
 	if (main_menu_button_text("edit level", 1, level, pixels))
@@ -93,6 +107,7 @@ void	main_menu_buttons_level(t_game_state *game_state, int *state_changed,
 		*game_state = GAME_STATE_EDITOR;
 		*state_changed = TRUE;
 		level->ui.state.ui_location = UI_LOCATION_MAIN;
+		fix_faces(level);
 	}
 }
 

@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/10/27 19:27:47 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/27 23:21:21 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,6 @@ void	copy_tri_settings(t_tri *a, t_tri *b)
 	a->opacity_precise = b->opacity_precise;
 	a->reflectivity = b->reflectivity;
 	a->refractivity = b->refractivity;
-	a->disable_backface_culling = b->disable_backface_culling;
 }
 
 static void	ui_config_projectile_settings(t_projectile *projectile)
