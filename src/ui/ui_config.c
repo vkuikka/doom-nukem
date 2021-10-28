@@ -646,6 +646,7 @@ void	ui_light_editor(t_level *level)
 		level->ui.state.ui_location = UI_LOCATION_MAIN;
 		level->selected_light_index = 0;
 	}
+	button(&level->ui.raytracing, "raytrace lights");
 	ui_level_light_settings(level);
 	call("add light", &add_light);
 	ui_single_light_settings(level);

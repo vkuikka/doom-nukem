@@ -47,18 +47,6 @@ void	gizmo_print_line(t_vec3 start, t_vec3 stop, int color,
 	}
 }
 
-static float	scale_translation_gizmo(t_vec3 *x, t_vec3 *y, t_vec3 *z,
-																	t_vec3 avg)
-{
-	float	dist;
-
-	dist = vec_length(avg) / GIZMO_SCALE_DIVIDER;
-	vec_mult(x, dist);
-	vec_mult(y, dist);
-	vec_mult(z, dist);
-	return (dist);
-}
-
 t_vec3	vec_sub_return(t_vec3 ve1, t_vec3 ve2)
 {
 	t_vec3	res;
@@ -96,11 +84,10 @@ void	gizmo_render(t_level *level, unsigned int *pixels)
 	t_vec3	y;
 	t_vec3	z;
 
-	x = (t_vec3){-1, 0, 0};
-	y = (t_vec3){0, -1, 0};
-	z = (t_vec3){0, 0, -1};
+	x = (t_vec3){-1.5, 0, 0};
+	y = (t_vec3){0, -1.5, 0};
+	z = (t_vec3){0, 0, -1.5};
 	avg = level->ui.state.gizmo_pos;
-	scale_translation_gizmo(&x, &y, &z, vec_sub_return(avg, level->cam.pos));
 	vec_add(&x, x, avg);
 	vec_add(&y, y, avg);
 	vec_add(&z, z, avg);
@@ -155,10 +142,8 @@ static void	gizmo_call_move(t_level *level, t_vec3 move_amount)
 static void	gizmo_set_mouse_location(t_level *level,
 				int deltax, int deltay, int drag_direction)
 {
-	float	dist_from_screen;
 	t_vec3	res;
 
-	dist_from_screen = level->ui.state.gizmo_dist_from_screen;
 	if (!level->ui.state.m1_drag
 		&& level->ui.state.mouse_location >= MOUSE_LOCATION_GIZMO_X)
 		level->ui.state.mouse_location = MOUSE_LOCATION_SELECTION;
@@ -167,11 +152,11 @@ static void	gizmo_set_mouse_location(t_level *level,
 	{
 		if (level->ui.state.mouse_location == MOUSE_LOCATION_GIZMO_Y)
 			res = calc_move_screen_space(level->ui.state.mouse_location - 3,
-					deltay * dist_from_screen * drag_direction);
+					deltay * drag_direction);
 		else if (level->ui.state.mouse_location == MOUSE_LOCATION_GIZMO_X
 			|| level->ui.state.mouse_location == MOUSE_LOCATION_GIZMO_Z)
 			res = calc_move_screen_space(level->ui.state.mouse_location - 3,
-					deltax * dist_from_screen * drag_direction);
+					deltax * drag_direction);
 	}
 	gizmo_call_move(level, res);
 }
@@ -221,13 +206,10 @@ void	gizmo(t_level *level)
 	t_vec3	z;
 	t_vec3	avg;
 
-	x = (t_vec3){-1, 0, 0};
-	y = (t_vec3){0, -1, 0};
-	z = (t_vec3){0, 0, -1};
+	x = (t_vec3){-1.5, 0, 0};
+	y = (t_vec3){0, -1.5, 0};
+	z = (t_vec3){0, 0, -1.5};
 	avg = level->ui.state.gizmo_pos;
-	level->ui.state.gizmo_dist_from_screen
-		= scale_translation_gizmo(&x, &y, &z,
-			vec_sub_return(avg, level->cam.pos));
 	vec_add(&x, x, avg);
 	vec_add(&y, y, avg);
 	vec_add(&z, z, avg);

@@ -456,7 +456,6 @@ typedef struct s_ui_state
 	int					ssp_visual;
 	int					gizmo_active;
 	t_vec3				gizmo_pos;
-	float				gizmo_dist_from_screen;
 	unsigned int		*color_slider_hue_colors;
 
 	char				*directory;
