@@ -143,6 +143,10 @@ static void	level_default_settings(t_level *level)
 	level->cam.look_up = 0;
 	level->main_menu_anim.duration = 2;
 	level->world_brightness = 0.5;
+	level->ui.sun_color.hue = 0.768421;
+	level->ui.sun_color.saturation = 0.0;
+	level->ui.sun_color.lightness = 0.936842;
+	hsl_update_color(&level->ui.sun_color);
 	level->game_logic.win_pos.x = 10;
 	init_enemy_settings(&level->game_logic.enemy_settings);
 	projectile_default(&level->game_logic.enemy_projectile_settings);

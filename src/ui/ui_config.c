@@ -617,7 +617,7 @@ void	ui_level_light_settings(t_level *level)
 	}
 }
 
-void	ui_light_editor(t_level *level)
+void	bake_buttons(t_level *level)
 {
 	char		buf[100];
 
@@ -635,7 +635,12 @@ void	ui_light_editor(t_level *level)
 		if (call(buf, NULL))
 			level->bake_status = BAKE_NOT_BAKED;
 	}
-	set_text_color(level->ui.sun_color.color);
+}
+
+void	ui_light_editor(t_level *level)
+{
+	bake_buttons(level);
+	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
 	if (call("close light editor", NULL))
 	{
 		level->ui.state.ui_location = UI_LOCATION_MAIN;
@@ -644,6 +649,8 @@ void	ui_light_editor(t_level *level)
 	ui_level_light_settings(level);
 	call("add light", &add_light);
 	ui_single_light_settings(level);
+	set_text_color(UI_INFO_TEXT_COLOR);
+	ui_render_info(&level->ui, level);
 }
 
 void	ui_game_settings_delete_selected(t_level *level)
