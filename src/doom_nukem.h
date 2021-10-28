@@ -968,6 +968,7 @@ void			door_animate(t_level *level);
 void			door_put_text(t_level *level);
 void			add_new_door(t_level *level);
 void			delete_door(t_level *level);
+void			delete_all_doors(t_level *level);
 void			door_activate(t_level *level);
 void			set_door_pos_1(t_level *level);
 void			set_door_pos_2(t_level *level);

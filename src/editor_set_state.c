@@ -21,6 +21,7 @@ void	set_obj(t_level *level, char *filename)
 		nonfatal_error("failed to read object file");
 		return ;
 	}
+	delete_all_doors(level);
 	delete_all_lights(level);
 	free_culling(level);
 	free(level->all.tris);

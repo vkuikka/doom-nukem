@@ -147,10 +147,7 @@ void	set_new_face(t_tri *tri, t_vec3 pos, t_vec3 dir, float scale)
 	vec_mult(&tri_avg, 2);
 	vec_add(&tri_avg, pos, tri_avg);
 	set_new_face_pos(tri, tri_avg, scale);
-	vec_sub(&tri->v0v2, tri->verts[1].pos, tri->verts[0].pos);
-	vec_sub(&tri->v0v1, tri->verts[2].pos, tri->verts[0].pos);
-	vec_cross(&tri->normal, tri->v0v2, tri->v0v1);
-	vec_normalize(&tri->normal);
+	tri_optimize(tri);
 }
 
 void	add_face(t_level *level)
