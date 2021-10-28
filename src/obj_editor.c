@@ -187,13 +187,15 @@ void	remove_faces(t_level *level)
 	free_culling(level);
 	amount = level->all.tri_amount;
 	original_amount = level->all.tri_amount;
-	i = -1;
-	while (++i < level->all.tri_amount)
+	i = level->all.tri_amount - 1;
+	while (i >= 0)
 	{
 		if (level->all.tris[i].selected)
-			remove_tri(level, i);
-		if (level->all.tris[i].selected)
+		{
 			amount--;
+			remove_tri(level, i);
+		}
+		i--;
 	}
 	level->all.tri_amount = amount;
 	level->all.tris = (t_tri *)ft_realloc(level->all.tris,
