@@ -118,6 +118,35 @@ void	door_activation_move(t_level *level, t_vec3 move_amount)
 	level->ui.state.gizmo_pos = level->doors.door[index].activation_pos;
 }
 
+void	delete_all_doors(t_level *level)
+{
+	t_door	*door;
+	int		i;
+	int		k;
+
+	k = -1;
+	while (++k < level->doors.door_amount)
+	{
+		door = &level->doors.door[k];
+		i = 0;
+		while (i < door->indice_amount)
+		{
+			free(door->pos1[i]);
+			free(door->pos2[i]);
+			i++;
+		}
+		free(door->pos1);
+		free(door->pos2);
+		free(door->indices);
+		free(door->isquad);
+	}
+	level->doors.door_amount = 0;
+	free(level->doors.door);
+	level->doors.door = NULL;
+	deselect_all_faces(level);
+	level->doors.selected_index = 0;
+}
+
 void	delete_door(t_level *level)
 {
 	t_door	*door;

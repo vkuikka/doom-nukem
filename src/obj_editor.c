@@ -147,10 +147,7 @@ void	set_new_face(t_tri *tri, t_vec3 pos, t_vec3 dir, float scale)
 	vec_mult(&tri_avg, 2);
 	vec_add(&tri_avg, pos, tri_avg);
 	set_new_face_pos(tri, tri_avg, scale);
-	vec_sub(&tri->v0v2, tri->verts[1].pos, tri->verts[0].pos);
-	vec_sub(&tri->v0v1, tri->verts[2].pos, tri->verts[0].pos);
-	vec_cross(&tri->normal, tri->v0v2, tri->v0v1);
-	vec_normalize(&tri->normal);
+	tri_optimize(tri);
 }
 
 void	add_face(t_level *level)
@@ -190,13 +187,15 @@ void	remove_faces(t_level *level)
 	free_culling(level);
 	amount = level->all.tri_amount;
 	original_amount = level->all.tri_amount;
-	i = -1;
-	while (++i < level->all.tri_amount)
+	i = level->all.tri_amount - 1;
+	while (i >= 0)
 	{
 		if (level->all.tris[i].selected)
-			remove_tri(level, i);
-		if (level->all.tris[i].selected)
+		{
 			amount--;
+			remove_tri(level, i);
+		}
+		i--;
 	}
 	level->all.tri_amount = amount;
 	level->all.tris = (t_tri *)ft_realloc(level->all.tris,
