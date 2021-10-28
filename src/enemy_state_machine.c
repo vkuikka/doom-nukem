@@ -32,7 +32,7 @@ static void	enemy_vision(t_enemy *enemy, t_level *level,
 	player = level->cam.pos;
 	e.pos = enemy->pos;
 	e.pos.y -= 1.7;
-	vec_sub(&e.dir, player, enemy->pos);
+	vec_sub(&e.dir, player, e.pos);
 	dist = cast_all(e, level, NULL);
 	if (player.y > e.pos.y - ENEMY_MOVABLE_HEIGHT_DIFF
 		&& player.y < e.pos.y + ENEMY_MOVABLE_HEIGHT_DIFF)
