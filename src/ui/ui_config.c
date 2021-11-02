@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/10/27 19:27:47 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/11/02 23:42:57 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -617,17 +617,26 @@ void	ui_level_light_settings(t_level *level)
 	}
 }
 
+void	ui_light_editor_bake(t_level *level)
+{
+	char		buf[100];
+
+	set_text_color(UI_LEVEL_NOT_BAKED_COLOR);
+	sprintf(buf, "bake lighting");
+	if (call(buf, start_bake))
+		level->selected_light_index = 0;
+	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
+	sprintf(buf, "bake scale: %d (%.0f%%)", level->ui.bake_quality,
+		100.0 / (float)level->ui.bake_quality);
+	int_slider(&level->ui.bake_quality, buf, 1, 10);
+}
+
 void	ui_light_editor(t_level *level)
 {
 	char		buf[100];
 
 	if (level->bake_status == BAKE_NOT_BAKED)
-	{
-		set_text_color(UI_LEVEL_NOT_BAKED_COLOR);
-		sprintf(buf, "bake lighting");
-		if (call(buf, start_bake))
-			level->selected_light_index = 0;
-	}
+		ui_light_editor_bake(level);
 	else if (level->bake_status == BAKE_BAKED)
 	{
 		set_text_color(UI_LEVEL_BAKED_COLOR);

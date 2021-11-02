@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/22 10:29:09 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/11 18:57:35 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/11/02 23:35:24 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,15 +101,19 @@ static void	wrap_coords(int *x, int *y, int max_x, int max_y)
 
 static void	bake_pixel(t_level *l, t_ivec2 wrap, t_ivec2 i, t_cast_result *res)
 {
-	wrap_coords(&wrap.x, &wrap.y, l->texture.width, l->texture.height);
 	if (!(l->baked[wrap.x + wrap.y * l->texture.width].r)
 		&& !(l->baked[wrap.x + wrap.y * l->texture.width].g)
 		&& !(l->baked[wrap.x + wrap.y * l->texture.width].b))
 	{
 		res->ray.pos = uv_to_3d(l->all.tris[res->face_index], &l->texture, i);
-		res->normal = get_normal(l->normal_map.image[wrap.x
-				+ (wrap.y * l->normal_map.width)]);
-		vec_normalize(&res->normal);
+		if (res->normal_map)
+		{
+			res->normal = get_normal(res->normal_map->image[wrap.x
+					+ (wrap.y * res->normal_map->width)]);
+			vec_normalize(&res->normal);
+		}
+		else
+			res->normal = l->all.tris[res->face_index].normal;
 		l->baked[wrap.x + wrap.y * l->texture.width] = sunlight(l, res,
 				lights(l, res));
 	}
@@ -123,36 +127,56 @@ static int	point_in_face(t_tri tri, t_vec2 point)
 			tri.verts[1].txtr, tri.verts[2].txtr));
 }
 
+static void	fill_area(t_level *l, t_ivec2 start, t_color c, int res)
+{
+	t_ivec2	i;
+	int		x;
+	int		y;
+
+	i.x = -1;
+	while (++i.x < res)
+	{
+		i.y = -1;
+		while (++i.y < res)
+		{
+			x = start.x + i.x;
+			y = start.y + i.y;
+			if (x < l->texture.width && y < l->texture.height && x > 0 && y > 0)
+			{
+				if (!l->baked[x + y * l->texture.width].r
+					&& !l->baked[x + y * l->texture.width].g
+					&& !l->baked[x + y * l->texture.width].b)
+				{
+					l->baked[x + y * l->texture.width].r = c.r;
+					l->baked[x + y * l->texture.width].g = c.g;
+					l->baked[x + y * l->texture.width].b = c.b;
+				}
+			}
+		}
+	}
+}
+
 static void	bake_area(t_level *l, t_cast_result *res, t_ivec2 i)
 {
 	t_vec2	tmp;
 	t_ivec2	wrap;
 	t_tri	tri;
 
-	wrap = i;
-	wrap_coords(&wrap.x, &wrap.y, l->texture.width, l->texture.height);
 	tmp.x = (float)i.x / l->texture.width;
 	tmp.y = 1 - (float)i.y / l->texture.height;
 	tri = l->all.tris[res->face_index];
 	if (point_in_face(tri, tmp))
 	{
+		wrap = i;
 		wrap_coords(&wrap.x, &wrap.y, l->texture.width, l->texture.height);
-		res->ray.pos = uv_to_3d(l->all.tris[res->face_index], &l->texture, i);
-		res->normal = get_normal(l->normal_map.image[wrap.x
-				+ (wrap.y * l->normal_map.width)]);
-		vec_normalize(&res->normal);
-		l->baked[wrap.x + wrap.y * l->texture.width] = sunlight(l, res,
-				lights(l, res));
-		wrap.y -= 1;
 		bake_pixel(l, wrap, i, res);
-		wrap.x -= 1;
-		bake_pixel(l, wrap, i, res);
-		wrap.y += 1;
-		bake_pixel(l, wrap, i, res);
+		i.x -= l->ui.bake_quality;
+		i.y -= l->ui.bake_quality;
+		fill_area(l, i, l->baked[wrap.x + wrap.y * l->texture.width], l->ui.bake_quality * 2);
 	}
 }
 
-static void	bake_face(t_cast_result *res, t_level *l)
+void	bake_face(t_cast_result *res, t_level *l)
 {
 	t_ivec2			i;
 	t_vec2			min;
@@ -160,7 +184,6 @@ static void	bake_face(t_cast_result *res, t_level *l)
 
 	texture_minmax(&min, &max, l->all.tris[res->face_index]);
 	i.x = min.x * l->texture.width;
-	i.y = 0;
 	while (i.x < max.x * l->texture.width)
 	{
 		i.y = min.y * l->texture.height;
@@ -169,9 +192,9 @@ static void	bake_face(t_cast_result *res, t_level *l)
 			if (l->bake_status != BAKE_BAKING)
 				return ;
 			bake_area(l, res, i);
-			i.y++;
+			i.y += l->ui.bake_quality;
 		}
-		i.x++;
+		i.x += l->ui.bake_quality;
 	}
 }
 
@@ -183,6 +206,7 @@ int	bake(void *d)
 
 	l = d;
 	tri = 0;
+	cast_result_set(&res, l);
 	res.raytracing = TRUE;
 	while (tri < l->all.tri_amount)
 	{
@@ -219,8 +243,9 @@ void	clear_bake(t_level *level)
 
 void	start_bake(t_level *level)
 {
-	if (level->texture.width != level->normal_map.width
-		|| level->texture.height != level->normal_map.height)
+	if ((level->texture.width != level->normal_map.width
+			|| level->texture.height != level->normal_map.height)
+		&& !level->ui.normal_map_disabled)
 	{
 		nonfatal_error("texture and normal map are not same size");
 		return ;
@@ -235,7 +260,7 @@ void	start_bake(t_level *level)
 		clear_bake(level);
 		level->bake_status = BAKE_BAKING;
 		level->bake_progress = 0;
-		SDL_CreateThread(bake, "asd", (void *)level);
+		SDL_CreateThread(bake, "bake", (void *)level);
 		level->baked_size.x = level->texture.width;
 		level->baked_size.y = level->texture.height;
 	}

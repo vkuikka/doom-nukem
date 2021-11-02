@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/27 19:12:04 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/11/02 23:40:30 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -504,6 +504,7 @@ typedef struct s_editor_ui
 	int					ssao_radius;
 	float				ssao_intensity;
 	int					ssao_debug;
+	int					bake_quality;
 
 	t_color_hsl			sun_color;
 	t_vec3				sun_dir;
@@ -1021,11 +1022,13 @@ t_color			int_to_color(unsigned int color);
 unsigned int	color_to_int(t_color color);
 void			render_raycast(t_window *window, t_level *level,
 					t_game_state *game_state);
+void			cast_result_set(t_cast_result *res, t_level *level);
 
 void			deserialize_level(t_level *level, t_buffer *buf);
 void			serialize_level(t_level *level, t_buffer *buf);
 
-float			radial_gradient(t_ivec2 pixel, t_ivec2 lower_bound, float diameter);
+float			radial_gradient(t_ivec2 pixel, t_ivec2 lower_bound,
+					float diameter);
 void			ssao(t_window *window, t_level *level);
 
 #endif
