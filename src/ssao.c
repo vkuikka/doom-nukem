@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/03 14:38:16 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/27 17:18:17 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/11/03 21:43:11 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ static float	pixel_dot_product(t_ivec2 i, t_ivec2 mid, t_window *win)
 	return (-vec_dot(v2, v1));
 }
 
-static void	ssao_kernel_iter(t_ssao *ssao, t_window *win, t_ivec2 i)
+static void	ssao_kernel_iter(t_ssao *ssao, t_window *win, t_ivec2 i, float br)
 {
 	float	dist;
 	float	diff;
@@ -47,6 +47,7 @@ static void	ssao_kernel_iter(t_ssao *ssao, t_window *win, t_ivec2 i)
 	val = pixel_dot_product(i, ssao->kernel_center, win);
 	if (dist != FLT_MAX && !isnan(val))
 	{
+		val /= br;
 		if (diff > 1)
 		{
 			val /= diff;
@@ -96,6 +97,8 @@ static float	ssao_avg(t_ssao ssao, t_level *level)
 static float	surrounding_diff(t_ssao ssao, t_level *level, t_window *win)
 {
 	t_ivec2	i;
+	t_color	light;
+	float	brightness;
 
 	ssao_bounds(&ssao);
 	ssao.count = 0;
@@ -106,7 +109,12 @@ static float	surrounding_diff(t_ssao ssao, t_level *level, t_window *win)
 		i.y = ssao.lower_bound.y;
 		while (i.y < ssao.upper_bound.y)
 		{
-			ssao_kernel_iter(&ssao, win, i);
+			light = win->brightness_buffer[i.x + i.y * RES_X];
+			brightness = (light.r + light.g + light.b) * 10;
+			if (brightness > 1)
+				ssao_kernel_iter(&ssao, win, i, brightness);
+			else
+				ssao_kernel_iter(&ssao, win, i, 1);
 			i.y += level->ui.raycast_quality;
 		}
 		i.x += level->ui.raycast_quality;
