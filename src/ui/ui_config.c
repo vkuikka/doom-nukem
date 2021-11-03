@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/11/03 19:54:33 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/11/03 21:50:42 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -448,6 +448,7 @@ void	ui_post_process_settings(t_level *level)
 	set_text_color(UI_POST_PROCESS_SSAO);
 	int_slider(&level->ui.ssao_radius, "ssao radius", 0, 40);
 	float_slider(&level->ui.ssao_intensity, "ssao intensity", 1, 10);
+	float_slider(&level->ui.ssao_light_bias, "ssao light bias", 0, 15);
 	set_text_color(UI_POST_PROCESS_DEBUG);
 	button(&level->ui.bloom_debug, "render bloom only");
 	button(&level->ui.ssao_debug, "render ssao only");

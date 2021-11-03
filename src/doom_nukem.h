@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/11/03 20:21:38 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/11/03 21:48:53 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -502,6 +502,7 @@ typedef struct s_editor_ui
 	int					bloom_debug;
 	int					ssao_radius;
 	float				ssao_intensity;
+	float				ssao_light_bias;
 	int					ssao_debug;
 	int					bake_quality;
 	int					bake_blur_radius;

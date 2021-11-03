@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/03 14:38:16 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/11/03 21:43:11 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/11/03 21:52:02 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,7 +110,8 @@ static float	surrounding_diff(t_ssao ssao, t_level *level, t_window *win)
 		while (i.y < ssao.upper_bound.y)
 		{
 			light = win->brightness_buffer[i.x + i.y * RES_X];
-			brightness = (light.r + light.g + light.b) * 10;
+			brightness = (light.r + light.g + light.b)
+				* level->ui.ssao_light_bias;
 			if (brightness > 1)
 				ssao_kernel_iter(&ssao, win, i, brightness);
 			else
