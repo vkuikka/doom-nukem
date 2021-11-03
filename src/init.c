@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/08 14:38:45 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/21 22:28:36 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/27 23:52:12 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,7 +125,7 @@ static void	init_enemy_settings(t_enemy_settings *enemy)
 	enemy->move_speed = 2;
 	enemy->initial_health = 100;
 	enemy->melee_range = 1.5;
-	enemy->attack_frequency = 0.5;
+	enemy->attack_frequency = 500.0;
 	enemy->move_duration = 3.0;
 	enemy->shoot_duration = 2.0;
 	enemy->melee_damage = 30;
@@ -143,10 +143,16 @@ static void	level_default_settings(t_level *level)
 	level->cam.look_up = 0;
 	level->main_menu_anim.duration = 2;
 	level->world_brightness = 0.5;
+	level->ui.sun_color.hue = 0.768421;
+	level->ui.sun_color.saturation = 0.0;
+	level->ui.sun_color.lightness = 0.936842;
+	hsl_update_color(&level->ui.sun_color);
 	level->game_logic.win_pos.x = 10;
 	init_enemy_settings(&level->game_logic.enemy_settings);
 	projectile_default(&level->game_logic.enemy_projectile_settings);
+	level->game_logic.enemy_projectile_settings.shot_by_player = FALSE;
 	projectile_default(&level->game_logic.player_projectile_settings);
+	level->game_logic.player_projectile_settings.shot_by_player = TRUE;
 }
 
 void	create_default_level(t_level *level)

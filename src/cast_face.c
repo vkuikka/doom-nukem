@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/20 12:35:22 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/16 17:33:06 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/27 22:53:49 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,19 @@ static void	grid_check(float *val, int isgrid)
 	}
 }
 
+static float	start_cast(t_tri t, t_vec3 *pvec, t_ray ray, t_cast_result *res)
+{
+	float	invdet;
+
+	if (t.isbroken)
+		return (0);
+	if (res)
+		res->raycast_amount++;
+	vec_cross(pvec, ray.dir, t.v0v2);
+	invdet = 1 / vec_dot(*pvec, t.v0v1);
+	return (invdet);
+}
+
 float	cast_face(t_tri t, t_ray ray, t_cast_result *res)
 {
 	t_vec3	qvec;
@@ -54,10 +67,9 @@ float	cast_face(t_tri t, t_ray ray, t_cast_result *res)
 	t_vec2	uv;
 	float	invdet;
 
-	if (res)
-		res->raycast_amount++;
-	vec_cross(&pvec, ray.dir, t.v0v2);
-	invdet = 1 / vec_dot(pvec, t.v0v1);
+	invdet = start_cast(t, &pvec, ray, res);
+	if (!invdet)
+		return (0);
 	vec_sub(&tvec, ray.pos, t.verts[0].pos);
 	uv.x = vec_dot(tvec, pvec) * invdet;
 	grid_check(&uv.x, t.isgrid);

@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/06 14:13:02 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/10/15 15:58:10 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/10/27 23:16:17 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,6 +116,8 @@ void	serialize_tri(t_tri *tri, t_buffer *buf)
 	serialize_vec3(tri->normal, buf);
 	serialize_int(tri->isquad, buf);
 	serialize_int(tri->isgrid, buf);
+	serialize_int(tri->isbreakable, buf);
+	serialize_int(tri->opacity_precise, buf);
 	serialize_float(tri->opacity, buf);
 	serialize_float(tri->reflectivity, buf);
 	serialize_float(tri->refractivity, buf);

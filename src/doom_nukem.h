@@ -296,7 +296,7 @@ typedef struct s_tri
 	int					isquad;
 	int					isgrid;
 	int					isbreakable;
-	int					disable_backface_culling;
+	int					isbroken;
 	float				opacity;
 	float				reflectivity;
 	float				refractivity;
@@ -456,7 +456,6 @@ typedef struct s_ui_state
 	int					ssp_visual;
 	int					gizmo_active;
 	t_vec3				gizmo_pos;
-	float				gizmo_dist_from_screen;
 	unsigned int		*color_slider_hue_colors;
 
 	char				*directory;
@@ -618,6 +617,7 @@ typedef struct s_projectile
 	float				dist;
 	float				damage;
 	float				scale;
+	int					shot_by_player;
 }						t_projectile;
 
 typedef struct s_game_logic
@@ -975,6 +975,7 @@ void			door_animate(t_level *level);
 void			door_put_text(t_level *level);
 void			add_new_door(t_level *level);
 void			delete_door(t_level *level);
+void			delete_all_doors(t_level *level);
 void			door_activate(t_level *level);
 void			set_door_pos_1(t_level *level);
 void			set_door_pos_2(t_level *level);
