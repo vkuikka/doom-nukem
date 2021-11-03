@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/21 17:32:09 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/20 23:25:08 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/11/03 22:01:50 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -416,6 +416,14 @@ static void	normal_map(float u, float v, t_tri t, t_cast_result *res)
 		= get_normal(res->normal_map->image[x + (y * res->normal_map->width)]);
 }
 
+void	baked_color(t_cast_result *res, int x, int y)
+{
+	res->color = brightness(
+			res->color >> 8, res->baked[x + y * res->texture->width])
+		+ (res->color << 24 >> 24);
+	res->light = res->baked[x + y * res->texture->width];
+}
+
 void	face_color(float u, float v, t_tri t, t_cast_result *res)
 {
 	int		x;
@@ -436,9 +444,7 @@ void	face_color(float u, float v, t_tri t, t_cast_result *res)
 	if (res->spray_overlay && res->spray_overlay[x + y * res->texture->width])
 		res->color = res->spray_overlay[x + y * res->texture->width];
 	if (res->baked && !res->raytracing && !t.isgrid && t.shader == SHADER_NONE)
-		res->color = brightness(
-				res->color >> 8, res->baked[x + y * res->texture->width])
-			+ (res->color << 24 >> 24);
+		baked_color(res, x, y);
 	if (res->normal_map)
 		normal_map(u, v, t, res);
 	else
