@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/11/02 23:42:57 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/11/03 19:54:33 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -629,6 +629,8 @@ void	ui_light_editor_bake(t_level *level)
 	sprintf(buf, "bake scale: %d (%.0f%%)", level->ui.bake_quality,
 		100.0 / (float)level->ui.bake_quality);
 	int_slider(&level->ui.bake_quality, buf, 1, 10);
+	sprintf(buf, "bake blur radius: %d pixels", level->ui.bake_blur_radius);
+	int_slider(&level->ui.bake_blur_radius, buf, 1, 10);
 }
 
 void	ui_light_editor(t_level *level)

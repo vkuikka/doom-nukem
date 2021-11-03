@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/22 10:29:09 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/11/02 23:35:24 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/11/03 20:06:05 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,22 +101,17 @@ static void	wrap_coords(int *x, int *y, int max_x, int max_y)
 
 static void	bake_pixel(t_level *l, t_ivec2 wrap, t_ivec2 i, t_cast_result *res)
 {
-	if (!(l->baked[wrap.x + wrap.y * l->texture.width].r)
-		&& !(l->baked[wrap.x + wrap.y * l->texture.width].g)
-		&& !(l->baked[wrap.x + wrap.y * l->texture.width].b))
+	res->ray.pos = uv_to_3d(l->all.tris[res->face_index], &l->texture, i);
+	if (res->normal_map)
 	{
-		res->ray.pos = uv_to_3d(l->all.tris[res->face_index], &l->texture, i);
-		if (res->normal_map)
-		{
-			res->normal = get_normal(res->normal_map->image[wrap.x
-					+ (wrap.y * res->normal_map->width)]);
-			vec_normalize(&res->normal);
-		}
-		else
-			res->normal = l->all.tris[res->face_index].normal;
-		l->baked[wrap.x + wrap.y * l->texture.width] = sunlight(l, res,
-				lights(l, res));
+		res->normal = get_normal(res->normal_map->image[wrap.x
+				+ (wrap.y * res->normal_map->width)]);
+		vec_normalize(&res->normal);
 	}
+	else
+		res->normal = l->all.tris[res->face_index].normal;
+	l->baked[wrap.x + wrap.y * l->texture.width] = sunlight(l, res,
+			lights(l, res));
 }
 
 static int	point_in_face(t_tri tri, t_vec2 point)
@@ -141,17 +136,11 @@ static void	fill_area(t_level *l, t_ivec2 start, t_color c, int res)
 		{
 			x = start.x + i.x;
 			y = start.y + i.y;
-			if (x < l->texture.width && y < l->texture.height && x > 0 && y > 0)
-			{
-				if (!l->baked[x + y * l->texture.width].r
-					&& !l->baked[x + y * l->texture.width].g
-					&& !l->baked[x + y * l->texture.width].b)
-				{
-					l->baked[x + y * l->texture.width].r = c.r;
-					l->baked[x + y * l->texture.width].g = c.g;
-					l->baked[x + y * l->texture.width].b = c.b;
-				}
-			}
+			if (x < l->texture.width && y < l->texture.height && x > 0 && y > 0
+				&& !l->baked[x + y * l->texture.width].r
+				&& !l->baked[x + y * l->texture.width].g
+				&& !l->baked[x + y * l->texture.width].b)
+				l->baked[x + y * l->texture.width] = c;
 		}
 	}
 }
@@ -172,7 +161,8 @@ static void	bake_area(t_level *l, t_cast_result *res, t_ivec2 i)
 		bake_pixel(l, wrap, i, res);
 		i.x -= l->ui.bake_quality;
 		i.y -= l->ui.bake_quality;
-		fill_area(l, i, l->baked[wrap.x + wrap.y * l->texture.width], l->ui.bake_quality * 2);
+		fill_area(l, i, l->baked[wrap.x + wrap.y * l->texture.width],
+			l->ui.bake_quality * 2);
 	}
 }
 
@@ -198,6 +188,28 @@ void	bake_face(t_cast_result *res, t_level *l)
 	}
 }
 
+void	blur_bake(t_level *level)
+{
+	t_blur			blur;
+	t_color			*buff;
+	unsigned int	size;
+
+	buff = (t_color *)malloc(sizeof(t_color) * size);
+	if (!buff)
+		return ;
+	ft_memcpy(buff, level->baked, sizeof(t_color) * size);
+	ft_memset(level->baked, 0, sizeof(t_color) * size);
+	blur.buff = level->baked;
+	blur.pixels = buff;
+	blur.radius = level->ui.bake_blur_radius;
+	blur.intensity = 1;
+	blur.quality = 1;
+	blur.size.x = level->baked_size.x;
+	blur.size.y = level->baked_size.y;
+	box_blur(blur, -1);
+	free(buff);
+}
+
 int	bake(void *d)
 {
 	t_level			*l;
@@ -218,6 +230,7 @@ int	bake(void *d)
 	}
 	if (l->bake_status != BAKE_NOT_BAKED)
 		l->bake_status = BAKE_BAKED;
+	blur_bake(l);
 	return (1);
 }
 

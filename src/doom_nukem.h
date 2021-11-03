@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/11/02 23:40:30 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/11/03 19:54:08 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -505,6 +505,7 @@ typedef struct s_editor_ui
 	float				ssao_intensity;
 	int					ssao_debug;
 	int					bake_quality;
+	int					bake_blur_radius;
 
 	t_color_hsl			sun_color;
 	t_vec3				sun_dir;
@@ -743,13 +744,17 @@ typedef struct s_buffer
 	size_t				size;
 }						t_buffer;
 
-typedef struct s_bloom
+typedef struct s_blur
 {
 	t_ivec2		upper_bound;
 	t_ivec2		lower_bound;
-	t_color		*pixel_light;
+	t_color		*pixels;
 	t_color		*buff;
-}				t_bloom;
+	t_ivec2		size;
+	float		intensity;
+	int			radius;
+	int			quality;
+}				t_blur;
 
 typedef struct s_window
 {
@@ -1030,5 +1035,6 @@ void			serialize_level(t_level *level, t_buffer *buf);
 float			radial_gradient(t_ivec2 pixel, t_ivec2 lower_bound,
 					float diameter);
 void			ssao(t_window *window, t_level *level);
+void			box_blur(t_blur b, int thread);
 
 #endif
