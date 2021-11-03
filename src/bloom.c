@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/01 15:59:43 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/11/03 18:10:00 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/11/03 20:23:56 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,6 +104,7 @@ int	bloom_init(void *data_pointer)
 	blur.radius = thread->level->ui.bloom_radius;
 	blur.size.x = RES_X;
 	blur.size.y = RES_Y;
+	blur.skip_zeroes = FALSE;
 	box_blur(blur, thread->id);
 	return (0);
 }

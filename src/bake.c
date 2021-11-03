@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/22 10:29:09 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/11/03 20:06:05 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/11/03 20:23:29 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -194,6 +194,7 @@ void	blur_bake(t_level *level)
 	t_color			*buff;
 	unsigned int	size;
 
+	size = level->baked_size.x * level->baked_size.y;
 	buff = (t_color *)malloc(sizeof(t_color) * size);
 	if (!buff)
 		return ;
@@ -206,6 +207,7 @@ void	blur_bake(t_level *level)
 	blur.quality = 1;
 	blur.size.x = level->baked_size.x;
 	blur.size.y = level->baked_size.y;
+	blur.skip_zeroes = TRUE;
 	box_blur(blur, -1);
 	free(buff);
 }
@@ -230,7 +232,8 @@ int	bake(void *d)
 	}
 	if (l->bake_status != BAKE_NOT_BAKED)
 		l->bake_status = BAKE_BAKED;
-	blur_bake(l);
+	if (l->ui.bake_blur_radius > 1)
+		blur_bake(l);
 	return (1);
 }
 

@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/11/03 19:54:08 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/11/03 20:21:38 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -754,6 +754,7 @@ typedef struct s_blur
 	float		intensity;
 	int			radius;
 	int			quality;
+	int			skip_zeroes;
 }				t_blur;
 
 typedef struct s_window

@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/03 16:47:47 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/11/03 20:06:54 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/11/03 20:28:59 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,8 @@ static float	add_to_buffer(t_blur b, t_ivec2 i, unsigned int coord)
 	unsigned int	tmp;
 
 	tmp = i.x + i.y * b.size.x;
-	if (!b.pixels[tmp].r || !b.pixels[tmp].g || !b.pixels[tmp].b)
+	if (b.skip_zeroes
+		&& (!b.pixels[tmp].r || !b.pixels[tmp].g || !b.pixels[tmp].b))
 		return (0);
 	grad = radial_gradient(i, b.lower_bound, b.radius * 2);
 	b.buff[coord].r += b.pixels[tmp].r * b.intensity * grad;
@@ -84,22 +85,23 @@ void	box_blur(t_blur blur, int thread)
 	t_ivec2	i;
 	int		add_x;
 
+	i.x = thread * blur.quality;
+	add_x = THREAD_AMOUNT * blur.quality;
 	if (thread == -1)
 	{
-		add_x = blur.quality;
 		i.x = 0;
-	}
-	else
-	{
-		add_x = THREAD_AMOUNT * blur.quality;
-		i.x = thread * blur.quality;
+		add_x = blur.quality;
 	}
 	while (i.x < blur.size.x)
 	{
 		i.y = 0;
 		while (i.y < blur.size.y)
 		{
-			box_avg(i, blur);
+			if (!blur.skip_zeroes
+				|| blur.pixels[i.x + i.y * blur.size.x].r
+				|| blur.pixels[i.x + i.y * blur.size.x].g
+				|| blur.pixels[i.x + i.y * blur.size.x].b)
+				box_avg(i, blur);
 			i.y += blur.quality;
 		}
 		i.x += add_x;
