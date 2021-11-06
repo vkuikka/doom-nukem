@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   physics.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/10 01:23:16 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/12 17:45:04 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/11/06 19:10:00by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,22 @@ static void	input_player_movement(t_vec3 *wishdir, const Uint8 *keys)
 		wishdir->x += 1;
 }
 
+static void	uv_linear_zoom(t_level *level, const Uint8 *keys)
+{
+	if (keys[SDL_SCANCODE_MINUS] && level->ui.state.uv_zoom > 0.5)
+	{
+		level->ui.state.uv_zoom /= 1.01;
+		level->ui.state.uv_pos.x /= 1.01;
+		level->ui.state.uv_pos.y /= 1.01;
+	}
+	if (keys[SDL_SCANCODE_EQUALS] && level->ui.state.uv_zoom < 10)
+	{
+		level->ui.state.uv_zoom *= 1.01;
+		level->ui.state.uv_pos.x *= 1.01;
+		level->ui.state.uv_pos.y *= 1.01;
+	}
+}
+
 static void	input_uv(t_level *level, const Uint8 *keys)
 {
 	if (level->ui.state.ui_location == UI_LOCATION_UV_EDITOR)
@@ -36,10 +52,7 @@ static void	input_uv(t_level *level, const Uint8 *keys)
 			level->ui.state.uv_pos.y -= 10;
 		if (keys[SDL_SCANCODE_DOWN])
 			level->ui.state.uv_pos.y += 10;
-		if (keys[SDL_SCANCODE_MINUS] && level->ui.state.uv_zoom > 0.5)
-			level->ui.state.uv_zoom -= 0.01;
-		if (keys[SDL_SCANCODE_EQUALS] && level->ui.state.uv_zoom < 10)
-			level->ui.state.uv_zoom += 0.01;
+		uv_linear_zoom(level, keys);
 	}
 	else
 	{
