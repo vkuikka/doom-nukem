@@ -840,7 +840,10 @@ void	ui_baking(t_level *level)
 {
 	char	buf[100];
 
-	sprintf(buf, "baking: %.3f%%", level->bake_progress);
+	if (level->bake_progress == 100.0)
+		sprintf(buf, "blurring lightmap");
+	else
+		sprintf(buf, "baking: %.3f%%", level->bake_progress);
 	set_text_color(UI_LEVEL_BAKING_COLOR);
 	if (call(buf, NULL))
 		level->bake_status = BAKE_NOT_BAKED;
