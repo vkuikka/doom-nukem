@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   vectors.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/07 18:13:00 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/12 14:29:32 by rpehkone         ###   ########.fr       */
+/*   Updated: 2021/10/28 23:58:24 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,8 +129,8 @@ void	vec_rot(t_vec3 *res, t_vec3 ve1, float ang)
 	float	c;
 	float	s;
 
-	c = cos(ang);
-	s = sin(ang);
+	c = cosf(ang);
+	s = sinf(ang);
 	res->x = ve1.x * c + ve1.z * s;
 	res->y = ve1.y;
 	res->z = -ve1.x * s + ve1.z * c;
@@ -143,7 +143,7 @@ float	vec_angle(t_vec3 v1, t_vec3 v2)
 
 	dot = vec_dot(v1, v2);
 	len = vec_length(v1) * vec_length(v2);
-	return (acos(dot / len));
+	return (acosf(dot / len));
 }
 
 void	vec_mult(t_vec3 *res, float mult)
