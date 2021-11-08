@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/21 17:32:09 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/11/03 22:01:50 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/11/08 16:53:26 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -402,14 +402,12 @@ static void	normal_map(float u, float v, t_tri t, t_cast_result *res)
 	float	w;
 
 	w = 1 - u - v;
-	x = ((t.verts[0].txtr.x * res->normal_map->width * w
-				+ t.verts[1].txtr.x * res->normal_map->width * v
-				+ t.verts[2].txtr.x * res->normal_map->width * u)
-			/ (float)(u + v + w));
-	y = ((t.verts[0].txtr.y * res->normal_map->height * w
-				+ t.verts[1].txtr.y * res->normal_map->height * v
-				+ t.verts[2].txtr.y * res->normal_map->height * u)
-			/ (float)(u + v + w));
+	x = t.verts[0].txtr.x * res->normal_map->width * w
+		+ t.verts[1].txtr.x * res->normal_map->width * v
+		+ t.verts[2].txtr.x * res->normal_map->width * u;
+	y = t.verts[0].txtr.y * res->normal_map->height * w
+		+ t.verts[1].txtr.y * res->normal_map->height * v
+		+ t.verts[2].txtr.y * res->normal_map->height * u;
 	wrap_coords_inverted(&x, &y, res->normal_map->width,
 		res->normal_map->height);
 	res->normal
@@ -431,14 +429,12 @@ void	face_color(float u, float v, t_tri t, t_cast_result *res)
 	float	w;
 
 	w = 1 - u - v;
-	x = ((t.verts[0].txtr.x * res->texture->width * w
-				+ t.verts[1].txtr.x * res->texture->width * v
-				+ t.verts[2].txtr.x * res->texture->width * u)
-			/ (float)(u + v + w));
-	y = ((t.verts[0].txtr.y * res->texture->height * w
-				+ t.verts[1].txtr.y * res->texture->height * v
-				+ t.verts[2].txtr.y * res->texture->height * u)
-			/ (float)(u + v + w));
+	x = t.verts[0].txtr.x * res->texture->width * w
+		+ t.verts[1].txtr.x * res->texture->width * v
+		+ t.verts[2].txtr.x * res->texture->width * u;
+	y = t.verts[0].txtr.y * res->texture->height * w
+		+ t.verts[1].txtr.y * res->texture->height * v
+		+ t.verts[2].txtr.y * res->texture->height * u;
 	wrap_coords_inverted(&x, &y, res->texture->width, res->texture->height);
 	res->color = res->texture->image[x + (y * res->texture->width)];
 	if (res->spray_overlay && res->spray_overlay[x + y * res->texture->width])
