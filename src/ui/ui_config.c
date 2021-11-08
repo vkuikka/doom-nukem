@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ui_config.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: lsjoberg <lsjoberg@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/10/27 23:21:21 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/11/08 19:24:47 by lsjoberg         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,7 +140,7 @@ static void	ui_config_face_perlin(t_perlin_settings *perlin, t_level *level)
 	float_slider(&perlin->swirl, "swirl", 0, 5);
 	if (perlin->swirl != 0)
 	{
-		float_slider(&perlin->swirl_interval, "swirl interval", 0, 20);
+		float_slider(&perlin->swirl_interval, "swirl interval", 0.0001, 20);
 		if (call("set swirl position", NULL))
 		{
 			perlin->dir.x = level->cam.pos.x;
