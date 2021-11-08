@@ -448,6 +448,7 @@ void	ui_post_process_settings(t_level *level)
 	set_text_color(UI_POST_PROCESS_SSAO);
 	int_slider(&level->ui.ssao_radius, "ssao radius", 0, 40);
 	float_slider(&level->ui.ssao_intensity, "ssao intensity", 1, 10);
+	float_slider(&level->ui.ssao_light_bias, "ssao light bias", 0, 15);
 	set_text_color(UI_POST_PROCESS_DEBUG);
 	button(&level->ui.bloom_debug, "render bloom only");
 	button(&level->ui.ssao_debug, "render ssao only");
@@ -616,17 +617,28 @@ void	ui_level_light_settings(t_level *level)
 	}
 }
 
+void	ui_light_editor_bake(t_level *level)
+{
+	char		buf[100];
+
+	set_text_color(UI_LEVEL_NOT_BAKED_COLOR);
+	sprintf(buf, "bake lighting");
+	if (call(buf, start_bake))
+		level->selected_light_index = 0;
+	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
+	sprintf(buf, "bake scale: %d (%.0f%%)", level->ui.bake_quality,
+		100.0 / (float)level->ui.bake_quality);
+	int_slider(&level->ui.bake_quality, buf, 1, 10);
+	sprintf(buf, "bake blur radius: %d pixels", level->ui.bake_blur_radius);
+	int_slider(&level->ui.bake_blur_radius, buf, 1, 10);
+}
+
 void	bake_buttons(t_level *level)
 {
 	char		buf[100];
 
 	if (level->bake_status == BAKE_NOT_BAKED)
-	{
-		set_text_color(UI_LEVEL_NOT_BAKED_COLOR);
-		sprintf(buf, "bake lighting");
-		if (call(buf, start_bake))
-			level->selected_light_index = 0;
-	}
+		ui_light_editor_bake(level);
 	else if (level->bake_status == BAKE_BAKED)
 	{
 		set_text_color(UI_LEVEL_BAKED_COLOR);
@@ -828,7 +840,10 @@ void	ui_baking(t_level *level)
 {
 	char	buf[100];
 
-	sprintf(buf, "baking: %.3f%%", level->bake_progress);
+	if (level->bake_progress == 100.0)
+		sprintf(buf, "blurring lightmap");
+	else
+		sprintf(buf, "baking: %.3f%%", level->bake_progress);
 	set_text_color(UI_LEVEL_BAKING_COLOR);
 	if (call(buf, NULL))
 		level->bake_status = BAKE_NOT_BAKED;

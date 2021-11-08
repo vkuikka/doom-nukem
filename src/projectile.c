@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/12 09:19:15 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/10/27 23:57:27 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/11/08 17:15:51 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,24 +58,26 @@ static int	projectile_collision_dynamic(t_projectile *projectile,
 	t_vec3	tmp;
 
 	vec_sub(&tmp, level->cam.pos, projectile->pos);
-	if (!projectile->shot_by_player && vec_length(tmp) <= PROJECTILE_DAMAGE_DIST)
+	if (!projectile->shot_by_player
+		&& vec_length(tmp) <= PROJECTILE_DAMAGE_DIST)
 	{
 		vec_mult(&level->game_logic.player.vel, 0.5);
 		level->game_logic.player.health -= projectile->damage;
 		return (TRUE);
 	}
-	i = 0;
-	if (projectile->shot_by_player)
-		while (i < level->game_logic.enemy_amount)
+	else if (!projectile->shot_by_player)
+		return (FALSE);
+	i = -1;
+	while (++i < level->game_logic.enemy_amount)
+	{
+		vec_sub(&tmp, level->game_logic.enemies[i].pos, projectile->pos);
+		if (vec_length(tmp) <= PROJECTILE_DAMAGE_DIST)
 		{
-			vec_sub(&tmp, level->game_logic.enemies[i].pos, projectile->pos);
-			if (vec_length(tmp) <= PROJECTILE_DAMAGE_DIST)
-			{
-				level->game_logic.enemies[i].remaining_health -= projectile->damage;
-				return (TRUE);
-			}
-			i++;
+			level->game_logic.enemies[i].remaining_health
+				-= projectile->damage;
+			return (TRUE);
 		}
+	}
 	return (FALSE);
 }
 

@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/12 09:35:17 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/10/15 12:31:12 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/11/08 17:16:58 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,8 @@ static void	enemy_attack(t_enemy *enemy, t_level *level)
 	t_vec3				pos;
 
 	settings = &level->game_logic.enemy_settings;
-	if (SDL_GetTicks() < enemy->current_attack_delay + settings->attack_frequency)
+	if (SDL_GetTicks() < enemy->current_attack_delay
+		+ settings->attack_frequency)
 		return ;
 	enemy->current_attack_delay = SDL_GetTicks();
 	vec_sub(&tmp, level->cam.pos, enemy->pos);
