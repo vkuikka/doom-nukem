@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/20 17:50:56 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/27 23:14:02 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/12/09 13:02:05 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -194,8 +194,6 @@ static void	face_border_normals(t_vec3 v[4], t_vec3 dir, t_tri target)
 	{
 		vec_sub(&tmp, target.verts[1].pos, target.verts[2].pos);
 		vec_cross(&v[1], tmp, dir);
-		v[3] = v[0];
-		target.verts[3].pos = target.verts[0].pos;
 	}
 }
 
@@ -218,8 +216,9 @@ void	shadow_face_culling(t_level *level, int i)
 						level->all.tris[k])
 					&& cull_behind(v[2], target.verts[2].pos,
 						level->all.tris[k])
-					&& cull_behind(v[3], target.verts[3].pos,
-						level->all.tris[k]))))
+					&& (!level->all.tris[i].isquad
+						|| cull_behind(v[3], target.verts[3].pos,
+							level->all.tris[k])))))
 			level->all.tris[i].shadow_faces.tris[
 				level->all.tris[i].shadow_faces.tri_amount++]
 				= level->all.tris[k];
