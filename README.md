@@ -2,10 +2,16 @@
 
 3D FPS engine everything in C, no hardware acceleration.
 
+* [Gifs](#gifs)
 * [Frameworks](#frameworks)
-* [Constraints](#contraints)
+* [Constraints](#constraints)
 * [Features](#features)
 * [Installation](#installation)
+
+## Gifs
+<img src="/github_media/shader.gif" width="500" height="auto"/>
+<img src="/github_media/walking.gif" width="500" height="auto"/>
+
 
 ## Frameworks
 
