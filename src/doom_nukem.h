@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   doom_nukem.h                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: lsjoberg <lsjoberg@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/11/03 21:48:53 by vkuikka          ###   ########.fr       */
+/*   Updated: 2022/01/18 16:37:04 by lsjoberg         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -540,6 +540,23 @@ typedef struct s_player_pos
 	float				look_side;
 	float				look_up;
 }						t_player_pos;
+
+typedef struct s_uv
+{
+	t_vec2				diff;
+	t_vec2				precision;
+	t_vec2				coord_uv;
+	t_vec2				check;
+	t_ivec2				og;
+	t_ivec2				coord;
+	t_ivec2				inc;
+	float				max;
+	float				min;
+	float				min_x;
+	float				min_y;
+	float				max_x;
+	float				max_y;
+}						t_uv;
 
 typedef struct s_obj_animation
 {
