@@ -6,7 +6,7 @@
 /*   By: lsjoberg <lsjoberg@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/26 13:48:01 by vkuikka           #+#    #+#             */
-/*   Updated: 2022/01/18 16:32:37 by lsjoberg         ###   ########.fr       */
+/*   Updated: 2022/01/19 17:36:52 by lsjoberg         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,7 @@ static void	check_and_color(t_tri *t1, t_bmp *img, t_uv *v)
 	}
 }
 
-void	copy_uv2(t_tri *t1, t_uv	*v, t_bmp *img)
+void	copy_uv2(t_tri *t1, t_uv *v, t_bmp *img)
 {
 	if (t1->isquad)
 		v->max_y = fmax(v->max_y, t1->verts[3].txtr.y);
@@ -132,7 +132,7 @@ void	move_uv_y(t_tri *t1, t_level *l, t_uv *v, int i)
 	}
 }
 
-void	clear_intersection(t_tri *t1, t_level *l, t_uv	*v, int i)
+void	clear_intersection(t_tri *t1, t_level *l, t_uv *v, int i)
 {
 	v->max = t1->verts[0].txtr.y;
 	v->max = fmax(v->max, t1->verts[1].txtr.y);
@@ -171,7 +171,7 @@ void	baked_state(t_tri *t1, t_level *l, t_uv	*v)
 	}
 }
 
-void	loop_state(t_tri *t1, t_level *l, t_uv	*v)
+void	loop_state(t_tri *t1, t_level *l, t_uv *v)
 {
 	l->texture.image = (int *)ft_realloc(l->texture.image,
 			sizeof(int) * (l->texture.width * l->texture.height),
@@ -191,7 +191,7 @@ void	loop_state(t_tri *t1, t_level *l, t_uv	*v)
 	baked_state(t1, l, v);
 }
 
-void	move_uv(t_tri *t1, int t1_index, t_level *l, t_uv	*v)
+void	move_uv(t_tri *t1, int t1_index, t_level *l, t_uv *v)
 {
 	int		i;
 
@@ -222,12 +222,9 @@ void	fix_uv_overlap(t_level *level)
 {
 	int		i;
 	int		j;
-	t_uv	*uv;
+	t_uv	uv;
 
 	i = 0;
-	(uv = (t_uv *)malloc(sizeof(t_uv)));
-	if (!uv)
-		ft_error("Memory Allocation failed");
 	while (i < level->all.tri_amount)
 	{
 		if (level->all.tris[i].selected)
@@ -237,7 +234,7 @@ void	fix_uv_overlap(t_level *level)
 			{
 				if (i != j
 					&& tri_uv_intersect(level->all.tris[i], level->all.tris[j]))
-					move_uv(&level->all.tris[i], i, level, uv);
+					move_uv(&level->all.tris[i], i, level, &uv);
 				j++;
 			}
 		}
