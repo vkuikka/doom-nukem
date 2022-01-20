@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/08 14:38:45 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/27 23:52:12 by vkuikka          ###   ########.fr       */
+/*   Updated: 2022/01/20 16:05:34 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,8 +67,6 @@ void	init_animation(t_level *level)
 	res += load_animation("embed/enemy_die/enemy_die",
 			&level->game_models.enemy_die, 41, 3.0);
 	level->game_models.enemy_die.loop = FALSE;
-	level->game_models.enemy
-		= get_animation_target(&level->game_models.enemy_die);
 	res += load_animation("embed/viewmodel/viewmodel",
 			&level->game_models.reload_animation, 3, RELOAD_ANIMATION_DURATION);
 	level->game_models.viewmodel
@@ -80,13 +78,11 @@ void	init_animation(t_level *level)
 void	init_textures(t_level *level)
 {
 	level->main_menu_title
-		= bmp_read_from_memory(&embed_title_bmp[0], embed_title_bmp_len);
+		= bmp_read_from_memory(&embed_title_bmp[0]);
 	level->game_models.ammo_pickup_box.texture
-		= bmp_read_from_memory(&embed_ammo_pickup_texture_bmp[0],
-			embed_ammo_pickup_texture_bmp_len);
+		= bmp_read_from_memory(&embed_ammo_pickup_texture_bmp[0]);
 	level->game_models.health_pickup_box.texture
-		= bmp_read_from_memory(&embed_health_pickup_texture_bmp[0],
-			embed_health_pickup_texture_bmp_len);
+		= bmp_read_from_memory(&embed_health_pickup_texture_bmp[0]);
 	level->game_models.enemy.texture
 		= bmp_read("embed/enemy_texture.bmp");
 	level->game_models.viewmodel.texture

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   obj_read.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/10/12 12:38:06 by rpehkone         ###   ########.fr       */
+/*   Updated: 2022/01/19 17:58:16 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -186,7 +186,7 @@ static int	set_tri(char *str, t_vec3 *verts, t_vec2 *uvs, t_tri *tri)
 static int	obj_set_all_tris_res(t_vec3 *verts, t_vec2 *uvs, int res)
 {
 	free(verts);
-	if (!uvs)
+	if (uvs)
 		free(uvs);
 	if (res == FALSE)
 		nonfatal_error("obj not triangulated");
