@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by vkuikka           #+#    #+#             */
-/*   Updated: 2022/01/20 15:57:49 by vkuikka          ###   ########.fr       */
+/*   Updated: 2022/01/20 19:13:05 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,6 +115,8 @@ static void	tick_forward(t_level *level, t_game_state *game_state)
 static void	viewmodel(t_window *window, t_level *level,
 								t_game_state *game_state)
 {
+	int	normal_map_disabled;
+
 	if (*game_state != GAME_STATE_INGAME)
 		return ;
 	if (level->game_logic.reload_start_time)
@@ -125,7 +127,10 @@ static void	viewmodel(t_window *window, t_level *level,
 	merge_viewmodel(level);
 	screen_space_partition(level);
 	level->render_is_first_pass = TRUE;
+	normal_map_disabled = level->ui.normal_map_disabled;
+	level->ui.normal_map_disabled = TRUE;
 	render_raycast(window, level, game_state);
+	level->ui.normal_map_disabled = normal_map_disabled;
 	level->render_is_first_pass = FALSE;
 }
 
