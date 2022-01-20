@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   bmp_read.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:42 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/12 21:11:56 by rpehkone         ###   ########.fr       */
+/*   Updated: 2022/01/20 15:09:33 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,15 +80,13 @@ t_bmp	bmp_read(char *filename)
 	return (res);
 }
 
-t_bmp	bmp_read_from_memory(unsigned char *data,
-								unsigned int size)
+t_bmp	bmp_read_from_memory(unsigned char *data)
 {
 	t_bmp_fileheader	fh;
 	t_bmp_infoheader	ih;
 	t_bmp				res;
 	int					*tmp;
 
-	(void)size;
 	ft_memcpy(&fh, data, sizeof(t_bmp_fileheader));
 	data += sizeof(t_bmp_fileheader);
 	ft_memcpy(&ih, data, sizeof(t_bmp_infoheader));

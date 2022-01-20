@@ -6,7 +6,7 @@
 /*   By: lsjoberg <lsjoberg@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2022/01/18 16:37:04 by lsjoberg         ###   ########.fr       */
+/*   Updated: 2022/01/20 14:50:40 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -858,8 +858,7 @@ void			load_obj_from_memory(unsigned char *data,
 					unsigned int size, t_obj *obj);
 void			tri_optimize(t_tri *tri);
 t_bmp			bmp_read(char *str);
-t_bmp			bmp_read_from_memory(unsigned char *data,
-					unsigned int size);
+t_bmp			bmp_read_from_memory(unsigned char *data);
 
 void			culling(t_level *level);
 int				occlusion_culling(t_tri tri, t_level *level);

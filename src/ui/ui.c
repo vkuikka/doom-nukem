@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ui.c                                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/06 08:50:56 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/10/26 20:30:04 by vkuikka          ###   ########.fr       */
+/*   Updated: 2021/11/24 00:43:45 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -179,6 +179,7 @@ void	init_ui_state(t_level *level)
 	level->ui.state.uv_pos.y = 0;
 	level->ui.state.uv_zoom = 1;
 	level->ui.state.directory = get_current_directory();
+	chdir(level->ui.state.directory);
 	go_in_dir(level->ui.state.directory, "level");
 }
 
