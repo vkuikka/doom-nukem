@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   animation.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/22 17:08:10 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/10/12 12:45:49 by rpehkone         ###   ########.fr       */
+/*   Updated: 2022/01/20 20:52:53 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,14 +92,31 @@ static void	tri_lerp(t_tri *target, t_tri *a, t_tri *b, float t)
 	}
 }
 
+void	interpolate_tris(t_obj *target, t_obj_animation *animation,
+						int node_amount, float time)
+{
+	float	node_time;
+	float	elem_size;
+	int		i;
+	t_ivec2	id;
+
+	id.x = ((int)(node_amount * time) + 0) % animation->keyframe_amount;
+	id.y = ((int)(node_amount * time) + 1) % animation->keyframe_amount;
+	elem_size = 1.0 / node_amount;
+	node_time = (time - (elem_size * id.x)) / elem_size;
+	i = 0;
+	while (i < target->tri_amount)
+	{
+		tri_lerp(&target->tris[i], &animation->keyframes[id.x].tris[i],
+			&animation->keyframes[id.y].tris[i], node_time);
+		i++;
+	}
+}
+
 void	play_animation(t_obj *target, t_obj_animation *animation,
 						unsigned int start_time)
 {
 	float	time;
-	float	node_time;
-	float	elem_size;
-	t_ivec2	id;
-	int		i;
 	int		node_amount;
 
 	if (!animation->duration_multiplier)
@@ -119,15 +136,5 @@ void	play_animation(t_obj *target, t_obj_animation *animation,
 	}
 	else
 		time = fmod(time, 1.0);
-	id.x = ((int)(node_amount * time) + 0) % animation->keyframe_amount;
-	id.y = ((int)(node_amount * time) + 1) % animation->keyframe_amount;
-	elem_size = 1.0 / node_amount;
-	node_time = (time - (elem_size * id.x)) / elem_size;
-	i = 0;
-	while (i < target->tri_amount)
-	{
-		tri_lerp(&target->tris[i], &animation->keyframes[id.x].tris[i],
-			&animation->keyframes[id.y].tris[i], node_time);
-		i++;
-	}
+	interpolate_tris(target, animation, node_amount, time);
 }
