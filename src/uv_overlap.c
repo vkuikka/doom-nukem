@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   uv_overlap.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lsjoberg <lsjoberg@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/26 13:48:01 by vkuikka           #+#    #+#             */
-/*   Updated: 2022/01/19 17:36:52 by lsjoberg         ###   ########.fr       */
+/*   Updated: 2022/02/04 22:25:54 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,8 +74,6 @@ static void	check_and_color(t_tri *t1, t_bmp *img, t_uv *v)
 
 void	copy_uv2(t_tri *t1, t_uv *v, t_bmp *img)
 {
-	if (t1->isquad)
-		v->max_y = fmax(v->max_y, t1->verts[3].txtr.y);
 	v->min_x *= (float)img->width;
 	v->max_x *= (float)img->width;
 	v->max_y *= (float)img->height;
@@ -113,14 +111,13 @@ void	copy_uv(t_tri *t1, t_uv	*v, t_bmp *img)
 	v->max_y = t1->verts[0].txtr.y;
 	v->max_y = fmax(v->max_y, t1->verts[1].txtr.y);
 	v->max_y = fmax(v->max_y, t1->verts[2].txtr.y);
+	if (t1->isquad)
+		v->max_y = fmax(v->max_y, t1->verts[3].txtr.y);
 	copy_uv2(t1, v, img);
 }
 
 void	move_uv_y(t_tri *t1, t_level *l, t_uv *v, int i)
 {
-	if (t1->isquad)
-		t1->verts[3].txtr.y -= v->max - v->min;
-	v->diff.y -= v->max - v->min;
 	while (tri_uv_intersect(*t1, l->all.tris[i]))
 	{
 		t1->verts[0].txtr.y -= 0.01;
@@ -147,31 +144,21 @@ void	clear_intersection(t_tri *t1, t_level *l, t_uv *v, int i)
 	t1->verts[0].txtr.y -= v->max - v->min;
 	t1->verts[1].txtr.y -= v->max - v->min;
 	t1->verts[2].txtr.y -= v->max - v->min;
+	if (t1->isquad)
+		t1->verts[3].txtr.y -= v->max - v->min;
+	v->diff.y -= v->max - v->min;
 	move_uv_y(t1, l, v, i);
 }
 
-void	baked_state(t_tri *t1, t_level *l, t_uv	*v)
+void	baked_state(t_level *l, t_uv *v)
 {
-	if (!l->spray_overlay)
-		ft_error("memory allocation failed");
-	l->baked = (t_color *)ft_realloc(l->baked,
-			sizeof(t_color) * (l->texture.width * l->texture.height),
-			sizeof(t_color)
-			* (2 * l->texture.width * l->texture.height));
-	if (!l->baked)
-		ft_error("memory allocation failed");
 	l->texture.height *= 2;
 	l->normal_map.height *= 2;
 	div_every_uv(l);
 	v->diff.y /= 2.0;
-	if (v->diff.y != 0.0 || v->diff.x != 0.0)
-	{
-		copy_uv(t1, v, &l->texture);
-		copy_uv(t1, v, &l->normal_map);
-	}
 }
 
-void	loop_state(t_tri *t1, t_level *l, t_uv *v)
+void	loop_state(t_level *l, t_uv *v)
 {
 	l->texture.image = (int *)ft_realloc(l->texture.image,
 			sizeof(int) * (l->texture.width * l->texture.height),
@@ -188,23 +175,28 @@ void	loop_state(t_tri *t1, t_level *l, t_uv *v)
 			sizeof(unsigned) * (l->texture.width * l->texture.height),
 			sizeof(unsigned)
 			* (2 * l->texture.width * l->texture.height));
-	baked_state(t1, l, v);
+	if (!l->spray_overlay)
+		ft_error("memory allocation failed");
+	l->baked = (t_color *)ft_realloc(l->baked,
+			sizeof(t_color) * (l->texture.width * l->texture.height),
+			sizeof(t_color)
+			* (2 * l->texture.width * l->texture.height));
+	if (!l->baked)
+		ft_error("memory allocation failed");
+	baked_state(l, v);
 }
 
 void	move_uv(t_tri *t1, int t1_index, t_level *l, t_uv *v)
 {
 	int		i;
 
-	i = 0;
+	i = -1;
 	v->diff.y = 0;
 	v->diff.x = 0;
-	while (i < l->all.tri_amount)
+	while (++i < l->all.tri_amount)
 	{
 		if (i == t1_index)
-		{
-			i++;
 			continue ;
-		}
 		if (tri_uv_intersect(*t1, l->all.tris[i]))
 		{
 			clear_intersection(t1, l, v, i);
@@ -213,8 +205,12 @@ void	move_uv(t_tri *t1, int t1_index, t_level *l, t_uv *v)
 		if (t1->verts[0].txtr.y < 0 || t1->verts[1].txtr.y < 0
 			|| t1->verts[2].txtr.y < 0
 			|| (t1->isquad && t1->verts[3].txtr.y < 0))
-			loop_state(t1, l, v);
-		i++;
+			loop_state(l, v);
+	}
+	if (v->diff.y != 0.0 || v->diff.x != 0.0)
+	{
+		copy_uv(t1, v, &l->texture);
+		copy_uv(t1, v, &l->normal_map);
 	}
 }
 
