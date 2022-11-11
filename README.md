@@ -15,9 +15,9 @@
 
 ## Frameworks
 
-* SDL2 for drawing pixels on screen.
-* SDL2_ttf for text rendering.
-* SDL2_mixer for sound/music.
+* SDL2 for input and window.
+* SDL2_ttf for text rasterization.
+* SDL2_mixer for audio.
 
 ## Constraints
 
@@ -27,11 +27,28 @@ Amongst multiple constraints, here is a non exhaustive list of the restrictions 
 * Computing everything on the CPU. No hardware acceleration.
 * Rendering has to be done from scratch. No ready made libraries.
 * Any crash or memory leak would mean the project has failed.
+* String code format rules. Functions max 25 lines.
 
 ## Features
 
-### Editing objects
+### Rendering
+* Point and directional lights with raycasted shadowmapping.
+* In engine lightmap baking
+* Novel tile-based raycast rendering
+* Precomputed reflection and shadow culling
+* Custom immediate mode user interface for level editor
+* Decal rendering by projecting from worldspace and writing to texture
+* Per-vertex character animation
+* 3D billboard sprites
+* Various fragment shaders
 
+##### Post processing
+* Smooth pixel setting adds gradient inside each pixel when render resolution is less than 100%.
+* Bloom limit adjusts amount of light needed for bloom to be rendered.
+* SSAO light bias adjusts amount of light needed to cancel SSAO effect.
+* Rest is self explanatory. Try rendering only bloom etc. with checkboxes to see what settings do.
+
+### Editing objects
 * Controls:
   * Main menu: ````Q````
   * Movement: ````w, a, s, d, space, shift````
@@ -59,17 +76,11 @@ Amongst multiple constraints, here is a non exhaustive list of the restrictions 
 * Use ````raytrace lights```` if you want to quickly see what bake result looks like. This will be slow if you use point lights. (Reduce render resolution before using)
 * Once you are done editing, ````bake lights```` to reduce rendertime significantly. Dont bake if UV overlaps on purpose.
 
-### Post processing
-* Smooth pixel setting adds gradient inside each pixel when render resolution is less than 100%.
-* Bloom limit adjusts amount of light needed for bloom to be rendered.
-* SSAO light bias adjusts amount of light needed to cancel SSAO effect.
-* Rest is self explanatory. Try rendering only bloom etc. with checkboxes to see what settings do.
-
 ### Optimizing
 * Reduce render distance. Add fog if you see disappearing faces in the level.
 * Reduce amount of triangles.
   * Quads are as fast to render as triangles.
-  * The engine will automatically optimize to quads if two triangles make a symmetrical quad when loading object.
+  * The engine will automatically optimize to quads if two triangles make a symmetrical quad (parallellogram) when loading object.
   * See what faces are rendered as quads with wireframe quad visualize toggle.
 * Reduce render resolution live by pressing ````.```` and ````,```` keys or with slider in main menu settings.
 

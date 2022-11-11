@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2022/11/11 14:58:34 by rpehkone         ###   ########.fr       */
+/*   Updated: 2022/11/11 15:53:10 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -175,7 +175,7 @@ void	ui_confing_face_render_settings(t_tri *tri, t_level *level)
 	}
 	if (button(&tri->isquad, "quad"))
 		set_fourth_vertex(tri);
-	button(&tri->isgrid, "grid");
+	button(&tri->isgrid, "infinite plane");
 	button(&tri->isbreakable, "breakable");
 	if (call("shader editor", NULL))
 		level->ui.state.ui_location = UI_LOCATION_SHADER_EDITOR;
