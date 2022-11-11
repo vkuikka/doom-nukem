@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   enemy_state_machine.c                              :+:      :+:    :+:   */
+/*   enemy_state_machine_0.c                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/10/12 09:35:17 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/11/08 17:16:58 by vkuikka          ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2021/10/11 18:58:59 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
 
-static void	enemy_turn(t_enemy *enemy)
+void	enemy_turn(t_enemy *enemy)
 {
 	vec_sub(&enemy->dir, enemy->move_to, enemy->pos);
 	enemy->dir.y = 0;
@@ -20,7 +20,7 @@ static void	enemy_turn(t_enemy *enemy)
 	enemy->dir_rad = -1 * atan2(enemy->dir.z, enemy->dir.x) - M_PI / 2;
 }
 
-static void	enemy_vision(t_enemy *enemy, t_level *level,
+void	enemy_vision(t_enemy *enemy, t_level *level,
 					t_enemy_settings *settings)
 {
 	float	enemy_view_dist;
@@ -50,7 +50,7 @@ static void	enemy_vision(t_enemy *enemy, t_level *level,
 	}
 }
 
-static void	enemy_attack(t_enemy *enemy, t_level *level)
+void	enemy_attack(t_enemy *enemy, t_level *level)
 {
 	t_enemy_settings	*settings;
 	t_vec3				tmp;
@@ -76,7 +76,7 @@ static void	enemy_attack(t_enemy *enemy, t_level *level)
 	}
 }
 
-static void	enemy_move(t_enemy *enemy, t_level *level)
+void	enemy_move(t_enemy *enemy, t_level *level)
 {
 	float	time;
 	t_vec3	tmp;

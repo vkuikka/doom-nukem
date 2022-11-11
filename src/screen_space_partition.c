@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   screen_space_partition.c                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/04/09 12:03:36 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/10/17 20:12:14 by vkuikka          ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2022/11/11 13:54:39 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ int	get_ssp_coordinate(int coord, int horizontal)
 	return ((int)((float)coord / RES_Y * SSP_MAX_Y));
 }
 
-static void	ssp_edge_vectors(t_vec3 result[2], t_camera c,
+void	ssp_edge_vectors(t_vec3 result[2], t_camera c,
 											float px, int horizontal)
 {
 	float	ym;
@@ -59,7 +59,7 @@ static void	ssp_edge_vectors(t_vec3 result[2], t_camera c,
 	result[1].z = c.front.z + c.up.z * ym + c.side.z * xm;
 }
 
-static int	horizontal(t_tri tri, int x, t_camera cam, int side)
+int	horizontal(t_tri tri, int x, t_camera cam, int side)
 {
 	t_vec3	corners[2];
 	t_vec3	normal;
@@ -79,7 +79,7 @@ static int	horizontal(t_tri tri, int x, t_camera cam, int side)
 	return (1);
 }
 
-static int	vertical(t_tri tri, int x, t_camera cam, int side)
+int	vertical(t_tri tri, int x, t_camera cam, int side)
 {
 	t_vec3	corners[2];
 	t_vec3	normal;
@@ -99,7 +99,7 @@ static int	vertical(t_tri tri, int x, t_camera cam, int side)
 	return (1);
 }
 
-static void	partition_range(int (*side_comparison)(t_tri, int, t_camera, int),
+void	partition_range(int (*side_comparison)(t_tri, int, t_camera, int),
 							t_tri tri, t_camera cam, float bounds[3])
 {
 	float	tmp;
@@ -127,7 +127,7 @@ static void	partition_range(int (*side_comparison)(t_tri, int, t_camera, int),
 	bounds[1] = max;
 }
 
-static void	find_partition(int (*side_comparison)(t_tri, int, t_camera, int),
+void	find_partition(int (*side_comparison)(t_tri, int, t_camera, int),
 							t_tri tri, t_camera cam, float bounds[3])
 {
 	float	min;
@@ -157,7 +157,7 @@ static void	find_partition(int (*side_comparison)(t_tri, int, t_camera, int),
 	bounds[1] = max;
 }
 
-static void	ssp_set_tri(t_tri tri, t_level *level, int x, int y)
+void	ssp_set_tri(t_tri tri, t_level *level, int x, int y)
 {
 	if (level->ssp[x + y * SSP_MAX_X].tri_amount + 1
 		>= level->ssp_max[x + y * SSP_MAX_X])
@@ -174,7 +174,7 @@ static void	ssp_set_tri(t_tri tri, t_level *level, int x, int y)
 		.tris[level->ssp[x + y * SSP_MAX_X].tri_amount++] = tri;
 }
 
-static void	find_ssp_index(t_tri tri, t_level *level)
+void	find_ssp_index(t_tri tri, t_level *level)
 {
 	t_camera	cam;
 	float		y_bounds[3];
@@ -201,7 +201,7 @@ static void	find_ssp_index(t_tri tri, t_level *level)
 	}
 }
 
-static void	ssp_set_all(t_level *level, t_tri tri)
+void	ssp_set_all(t_level *level, t_tri tri)
 {
 	int	x;
 	int	y;

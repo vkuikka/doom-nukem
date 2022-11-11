@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/02/06 08:50:56 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/11/24 00:43:45 by rpehkone         ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2022/11/11 13:58:41 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ void	set_text_color(int color)
 	state->ui_text_color = color;
 }
 
-static SDL_Color	get_text_color(void)
+SDL_Color	get_text_color(void)
 {
 	t_ui_state	*state;
 
@@ -35,7 +35,7 @@ static SDL_Color	get_text_color(void)
 	return (get_sdl_color(state->ui_text_color));
 }
 
-static t_ivec2	render_text_internal(char *str, t_window *window,
+t_ivec2	render_text_internal(char *str, t_window *window,
 						TTF_Font *font, t_ivec2 pos)
 {
 	SDL_Rect		text_rect;
@@ -109,7 +109,7 @@ void	render_ssp_visual_background(unsigned int *texture)
 	}
 }
 
-static void	ssp_visual_text_text(t_level *level,
+void	ssp_visual_text_text(t_level *level,
 				int max_tris, int x, int y)
 {
 	char	buf[100];
@@ -183,7 +183,7 @@ void	init_ui_state(t_level *level)
 	go_in_dir(level->ui.state.directory, "level");
 }
 
-static void	init_ui_settings_post_process(t_editor_ui *ui)
+void	init_ui_settings_post_process(t_editor_ui *ui)
 {
 	ui->blur = FALSE;
 	ui->smooth_pixels = FALSE;
@@ -196,7 +196,7 @@ static void	init_ui_settings_post_process(t_editor_ui *ui)
 	ui->ssao_debug = 0;
 }
 
-static void	init_ui_settings(t_editor_ui *ui)
+void	init_ui_settings(t_editor_ui *ui)
 {
 	ui->noclip = TRUE;
 	ui->backface_culling = TRUE;
@@ -223,7 +223,7 @@ static void	init_ui_settings(t_editor_ui *ui)
 	init_ui_settings_post_process(ui);
 }
 
-static void	init_color_slider(t_level *level)
+void	init_color_slider(t_level *level)
 {
 	unsigned int	i;
 	unsigned int	red;

@@ -3,14 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   deserialize.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/10/15 15:17:07 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/28 00:01:13 by vkuikka          ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2022/11/11 13:49:56 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "serialization.h"
+#include "doom_nukem.h"
 
 void	deserialize_vec2(t_vec2 *vec, t_buffer *buf)
 {
@@ -189,7 +189,7 @@ char	*deserialize_string(int len, t_buffer *buf)
 	return (str);
 }
 
-static void	malloc_door(t_door *door)
+void	malloc_door(t_door *door)
 {
 	door->indices = (int *)malloc(sizeof(int) * door->indice_amount);
 	door->isquad = (int *)malloc(sizeof(int) * door->indice_amount);
@@ -199,7 +199,7 @@ static void	malloc_door(t_door *door)
 		ft_error("memory allocation failed (deserialize malloc_door)");
 }
 
-static void	deserialize_door_pos(t_door *door, t_buffer *buf, int door_index)
+void	deserialize_door_pos(t_door *door, t_buffer *buf, int door_index)
 {
 	int	i;
 
@@ -235,7 +235,7 @@ void	deserialize_door(t_door *door, t_buffer *buf)
 	deserialize_float(&door->transition_time, buf);
 }
 
-static void	free_doors(t_level *level)
+void	free_doors(t_level *level)
 {
 	int	i;
 	int	k;
@@ -294,7 +294,7 @@ void	deserialize_lights(t_level *level, t_buffer *buf)
 	}
 }
 
-static void	deserialize_level_images(t_level *level, t_buffer *buf)
+void	deserialize_level_images(t_level *level, t_buffer *buf)
 {
 	int	i;
 
@@ -318,7 +318,7 @@ static void	deserialize_level_images(t_level *level, t_buffer *buf)
 	}
 }
 
-static void	deserialize_health_pickups(t_level *level, t_buffer *buf)
+void	deserialize_health_pickups(t_level *level, t_buffer *buf)
 {
 	int	i;
 
@@ -336,7 +336,7 @@ static void	deserialize_health_pickups(t_level *level, t_buffer *buf)
 	}
 }
 
-static void	deserialize_ammo_pickups(t_level *level, t_buffer *buf)
+void	deserialize_ammo_pickups(t_level *level, t_buffer *buf)
 {
 	int	i;
 
@@ -354,13 +354,13 @@ static void	deserialize_ammo_pickups(t_level *level, t_buffer *buf)
 	}
 }
 
-static void	deserialize_pickups(t_level *level, t_buffer *buf)
+void	deserialize_pickups(t_level *level, t_buffer *buf)
 {
 	deserialize_health_pickups(level, buf);
 	deserialize_ammo_pickups(level, buf);
 }
 
-static void	deserialize_enemies(t_level *level, t_buffer *buf)
+void	deserialize_enemies(t_level *level, t_buffer *buf)
 {
 	int	i;
 
@@ -375,7 +375,7 @@ static void	deserialize_enemies(t_level *level, t_buffer *buf)
 		deserialize_vec3(&level->game_logic.enemies[i].spawn_pos, buf);
 }
 
-static void	deserialize_menu_anim(t_level *level, t_buffer *buf)
+void	deserialize_menu_anim(t_level *level, t_buffer *buf)
 {
 	int	i;
 
@@ -391,7 +391,7 @@ static void	deserialize_menu_anim(t_level *level, t_buffer *buf)
 		deserialize_player_pos(&level->main_menu_anim.pos[i], buf);
 }
 
-static int	check_file_header(t_buffer *buf)
+int	check_file_header(t_buffer *buf)
 {
 	char	*str;
 

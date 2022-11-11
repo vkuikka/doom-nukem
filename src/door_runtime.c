@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   door_runtime.c                                     :+:      :+:    :+:   */
+/*   door_runtime_0.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/08/10 19:12:42 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/03 03:33:03 by rpehkone         ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2021/10/11 18:58:59 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
 
-static void	door_start_animate(t_door *door)
+void	door_start_animate(t_door *door)
 {
 	door->transition_direction = door->transition_direction == 0;
 	if ((SDL_GetTicks() - door->transition_start_time)
@@ -26,7 +26,7 @@ static void	door_start_animate(t_door *door)
 		door->transition_start_time = SDL_GetTicks();
 }
 
-static float	dist_to_door_activation(t_level *level, t_door *door)
+float	dist_to_door_activation(t_level *level, t_door *door)
 {
 	int		amount;
 	t_vec3	avg;
@@ -81,7 +81,7 @@ void	door_activate(t_level *level)
 	}
 }
 
-static void	door_move_vert(t_level *level, t_door *door, float time, t_ivec2 v)
+void	door_move_vert(t_level *level, t_door *door, float time, t_ivec2 v)
 {
 	int	i;
 	int	k;

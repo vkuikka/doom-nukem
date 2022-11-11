@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   projectile.c                                       :+:      :+:    :+:   */
+/*   projectile_0.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/10/12 09:19:15 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/11/08 17:15:51 by vkuikka          ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2021/10/11 18:58:59 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ void	create_projectile(t_game_logic *logic, t_vec3 pos,
 	logic->projectile_amount++;
 }
 
-static void	remove_projectile(t_game_logic *logic, int i)
+void	remove_projectile(t_game_logic *logic, int i)
 {
 	while (i < logic->projectile_amount - 1)
 	{
@@ -51,7 +51,7 @@ static void	remove_projectile(t_game_logic *logic, int i)
 	logic->projectile_amount--;
 }
 
-static int	projectile_collision_dynamic(t_projectile *projectile,
+int	projectile_collision_dynamic(t_projectile *projectile,
 								t_level *level)
 {
 	int		i;
@@ -81,7 +81,7 @@ static int	projectile_collision_dynamic(t_projectile *projectile,
 	return (FALSE);
 }
 
-static int	projectile_collision_static(t_projectile *projectile,
+int	projectile_collision_static(t_projectile *projectile,
 								t_level *level, t_vec3 next_pos)
 {
 	int		hit_index;

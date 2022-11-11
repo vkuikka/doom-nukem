@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   serialize_primitive.c                              :+:      :+:    :+:   */
+/*   serialize_primitive_0.c                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/10/15 15:35:03 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/15 15:46:00 by vkuikka          ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2021/10/11 18:58:59 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ void	reserve_space(t_buffer *buf, size_t bytes)
 	}
 }
 
-static float	hton_float(float value)
+float	hton_float(float value)
 {
 	int		temp;
 	void	*cast;

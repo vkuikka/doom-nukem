@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   obj_read.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/01/04 16:54:13 by rpehkone          #+#    #+#             */
-/*   Updated: 2022/01/19 17:58:16 by vkuikka          ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2022/11/11 13:52:52 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
 
-static void	set_uv_vert(char **file, int i, t_vec2 *vert)
+void	set_uv_vert(char **file, int i, t_vec2 *vert)
 {
 	int	j;
 
@@ -31,7 +31,7 @@ static void	set_uv_vert(char **file, int i, t_vec2 *vert)
 	vert->y = ft_atof(&file[i][j]);
 }
 
-static t_vec2	*load_uvs(char **file)
+t_vec2	*load_uvs(char **file)
 {
 	int		uv_amount;
 	t_vec2	*res;
@@ -60,7 +60,7 @@ static t_vec2	*load_uvs(char **file)
 	return (res);
 }
 
-static void	set_vert(char **file, int i, t_vec3 *vert)
+void	set_vert(char **file, int i, t_vec3 *vert)
 {
 	int	j;
 
@@ -85,7 +85,7 @@ static void	set_vert(char **file, int i, t_vec3 *vert)
 	vert->z = ft_atof(&file[i][j]);
 }
 
-static t_vec3	*load_verts(char **file)
+t_vec3	*load_verts(char **file)
 {
 	int		ver_amount;
 	t_vec3	*res;
@@ -113,7 +113,7 @@ static t_vec3	*load_verts(char **file)
 	return (res);
 }
 
-static void	read_uv_indices(char *str, t_ivec3 *uv_index, int *j, int x)
+void	read_uv_indices(char *str, t_ivec3 *uv_index, int *j, int x)
 {
 	(*j)++;
 	if (x == 0)
@@ -155,7 +155,7 @@ int	read_indices(char *str, t_ivec3 *tex_index, t_ivec3 *uv_index)
 	return (str[j - 1] == '\0');
 }
 
-static int	set_tri(char *str, t_vec3 *verts, t_vec2 *uvs, t_tri *tri)
+int	set_tri(char *str, t_vec3 *verts, t_vec2 *uvs, t_tri *tri)
 {
 	t_ivec3	tex_index;
 	t_ivec3	uv_index;
@@ -183,7 +183,7 @@ static int	set_tri(char *str, t_vec3 *verts, t_vec2 *uvs, t_tri *tri)
 	return (TRUE);
 }
 
-static int	obj_set_all_tris_res(t_vec3 *verts, t_vec2 *uvs, int res)
+int	obj_set_all_tris_res(t_vec3 *verts, t_vec2 *uvs, int res)
 {
 	free(verts);
 	if (uvs)
@@ -193,7 +193,7 @@ static int	obj_set_all_tris_res(t_vec3 *verts, t_vec2 *uvs, int res)
 	return (res);
 }
 
-static int	obj_set_all_tris(char **file, t_obj *obj)
+int	obj_set_all_tris(char **file, t_obj *obj)
 {
 	int		i;
 	int		j;
@@ -218,7 +218,7 @@ static int	obj_set_all_tris(char **file, t_obj *obj)
 	return (obj_set_all_tris_res(verts, uvs, TRUE));
 }
 
-static int	obj_get_face_amount(char **file)
+int	obj_get_face_amount(char **file)
 {
 	int	i;
 	int	res;
@@ -242,7 +242,7 @@ void	tri_optimize(t_tri *tri)
 	vec_normalize(&tri->normal);
 }
 
-static int	load_obj_internal(char **file, t_obj *obj)
+int	load_obj_internal(char **file, t_obj *obj)
 {
 	int		i;
 
@@ -281,11 +281,11 @@ int	load_obj(char *filename, t_obj *obj)
 }
 
 void	load_obj_from_memory(unsigned char *data,
-					unsigned int size, t_obj *obj)
+					t_obj *obj)
 {
 	char	**file;
 
-	file = file2d_from_memory(data, size);
+	file = file2d_from_memory(data);
 	if (!load_obj_internal(file, obj))
 		ft_error("obj memory read fail");
 	free_file2d(file);

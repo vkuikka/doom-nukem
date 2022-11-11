@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   animation.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/09/22 17:08:10 by rpehkone          #+#    #+#             */
-/*   Updated: 2022/01/20 20:52:53 by vkuikka          ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2022/11/11 13:45:30 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,8 +31,9 @@ int	obj_check_polygon_equality(t_obj *a, t_obj *b)
 int	load_animation(char *get_filename, t_obj_animation *animation,
 							int amount, float duration)
 {
-	char	filename[100];
-	int		i;
+	char			filename[100];
+	unsigned char	*mem;
+	int				i;
 
 	animation->keyframe_amount = amount;
 	animation->keyframes = (t_obj *)malloc(sizeof(t_obj)
@@ -41,10 +42,12 @@ int	load_animation(char *get_filename, t_obj_animation *animation,
 	while (i < amount)
 	{
 		sprintf(filename, "%s_%06d.obj", get_filename, i);
-		if (!load_obj(filename, &animation->keyframes[i])
-			|| !obj_check_polygon_equality(&animation->keyframes[0],
+		mem = read_embedded_file(filename);
+		load_obj_from_memory(mem, &animation->keyframes[i]);
+		if (!obj_check_polygon_equality(&animation->keyframes[0],
 				&animation->keyframes[i]))
 			ft_error("animation frames not equal polygons");
+		free(mem);
 		i++;
 	}
 	animation->loop = TRUE;
@@ -78,7 +81,7 @@ t_obj	get_animation_target(t_obj_animation *animation)
 	return (res);
 }
 
-static void	tri_lerp(t_tri *target, t_tri *a, t_tri *b, float t)
+void	tri_lerp(t_tri *target, t_tri *a, t_tri *b, float t)
 {
 	int	i;
 

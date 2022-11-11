@@ -3,14 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   serialize.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/04/06 14:13:02 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/10/27 23:16:17 by vkuikka          ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2022/11/11 13:55:19 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "serialization.h"
+#include "doom_nukem.h"
 
 void	serialize_vec2(t_vec2 vec, t_buffer *buf)
 {
@@ -225,7 +225,7 @@ void	serialize_lights(t_level *level, t_buffer *buf)
 	}
 }
 
-static void	serialize_level_images(t_level *level, t_buffer *buf)
+void	serialize_level_images(t_level *level, t_buffer *buf)
 {
 	int	i;
 
@@ -241,7 +241,7 @@ static void	serialize_level_images(t_level *level, t_buffer *buf)
 	}
 }
 
-static void	serialize_pickups(t_level *level, t_buffer *buf)
+void	serialize_pickups(t_level *level, t_buffer *buf)
 {
 	int	i;
 
@@ -255,7 +255,7 @@ static void	serialize_pickups(t_level *level, t_buffer *buf)
 		serialize_vec3(level->game_logic.ammo_box[i].pos, buf);
 }
 
-static void	serialize_enemies(t_level *level, t_buffer *buf)
+void	serialize_enemies(t_level *level, t_buffer *buf)
 {
 	int	i;
 
@@ -266,7 +266,7 @@ static void	serialize_enemies(t_level *level, t_buffer *buf)
 		serialize_vec3(level->game_logic.enemies[i].spawn_pos, buf);
 }
 
-static void	serialize_menu_anim(t_level *level, t_buffer *buf)
+void	serialize_menu_anim(t_level *level, t_buffer *buf)
 {
 	int	i;
 

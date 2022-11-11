@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/08/07 18:28:42 by vkuikka           #+#    #+#             */
-/*   Updated: 2022/01/20 19:13:05 by vkuikka          ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2022/11/11 13:52:31 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
 
-static void	update_camera(t_level *l)
+void	update_camera(t_level *l)
 {
 	l->cam.lon = -l->cam.look_side + M_PI / 2;
 	l->cam.lat = -l->cam.look_up;
@@ -23,7 +23,7 @@ static void	update_camera(t_level *l)
 	l->cam.fov_x = tanf(l->ui.fov / 2) * ((float)RES_X / RES_Y);
 }
 
-static void	render_raster(t_window *window, t_level *level)
+void	render_raster(t_window *window, t_level *level)
 {
 	if (SDL_LockTexture(window->raster_texture, NULL,
 			(void **)&window->raster_texture_pixels, &(int){0}) != 0)
@@ -36,7 +36,7 @@ static void	render_raster(t_window *window, t_level *level)
 	SDL_RenderCopy(window->SDLrenderer, window->raster_texture, NULL, NULL);
 }
 
-static void	render_ui(t_window *window, t_level *level,
+void	render_ui(t_window *window, t_level *level,
 						t_game_state *game_state)
 {
 	int	dummy_for_sdl;
@@ -55,7 +55,7 @@ static void	render_ui(t_window *window, t_level *level,
 	SDL_SetRenderTarget(window->SDLrenderer, NULL);
 }
 
-static void	raycast_finish(t_window *window, t_level *level)
+void	raycast_finish(t_window *window, t_level *level)
 {
 	level->ui.post_time = SDL_GetTicks();
 	post_process(window, level);
@@ -64,7 +64,7 @@ static void	raycast_finish(t_window *window, t_level *level)
 	SDL_RenderCopy(window->SDLrenderer, window->texture, NULL, NULL);
 }
 
-static void	render(t_window *window, t_level *level, t_game_state *game_state)
+void	render(t_window *window, t_level *level, t_game_state *game_state)
 {
 	unsigned int	raster_time;
 	unsigned int	ui_time;
@@ -93,7 +93,7 @@ static void	render(t_window *window, t_level *level, t_game_state *game_state)
 	SDL_RenderClear(window->SDLrenderer);
 }
 
-static void	tick_forward(t_level *level, t_game_state *game_state)
+void	tick_forward(t_level *level, t_game_state *game_state)
 {
 	if (*game_state == GAME_STATE_MAIN_MENU)
 		camera_path_set(&level->main_menu_anim, &level->cam);
@@ -112,7 +112,7 @@ static void	tick_forward(t_level *level, t_game_state *game_state)
 	}
 }
 
-static void	viewmodel(t_window *window, t_level *level,
+void	viewmodel(t_window *window, t_level *level,
 								t_game_state *game_state)
 {
 	int	normal_map_disabled;
@@ -134,7 +134,7 @@ static void	viewmodel(t_window *window, t_level *level,
 	level->render_is_first_pass = FALSE;
 }
 
-static void	dnukem(t_window *window, t_level *level, t_game_state game_state)
+void	dnukem(t_window *window, t_level *level, t_game_state game_state)
 {
 	unsigned int	ssp_time;
 	unsigned int	cull_time;

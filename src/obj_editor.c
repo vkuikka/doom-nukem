@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   obj_editor.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/04/22 23:13:42 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/10/15 14:05:09 by vkuikka          ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2022/11/11 13:52:40 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,7 @@ void	move_selected(t_level *l, t_vec3 dir)
 	}
 }
 
-static void	obj_editor_input_move(t_level *level, t_vec3 move_amount,
+void	obj_editor_input_move(t_level *level, t_vec3 move_amount,
 			t_vec3 avg, int selected_vert_amount)
 {
 	level->ui.state.gizmo_active = TRUE;

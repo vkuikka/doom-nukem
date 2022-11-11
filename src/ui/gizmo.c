@@ -5,14 +5,14 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/05/26 19:56:07 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/13 18:06:34 by rpehkone         ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2022/11/11 13:51:23 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
 
-static void	gizmo_pixel_put(int x, int y, int color, unsigned int *texture)
+void	gizmo_pixel_put(int x, int y, int color, unsigned int *texture)
 {
 	if (x >= 0 && y >= 0 && x < RES_X && y < RES_Y)
 		texture[x + (y * RES_X)] = color;
@@ -57,7 +57,7 @@ t_vec3	vec_sub_return(t_vec3 ve1, t_vec3 ve2)
 	return (res);
 }
 
-static void	put_gizmo_box(t_vec3 vertex, int color, unsigned int *pixels)
+void	put_gizmo_box(t_vec3 vertex, int color, unsigned int *pixels)
 {
 	int	a;
 	int	b;
@@ -111,7 +111,7 @@ int	is_near(int a, int b, int range)
 	return (-range <= diff && diff <= range);
 }
 
-static t_vec3	calc_move_screen_space(int index, int amount)
+t_vec3	calc_move_screen_space(int index, int amount)
 {
 	int		get_dir[3];
 	t_vec3	dir;
@@ -127,7 +127,7 @@ static t_vec3	calc_move_screen_space(int index, int amount)
 	return (dir);
 }
 
-static void	gizmo_call_move(t_level *level, t_vec3 move_amount)
+void	gizmo_call_move(t_level *level, t_vec3 move_amount)
 {
 	if (level->ui.state.ui_location == UI_LOCATION_DOOR_ACTIVATION_BUTTON)
 		door_activation_move(level, move_amount);
@@ -139,7 +139,7 @@ static void	gizmo_call_move(t_level *level, t_vec3 move_amount)
 		obj_editor_input(level, move_amount);
 }
 
-static void	gizmo_set_mouse_location(t_level *level,
+void	gizmo_set_mouse_location(t_level *level,
 				int deltax, int deltay, int drag_direction)
 {
 	t_vec3	res;
@@ -161,7 +161,7 @@ static void	gizmo_set_mouse_location(t_level *level,
 	gizmo_call_move(level, res);
 }
 
-static void	gizmo_move_amount(t_level *level, t_ivec2 mouse, int drag_direction)
+void	gizmo_move_amount(t_level *level, t_ivec2 mouse, int drag_direction)
 {
 	static t_ivec2	prev_mouse;
 

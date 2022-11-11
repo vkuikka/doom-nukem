@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   main_menu.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/05/19 18:51:47 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/10/27 23:09:28 by vkuikka          ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2022/11/11 13:52:25 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
 
-static void	main_menu_text_background(t_rect rect, unsigned int *pixels)
+void	main_menu_text_background(t_rect rect, unsigned int *pixels)
 {
 	int	x;
 	int	y;
@@ -31,7 +31,7 @@ static void	main_menu_text_background(t_rect rect, unsigned int *pixels)
 	}
 }
 
-static void	main_menu_title(t_bmp *img, unsigned int *pixels)
+void	main_menu_title(t_bmp *img, unsigned int *pixels)
 {
 	static float	amount = 0;
 
@@ -47,7 +47,7 @@ int	mouse_collision(t_rect rect, t_ivec2 mouse)
 	return (FALSE);
 }
 
-static int	main_menu_button_text(char *text, int index,
+int	main_menu_button_text(char *text, int index,
 					t_level *level, unsigned int *pixels)
 {
 	t_rect	rect;
@@ -71,7 +71,7 @@ static int	main_menu_button_text(char *text, int index,
 	return (FALSE);
 }
 
-static void	fix_faces(t_level *level)
+void	fix_faces(t_level *level)
 {
 	int	i;
 

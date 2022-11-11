@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   shaders.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/03/31 16:52:44 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/29 13:53:11 by vkuikka          ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2022/11/11 13:55:45 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
 
-static float	opacity_full_check(t_cast_result *res, t_level *l, t_obj *obj,
+float	opacity_full_check(t_cast_result *res, t_level *l, t_obj *obj,
 										float opacity)
 {
 	if (opacity == 1.0)
@@ -80,7 +80,7 @@ t_color	sunlight(t_level *l, t_cast_result *res, t_color light)
 	return (light);
 }
 
-static void	color_set(t_color *col, float value)
+void	color_set(t_color *col, float value)
 {
 	col->r = value;
 	col->g = value;
@@ -132,9 +132,7 @@ void	reflection(t_cast_result *res, t_level *l, t_obj *obj)
 			(unsigned int)res->color << 24 >> 24);
 }
 
-#define RULE_30_SIZE 99
-
-static char	*init_rule30(void)
+char	*init_rule30(void)
 {
 	char	*cells;
 	int		x;

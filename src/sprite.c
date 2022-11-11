@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   sprite.c                                           :+:      :+:    :+:   */
+/*   sprite_0.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/03/14 17:08:49 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/12 13:50:55 by rpehkone         ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2021/10/11 18:58:59 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
 
-static float	find_angle(t_vec3 v1, t_vec3 v2)
+float	find_angle(t_vec3 v1, t_vec3 v2)
 {
 	float	angle;
 
@@ -25,7 +25,7 @@ static float	find_angle(t_vec3 v1, t_vec3 v2)
 	return (angle);
 }
 
-static void	turn_sprite(t_tri *tri, t_vec3 look_at)
+void	turn_sprite(t_tri *tri, t_vec3 look_at)
 {
 	t_vec3	face_mid;
 	t_vec3	rot_vert;

@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/09/20 17:41:32 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/25 16:22:31 by rpehkone         ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2022/11/11 13:46:15 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,7 +114,7 @@ void	camera_path_add_pos(t_camera_path *path, t_camera c)
 	path->amount++;
 }
 
-static float	path_get_percentage(t_camera_path *path)
+float	path_get_percentage(t_camera_path *path)
 {
 	float	time;
 

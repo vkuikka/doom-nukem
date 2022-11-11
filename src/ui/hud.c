@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/05/19 18:48:10 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/10/12 18:08:27 by rpehkone         ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2022/11/11 13:51:30 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,14 +30,14 @@ unsigned int	cycle_rgb(unsigned int time)
 	return (red + grn + blu + 0x70);
 }
 
-static void	pixel_put_hud(int x, int y, int color, unsigned int *texture)
+void	pixel_put_hud(int x, int y, int color, unsigned int *texture)
 {
 	if (x < 0 || y < 0 || x >= RES_X || y >= RES_Y)
 		return ;
 	texture[x + (y * RES_X)] = color;
 }
 
-static void	death_overlay(unsigned int *pixels)
+void	death_overlay(unsigned int *pixels)
 {
 	int	x;
 	int	y;
@@ -55,7 +55,7 @@ static void	death_overlay(unsigned int *pixels)
 	}
 }
 
-static void	crosshair(unsigned int *pixels, int x, int y)
+void	crosshair(unsigned int *pixels, int x, int y)
 {
 	int	i;
 	int	j;

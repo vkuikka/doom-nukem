@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ui_config.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lsjoberg <lsjoberg@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/11/08 19:24:47 by lsjoberg         ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2022/11/11 13:57:06 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ void	copy_tri_settings(t_tri *a, t_tri *b)
 	a->refractivity = b->refractivity;
 }
 
-static void	ui_config_projectile_settings(t_projectile *projectile)
+void	ui_config_projectile_settings(t_projectile *projectile)
 {
 	char	buf[100];
 
@@ -76,7 +76,7 @@ static void	ui_config_projectile_settings(t_projectile *projectile)
 	float_slider(&projectile->damage, buf, 0, 50);
 }
 
-static void	ui_config_enemy_settings(t_enemy_settings *enemy)
+void	ui_config_enemy_settings(t_enemy_settings *enemy)
 {
 	char	buf[100];
 
@@ -113,7 +113,7 @@ void	ui_enemy_and_damage_settings(t_level *level)
 		&level->game_logic.player_projectile_settings);
 }
 
-static void	ui_config_face_perlin_settings(t_perlin_settings *p)
+void	ui_config_face_perlin_settings(t_perlin_settings *p)
 {
 	char	buf[100];
 
@@ -134,7 +134,7 @@ static void	ui_config_face_perlin_settings(t_perlin_settings *p)
 		hsl_update_color(&p->color_2);
 }
 
-static void	ui_config_face_perlin(t_perlin_settings *perlin, t_level *level)
+void	ui_config_face_perlin(t_perlin_settings *perlin, t_level *level)
 {
 	set_text_color(UI_SHADER_SETTINGS);
 	float_slider(&perlin->swirl, "swirl", 0, 5);
@@ -159,7 +159,7 @@ static void	ui_config_face_perlin(t_perlin_settings *perlin, t_level *level)
 	ui_config_face_perlin_settings(perlin);
 }
 
-static void	ui_confing_face_render_settings(t_tri *tri, t_level *level)
+void	ui_confing_face_render_settings(t_tri *tri, t_level *level)
 {
 	char	buf[100];
 
@@ -181,7 +181,7 @@ static void	ui_confing_face_render_settings(t_tri *tri, t_level *level)
 		level->ui.state.ui_location = UI_LOCATION_SHADER_EDITOR;
 }
 
-static void	ui_confing_face_settings(t_level *level,
+void	ui_confing_face_settings(t_level *level,
 							int selected_amount, t_tri *tri)
 {
 	char	buf[100];
@@ -371,7 +371,7 @@ void	ui_render_info(t_editor_ui *ui, t_level *level)
 	text(buf);
 }
 
-static void	center_screen_print_line(t_vec2 dir, unsigned int color)
+void	center_screen_print_line(t_vec2 dir, unsigned int color)
 {
 	t_window	*window;
 	t_vec3		start;
@@ -912,7 +912,7 @@ void	ui_main_menu(t_window *window, t_level *level, t_game_state *game_state)
 		ui_render_directory(level);
 }
 
-static void	reset_ui_state(t_ui_state *state, t_level *level)
+void	reset_ui_state(t_ui_state *state, t_level *level)
 {
 	state->ui_max_width = 0;
 	state->ui_text_color = 0;

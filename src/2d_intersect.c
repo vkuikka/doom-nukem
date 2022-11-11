@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   2d_intersect.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/04/26 15:15:59 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/17 19:39:29 by vkuikka          ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2022/11/11 13:08:11 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
 
-static float	sign(t_vec2 p1, t_vec2 p2, t_vec2 p3)
+float	sign(t_vec2 p1, t_vec2 p2, t_vec2 p3)
 {
 	return ((p1.x - p3.x) * (p2.y - p3.y) - (p2.x - p3.x) * (p1.y - p3.y));
 }
@@ -33,10 +33,7 @@ int	point_in_tri(t_vec2 pt, t_vec2 v1, t_vec2 v2, t_vec2 v3)
 	return (!(has_neg && has_pos));
 }
 
-// https://www.geeksforgeeks.org/orientation-3-ordered-points/
-// Returns 0 (colinear, point is on the line (not segment)),
-// 		   1 (clockwise) or 2 (counter-clockwise)
-static int	line_orientation(t_vec2 p, t_vec2 q, t_vec2 r)
+int	line_orientation(t_vec2 p, t_vec2 q, t_vec2 r)
 {
 	float	val;
 
@@ -49,11 +46,7 @@ static int	line_orientation(t_vec2 p, t_vec2 q, t_vec2 r)
 		return (2);
 }
 
-/*
-** Returns true if line segments 'p1q1' and 'p2q2' intersect.
-** Does not check if point is exactly on segment
-*/
-static int	line_intersect(t_vec2 p1, t_vec2 q1, t_vec2 p2, t_vec2 q2)
+int	line_intersect(t_vec2 p1, t_vec2 q1, t_vec2 p2, t_vec2 q2)
 {
 	int	o1;
 	int	o2;
@@ -69,7 +62,7 @@ static int	line_intersect(t_vec2 p1, t_vec2 q1, t_vec2 p2, t_vec2 q2)
 	return (FALSE);
 }
 
-static void	calc_quad_uv(t_tri *tri)
+void	calc_quad_uv(t_tri *tri)
 {
 	tri->verts[3].txtr.x
 		= tri->verts[2].txtr.x + (tri->verts[1].txtr.x - tri->verts[0].txtr.x);
@@ -103,9 +96,6 @@ int	check_uv_edge(int i, int j, t_tri t1, t_tri t2)
 	return (res);
 }
 
-/*
-** Returns true if two faces overlap in texture coordinates
-*/
 int	tri_uv_intersect(t_tri t1, t_tri t2)
 {
 	int	i;

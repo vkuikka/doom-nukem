@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   color.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/01/21 17:32:09 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/11/08 16:53:26 by vkuikka          ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2022/11/11 13:46:50 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ unsigned int	brightness(unsigned int color1, t_color new)
 	return ((newr << 8 * 3) + (newg << 8 * 2) + (newb << 8 * 1));
 }
 
-static t_color	get_skybox_brightness(t_level *l)
+t_color	get_skybox_brightness(t_level *l)
 {
 	t_color	tmp;
 
@@ -68,7 +68,7 @@ static t_color	get_skybox_brightness(t_level *l)
 	return (tmp);
 }
 
-static void	skybox_reset_result(t_level *l, t_cast_result *res)
+void	skybox_reset_result(t_level *l, t_cast_result *res)
 {
 	res->ray.pos = (t_vec3){0, 0, 0};
 	res->texture = &l->sky.img;
@@ -78,7 +78,7 @@ static void	skybox_reset_result(t_level *l, t_cast_result *res)
 	res->raytracing = 0;
 }
 
-static float	skybox_sun_fade(t_color *col, t_cast_result *res, t_level *l)
+float	skybox_sun_fade(t_color *col, t_cast_result *res, t_level *l)
 {
 	float	fade;
 
@@ -171,7 +171,7 @@ void	blur_pixels(unsigned int *color, int gap)
 	}
 }
 
-static int	smooth_color_kernel(unsigned int *pixels, int gap, int x, int y)
+int	smooth_color_kernel(unsigned int *pixels, int gap, int x, int y)
 {
 	int	dx;
 	int	dy;
@@ -218,7 +218,7 @@ int	smooth_color(unsigned int *pixels, int gap, int x, int y)
 	return (smooth_color_kernel(pixels, gap, x, y));
 }
 
-static void	fill_one_pixel(unsigned int *grid, int gap, t_ivec2 coord, int s)
+void	fill_one_pixel(unsigned int *grid, int gap, t_ivec2 coord, int s)
 {
 	t_ivec2	limit;
 	t_ivec2	i;
@@ -292,7 +292,7 @@ t_vec3	color_to_vec(unsigned int color)
 	return (res);
 }
 
-static unsigned int	sharpen_kernel(unsigned int *buf, int i,
+unsigned int	sharpen_kernel(unsigned int *buf, int i,
 						float center, float neighbor)
 {
 	t_vec3	tmp;
@@ -382,7 +382,7 @@ t_vec3	get_normal(int vec)
 	return (dir);
 }
 
-static void	wrap_coords_inverted(int *x, int *y, int max_x, int max_y)
+void	wrap_coords_inverted(int *x, int *y, int max_x, int max_y)
 {
 	if (*y < 0)
 		*y = max_y - (*y % max_y);
@@ -395,7 +395,7 @@ static void	wrap_coords_inverted(int *x, int *y, int max_x, int max_y)
 		*x = *x % max_x;
 }
 
-static void	normal_map(float u, float v, t_tri t, t_cast_result *res)
+void	normal_map(float u, float v, t_tri t, t_cast_result *res)
 {
 	int		x;
 	int		y;

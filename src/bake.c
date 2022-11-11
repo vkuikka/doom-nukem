@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   bake.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/05/22 10:29:09 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/11/03 20:23:29 by vkuikka          ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2022/11/11 13:45:49 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,7 +87,7 @@ t_vec3	uv_to_3d(t_tri tri, t_bmp *txtr, t_ivec2 point)
 	return (av0);
 }
 
-static void	wrap_coords(int *x, int *y, int max_x, int max_y)
+void	wrap_coords(int *x, int *y, int max_x, int max_y)
 {
 	if (*y < 0)
 		*y = max_y - (*y % max_y);
@@ -99,7 +99,7 @@ static void	wrap_coords(int *x, int *y, int max_x, int max_y)
 		*x = *x % max_x;
 }
 
-static void	bake_pixel(t_level *l, t_ivec2 wrap, t_ivec2 i, t_cast_result *res)
+void	bake_pixel(t_level *l, t_ivec2 wrap, t_ivec2 i, t_cast_result *res)
 {
 	res->ray.pos = uv_to_3d(l->all.tris[res->face_index], &l->texture, i);
 	if (res->normal_map)
@@ -114,7 +114,7 @@ static void	bake_pixel(t_level *l, t_ivec2 wrap, t_ivec2 i, t_cast_result *res)
 			lights(l, res));
 }
 
-static int	point_in_face(t_tri tri, t_vec2 point)
+int	point_in_face(t_tri tri, t_vec2 point)
 {
 	return ((tri.isquad && point_in_tri(point, tri.verts[3].txtr,
 				tri.verts[1].txtr, tri.verts[2].txtr))
@@ -122,7 +122,7 @@ static int	point_in_face(t_tri tri, t_vec2 point)
 			tri.verts[1].txtr, tri.verts[2].txtr));
 }
 
-static void	fill_area(t_level *l, t_ivec2 start, t_color c, int res)
+void	fill_area(t_level *l, t_ivec2 start, t_color c, int res)
 {
 	t_ivec2	i;
 	int		x;
@@ -145,7 +145,7 @@ static void	fill_area(t_level *l, t_ivec2 start, t_color c, int res)
 	}
 }
 
-static void	bake_area(t_level *l, t_cast_result *res, t_ivec2 i)
+void	bake_area(t_level *l, t_cast_result *res, t_ivec2 i)
 {
 	t_vec2	tmp;
 	t_ivec2	wrap;

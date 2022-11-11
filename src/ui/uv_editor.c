@@ -5,14 +5,14 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/04/08 10:37:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/02 03:39:43 by rpehkone         ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2022/11/11 13:58:52 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
 
-static void	uv_pixel_put(int x, int y, int color, unsigned int *texture)
+void	uv_pixel_put(int x, int y, int color, unsigned int *texture)
 {
 	int	opacity;
 
@@ -25,7 +25,7 @@ static void	uv_pixel_put(int x, int y, int color, unsigned int *texture)
 		texture[x + (y * RES_X)] = color;
 }
 
-static float	get_texture_scale(t_bmp *img)
+float	get_texture_scale(t_bmp *img)
 {
 	if (img->width < img->height)
 		return ((float)
@@ -63,7 +63,7 @@ void	uv_print_line(t_vec2 start, t_vec2 stop, t_ivec2 color,
 	}
 }
 
-static void	put_uv_vertex(t_vec2 vertex, int color, unsigned int *pixels)
+void	put_uv_vertex(t_vec2 vertex, int color, unsigned int *pixels)
 {
 	int	a;
 	int	b;
@@ -81,7 +81,7 @@ static void	put_uv_vertex(t_vec2 vertex, int color, unsigned int *pixels)
 	}
 }
 
-static t_vec2	*find_closest_to_mouse(t_level *level, t_vec2 *txtr,
+t_vec2	*find_closest_to_mouse(t_level *level, t_vec2 *txtr,
 									t_vec2 *screen_pos, t_ivec2 *mouse)
 {
 	static float	closest_dist = -1;
@@ -111,7 +111,7 @@ static t_vec2	*find_closest_to_mouse(t_level *level, t_vec2 *txtr,
 	return (NULL);
 }
 
-static void	update_uv_closest_vertex(t_level *level,
+void	update_uv_closest_vertex(t_level *level,
 				float image_scale, t_ivec2 offset, t_ivec2 mouse)
 {
 	t_vec2	*closest;
@@ -176,7 +176,7 @@ t_ivec2	get_uv_wf_line_color(int k, int next)
 	return (color);
 }
 
-static void	draw_face_uv(t_level *level, t_uv_parameters param,
+void	draw_face_uv(t_level *level, t_uv_parameters param,
 													t_ivec2 mouse)
 {
 	t_ivec2	color;
@@ -206,7 +206,7 @@ static void	draw_face_uv(t_level *level, t_uv_parameters param,
 	}
 }
 
-static void	uv_wireframe_selected(t_level *level,
+void	uv_wireframe_selected(t_level *level,
 			t_uv_parameters param, t_ivec2 *mouse)
 {
 	int		i;
@@ -222,7 +222,7 @@ static void	uv_wireframe_selected(t_level *level,
 	}
 }
 
-static void	uv_wireframe(t_level *level, t_ivec2 offset,
+void	uv_wireframe(t_level *level, t_ivec2 offset,
 						unsigned int *pixels, float image_scale)
 {
 	t_ivec2			mouse;

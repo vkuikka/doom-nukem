@@ -5,14 +5,14 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/08/10 22:47:18 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/10/12 18:27:40 by rpehkone         ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2022/11/11 13:51:09 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
 
-static void	player_reload(t_level *level)
+void	player_reload(t_level *level)
 {
 	float	time;
 
@@ -25,7 +25,7 @@ static void	player_reload(t_level *level)
 	}
 }
 
-static void	player_shoot(t_level *level)
+void	player_shoot(t_level *level)
 {
 	if (level->game_logic.player.ammo)
 	{
@@ -41,7 +41,7 @@ static void	player_shoot(t_level *level)
 		level->game_logic.reload_start_time = SDL_GetTicks();
 }
 
-static void	game_finished(t_level *level, t_game_state *game_state,
+void	game_finished(t_level *level, t_game_state *game_state,
 				float time)
 {
 	if (level->game_logic.win_start_time)
@@ -71,7 +71,7 @@ static void	game_finished(t_level *level, t_game_state *game_state,
 	}
 }
 
-static int	pick_up_pick_ups(t_level *level, t_item_pickup *pickups, int amount)
+int	pick_up_pick_ups(t_level *level, t_item_pickup *pickups, int amount)
 {
 	t_vec3	dist;
 	int		i;
@@ -100,7 +100,7 @@ static int	pick_up_pick_ups(t_level *level, t_item_pickup *pickups, int amount)
 	return (FALSE);
 }
 
-static void	reset_pick_ups(t_level *level)
+void	reset_pick_ups(t_level *level)
 {
 	int	i;
 
@@ -118,7 +118,7 @@ static void	reset_pick_ups(t_level *level)
 	}
 }
 
-static void	game_logic_win_lose(t_level *level, t_game_state *game_state)
+void	game_logic_win_lose(t_level *level, t_game_state *game_state)
 {
 	t_vec3	dist;
 

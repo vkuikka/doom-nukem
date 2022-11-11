@@ -3,18 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   culling.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/01/20 17:50:56 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/12/09 13:02:05 by vkuikka          ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2022/11/11 13:47:28 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
 
-/*
-**	Returns false if whole face is ahead
-*/
 int	cull_ahead(t_vec3 dir, t_vec3 pos, t_tri tri)
 {
 	t_vec3	vert;
@@ -31,9 +28,6 @@ int	cull_ahead(t_vec3 dir, t_vec3 pos, t_tri tri)
 	return (FALSE);
 }
 
-/*
-**	Returns false if whole face is behind
-*/
 int	cull_behind(t_vec3 dir, t_vec3 pos, t_tri tri)
 {
 	t_vec3	vert;
@@ -50,7 +44,7 @@ int	cull_behind(t_vec3 dir, t_vec3 pos, t_tri tri)
 	return (FALSE);
 }
 
-static int	frustrum_culling(t_vec3 side_normal[4], t_vec3 pos, t_tri tri)
+int	frustrum_culling(t_vec3 side_normal[4], t_vec3 pos, t_tri tri)
 {
 	t_vec3	end;
 	int		out[4][4];
@@ -100,7 +94,7 @@ void	distance_minmax(float *min, float *max, t_tri tri, t_vec3 pos)
 	}
 }
 
-static int	distance_culling(t_tri tri, t_vec3 player, float render_distance)
+int	distance_culling(t_tri tri, t_vec3 player, float render_distance)
 {
 	float	min;
 	float	max;
@@ -128,7 +122,7 @@ static int	distance_culling(t_tri tri, t_vec3 player, float render_distance)
 	return (max < len);
 }
 
-static int	backface_culling(t_vec3 pos, t_tri tri)
+int	backface_culling(t_vec3 pos, t_tri tri)
 {
 	t_vec3	normal;
 	t_vec3	diff;
@@ -152,7 +146,7 @@ static int	backface_culling(t_vec3 pos, t_tri tri)
 	return (0);
 }
 
-static int	reflection_backface(t_tri t1, t_tri t2)
+int	reflection_backface(t_tri t1, t_tri t2)
 {
 	int	i;
 
@@ -166,8 +160,7 @@ static int	reflection_backface(t_tri t1, t_tri t2)
 	return (0);
 }
 
-// Order: left, right, top, bottom
-static void	calculate_side_normals(t_vec3 normal[4], t_vec3 corner[4])
+void	calculate_side_normals(t_vec3 normal[4], t_vec3 corner[4])
 {
 	vec_cross(&normal[0], corner[2], corner[0]);
 	vec_cross(&normal[1], corner[1], corner[3]);
@@ -175,7 +168,7 @@ static void	calculate_side_normals(t_vec3 normal[4], t_vec3 corner[4])
 	vec_cross(&normal[3], corner[3], corner[2]);
 }
 
-static void	face_border_normals(t_vec3 v[4], t_vec3 dir, t_tri target)
+void	face_border_normals(t_vec3 v[4], t_vec3 dir, t_tri target)
 {
 	t_vec3	tmp;
 
@@ -224,7 +217,7 @@ void	shadow_face_culling(t_level *level, int i)
 				= level->all.tris[k];
 }
 
-static void	vertex_directions(t_vec3 corner[4], t_level *l, int i, t_vec3 pos)
+void	vertex_directions(t_vec3 corner[4], t_level *l, int i, t_vec3 pos)
 {
 	corner[0] = l->all.tris[i].verts[0].pos;
 	corner[1] = l->all.tris[i].verts[1].pos;
@@ -240,7 +233,7 @@ static void	vertex_directions(t_vec3 corner[4], t_level *l, int i, t_vec3 pos)
 	vec_normalize(&corner[3]);
 }
 
-static t_vec3	camera_to_reflection(t_level *level, int i)
+t_vec3	camera_to_reflection(t_level *level, int i)
 {
 	t_vec3	normal;
 	t_vec3	pos;
@@ -255,7 +248,7 @@ static t_vec3	camera_to_reflection(t_level *level, int i)
 	return (pos);
 }
 
-static void	reflection_culling_first_bounce(t_level *level, int i)
+void	reflection_culling_first_bounce(t_level *level, int i)
 {
 	t_vec3	pos;
 	t_vec3	corner[4];
@@ -281,7 +274,7 @@ static void	reflection_culling_first_bounce(t_level *level, int i)
 				= level->all.tris[i].reflection_obj_all.tris[k];
 }
 
-static int	face_distance_culling(t_tri t1, t_tri t2, t_level *level)
+int	face_distance_culling(t_tri t1, t_tri t2, t_level *level)
 {
 	int	i;
 
@@ -389,7 +382,7 @@ void	init_culling(t_level *level)
 	static_culling(level);
 }
 
-static void	calculate_corner_vectors(t_vec3 corner[4], t_camera *cam)
+void	calculate_corner_vectors(t_vec3 corner[4], t_camera *cam)
 {
 	float	ym;
 	float	xm;
@@ -416,7 +409,7 @@ static void	calculate_corner_vectors(t_vec3 corner[4], t_camera *cam)
 	corner[3].z = cam->front.z + cam->up.z * ym + cam->side.z * xm;
 }
 
-static void	skybox_culling(t_level *level, t_camera *cam,
+void	skybox_culling(t_level *level, t_camera *cam,
 										t_vec3 side_normals[4])
 {
 	int	visible_amount;
