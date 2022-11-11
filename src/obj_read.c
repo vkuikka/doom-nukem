@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2022/11/11 13:52:52 by rpehkone         ###   ########.fr       */
+/*   Updated: 2022/11/11 15:05:21 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -234,12 +234,13 @@ int	obj_get_face_amount(char **file)
 	return (res);
 }
 
-void	tri_optimize(t_tri *tri)
+void	tri_optimize(t_tri *tri, int is_dynamic)
 {
 	vec_sub(&tri->v0v2, tri->verts[1].pos, tri->verts[0].pos);
 	vec_sub(&tri->v0v1, tri->verts[2].pos, tri->verts[0].pos);
 	vec_cross(&tri->normal, tri->v0v2, tri->v0v1);
 	vec_normalize(&tri->normal);
+	tri->dynamic = is_dynamic;
 }
 
 int	load_obj_internal(char **file, t_obj *obj)
@@ -259,7 +260,7 @@ int	load_obj_internal(char **file, t_obj *obj)
 	while (i < obj->tri_amount)
 	{
 		obj->tris[i].index = i;
-		tri_optimize(&obj->tris[i]);
+		tri_optimize(&obj->tris[i], false);
 		i++;
 	}
 	return (TRUE);

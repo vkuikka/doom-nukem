@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2022/11/11 13:49:56 by rpehkone         ###   ########.fr       */
+/*   Updated: 2022/11/11 14:53:43 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -275,21 +275,23 @@ void	deserialize_doors(t_level *level, t_buffer *buf)
 		deserialize_door(&level->doors.door[i], buf);
 }
 
-void	deserialize_lights(t_level *level, t_buffer *buf)
+void	deserialize_baked(t_level *level, t_buffer *buf)
 {
 	int	i;
 
-	deserialize_int(&level->light_amount, buf);
-	level->lights = (t_light *)malloc(sizeof(t_light) * level->light_amount);
-	if (!level->lights)
-		ft_error("memory allocation failed (deserialize_lights)");
+	deserialize_int(&i, buf);
+	level->bake_status = (t_bake)i;
+	if (level->bake_status == BAKE_NOT_BAKED)
+		return ;
+	level->baked = ft_realloc(level->baked,
+			sizeof(t_color) * level->baked_size.x * level->baked_size.y,
+			sizeof(t_color) * level->texture.height * level->texture.width);
 	i = 0;
-	while (i < level->light_amount)
+	while (i < level->texture.height * level->texture.width)
 	{
-		deserialize_vec3(&level->lights[i].pos, buf);
-		deserialize_color(&level->lights[i].color, buf);
-		deserialize_float(&level->lights[i].radius, buf);
-		deserialize_float(&level->lights[i].power, buf);
+		deserialize_float(&level->baked[i].r, buf);
+		deserialize_float(&level->baked[i].g, buf);
+		deserialize_float(&level->baked[i].b, buf);
 		i++;
 	}
 }
@@ -306,6 +308,7 @@ void	deserialize_level_images(t_level *level, t_buffer *buf)
 	deserialize_bmp(&level->sky.img, buf);
 	free(level->spray.image);
 	deserialize_bmp(&level->spray, buf);
+	free(level->spray_overlay);
 	level->spray_overlay = (unsigned *)malloc(
 			sizeof(unsigned) * level->texture.width * level->texture.height);
 	if (!level->spray_overlay)
@@ -316,6 +319,7 @@ void	deserialize_level_images(t_level *level, t_buffer *buf)
 		deserialize_int((int *)&level->spray_overlay[i], buf);
 		i++;
 	}
+	deserialize_baked(level, buf);
 }
 
 void	deserialize_health_pickups(t_level *level, t_buffer *buf)
@@ -323,6 +327,8 @@ void	deserialize_health_pickups(t_level *level, t_buffer *buf)
 	int	i;
 
 	deserialize_int(&level->game_logic.health_box_amount, buf);
+	if (level->game_logic.health_box)
+		free(level->game_logic.health_box);
 	level->game_logic.health_box = (t_item_pickup *)malloc(
 			sizeof(t_item_pickup) * level->game_logic.health_box_amount);
 	if (!level->game_logic.health_box)
@@ -341,6 +347,8 @@ void	deserialize_ammo_pickups(t_level *level, t_buffer *buf)
 	int	i;
 
 	deserialize_int(&level->game_logic.ammo_box_amount, buf);
+	if (level->game_logic.ammo_box)
+		free(level->game_logic.ammo_box);
 	level->game_logic.ammo_box = (t_item_pickup *)malloc(
 			sizeof(t_item_pickup) * level->game_logic.ammo_box_amount);
 	if (!level->game_logic.ammo_box)
@@ -366,6 +374,8 @@ void	deserialize_enemies(t_level *level, t_buffer *buf)
 
 	deserialize_enemy_settings(&level->game_logic.enemy_settings, buf);
 	deserialize_int(&level->game_logic.enemy_amount, buf);
+	if (level->game_logic.enemies)
+		free(level->game_logic.enemies);
 	level->game_logic.enemies = (t_enemy *)malloc(
 			sizeof(t_enemy) * level->game_logic.enemy_amount);
 	if (!level->game_logic.enemies)
@@ -382,6 +392,8 @@ void	deserialize_menu_anim(t_level *level, t_buffer *buf)
 	deserialize_int(&level->main_menu_anim.amount, buf);
 	deserialize_int((int *)&level->main_menu_anim.duration, buf);
 	deserialize_int(&level->main_menu_anim.loop, buf);
+	if (level->main_menu_anim.pos)
+		free(level->main_menu_anim.pos);
 	level->main_menu_anim.pos = (t_player_pos *)malloc(
 			sizeof(t_player_pos) * level->main_menu_anim.amount);
 	if (!level->main_menu_anim.pos)
@@ -395,6 +407,11 @@ int	check_file_header(t_buffer *buf)
 {
 	char	*str;
 
+	if (sizeof(int) * strlen("doom-nukem") > buf->size)
+	{
+		nonfatal_error("not valid doom-nukem map");
+		return (1);
+	}
 	str = deserialize_string(ft_strlen("doom-nukem"), buf);
 	if (ft_strcmp(str, "doom-nukem"))
 	{
@@ -404,6 +421,27 @@ int	check_file_header(t_buffer *buf)
 	}
 	free(str);
 	return (0);
+}
+
+void	deserialize_lights(t_level *level, t_buffer *buf)
+{
+	int	i;
+
+	deserialize_int(&level->light_amount, buf);
+	if (level->lights)
+		free(level->lights);
+	level->lights = (t_light *)malloc(sizeof(t_light) * level->light_amount);
+	if (!level->lights)
+		ft_error("memory allocation failed (deserialize_lights)");
+	i = 0;
+	while (i < level->light_amount)
+	{
+		deserialize_vec3(&level->lights[i].pos, buf);
+		deserialize_color(&level->lights[i].color, buf);
+		deserialize_float(&level->lights[i].radius, buf);
+		deserialize_float(&level->lights[i].power, buf);
+		i++;
+	}
 }
 
 void	deserialize_level(t_level *level, t_buffer *buf)
@@ -418,6 +456,7 @@ void	deserialize_level(t_level *level, t_buffer *buf)
 	level->game_logic.player_projectile_settings.shot_by_player = TRUE;
 	deserialize_projectile(&level->game_logic.enemy_projectile_settings, buf);
 	level->game_logic.enemy_projectile_settings.shot_by_player = FALSE;
+	deserialize_int(&level->ui.normal_map_disabled, buf);
 	deserialize_obj(&level->all, buf);
 	deserialize_doors(level, buf);
 	deserialize_lights(level, buf);

@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2022/11/11 13:52:31 by rpehkone         ###   ########.fr       */
+/*   Updated: 2022/11/11 15:04:59 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ void	render_raster(t_window *window, t_level *level)
 	if (level->ui.state.gizmo_active)
 		gizmo_render(level, window->raster_texture_pixels);
 	SDL_UnlockTexture(window->raster_texture);
-	SDL_RenderCopy(window->SDLrenderer, window->raster_texture, NULL, NULL);
+	SDL_RenderCopy(window->sdl_renderer, window->raster_texture, NULL, NULL);
 }
 
 void	render_ui(t_window *window, t_level *level,
@@ -41,18 +41,20 @@ void	render_ui(t_window *window, t_level *level,
 {
 	int	dummy_for_sdl;
 
+	if (level->ui_hidden)
+		return ;
 	if (SDL_LockTexture(window->ui_texture, NULL,
 			(void **)&window->ui_texture_pixels, &dummy_for_sdl) != 0)
 		ft_error("failed to lock texture\n");
 	memset(window->ui_texture_pixels, 0, RES_X * RES_Y * 4);
 	ui(window, level, game_state);
 	SDL_UnlockTexture(window->ui_texture);
-	SDL_RenderCopy(window->SDLrenderer, window->ui_texture, NULL, NULL);
-	SDL_RenderCopy(window->SDLrenderer, window->text_texture, NULL, NULL);
-	SDL_SetRenderTarget(window->SDLrenderer, window->text_texture);
-	SDL_RenderClear(window->SDLrenderer);
-	SDL_RenderPresent(window->SDLrenderer);
-	SDL_SetRenderTarget(window->SDLrenderer, NULL);
+	SDL_RenderCopy(window->sdl_renderer, window->ui_texture, NULL, NULL);
+	SDL_RenderCopy(window->sdl_renderer, window->text_texture, NULL, NULL);
+	SDL_SetRenderTarget(window->sdl_renderer, window->text_texture);
+	SDL_RenderClear(window->sdl_renderer);
+	SDL_RenderPresent(window->sdl_renderer);
+	SDL_SetRenderTarget(window->sdl_renderer, NULL);
 }
 
 void	raycast_finish(t_window *window, t_level *level)
@@ -61,7 +63,7 @@ void	raycast_finish(t_window *window, t_level *level)
 	post_process(window, level);
 	level->ui.post_time = SDL_GetTicks() - level->ui.post_time;
 	SDL_UnlockTexture(window->texture);
-	SDL_RenderCopy(window->SDLrenderer, window->texture, NULL, NULL);
+	SDL_RenderCopy(window->sdl_renderer, window->texture, NULL, NULL);
 }
 
 void	render(t_window *window, t_level *level, t_game_state *game_state)
@@ -89,8 +91,8 @@ void	render(t_window *window, t_level *level, t_game_state *game_state)
 	ui_time = SDL_GetTicks();
 	render_ui(window, level, game_state);
 	level->ui.ui_time = SDL_GetTicks() - ui_time;
-	SDL_RenderPresent(window->SDLrenderer);
-	SDL_RenderClear(window->SDLrenderer);
+	SDL_RenderPresent(window->sdl_renderer);
+	SDL_RenderClear(window->sdl_renderer);
 }
 
 void	tick_forward(t_level *level, t_game_state *game_state)

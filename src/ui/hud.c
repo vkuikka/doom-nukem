@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2022/11/11 13:51:30 by rpehkone         ###   ########.fr       */
+/*   Updated: 2022/11/11 14:55:52 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,9 +89,9 @@ void	ingame_hud(t_level *level, unsigned int *pixels)
 	level->ui.state.current_font = level->ui.hud_font;
 	set_text_color(HUD_TEXT_COLOR);
 	crosshair(pixels, RES_X / 2, RES_Y / 2);
-	sprintf(buf, "%d+", level->game_logic.player.health);
+	ft_sprintf(buf, "%d+", level->game_logic.player.health);
 	render_text(buf, HUD_FONT_SIZE / 4, RES_Y - HUD_FONT_SIZE);
-	sprintf(buf, "%d", level->game_logic.player.ammo);
+	ft_sprintf(buf, "%d", level->game_logic.player.ammo);
 	render_text(buf, RES_X - ((HUD_FONT_SIZE / 2) * strlen(buf)),
 		RES_Y - HUD_FONT_SIZE);
 }

@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2022/11/11 13:08:11 by rpehkone         ###   ########.fr       */
+/*   Updated: 2022/11/11 15:00:35 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,8 +28,8 @@ int	point_in_tri(t_vec2 pt, t_vec2 v1, t_vec2 v2, t_vec2 v3)
 	d1 = sign(pt, v1, v2);
 	d2 = sign(pt, v2, v3);
 	d3 = sign(pt, v3, v1);
-	has_neg = (d1 < 0) || (d2 < 0) || (d3 < 0);
-	has_pos = (d1 > 0) || (d2 > 0) || (d3 > 0);
+	has_neg = ((d1 < 0) || (d2 < 0) || (d3 < 0));
+	has_pos = ((d1 > 0) || (d2 > 0) || (d3 > 0));
 	return (!(has_neg && has_pos));
 }
 

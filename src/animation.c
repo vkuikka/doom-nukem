@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2022/11/11 13:45:30 by rpehkone         ###   ########.fr       */
+/*   Updated: 2022/11/11 15:00:49 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ int	load_animation(char *get_filename, t_obj_animation *animation,
 	i = 0;
 	while (i < amount)
 	{
-		sprintf(filename, "%s_%06d.obj", get_filename, i);
+		ft_sprintf(filename, "%s_%06d.obj", get_filename, i);
 		mem = read_embedded_file(filename);
 		load_obj_from_memory(mem, &animation->keyframes[i]);
 		if (!obj_check_polygon_equality(&animation->keyframes[0],

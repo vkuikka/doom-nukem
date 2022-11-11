@@ -6,7 +6,7 @@
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/11 18:58:59 by vkuikka          ###   ########.fr       */
+/*   Updated: 2022/03/09 15:08:33 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,11 +40,11 @@ void	bmp_set(t_bmp *img, int *tmp)
 
 int	bmp_error_check(t_bmp_fileheader fh, t_bmp_infoheader ih)
 {
-	if (fh.fileMarker1 != 'B' && fh.fileMarker2 != 'M')
+	if (fh.file_marker1 != 'B' && fh.file_marker2 != 'M')
 		nonfatal_error("not bmp file");
-	else if (ih.bitPix != 32)
+	else if (ih.bit_pix != 32)
 		nonfatal_error("bmp read Unknown bmp image bit depth\n");
-	else if (ih.biCompression != 0)
+	else if (ih.bi_compression != 0)
 		nonfatal_error("invalid bmp settings (use provided ./texture.py)");
 	else
 		return (FALSE);

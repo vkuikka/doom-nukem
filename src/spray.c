@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2022/11/11 13:56:02 by rpehkone         ###   ########.fr       */
+/*   Updated: 2022/11/11 15:07:48 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ void	spray_point(t_level *l, t_vec2 texture, t_vec2 steps, t_tri *tri)
 
 	texture_coord = (int)texture.x + (int)texture.y * l->texture.width;
 	spray_coord = (int)(l->spray.width * steps.x)
-		+ (int)(l->spray.height * steps.y) *l->spray.width;
+		+ (int)(l->spray.height * steps.y) * l->spray.width;
 	if (spray_coord >= l->spray.width * l->spray.height || spray_coord < 0)
 		return ;
 	point.x = texture.x / l->texture.width;

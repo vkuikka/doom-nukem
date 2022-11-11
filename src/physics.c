@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2022/11/11 13:53:56 by rpehkone         ###   ########.fr       */
+/*   Updated: 2022/11/11 15:05:38 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,21 +101,18 @@ int	player_collision(t_vec3 *vel, t_vec3 *pos, t_level *level,
 	r.pos = *pos;
 	r.dir = (t_vec3){0, 1, 0};
 	dist = cast_all(r, level, &index);
-	if (dist != FLT_MAX && dist <= height)
-		pos->y -= height - dist;
-	r.pos = *pos;
-	r.pos.y += height / PLAYER_HEIGHT_MAGIC;
-	r.dir = *vel;
-	dist = cast_all(r, level, &index);
-	if (dist != FLT_MAX
-		&& - level->all.tris[index].normal.y < WALKABLE_NORMAL_MIN_Y
-		&& dist <= vec_length(*vel) + WALL_CLIP_DIST)
+	if (dist != FLT_MAX)
 	{
 		normal = level->all.tris[index].normal;
-		vec_mult(&normal, vec_dot(*vel, normal));
-		vec_sub(vel, *vel, normal);
-		return (1);
+		if (normal.y < 0 && dist <= height)
+			pos->y -= height - dist;
 	}
+	r.pos = *pos;
+	r.dir = *vel;
+	physics_raycast(r, level, vel);
+	r.pos.y += height / PLAYER_HEIGHT_MAGIC;
+	r.dir = *vel;
+	physics_raycast(r, level, vel);
 	return (0);
 }
 
@@ -294,4 +291,25 @@ void	player_movement(t_level *level)
 		level->ui.wishdir.x = player->wishdir.x;
 		level->ui.wishdir.y = player->wishdir.z;
 	}
+}
+
+int	physics_raycast(t_ray r, t_level *level, t_vec3 *vel)
+{
+	float	dist;
+	int		index;
+	t_vec3	normal;
+
+	dist = cast_all(r, level, &index);
+	if (dist != FLT_MAX)
+	{
+		normal = level->all.tris[index].normal;
+		if ((normal.y < 0 || - normal.y < WALKABLE_NORMAL_MIN_Y)
+			&& dist <= vec_length(*vel) + WALL_CLIP_DIST)
+		{
+			vec_mult(&normal, vec_dot(*vel, normal));
+			vec_sub(vel, *vel, normal);
+			return (1);
+		}
+	}
+	return (0);
 }

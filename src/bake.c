@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2022/11/11 13:45:49 by rpehkone         ###   ########.fr       */
+/*   Updated: 2022/11/11 15:01:01 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -259,6 +259,8 @@ void	clear_bake(t_level *level)
 
 void	start_bake(t_level *level)
 {
+	SDL_Thread	*bake_thread;
+
 	if ((level->texture.width != level->normal_map.width
 			|| level->texture.height != level->normal_map.height)
 		&& !level->ui.normal_map_disabled)
@@ -276,7 +278,8 @@ void	start_bake(t_level *level)
 		clear_bake(level);
 		level->bake_status = BAKE_BAKING;
 		level->bake_progress = 0;
-		SDL_CreateThread(bake, "bake", (void *)level);
+		bake_thread = SDL_CreateThread(bake, "bake", (void *)level);
+		SDL_DetachThread(bake_thread);
 		level->baked_size.x = level->texture.width;
 		level->baked_size.y = level->texture.height;
 	}

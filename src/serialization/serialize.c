@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2022/11/11 13:55:19 by rpehkone         ###   ########.fr       */
+/*   Updated: 2022/11/11 14:54:40 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -239,6 +239,18 @@ void	serialize_level_images(t_level *level, t_buffer *buf)
 		serialize_int(level->spray_overlay[i], buf);
 		i++;
 	}
+	i = (int)level->bake_status;
+	serialize_int(i, buf);
+	if (level->bake_status == BAKE_NOT_BAKED)
+		return ;
+	i = 0;
+	while (i < level->texture.height * level->texture.width)
+	{
+		serialize_float(level->baked[i].r, buf);
+		serialize_float(level->baked[i].g, buf);
+		serialize_float(level->baked[i].b, buf);
+		i++;
+	}
 }
 
 void	serialize_pickups(t_level *level, t_buffer *buf)
@@ -285,6 +297,7 @@ void	serialize_level(t_level *level, t_buffer *buf)
 	serialize_level_images(level, buf);
 	serialize_projectile(&level->game_logic.player_projectile_settings, buf);
 	serialize_projectile(&level->game_logic.enemy_projectile_settings, buf);
+	serialize_int(level->ui.normal_map_disabled, buf);
 	serialize_obj(&level->all, buf);
 	serialize_doors(level, buf);
 	serialize_lights(level, buf);

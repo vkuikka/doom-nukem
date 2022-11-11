@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2022/11/11 13:52:40 by rpehkone         ###   ########.fr       */
+/*   Updated: 2022/11/11 15:05:08 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,7 @@ void	move_selected(t_level *l, t_vec3 dir)
 					vec_add(&l->all.tris[i].verts[k].pos,
 						l->all.tris[i].verts[k].pos, dir);
 		}
-		tri_optimize(&l->all.tris[i]);
+		tri_optimize(&l->all.tris[i], false);
 	}
 }
 
@@ -147,7 +147,7 @@ void	set_new_face(t_tri *tri, t_vec3 pos, t_vec3 dir, float scale)
 	vec_mult(&tri_avg, 2);
 	vec_add(&tri_avg, pos, tri_avg);
 	set_new_face_pos(tri, tri_avg, scale);
-	tri_optimize(tri);
+	tri_optimize(tri, false);
 }
 
 void	add_face(t_level *level)

@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2022/11/11 13:59:05 by rpehkone         ###   ########.fr       */
+/*   Updated: 2022/11/11 15:08:14 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,8 @@ void	div_every_uv(t_level *l)
 
 void	coloring_loop(t_tri *t1, t_bmp *img, t_uv *v)
 {
+	t_ivec2	pixel;
+
 	while (++v->inc.y < 3)
 	{
 		v->check.x = v->coord_uv.x + v->precision.x * v->inc.x;
@@ -43,9 +45,13 @@ void	coloring_loop(t_tri *t1, t_bmp *img, t_uv *v)
 			|| (t1->isquad && point_in_tri(v->check, t1->verts[3].txtr,
 					t1->verts[1].txtr, t1->verts[2].txtr)))
 		{
+			pixel.x = v->coord.x;
+			pixel.y = img->height - v->coord.y;
+			wrap_coords(&pixel.x, &pixel.y, img->width, img->height);
 			v->og.x = v->coord.x - v->diff.x * img->width;
 			v->og.y = (img->height - v->coord.y) + v->diff.y * img->height;
-			img->image[v->coord.x + (img->height - v->coord.y) * img->width]
+			wrap_coords(&v->og.x, &v->og.y, img->width, img->height);
+			img->image[pixel.x + pixel.y * img->width]
 				= img->image[v->og.x + v->og.y * img->width];
 			return ;
 		}

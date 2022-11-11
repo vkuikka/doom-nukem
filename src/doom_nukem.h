@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   doom_nukem.h                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/07 18:28:50 by vkuikka           #+#    #+#             */
-/*   Updated: 2022/02/07 15:29:55 by vkuikka          ###   ########.fr       */
+/*   Updated: 2022/06/06 00:33:38 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@
 # define GROUND_FRICTION 5.
 # define PLAYER_EYE_HEIGHT 1.65
 # define PLAYER_HEIGHT_MAGIC 1.3
+# define PLAYER_PROJECTILE_START_POS 2.5
 # define CROUCHED_HEIGHT 1
 # define WALL_CLIP_DIST 0.3
 # define REFLECTION_DEPTH 3
@@ -43,6 +44,7 @@
 # define SSP_INITIAL_SIZE 5
 
 # define ENEMY_MOVABLE_HEIGHT_DIFF 3
+# define ENEMY_WALK_NEAR_DISTANCE 2.5
 # define MAX_PROJECTILE_TRAVEL 100
 # define PROJECTILE_DAMAGE_DIST 3
 # define SPRAY_LINE_PRECISION 2
@@ -84,7 +86,7 @@
 # define PLAYER_AMMO_MAX 30
 # define DEATH_LENGTH_SEC 5
 # define DEATH_OVERLAY_COLOR 0xff000088
-# define RELOAD_ANIMATION_DURATION 2.0//s
+# define RELOAD_ANIMATION_DURATION 3.0//s
 # define ITEM_PICKUP_DIST 1.4//m
 # define ITEM_SPAWN_TIME 30//s
 # define RADIAL_GRADIENT_RESOLUTION 30
@@ -140,6 +142,7 @@
 # include <mach-o/dyld.h>
 # include <mach-o/getsect.h>
 # include "get_next_line.h"
+# include "printf.h"
 # include "SDL2/SDL.h"
 # include "SDL2_ttf/SDL_ttf.h"
 # include "SDL2_mixer/SDL_mixer.h"
@@ -300,6 +303,7 @@ typedef struct s_tri
 	int					isgrid;
 	int					isbreakable;
 	int					isbroken;
+	int					dynamic;
 	float				opacity;
 	float				reflectivity;
 	float				refractivity;
@@ -711,6 +715,7 @@ typedef struct s_level
 	t_skybox			sky;
 	t_camera			cam;
 	int					level_initialized;
+	int					ui_hidden;
 	t_editor_ui			ui;
 	t_all_doors			doors;
 	t_light				*lights;
@@ -727,29 +732,29 @@ typedef struct s_level
 
 typedef struct __attribute__((__packed__)) s_bmp_fileheader
 {
-	char		fileMarker1;
-	char		fileMarker2;
-	int16_t		bfSize;
-	int16_t		bfFill1;
-	int16_t		bfReserved1;
-	int16_t		bfReserved2;
-	int16_t		bfOffBits;
-	int16_t		bfFill2;
+	char		file_marker1;
+	char		file_marker2;
+	int16_t		bf_size;
+	int16_t		bf_fill1;
+	int16_t		bf_reserved1;
+	int16_t		bf_reserved2;
+	int16_t		bf_off_bits;
+	int16_t		bf_fill2;
 }						t_bmp_fileheader;
 
 typedef struct __attribute__((__packed__)) s_bmp_infoheader
 {
-	int					biSize;
+	int					bi_size;
 	int					width;
 	int					height;
 	int16_t				planes;
-	int16_t				bitPix;
-	int					biCompression;
-	int					biSizeImage;
-	int					biXPelsPerMeter;
-	int					biYPelsPerMeter;
-	int					biClrUsed;
-	int					biClrImportant;
+	int16_t				bit_pix;
+	int					bi_compression;
+	int					bi_size_image;
+	int					bi_x_pels_per_meter;
+	int					bi_y_pels_per_meter;
+	int					bi_clr_used;
+	int					bi_clr_important;
 }						t_bmp_infoheader;
 
 typedef struct s_cast_result
@@ -767,6 +772,7 @@ typedef struct s_cast_result
 	t_bmp				*texture;
 	t_color				*baked;
 	unsigned int		*spray_overlay;
+	int					dynamic;
 	int					raycast_amount;
 }						t_cast_result;
 
@@ -792,8 +798,8 @@ typedef struct s_blur
 
 typedef struct s_window
 {
-	SDL_Renderer		*SDLrenderer;
-	SDL_Window			*SDLwindow;
+	SDL_Renderer		*sdl_renderer;
+	SDL_Window			*sdl_window;
 	SDL_Texture			*texture;
 	unsigned int		*frame_buffer;
 	float				*depth_buffer;
@@ -837,6 +843,7 @@ void			fix_uv_overlap(t_level *level);
 float			find_angle(t_vec3 v1, t_vec3 v2);
 void			turn_sprite(t_tri *tri, t_vec3 look_at);
 void			merge_sprite(t_level *level, t_vec3 pos, t_bmp *texture);
+void			reset_doors(t_level *level);
 void			door_start_animate(t_door *door);
 float			dist_to_door_activation(t_level *level, t_door *door);
 void			door_activate(t_level *level);
@@ -890,7 +897,7 @@ int				set_tri(char *str, t_vec3 *verts, t_vec2 *uvs, t_tri *tri);
 int				obj_set_all_tris_res(t_vec3 *verts, t_vec2 *uvs, int res);
 int				obj_set_all_tris(char **file, t_obj *obj);
 int				obj_get_face_amount(char **file);
-void			tri_optimize(t_tri *tri);
+void			tri_optimize(t_tri *tri, int is_dynamic);
 int				load_obj_internal(char **file, t_obj *obj);
 int				load_obj(char *filename, t_obj *obj);
 void			load_obj_from_memory(unsigned char *data, t_obj *obj);
@@ -917,8 +924,7 @@ int				check_uv_edge(int i, int j, t_tri t1, t_tri t2);
 int				tri_uv_intersect(t_tri t1, t_tri t2);
 void			player_reload(t_level *level);
 void			player_shoot(t_level *level);
-void			game_finished(t_level *level, t_game_state *game_state,
-					float time);
+void			game_finished(t_level *level, t_game_state *game_state);
 int				pick_up_pick_ups(t_level *level, t_item_pickup *pickups,
 					int amount);
 void			reset_pick_ups(t_level *level);
@@ -1116,7 +1122,7 @@ void			mouse_input(t_level *level, SDL_Event event);
 void			toggle_mouse_capture(t_level *level, t_window *window,
 					t_game_state *game_state);
 void			ui_go_back(t_level *level, t_game_state *game_state);
-void			keyboard_input(t_window *window, t_level *level,
+void			keyboard_input(t_level *level,
 					SDL_Event event, t_game_state *game_state);
 void			read_input(t_window *window, t_level *level,
 					t_game_state *game_state);
@@ -1148,8 +1154,6 @@ void			dnukem(t_window *window, t_level *level,
 					t_game_state game_state);
 int				main(int argc, char **argv);
 void			enemy_turn(t_enemy *enemy);
-void			enemy_vision(t_enemy *enemy, t_level *level,
-					t_enemy_settings *settings);
 void			enemy_attack(t_enemy *enemy, t_level *level);
 void			enemy_move(t_enemy *enemy, t_level *level);
 void			enemy_state_machine(t_enemy *enemy, t_level *level);
@@ -1361,8 +1365,6 @@ int				mouse_collision(t_rect rect, t_ivec2 mouse);
 int				main_menu_button_text(char *text, int index, t_level *level,
 					unsigned int *pixels);
 void			fix_faces(t_level *level);
-void			main_menu_buttons_level(t_game_state *game_state,
-					int *state_changed, t_level *level, unsigned int *pixels);
 void			main_menu_buttons_other(t_game_state *game_state,
 					int *state_changed, t_level *level, unsigned int *pixels);
 void			main_menu(t_level *level, unsigned int *pixels,
@@ -1522,4 +1524,7 @@ float			hton_float(float value);
 void			serialize_float(float x, t_buffer *buf);
 void			serialize_int(int x, t_buffer *buf);
 void			save_level(t_level *level);
+int				physics_raycast(t_ray r, t_level *level, t_vec3 *vel);
+void			realloc_baked_and_spray(t_level *level);
+
 #endif

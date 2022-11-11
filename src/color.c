@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2022/11/11 13:46:50 by rpehkone         ###   ########.fr       */
+/*   Updated: 2022/11/11 15:02:11 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -437,11 +437,13 @@ void	face_color(float u, float v, t_tri t, t_cast_result *res)
 		+ t.verts[2].txtr.y * res->texture->height * u;
 	wrap_coords_inverted(&x, &y, res->texture->width, res->texture->height);
 	res->color = res->texture->image[x + (y * res->texture->width)];
-	if (res->spray_overlay && res->spray_overlay[x + y * res->texture->width])
+	if (!t.dynamic && res->spray_overlay
+		&& res->spray_overlay[x + y * res->texture->width])
 		res->color = res->spray_overlay[x + y * res->texture->width];
-	if (res->baked && !res->raytracing && !t.isgrid && t.shader == SHADER_NONE)
+	if (!t.dynamic && res->baked && !res->raytracing
+		&& !t.isgrid && t.shader == SHADER_NONE)
 		baked_color(res, x, y);
-	if (res->normal_map)
+	if (!t.dynamic && res->normal_map)
 		normal_map(u, v, t, res);
 	else
 		res->normal = t.normal;

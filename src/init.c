@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2022/11/11 13:52:00 by rpehkone         ###   ########.fr       */
+/*   Updated: 2022/11/11 15:04:39 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,8 +69,8 @@ void	init_animation(t_level *level)
 	res += load_animation("_die",
 			&level->game_models.enemy_die, 14, 3.0);
 	level->game_models.enemy_die.loop = FALSE;
-	res += load_animation("odel",
-			&level->game_models.reload_animation, 3, RELOAD_ANIMATION_DURATION);
+	res += load_animation("odel", &level->game_models.reload_animation,
+			11, RELOAD_ANIMATION_DURATION);
 	level->game_models.viewmodel
 		= get_animation_target(&level->game_models.reload_animation);
 	if (res != 3)
@@ -114,6 +114,7 @@ void	init_textures(t_level *level)
 	level->game_models.enemy.texture
 		= bmp_read_from_memory(mem);
 	free(mem);
+	init_textures_2(level);
 }
 
 void	projectile_default(t_projectile *projectile)
@@ -162,12 +163,18 @@ void	level_default_settings(t_level *level)
 void	read_embedded_images(t_level *level, unsigned char *mem)
 {
 	mem = read_embedded_file("normal.bmp");
+	if (level->normal_map.image)
+		free(level->normal_map.image);
 	level->normal_map = bmp_read_from_memory(mem);
 	free(mem);
 	mem = read_embedded_file("skybox.bmp");
+	if (level->sky.img.image)
+		free(level->sky.img.image);
 	level->sky.img = bmp_read_from_memory(mem);
 	free(mem);
 	mem = read_embedded_file("spray.bmp");
+	if (level->spray.image)
+		free(level->spray.image);
 	level->spray = bmp_read_from_memory(mem);
 	free(mem);
 }
@@ -176,23 +183,22 @@ void	create_default_level(t_level *level)
 {
 	unsigned char	*mem;
 
+	delete_all_doors(level);
+	delete_all_lights(level);
 	level_default_settings(level);
 	mem = read_embedded_file("out.bmp");
+	if (level->texture.image)
+		free(level->texture.image);
 	level->texture = bmp_read_from_memory(mem);
 	free(mem);
-	level->baked = (t_color *)malloc(sizeof(t_color)
-			* (level->texture.width * level->texture.height));
-	if (!level->baked)
-		ft_error("memory allocation failed\n");
-	level->spray_overlay = (unsigned int *)malloc(sizeof(unsigned int)
-			* (level->texture.width * level->texture.height));
-	if (!level->spray_overlay)
-		ft_error("memory allocation failed\n");
-	ft_bzero(level->spray_overlay,
-		level->texture.width * level->texture.height * 4);
-	level->bake_status = BAKE_NOT_BAKED;
+	realloc_baked_and_spray(level);
 	read_embedded_images(level, mem);
 	mem = read_embedded_file("ship_final.obj");
+	if (level->all.tris)
+	{
+		free_culling(level);
+		free(level->all.tris);
+	}
 	load_obj_from_memory(mem, &level->all);
 	free(mem);
 	init_culling(level);
@@ -200,18 +206,18 @@ void	create_default_level(t_level *level)
 
 void	init_window_struct(t_window **window)
 {
-	window[0]->SDLwindow = SDL_CreateWindow("DOOM NUKEM",
+	window[0]->sdl_window = SDL_CreateWindow("DOOM NUKEM",
 			SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
 			RES_X, RES_Y, SDL_WINDOW_ALLOW_HIGHDPI);
-	if (!window[0]->SDLwindow)
+	if (!window[0]->sdl_window)
 		ft_error("could not create window");
-	window[0]->SDLrenderer
-		= SDL_CreateRenderer(window[0]->SDLwindow, -1, 0);
-	if (!window[0]->SDLrenderer)
+	window[0]->sdl_renderer
+		= SDL_CreateRenderer(window[0]->sdl_window, -1, 0);
+	if (!window[0]->sdl_renderer)
 		ft_error("could not create renderer");
-	window[0]->raster_texture = empty_texture(window[0]->SDLrenderer);
+	window[0]->raster_texture = empty_texture(window[0]->sdl_renderer);
 	SDL_SetTextureBlendMode(window[0]->raster_texture, SDL_BLENDMODE_BLEND);
-	window[0]->texture = empty_texture(window[0]->SDLrenderer);
+	window[0]->texture = empty_texture(window[0]->sdl_renderer);
 	window[0]->frame_buffer = NULL;
 	window[0]->depth_buffer
 		= (float *)malloc(sizeof(float) * (RES_X * RES_Y));
@@ -234,6 +240,7 @@ void	init_window(t_window **window)
 	if (!*window)
 		ft_error("memory allocation failed\n");
 	init_window_struct(window);
+	SDL_RenderClear((*window)->sdl_renderer);
 }
 
 void	init_audio_effects_2(t_level *l)
@@ -333,4 +340,23 @@ void	init_embedded(t_level *level)
 	init_animation(level);
 	init_textures(level);
 	init_fonts(&level->ui);
+}
+
+void	realloc_baked_and_spray(t_level *level)
+{
+	if (level->baked)
+		free(level->baked);
+	level->baked = (t_color *)malloc(sizeof(t_color)
+			* (level->texture.width * level->texture.height));
+	if (!level->baked)
+		ft_error("memory allocation failed\n");
+	if (level->spray_overlay)
+		free(level->spray_overlay);
+	level->spray_overlay = (unsigned int *)malloc(sizeof(unsigned int)
+			* (level->texture.width * level->texture.height));
+	if (!level->spray_overlay)
+		ft_error("memory allocation failed\n");
+	ft_bzero(level->spray_overlay,
+		level->texture.width * level->texture.height * 4);
+	level->bake_status = BAKE_NOT_BAKED;
 }

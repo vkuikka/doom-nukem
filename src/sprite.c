@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   sprite_0.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/11 18:58:59 by vkuikka          ###   ########.fr       */
+/*   Updated: 2022/06/06 00:12:08 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ void	merge_sprite(t_level *level, t_vec3 pos, t_bmp *texture)
 	set_new_face(&level->visible.tris[i], pos, (t_vec3){0, 0, 0}, .1);
 	level->visible.tris[i].isquad = TRUE;
 	turn_sprite(&level->visible.tris[i], level->cam.pos);
-	tri_optimize(&level->visible.tris[i]);
+	tri_optimize(&level->visible.tris[i], true);
 	level->visible.tris[i].texture = texture;
 	level->visible.tri_amount++;
 }

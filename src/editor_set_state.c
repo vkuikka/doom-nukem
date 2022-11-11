@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2022/11/11 13:50:30 by rpehkone         ###   ########.fr       */
+/*   Updated: 2022/11/11 15:03:31 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,7 @@ void	set_texture(t_level *level, char *filename)
 		ft_error("memory allocation failed\n");
 	ft_bzero(level->spray_overlay,
 		level->texture.width * level->texture.height * 4);
+	level->bake_status = BAKE_NOT_BAKED;
 }
 
 void	set_normal_map(t_level *level, char *filename)
@@ -61,6 +62,7 @@ void	set_normal_map(t_level *level, char *filename)
 		return ;
 	free(level->normal_map.image);
 	level->normal_map = tmp;
+	level->bake_status = BAKE_NOT_BAKED;
 }
 
 void	set_skybox(t_level *level, char *filename)

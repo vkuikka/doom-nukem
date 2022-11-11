@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   projectile_0.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/11 18:58:59 by vkuikka          ###   ########.fr       */
+/*   Updated: 2022/06/06 00:30:54 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ void	create_projectile(t_game_logic *logic, t_vec3 pos,
 	logic->projectiles[i] = get;
 	logic->projectiles[i].pos = pos;
 	logic->projectiles[i].dir = dir;
-	vec_mult(&dir, 3);
+	vec_mult(&dir, PLAYER_PROJECTILE_START_POS);
 	vec_add(&logic->projectiles[i].pos,
 		logic->projectiles[i].pos, dir);
 	logic->projectile_amount++;

@@ -12,40 +12,32 @@
 
 #include "doom_nukem.h"
 
-void	enemy_turn(t_enemy *enemy)
-{
-	vec_sub(&enemy->dir, enemy->move_to, enemy->pos);
-	enemy->dir.y = 0;
-	vec_normalize(&enemy->dir);
-	enemy->dir_rad = -1 * atan2(enemy->dir.z, enemy->dir.x) - M_PI / 2;
-}
-
 void	enemy_vision(t_enemy *enemy, t_level *level,
 					t_enemy_settings *settings)
 {
 	float	enemy_view_dist;
-	t_vec3	player;
 	float	dist;
 	t_ray	e;
 
 	enemy->can_see_player = FALSE;
-	player = level->cam.pos;
 	e.pos = enemy->pos;
 	e.pos.y -= 1.7;
-	vec_sub(&e.dir, player, e.pos);
+	vec_sub(&e.dir, level->cam.pos, e.pos);
 	dist = cast_all(e, level, NULL);
-	if (player.y > e.pos.y - ENEMY_MOVABLE_HEIGHT_DIFF
-		&& player.y < e.pos.y + ENEMY_MOVABLE_HEIGHT_DIFF)
+	if (level->cam.pos.y > e.pos.y - ENEMY_MOVABLE_HEIGHT_DIFF
+		&& level->cam.pos.y < e.pos.y + ENEMY_MOVABLE_HEIGHT_DIFF)
 	{
+		enemy_view_dist = settings->dist_limit;
 		if (level->ui.fog)
 			enemy_view_dist = level->ui.render_distance;
-		else
-			enemy_view_dist = settings->dist_limit;
 		if (dist > vec_length(e.dir) && dist < enemy_view_dist)
 		{
 			enemy->can_see_player = TRUE;
 			enemy->move_to = level->cam.pos;
-			enemy_turn(enemy);
+			vec_sub(&enemy->dir, enemy->move_to, enemy->pos);
+			enemy->dir.y = 0;
+			vec_normalize(&enemy->dir);
+			enemy->dir_rad = -1 * atan2(enemy->dir.z, enemy->dir.x) - M_PI / 2;
 		}
 	}
 }
@@ -74,6 +66,20 @@ void	enemy_attack(t_enemy *enemy, t_level *level)
 		create_projectile(&level->game_logic, pos, enemy->dir,
 			level->game_logic.enemy_projectile_settings);
 	}
+}
+
+int	enemy_too_close(t_enemy *enemy, t_level *level)
+{
+	t_vec3	tmp;
+
+	vec_sub(&tmp, level->cam.pos, enemy->pos);
+	if (vec_length(tmp) < ENEMY_WALK_NEAR_DISTANCE)
+	{
+		enemy->move_start_time = 0;
+		enemy->shoot_start_time = SDL_GetTicks();
+		return (TRUE);
+	}
+	return (FALSE);
 }
 
 void	enemy_move(t_enemy *enemy, t_level *level)
@@ -107,7 +113,7 @@ void	enemy_state_machine(t_enemy *enemy, t_level *level)
 		return ;
 	}
 	enemy_vision(enemy, level, &level->game_logic.enemy_settings);
-	if (enemy->move_start_time)
+	if (!enemy_too_close(enemy, level) && enemy->move_start_time)
 		enemy_move(enemy, level);
 	else
 	{

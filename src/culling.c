@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2022/11/11 13:47:28 by rpehkone         ###   ########.fr       */
+/*   Updated: 2022/11/11 15:02:42 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -378,6 +378,7 @@ void	init_culling(t_level *level)
 			|| !level->all.tris[i].reflection_obj_all.tris
 			|| !level->all.tris[i].shadow_faces.tris)
 			ft_error("culling malloc fail");
+		level->all.tris[i].dynamic = FALSE;
 	}
 	static_culling(level);
 }

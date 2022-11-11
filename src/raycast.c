@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2022/11/11 13:54:19 by rpehkone         ###   ########.fr       */
+/*   Updated: 2022/11/11 15:05:54 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,7 @@ void	raytrace(t_cast_result *res, t_obj *obj, t_level *l)
 		res->color = shader_perlin(tmp, l, res);
 	if (l->all.tris[res->face_index].shader == SHADER_RULE_30)
 		res->color = shader_rule30(tmp);
-	else if (!res->baked || res->raytracing
+	else if (!res->baked || res->raytracing || res->dynamic
 		|| l->all.tris[res->face_index].isgrid
 		|| l->all.tris[res->face_index].shader != SHADER_NONE)
 	{
@@ -128,6 +128,7 @@ void	cast_all_color(t_level *l, t_obj *obj, t_cast_result *res,
 		skybox(l, res);
 	else
 	{
+		res->dynamic = obj->tris[new_hit].dynamic;
 		res->face_index = obj->tris[new_hit].index;
 		res->texture = obj->tris[new_hit].texture;
 		face_color(res->uv.x, res->uv.y, obj->tris[new_hit], res);

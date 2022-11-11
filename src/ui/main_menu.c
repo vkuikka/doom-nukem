@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2022/11/11 13:52:25 by rpehkone         ###   ########.fr       */
+/*   Updated: 2022/11/11 14:56:11 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,31 +84,42 @@ void	fix_faces(t_level *level)
 	}
 }
 
-void	main_menu_buttons_level(t_game_state *game_state, int *state_changed,
+static void	start_game(t_game_state *game_state, t_level *level)
+{
+	t_window	*window;
+
+	level->ui.noclip = FALSE;
+	*game_state = GAME_STATE_INGAME;
+	ui_go_back(level, game_state);
+	*game_state = GAME_STATE_INGAME;
+	obj_copy(&level->game_models.viewmodel,
+		&level->game_models.reload_animation.keyframes[0]);
+	spawn_enemies(level);
+	reset_doors(level);
+	Mix_PlayMusic(level->audio.game_music, -1);
+	level->ui.state.mouse_capture = TRUE;
+	window = get_window(NULL);
+	SDL_SetRelativeMouseMode(SDL_TRUE);
+}
+
+int	main_menu_buttons_level(t_game_state *game_state,
 						t_level *level, unsigned int *pixels)
 {
 	if (main_menu_button_text("play", 0, level, pixels)
 		&& level->bake_status != BAKE_BAKING)
+		start_game(game_state, level);
+	else if (main_menu_button_text("edit level", 1, level, pixels))
 	{
-		*game_state = GAME_STATE_INGAME;
-		*state_changed = TRUE;
-		level->ui.noclip = FALSE;
-		level->game_logic.player.health = PLAYER_HEALTH_MAX;
-		level->game_logic.player.ammo = PLAYER_AMMO_MAX;
-		spawn_enemies(level);
-		fix_faces(level);
-		Mix_PlayMusic(level->audio.game_music, -1);
-	}
-	if (main_menu_button_text("edit level", 1, level, pixels))
-	{
-		Mix_HaltMusic();
-		level->ui.state.m1_click = FALSE;
 		level->ui.noclip = TRUE;
+		Mix_HaltMusic();
 		*game_state = GAME_STATE_EDITOR;
-		*state_changed = TRUE;
 		level->ui.state.ui_location = UI_LOCATION_MAIN;
-		fix_faces(level);
 	}
+	else
+		return (0);
+	level->ui.state.m1_click = FALSE;
+	fix_faces(level);
+	return (1);
 }
 
 void	main_menu_buttons_other(t_game_state *game_state, int *state_changed,
@@ -145,7 +156,7 @@ void	main_menu(t_level *level, unsigned int *pixels,
 	state_changed = FALSE;
 	level->ui.state.ui_max_width = 0;
 	if (level->level_initialized)
-		main_menu_buttons_level(game_state, &state_changed, level, pixels);
+		state_changed += main_menu_buttons_level(game_state, level, pixels);
 	main_menu_buttons_other(game_state, &state_changed, level, pixels);
 	if (state_changed)
 	{

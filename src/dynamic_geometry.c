@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2022/11/11 13:50:22 by rpehkone         ###   ########.fr       */
+/*   Updated: 2022/11/11 15:03:24 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,7 @@ void	merge_mesh(t_level *level, t_obj *obj, t_vec3 pos, t_vec2 rotation)
 			vec_add(&level->visible.tris[i].verts[z].pos,
 				level->visible.tris[i].verts[z].pos, pos);
 		}
-		tri_optimize(&level->visible.tris[i]);
+		tri_optimize(&level->visible.tris[i], true);
 		level->visible.tris[i].texture = &obj->texture;
 		i++;
 	}
@@ -159,9 +159,9 @@ t_vec2	viewmodel_sway(t_level *level)
 
 	delta_vel.x -= level->cam.look_side;
 	delta_vel.y -= level->cam.look_up;
-	delta_vel.x *= .3;
-	delta_vel.y *= .8;
-	delta_vel.x = clamp(delta_vel.x, -0.2, 0.2);
+	delta_vel.x /= .08 * (float)level->ui.frame_time;
+	delta_vel.y /= .08 * (float)level->ui.frame_time;
+	delta_vel.x = clamp(delta_vel.x, -0.15, 0.15);
 	delta_vel.y = clamp(delta_vel.y, -0.6, 0.6);
 	res = delta_vel;
 	delta_vel.x = level->cam.look_side;

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   enemies_0.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/11 18:58:59 by vkuikka          ###   ########.fr       */
+/*   Updated: 2022/04/01 19:02:34 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ void	enemy_spawn(t_enemy *enemy, t_enemy_settings *settings)
 {
 	enemy->dead_start_time = 0;
 	enemy->current_attack_delay = 0;
-	enemy->dir = (t_vec3){1, 0, 0};
+	enemy->dir = (t_vec3){0, 0, 0};
 	enemy->dir_rad = 0;
 	enemy->pos = enemy->spawn_pos;
 	enemy->remaining_health = settings->initial_health;

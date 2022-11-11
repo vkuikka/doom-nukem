@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2022/11/11 13:46:58 by rpehkone         ###   ########.fr       */
+/*   Updated: 2022/11/11 15:02:17 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,17 +45,17 @@ float	area(t_vec3 *a, t_vec3 *b, t_vec3 *c)
 
 int	vec3_point_in_tri(t_vec3 *p, t_vec3 *a, t_vec3 *b, t_vec3 *c)
 {
-	float	A;
-	float	A1;
-	float	A2;
-	float	A3;
+	float	a0;
+	float	a1;
+	float	a2;
+	float	a3;
 
-	A = area(a, b, c);
-	A1 = area(p, b, c);
-	A2 = area(a, p, c);
-	A3 = area(a, b, p);
+	a0 = area(a, b, c);
+	a1 = area(p, b, c);
+	a2 = area(a, p, c);
+	a3 = area(a, b, p);
 	return (is_value_close(
-			A, A1 + A2 + A3, OCCLUSION_CULLING_FLOAT_ERROR_MAGIC_NUMBER));
+			a0, a1 + a2 + a3, OCCLUSION_CULLING_FLOAT_ERROR_MAGIC_NUMBER));
 }
 
 int	vec3_point_in_face(t_vec3 *p, t_tri *face)

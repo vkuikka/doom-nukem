@@ -6,7 +6,7 @@
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2022/11/11 13:51:00 by rpehkone         ###   ########.fr       */
+/*   Updated: 2022/11/11 14:55:21 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,6 +145,8 @@ void	game_logic_move_selected(t_level *level, t_vec3 move)
 	int	i;
 
 	i = level->ui.state.logic_selected_index;
+	if (i >= level->main_menu_anim.amount)
+		level->ui.state.logic_selected = GAME_LOGIC_SELECTED_NONE;
 	level->ui.state.gizmo_active = TRUE;
 	if (level->ui.state.logic_selected == GAME_LOGIC_SELECTED_NONE)
 		level->ui.state.gizmo_active = FALSE;
