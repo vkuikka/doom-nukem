@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/05/19 18:48:10 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/10/12 18:08:27 by rpehkone         ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2022/11/11 14:55:52 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,14 +30,14 @@ unsigned int	cycle_rgb(unsigned int time)
 	return (red + grn + blu + 0x70);
 }
 
-static void	pixel_put_hud(int x, int y, int color, unsigned int *texture)
+void	pixel_put_hud(int x, int y, int color, unsigned int *texture)
 {
 	if (x < 0 || y < 0 || x >= RES_X || y >= RES_Y)
 		return ;
 	texture[x + (y * RES_X)] = color;
 }
 
-static void	death_overlay(unsigned int *pixels)
+void	death_overlay(unsigned int *pixels)
 {
 	int	x;
 	int	y;
@@ -55,7 +55,7 @@ static void	death_overlay(unsigned int *pixels)
 	}
 }
 
-static void	crosshair(unsigned int *pixels, int x, int y)
+void	crosshair(unsigned int *pixels, int x, int y)
 {
 	int	i;
 	int	j;
@@ -89,9 +89,9 @@ void	ingame_hud(t_level *level, unsigned int *pixels)
 	level->ui.state.current_font = level->ui.hud_font;
 	set_text_color(HUD_TEXT_COLOR);
 	crosshair(pixels, RES_X / 2, RES_Y / 2);
-	sprintf(buf, "%d+", level->game_logic.player.health);
+	ft_sprintf(buf, "%d+", level->game_logic.player.health);
 	render_text(buf, HUD_FONT_SIZE / 4, RES_Y - HUD_FONT_SIZE);
-	sprintf(buf, "%d", level->game_logic.player.ammo);
+	ft_sprintf(buf, "%d", level->game_logic.player.ammo);
 	render_text(buf, RES_X - ((HUD_FONT_SIZE / 2) * strlen(buf)),
 		RES_Y - HUD_FONT_SIZE);
 }

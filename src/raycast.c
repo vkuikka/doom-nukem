@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   raycast.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/28 02:12:07 by vkuikka          ###   ########.fr       */
+/*   Updated: 2022/11/11 15:05:54 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ void	rot_cam(t_vec3 *cam, const float lon, const float lat)
 	cam->z = radius * sin(phi) * sin(lon);
 }
 
-static void	trace_bounce(t_cast_result *res, t_obj *obj, t_level *l)
+void	trace_bounce(t_cast_result *res, t_obj *obj, t_level *l)
 {
 	float	opacity_value;
 
@@ -49,7 +49,7 @@ static void	trace_bounce(t_cast_result *res, t_obj *obj, t_level *l)
 	}
 }
 
-static void	add_lightness(t_level *l, t_color light, t_cast_result *res)
+void	add_lightness(t_level *l, t_color light, t_cast_result *res)
 {
 	if (light.r - l->world_brightness > l->ui.bloom_limit
 		|| light.g - l->world_brightness > l->ui.bloom_limit
@@ -72,7 +72,7 @@ void	raytrace(t_cast_result *res, t_obj *obj, t_level *l)
 		res->color = shader_perlin(tmp, l, res);
 	if (l->all.tris[res->face_index].shader == SHADER_RULE_30)
 		res->color = shader_rule30(tmp);
-	else if (!res->baked || res->raytracing
+	else if (!res->baked || res->raytracing || res->dynamic
 		|| l->all.tris[res->face_index].isgrid
 		|| l->all.tris[res->face_index].shader != SHADER_NONE)
 	{
@@ -84,7 +84,7 @@ void	raytrace(t_cast_result *res, t_obj *obj, t_level *l)
 	trace_bounce(res, obj, l);
 }
 
-static int	cast_loop(t_obj *obj, t_cast_result *res)
+int	cast_loop(t_obj *obj, t_cast_result *res)
 {
 	float	tmp_dist;
 	float	min_dist;
@@ -128,6 +128,7 @@ void	cast_all_color(t_level *l, t_obj *obj, t_cast_result *res,
 		skybox(l, res);
 	else
 	{
+		res->dynamic = obj->tris[new_hit].dynamic;
 		res->face_index = obj->tris[new_hit].index;
 		res->texture = obj->tris[new_hit].texture;
 		face_color(res->uv.x, res->uv.y, obj->tris[new_hit], res);
@@ -175,7 +176,7 @@ void	cast_result_set(t_cast_result *res, t_level *level)
 	res->light.b = 0;
 }
 
-static void	set_render_result(t_window *window,
+void	set_render_result(t_window *window,
 								t_cast_result res, unsigned int i)
 {
 	window->frame_buffer[i] = res.color;

@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/03/31 18:32:46 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/25 16:51:07 by rpehkone         ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2022/11/11 15:06:20 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ void	find_closest_mouse(t_vec3 *vert, int *i, int *k, t_ivec2 *mouse)
 	}
 }
 
-static void	update_closest_vertex(t_level *level)
+void	update_closest_vertex(t_level *level)
 {
 	int		i;
 	int		k;
@@ -86,7 +86,7 @@ static void	update_closest_vertex(t_level *level)
 	}
 }
 
-static void	raycast_face_selection(t_ray vec, t_level *level)
+void	raycast_face_selection(t_ray vec, t_level *level)
 {
 	float	dist;
 	float	tmp;

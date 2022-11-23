@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   physics.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/04/10 01:23:16 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/11/06 19:10:00by vkuikka          ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2022/11/11 15:05:38 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
 
-static void	input_player_movement(t_vec3 *wishdir, const Uint8 *keys)
+void	input_player_movement(t_vec3 *wishdir, const Uint8 *keys)
 {
 	if (keys[SDL_SCANCODE_W])
 		wishdir->z += 1;
@@ -24,7 +24,7 @@ static void	input_player_movement(t_vec3 *wishdir, const Uint8 *keys)
 		wishdir->x += 1;
 }
 
-static void	uv_linear_zoom(t_level *level, const Uint8 *keys)
+void	uv_linear_zoom(t_level *level, const Uint8 *keys)
 {
 	if (keys[SDL_SCANCODE_MINUS] && level->ui.state.uv_zoom > 0.5)
 	{
@@ -40,7 +40,7 @@ static void	uv_linear_zoom(t_level *level, const Uint8 *keys)
 	}
 }
 
-static void	input_uv(t_level *level, const Uint8 *keys)
+void	input_uv(t_level *level, const Uint8 *keys)
 {
 	if (level->ui.state.ui_location == UI_LOCATION_UV_EDITOR)
 	{
@@ -63,7 +63,7 @@ static void	input_uv(t_level *level, const Uint8 *keys)
 	}
 }
 
-static void	player_input(t_level *level, t_player *player)
+void	player_input(t_level *level, t_player *player)
 {
 	const Uint8	*keys;
 
@@ -89,9 +89,7 @@ static void	player_input(t_level *level, t_player *player)
 		player->move_speed = RUN_SPEED;
 }
 
-// first if player to ground
-// second if is not floor, is in clip distance
-static int	player_collision(t_vec3 *vel, t_vec3 *pos, t_level *level,
+int	player_collision(t_vec3 *vel, t_vec3 *pos, t_level *level,
 															float height)
 {
 	t_ray	r;
@@ -103,21 +101,18 @@ static int	player_collision(t_vec3 *vel, t_vec3 *pos, t_level *level,
 	r.pos = *pos;
 	r.dir = (t_vec3){0, 1, 0};
 	dist = cast_all(r, level, &index);
-	if (dist != FLT_MAX && dist <= height)
-		pos->y -= height - dist;
-	r.pos = *pos;
-	r.pos.y += height / PLAYER_HEIGHT_MAGIC;
-	r.dir = *vel;
-	dist = cast_all(r, level, &index);
-	if (dist != FLT_MAX
-		&& - level->all.tris[index].normal.y < WALKABLE_NORMAL_MIN_Y
-		&& dist <= vec_length(*vel) + WALL_CLIP_DIST)
+	if (dist != FLT_MAX)
 	{
 		normal = level->all.tris[index].normal;
-		vec_mult(&normal, vec_dot(*vel, normal));
-		vec_sub(vel, *vel, normal);
-		return (1);
+		if (normal.y < 0 && dist <= height)
+			pos->y -= height - dist;
 	}
+	r.pos = *pos;
+	r.dir = *vel;
+	physics_raycast(r, level, vel);
+	r.pos.y += height / PLAYER_HEIGHT_MAGIC;
+	r.dir = *vel;
+	physics_raycast(r, level, vel);
 	return (0);
 }
 
@@ -144,7 +139,7 @@ int	is_player_in_air(t_level *level, float height)
 		return (TRUE);
 }
 
-static void	noclip(t_level *level, t_vec3 *wishdir, float delta_time)
+void	noclip(t_level *level, t_vec3 *wishdir, float delta_time)
 {
 	if (wishdir->x && wishdir->y && wishdir->z)
 		vec_normalize(wishdir);
@@ -156,7 +151,7 @@ static void	noclip(t_level *level, t_vec3 *wishdir, float delta_time)
 	level->game_logic.player.vel = (t_vec3){0, 0, 0};
 }
 
-static void	rotate_wishdir(t_level *level, t_vec3 *wishdir)
+void	rotate_wishdir(t_level *level, t_vec3 *wishdir)
 {
 	float	w;
 
@@ -169,7 +164,7 @@ static void	rotate_wishdir(t_level *level, t_vec3 *wishdir)
 	rotate_vertex(level->cam.look_side, wishdir, 0);
 }
 
-static int	vertical_movement(t_vec3 *wishdir, t_vec3 *vel, float delta_time,
+int	vertical_movement(t_vec3 *wishdir, t_vec3 *vel, float delta_time,
 																	int in_air)
 {
 	if (in_air)
@@ -188,7 +183,7 @@ static int	vertical_movement(t_vec3 *wishdir, t_vec3 *vel, float delta_time,
 	return (0);
 }
 
-static void	air_movement(t_vec3 *wishdir, t_vec3 *vel, float delta_time)
+void	air_movement(t_vec3 *wishdir, t_vec3 *vel, float delta_time)
 {
 	float	length;
 	float	speed;
@@ -227,7 +222,7 @@ void	horizontal_movement_no_input(t_vec3 *vel, float delta_time)
 	}
 }
 
-static void	horizontal_movement(t_vec3 *wishdir, t_vec3 *vel,
+void	horizontal_movement(t_vec3 *wishdir, t_vec3 *vel,
 								float delta_time, float movespeed)
 {
 	float	speed;
@@ -261,7 +256,7 @@ void	apply_velocity(t_vec3 vel, float h, t_level *level, float delta_time)
 	level->game_logic.player.vel = vel;
 }
 
-static void	movement_physics(t_level *level, float delta_time,
+void	movement_physics(t_level *level, float delta_time,
 								t_player *player)
 {
 	t_vec3	vel;
@@ -296,4 +291,25 @@ void	player_movement(t_level *level)
 		level->ui.wishdir.x = player->wishdir.x;
 		level->ui.wishdir.y = player->wishdir.z;
 	}
+}
+
+int	physics_raycast(t_ray r, t_level *level, t_vec3 *vel)
+{
+	float	dist;
+	int		index;
+	t_vec3	normal;
+
+	dist = cast_all(r, level, &index);
+	if (dist != FLT_MAX)
+	{
+		normal = level->all.tris[index].normal;
+		if ((normal.y < 0 || - normal.y < WALKABLE_NORMAL_MIN_Y)
+			&& dist <= vec_length(*vel) + WALL_CLIP_DIST)
+		{
+			vec_mult(&normal, vec_dot(*vel, normal));
+			vec_sub(vel, *vel, normal);
+			return (1);
+		}
+	}
+	return (0);
 }

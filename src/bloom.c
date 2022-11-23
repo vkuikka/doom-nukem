@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   bloom.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/10/01 15:59:43 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/11/03 20:23:56 by vkuikka          ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2022/11/11 15:01:07 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
 
-static t_color	*get_buff(t_color *set)
+t_color	*get_buff(t_color *set)
 {
 	static t_color	*buff = NULL;
 
@@ -109,7 +109,7 @@ int	bloom_init(void *data_pointer)
 	return (0);
 }
 
-static int	buffer_alloc(t_color **buff)
+int	buffer_alloc(t_color **buff)
 {
 	if (!*buff)
 	{

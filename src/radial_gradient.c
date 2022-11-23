@@ -1,31 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   radial_gradient.c                                  :+:      :+:    :+:   */
+/*   radial_gradient_0.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/10/20 22:07:43 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/25 15:43:09 by vkuikka          ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2021/10/11 18:58:59 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
 
-/*
-	gradient array looks something like this:
-
-	.0 .0 .1 .1 .0 .0
-	.0 .1 .5 .5 .1 .0
-	.1 .5 1. 1. .5 .1
-	.1 .5 1. 1. .5 .1
-	.0 .1 .5 .5 .1 .0
-	.0 .0 .1 .1 .0 .0
-
-	from edge to center values increase following arcsine
-*/
-
-static float	gradient_function(t_vec2 diff, t_vec2 mid, float div, t_vec2 i)
+float	gradient_function(t_vec2 diff, t_vec2 mid, float div, t_vec2 i)
 {
 	float	new;
 
@@ -37,7 +24,7 @@ static float	gradient_function(t_vec2 diff, t_vec2 mid, float div, t_vec2 i)
 	return (new);
 }
 
-static int	init_gradient(float *arr)
+int	init_gradient(float *arr)
 {
 	t_vec2	i;
 	t_vec2	mid;

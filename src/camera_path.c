@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/09/20 17:41:32 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/25 16:22:31 by rpehkone         ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2022/11/11 15:01:21 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ void	draw_camera_path(char *str, t_camera_path *path,
 	i = 0;
 	while (i < path->amount)
 	{
-		sprintf(buf, "%s %d", str, i + 1);
+		ft_sprintf(buf, "%s %d", str, i + 1);
 		render_text_3d(buf, path->pos[i].pos,
 			UI_LEVEL_SETTINGS_TEXT_COLOR, level);
 		b = path->pos[i].pos;
@@ -114,7 +114,7 @@ void	camera_path_add_pos(t_camera_path *path, t_camera c)
 	path->amount++;
 }
 
-static float	path_get_percentage(t_camera_path *path)
+float	path_get_percentage(t_camera_path *path)
 {
 	float	time;
 

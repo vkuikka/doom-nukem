@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   box_blur.c                                         :+:      :+:    :+:   */
+/*   box_blur_0.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/11/03 16:47:47 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/11/03 20:28:59 by vkuikka          ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2021/10/11 18:58:59 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
 
-static void	make_bounds(t_blur *blur, t_ivec2 p)
+void	make_bounds(t_blur *blur, t_ivec2 p)
 {
 	t_ivec2	*upper;
 	t_ivec2	*lower;
@@ -39,7 +39,7 @@ static void	make_bounds(t_blur *blur, t_ivec2 p)
 			- lower->x % blur->quality;
 }
 
-static float	add_to_buffer(t_blur b, t_ivec2 i, unsigned int coord)
+float	add_to_buffer(t_blur b, t_ivec2 i, unsigned int coord)
 {
 	float			grad;
 	unsigned int	tmp;
@@ -55,7 +55,7 @@ static float	add_to_buffer(t_blur b, t_ivec2 i, unsigned int coord)
 	return (grad);
 }
 
-static void	box_avg(t_ivec2 p, t_blur blur)
+void	box_avg(t_ivec2 p, t_blur blur)
 {
 	t_ivec2			i;
 	unsigned int	coord;

@@ -5,14 +5,14 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/08/10 22:39:12 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/10/12 17:55:00 by rpehkone         ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2022/11/11 15:04:47 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
 
-static void	typing_input_backspace(t_level *level)
+void	typing_input_backspace(t_level *level)
 {
 	int	i;
 
@@ -28,7 +28,7 @@ static void	typing_input_backspace(t_level *level)
 	}
 }
 
-static void	typing_input(t_level *level, SDL_Event event)
+void	typing_input(t_level *level, SDL_Event event)
 {
 	int		i;
 	int		k;
@@ -56,7 +56,7 @@ static void	typing_input(t_level *level, SDL_Event event)
 		typing_input_backspace(level);
 }
 
-static void	set_mouse_input_location_3d_space(t_level *level)
+void	set_mouse_input_location_3d_space(t_level *level)
 {
 	gizmo(level);
 	if (level->ui.state.mouse_location != MOUSE_LOCATION_GIZMO_X
@@ -84,7 +84,7 @@ static void	set_mouse_input_location_3d_space(t_level *level)
 	}
 }
 
-static void	get_mouse_coordinate(t_level *level, int *x, int *y)
+void	get_mouse_coordinate(t_level *level, int *x, int *y)
 {
 	if (level->ui.state.mouse_capture)
 	{
@@ -99,7 +99,7 @@ static void	get_mouse_coordinate(t_level *level, int *x, int *y)
 	}
 }
 
-static void	set_mouse_input_location(t_level *level, t_game_state game_state)
+void	set_mouse_input_location(t_level *level, t_game_state game_state)
 {
 	int	x;
 	int	y;
@@ -126,13 +126,14 @@ static void	set_mouse_input_location(t_level *level, t_game_state game_state)
 	level->ui.state.m1_click = FALSE;
 }
 
-static void	mouse_input(t_level *level, SDL_Event event)
+void	mouse_input(t_level *level, SDL_Event event)
 {
 	if (event.type == SDL_MOUSEMOTION && level->ui.state.mouse_capture
 		&& !level->game_logic.death_start_time)
 	{
-		level->cam.look_side += (float)event.motion.xrel / 600;
-		level->cam.look_up -= (float)event.motion.yrel / 600;
+		level->cam.look_side += (float)event.motion.xrel / 1200;
+		level->cam.look_up -= (float)event.motion.yrel / 1200;
+		level->cam.look_up = clamp(level->cam.look_up, -M_PI_2, M_PI_2);
 	}
 	else if (event.type == SDL_MOUSEBUTTONUP)
 		level->ui.state.m1_drag = FALSE;
@@ -147,7 +148,7 @@ static void	mouse_input(t_level *level, SDL_Event event)
 	}
 }
 
-static void	toggle_mouse_capture(t_level *level, t_window *window,
+void	toggle_mouse_capture(t_level *level, t_window *window,
 				t_game_state *game_state)
 {
 	if (*game_state == GAME_STATE_MAIN_MENU)
@@ -158,17 +159,18 @@ static void	toggle_mouse_capture(t_level *level, t_window *window,
 	else
 	{
 		SDL_SetRelativeMouseMode(SDL_FALSE);
-		SDL_WarpMouseInWindow(window->SDLwindow, RES_X / 2, RES_Y / 2);
+		SDL_WarpMouseInWindow(window->sdl_window, RES_X / 2, RES_Y / 2);
 	}
 }
 
-static void	ui_go_back(t_level *level, t_game_state *game_state)
+void	ui_go_back(t_level *level, t_game_state *game_state)
 {
 	if (level->bake_status == BAKE_BAKING)
 	{
 		nonfatal_error("cancel baking first (press baking button)");
 		return ;
 	}
+	level->ui.state.ui_location = UI_LOCATION_MAIN;
 	level->ui.main_menu = MAIN_MENU_LOCATION_MAIN;
 	if (*game_state != GAME_STATE_MAIN_MENU)
 	{
@@ -180,11 +182,15 @@ static void	ui_go_back(t_level *level, t_game_state *game_state)
 		level->game_logic.win_start_time = 0;
 		level->game_logic.death_start_time = 0;
 		Mix_PlayMusic(level->audio.title_music, -1);
+		level->game_logic.player.health = PLAYER_HEALTH_MAX;
+		level->game_logic.player.ammo = PLAYER_AMMO_MAX;
+		level->game_logic.projectile_amount = 0;
+		level->game_logic.reload_start_time = 0;
 	}
 }
 
-static void	keyboard_input(t_window *window, t_level *level, SDL_Event event,
-													t_game_state *game_state)
+void	keyboard_input(t_level *level, SDL_Event event,
+									t_game_state *game_state)
 {
 	if (event.key.keysym.scancode == SDL_SCANCODE_PERIOD)
 		level->ui.raycast_quality += 1;
@@ -198,16 +204,15 @@ static void	keyboard_input(t_window *window, t_level *level, SDL_Event event,
 		level->ui.wireframe = level->ui.wireframe == 0;
 	else if (event.key.keysym.scancode == SDL_SCANCODE_X)
 		level->ui.show_quads = level->ui.show_quads == 0;
-	else if (event.key.keysym.scancode == SDL_SCANCODE_TAB)
-		toggle_mouse_capture(level, window, game_state);
 	else if (event.key.keysym.scancode == SDL_SCANCODE_O
 		&& *game_state == GAME_STATE_EDITOR)
 		toggle_selection_all(level);
 	else if (event.key.keysym.scancode == SDL_SCANCODE_E)
 		door_activate(level);
-	else if (event.key.keysym.scancode == SDL_SCANCODE_Q)
-		ui_go_back(level, game_state);
-	else if (event.key.keysym.scancode == SDL_SCANCODE_R)
+	else if (event.key.keysym.scancode == SDL_SCANCODE_H)
+		level->ui_hidden = level->ui_hidden == 0;
+	else if (event.key.keysym.scancode == SDL_SCANCODE_R
+		&& !level->game_logic.reload_start_time)
 		level->game_logic.reload_start_time = SDL_GetTicks();
 	else if (event.key.keysym.scancode == SDL_SCANCODE_T)
 		spray(level->cam, level);
@@ -228,6 +233,12 @@ void	read_input(t_window *window, t_level *level,
 		if (level->ui.state.text_input_enable)
 			typing_input(level, event);
 		else if (event.type == SDL_KEYDOWN && event.key.repeat == 0)
-			keyboard_input(window, level, event, game_state);
+		{
+			keyboard_input(level, event, game_state);
+			if (event.key.keysym.scancode == SDL_SCANCODE_Q)
+				ui_go_back(level, game_state);
+			else if (event.key.keysym.scancode == SDL_SCANCODE_TAB)
+				toggle_mouse_capture(level, window, game_state);
+		}
 	}
 }

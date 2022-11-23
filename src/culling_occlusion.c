@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   culling_occlusion.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/03/26 04:05:50 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/10/17 20:14:41 by vkuikka          ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2022/11/11 15:02:17 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
 
-static int	cull_behind_occlusion(t_vec3 dir, t_vec3 pos, t_tri tri)
+int	cull_behind_occlusion(t_vec3 dir, t_vec3 pos, t_tri tri)
 {
 	t_vec3	vert;
 	int		i;
@@ -43,22 +43,22 @@ float	area(t_vec3 *a, t_vec3 *b, t_vec3 *c)
 			/ 2.0));
 }
 
-static int	vec3_point_in_tri(t_vec3 *p, t_vec3 *a, t_vec3 *b, t_vec3 *c)
+int	vec3_point_in_tri(t_vec3 *p, t_vec3 *a, t_vec3 *b, t_vec3 *c)
 {
-	float	A;
-	float	A1;
-	float	A2;
-	float	A3;
+	float	a0;
+	float	a1;
+	float	a2;
+	float	a3;
 
-	A = area(a, b, c);
-	A1 = area(p, b, c);
-	A2 = area(a, p, c);
-	A3 = area(a, b, p);
+	a0 = area(a, b, c);
+	a1 = area(p, b, c);
+	a2 = area(a, p, c);
+	a3 = area(a, b, p);
 	return (is_value_close(
-			A, A1 + A2 + A3, OCCLUSION_CULLING_FLOAT_ERROR_MAGIC_NUMBER));
+			a0, a1 + a2 + a3, OCCLUSION_CULLING_FLOAT_ERROR_MAGIC_NUMBER));
 }
 
-static int	vec3_point_in_face(t_vec3 *p, t_tri *face)
+int	vec3_point_in_face(t_vec3 *p, t_tri *face)
 {
 	if (vec3_point_in_tri(p,
 			&face->verts[0].pos, &face->verts[1].pos, &face->verts[2].pos))
@@ -70,7 +70,7 @@ static int	vec3_point_in_face(t_vec3 *p, t_tri *face)
 	return (0);
 }
 
-static int	is_bface_in_aface(t_tri a, t_tri b, t_level *level)
+int	is_bface_in_aface(t_tri a, t_tri b, t_level *level)
 {
 	int	vert_amount;
 	int	i;

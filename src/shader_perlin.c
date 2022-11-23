@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   shader_perlin.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/09/16 12:01:41 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/09/28 23:34:05 by vkuikka          ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2022/11/11 15:06:38 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -154,7 +154,7 @@ float	noise_opacity(t_perlin_settings p, float perlin, t_cast_result res)
 	return (opacity);
 }
 
-static float	swirl(t_vec3 pos, float time, t_perlin_settings p)
+float	swirl(t_vec3 pos, float time, t_perlin_settings p)
 {
 	float	amount;
 
@@ -190,7 +190,7 @@ float	noise_swirl(float time, t_vec3 pos, t_perlin_settings p)
 	return (lerp(perlin2, perlin1, gradient));
 }
 
-static float	noise_move(float time, t_vec3 pos, t_perlin_settings p)
+float	noise_move(float time, t_vec3 pos, t_perlin_settings p)
 {
 	if (p.swirl)
 		return (noise_swirl(time, pos, p));
@@ -215,7 +215,7 @@ float	perlin_opacity(t_vec3 *pos, float perlin, t_level *l,
 	return (perlin);
 }
 
-static unsigned int	depth_grid_visualizer(t_vec3 pos,
+unsigned int	depth_grid_visualizer(t_vec3 pos,
 											t_level *level, t_cast_result *res)
 {
 	if ((fmod((pos.x), 4) > 2) ^ (fmod((pos.z), 4) > 2))

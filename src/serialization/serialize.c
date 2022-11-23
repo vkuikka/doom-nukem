@@ -3,14 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   serialize.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/04/06 14:13:02 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/10/27 23:16:17 by vkuikka          ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2022/11/11 14:54:40 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "serialization.h"
+#include "doom_nukem.h"
 
 void	serialize_vec2(t_vec2 vec, t_buffer *buf)
 {
@@ -225,7 +225,7 @@ void	serialize_lights(t_level *level, t_buffer *buf)
 	}
 }
 
-static void	serialize_level_images(t_level *level, t_buffer *buf)
+void	serialize_level_images(t_level *level, t_buffer *buf)
 {
 	int	i;
 
@@ -239,9 +239,21 @@ static void	serialize_level_images(t_level *level, t_buffer *buf)
 		serialize_int(level->spray_overlay[i], buf);
 		i++;
 	}
+	i = (int)level->bake_status;
+	serialize_int(i, buf);
+	if (level->bake_status == BAKE_NOT_BAKED)
+		return ;
+	i = 0;
+	while (i < level->texture.height * level->texture.width)
+	{
+		serialize_float(level->baked[i].r, buf);
+		serialize_float(level->baked[i].g, buf);
+		serialize_float(level->baked[i].b, buf);
+		i++;
+	}
 }
 
-static void	serialize_pickups(t_level *level, t_buffer *buf)
+void	serialize_pickups(t_level *level, t_buffer *buf)
 {
 	int	i;
 
@@ -255,7 +267,7 @@ static void	serialize_pickups(t_level *level, t_buffer *buf)
 		serialize_vec3(level->game_logic.ammo_box[i].pos, buf);
 }
 
-static void	serialize_enemies(t_level *level, t_buffer *buf)
+void	serialize_enemies(t_level *level, t_buffer *buf)
 {
 	int	i;
 
@@ -266,7 +278,7 @@ static void	serialize_enemies(t_level *level, t_buffer *buf)
 		serialize_vec3(level->game_logic.enemies[i].spawn_pos, buf);
 }
 
-static void	serialize_menu_anim(t_level *level, t_buffer *buf)
+void	serialize_menu_anim(t_level *level, t_buffer *buf)
 {
 	int	i;
 
@@ -285,6 +297,7 @@ void	serialize_level(t_level *level, t_buffer *buf)
 	serialize_level_images(level, buf);
 	serialize_projectile(&level->game_logic.player_projectile_settings, buf);
 	serialize_projectile(&level->game_logic.enemy_projectile_settings, buf);
+	serialize_int(level->ui.normal_map_disabled, buf);
 	serialize_obj(&level->all, buf);
 	serialize_doors(level, buf);
 	serialize_lights(level, buf);

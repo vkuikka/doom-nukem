@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/10/12 11:39:40 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/10/12 17:52:25 by rpehkone         ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2022/11/11 15:03:24 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,9 +33,7 @@ void	visible_request_merge(t_level *level, int amount)
 	}
 }
 
-//level->visible.tris[i].index = 0;
-//not real fix (spray visible on wrong index)
-static void	merge_mesh(t_level *level, t_obj *obj, t_vec3 pos, t_vec2 rotation)
+void	merge_mesh(t_level *level, t_obj *obj, t_vec3 pos, t_vec2 rotation)
 {
 	int	i;
 	int	k;
@@ -56,14 +54,14 @@ static void	merge_mesh(t_level *level, t_obj *obj, t_vec3 pos, t_vec2 rotation)
 			vec_add(&level->visible.tris[i].verts[z].pos,
 				level->visible.tris[i].verts[z].pos, pos);
 		}
-		tri_optimize(&level->visible.tris[i]);
+		tri_optimize(&level->visible.tris[i], true);
 		level->visible.tris[i].texture = &obj->texture;
 		i++;
 	}
 	level->visible.tri_amount = i;
 }
 
-static void	merge_enemies_runtime(t_level *level)
+void	merge_enemies_runtime(t_level *level)
 {
 	int	i;
 
@@ -89,7 +87,7 @@ static void	merge_enemies_runtime(t_level *level)
 	}
 }
 
-static void	merge_enemies_editor(t_level *level, float rot)
+void	merge_enemies_editor(t_level *level, float rot)
 {
 	int	i;
 
@@ -108,7 +106,7 @@ static void	merge_enemies_editor(t_level *level, float rot)
 			(t_vec2){0, rot + (M_PI / 3 * i)});
 }
 
-static void	merge_pickups(t_level *level, float rot)
+void	merge_pickups(t_level *level, float rot)
 {
 	int	i;
 
@@ -146,22 +144,24 @@ void	merge_game_models(t_level *level, t_game_state game_state)
 	while (++i < level->game_logic.projectile_amount)
 		merge_sprite(level, level->game_logic.projectiles[i].pos,
 			&level->game_models.projectile_sprite);
+	if (game_state != GAME_STATE_EDITOR)
+		return ;
 	i = -1;
 	while (++i < level->light_amount)
 		merge_sprite(level, level->lights[i].pos,
 			&level->game_models.light_sprite);
 }
 
-static t_vec2	viewmodel_sway(t_level *level)
+t_vec2	viewmodel_sway(t_level *level)
 {
 	static t_vec2	delta_vel = {0, 0};
 	t_vec2			res;
 
 	delta_vel.x -= level->cam.look_side;
 	delta_vel.y -= level->cam.look_up;
-	delta_vel.x *= .3;
-	delta_vel.y *= .8;
-	delta_vel.x = clamp(delta_vel.x, -0.2, 0.2);
+	delta_vel.x /= .08 * (float)level->ui.frame_time;
+	delta_vel.y /= .08 * (float)level->ui.frame_time;
+	delta_vel.x = clamp(delta_vel.x, -0.15, 0.15);
 	delta_vel.y = clamp(delta_vel.y, -0.6, 0.6);
 	res = delta_vel;
 	delta_vel.x = level->cam.look_side;

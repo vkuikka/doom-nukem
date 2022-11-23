@@ -3,26 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   ssao.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/05/03 14:38:16 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/11/03 21:52:02 by vkuikka          ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2022/11/11 15:08:01 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
 
-typedef struct s_ssao
-{
-	t_ivec2		upper_bound;
-	t_ivec2		lower_bound;
-	t_ivec2		kernel_center;
-	float		count;
-	float		total;
-	int			radius;
-}				t_ssao;
-
-static float	pixel_dot_product(t_ivec2 i, t_ivec2 mid, t_window *win)
+float	pixel_dot_product(t_ivec2 i, t_ivec2 mid, t_window *win)
 {
 	t_vec3	v1;
 	t_vec3	v2;
@@ -35,7 +25,7 @@ static float	pixel_dot_product(t_ivec2 i, t_ivec2 mid, t_window *win)
 	return (-vec_dot(v2, v1));
 }
 
-static void	ssao_kernel_iter(t_ssao *ssao, t_window *win, t_ivec2 i, float br)
+void	ssao_kernel_iter(t_ssao *ssao, t_window *win, t_ivec2 i, float br)
 {
 	float	dist;
 	float	diff;
@@ -61,7 +51,7 @@ static void	ssao_kernel_iter(t_ssao *ssao, t_window *win, t_ivec2 i, float br)
 	ssao->count++;
 }
 
-static void	ssao_bounds(t_ssao *ssao)
+void	ssao_bounds(t_ssao *ssao)
 {
 	ssao->lower_bound.x = ssao->kernel_center.x - ssao->radius;
 	ssao->lower_bound.y = ssao->kernel_center.y - ssao->radius;
@@ -77,7 +67,7 @@ static void	ssao_bounds(t_ssao *ssao)
 		ssao->upper_bound.x = RES_X;
 }
 
-static float	ssao_avg(t_ssao ssao, t_level *level)
+float	ssao_avg(t_ssao ssao, t_level *level)
 {
 	float	avg;
 
@@ -94,7 +84,7 @@ static float	ssao_avg(t_ssao ssao, t_level *level)
 	return (avg);
 }
 
-static float	surrounding_diff(t_ssao ssao, t_level *level, t_window *win)
+float	surrounding_diff(t_ssao ssao, t_level *level, t_window *win)
 {
 	t_ivec2	i;
 	t_color	light;

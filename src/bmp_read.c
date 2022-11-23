@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   bmp_read.c                                         :+:      :+:    :+:   */
+/*   bmp_read_0.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/08/07 18:28:42 by rpehkone          #+#    #+#             */
-/*   Updated: 2022/01/20 15:09:33 by vkuikka          ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2022/03/09 15:08:33 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
 
-static void	bmp_set(t_bmp *img, int *tmp)
+void	bmp_set(t_bmp *img, int *tmp)
 {
 	unsigned char	*rgb;
 	int				x;
@@ -38,13 +38,13 @@ static void	bmp_set(t_bmp *img, int *tmp)
 	}
 }
 
-static int	bmp_error_check(t_bmp_fileheader fh, t_bmp_infoheader ih)
+int	bmp_error_check(t_bmp_fileheader fh, t_bmp_infoheader ih)
 {
-	if (fh.fileMarker1 != 'B' && fh.fileMarker2 != 'M')
+	if (fh.file_marker1 != 'B' && fh.file_marker2 != 'M')
 		nonfatal_error("not bmp file");
-	else if (ih.bitPix != 32)
+	else if (ih.bit_pix != 32)
 		nonfatal_error("bmp read Unknown bmp image bit depth\n");
-	else if (ih.biCompression != 0)
+	else if (ih.bi_compression != 0)
 		nonfatal_error("invalid bmp settings (use provided ./texture.py)");
 	else
 		return (FALSE);

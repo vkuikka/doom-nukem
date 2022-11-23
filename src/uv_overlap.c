@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   uv_overlap.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/04/26 13:48:01 by vkuikka           #+#    #+#             */
-/*   Updated: 2022/02/04 22:25:54 by vkuikka          ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2022/11/11 15:08:14 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,14 +32,10 @@ void	div_every_uv(t_level *l)
 	}
 }
 
-/*
-**	Checks 3x3 pixels around pixel corner for triangle intersection
-**	3x3 square is done because vectors can go inside image pixels and then
-**	intersection will not be found
-*/
-
-static void	coloring_loop(t_tri *t1, t_bmp *img, t_uv *v)
+void	coloring_loop(t_tri *t1, t_bmp *img, t_uv *v)
 {
+	t_ivec2	pixel;
+
 	while (++v->inc.y < 3)
 	{
 		v->check.x = v->coord_uv.x + v->precision.x * v->inc.x;
@@ -49,16 +45,20 @@ static void	coloring_loop(t_tri *t1, t_bmp *img, t_uv *v)
 			|| (t1->isquad && point_in_tri(v->check, t1->verts[3].txtr,
 					t1->verts[1].txtr, t1->verts[2].txtr)))
 		{
+			pixel.x = v->coord.x;
+			pixel.y = img->height - v->coord.y;
+			wrap_coords(&pixel.x, &pixel.y, img->width, img->height);
 			v->og.x = v->coord.x - v->diff.x * img->width;
 			v->og.y = (img->height - v->coord.y) + v->diff.y * img->height;
-			img->image[v->coord.x + (img->height - v->coord.y) * img->width]
+			wrap_coords(&v->og.x, &v->og.y, img->width, img->height);
+			img->image[pixel.x + pixel.y * img->width]
 				= img->image[v->og.x + v->og.y * img->width];
 			return ;
 		}
 	}
 }
 
-static void	check_and_color(t_tri *t1, t_bmp *img, t_uv *v)
+void	check_and_color(t_tri *t1, t_bmp *img, t_uv *v)
 {
 	v->precision.x = 1 / (float)img->width;
 	v->precision.y = 1 / (float)img->height;
@@ -74,6 +74,8 @@ static void	check_and_color(t_tri *t1, t_bmp *img, t_uv *v)
 
 void	copy_uv2(t_tri *t1, t_uv *v, t_bmp *img)
 {
+	if (t1->isquad)
+		v->max_y = fmax(v->max_y, t1->verts[3].txtr.y);
 	v->min_x *= (float)img->width;
 	v->max_x *= (float)img->width;
 	v->max_y *= (float)img->height;
@@ -111,13 +113,14 @@ void	copy_uv(t_tri *t1, t_uv	*v, t_bmp *img)
 	v->max_y = t1->verts[0].txtr.y;
 	v->max_y = fmax(v->max_y, t1->verts[1].txtr.y);
 	v->max_y = fmax(v->max_y, t1->verts[2].txtr.y);
-	if (t1->isquad)
-		v->max_y = fmax(v->max_y, t1->verts[3].txtr.y);
 	copy_uv2(t1, v, img);
 }
 
 void	move_uv_y(t_tri *t1, t_level *l, t_uv *v, int i)
 {
+	if (t1->isquad)
+		t1->verts[3].txtr.y -= v->max - v->min;
+	v->diff.y -= v->max - v->min;
 	while (tri_uv_intersect(*t1, l->all.tris[i]))
 	{
 		t1->verts[0].txtr.y -= 0.01;
@@ -144,14 +147,19 @@ void	clear_intersection(t_tri *t1, t_level *l, t_uv *v, int i)
 	t1->verts[0].txtr.y -= v->max - v->min;
 	t1->verts[1].txtr.y -= v->max - v->min;
 	t1->verts[2].txtr.y -= v->max - v->min;
-	if (t1->isquad)
-		t1->verts[3].txtr.y -= v->max - v->min;
-	v->diff.y -= v->max - v->min;
 	move_uv_y(t1, l, v, i);
 }
 
 void	baked_state(t_level *l, t_uv *v)
 {
+	if (!l->spray_overlay)
+		ft_error("memory allocation failed");
+	l->baked = (t_color *)ft_realloc(l->baked,
+			sizeof(t_color) * (l->texture.width * l->texture.height),
+			sizeof(t_color)
+			* (2 * l->texture.width * l->texture.height));
+	if (!l->baked)
+		ft_error("memory allocation failed");
 	l->texture.height *= 2;
 	l->normal_map.height *= 2;
 	div_every_uv(l);
@@ -175,14 +183,6 @@ void	loop_state(t_level *l, t_uv *v)
 			sizeof(unsigned) * (l->texture.width * l->texture.height),
 			sizeof(unsigned)
 			* (2 * l->texture.width * l->texture.height));
-	if (!l->spray_overlay)
-		ft_error("memory allocation failed");
-	l->baked = (t_color *)ft_realloc(l->baked,
-			sizeof(t_color) * (l->texture.width * l->texture.height),
-			sizeof(t_color)
-			* (2 * l->texture.width * l->texture.height));
-	if (!l->baked)
-		ft_error("memory allocation failed");
 	baked_state(l, v);
 }
 

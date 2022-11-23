@@ -1,24 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   deserialize_primitive.c                            :+:      :+:    :+:   */
+/*   deserialize_primitive_0.c                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/10/15 15:35:59 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/15 15:45:51 by vkuikka          ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2021/10/11 18:58:59 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
 
-// Gcc assumes that your program will never access
-// variables though pointers of different type.
-// This assumption is called strict-aliasing and allows
-// the compiler to make some optimizations.
-// Strict-aliasing rule says that a char* and
-// void* can point at any type.
-static float	ntoh_float(float value)
+float	ntoh_float(float value)
 {
 	int		temp;
 	void	*cast;

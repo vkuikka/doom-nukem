@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   cast_face.c                                        :+:      :+:    :+:   */
+/*   cast_face_0.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/06/20 12:35:22 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/27 22:53:49 by vkuikka          ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2021/10/11 18:58:59 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ float	cast_all(t_ray vec, t_level *level, int *index)
 	return (res);
 }
 
-static void	grid_check(float *val, int isgrid)
+void	grid_check(float *val, int isgrid)
 {
 	if (isgrid)
 	{
@@ -46,7 +46,7 @@ static void	grid_check(float *val, int isgrid)
 	}
 }
 
-static float	start_cast(t_tri t, t_vec3 *pvec, t_ray ray, t_cast_result *res)
+float	start_cast(t_tri t, t_vec3 *pvec, t_ray ray, t_cast_result *res)
 {
 	float	invdet;
 
