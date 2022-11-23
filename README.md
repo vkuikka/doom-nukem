@@ -35,6 +35,7 @@ Amongst multiple constraints, here is a non exhaustive list of the restrictions 
 * Point and directional lights with real-time raycasted shadowmapping.
 * In engine lightmap baking.
 * Real-time raycasted reflections.
+* Normal map used for: transparency, reflections and lighting.
 * Custom tile-based raycast rendering.
 * Precomputed reflection and shadow culling.
 * Custom immediate mode user interface for level editor.
@@ -44,10 +45,10 @@ Amongst multiple constraints, here is a non exhaustive list of the restrictions 
 * 3D billboard sprites.
 
 ##### Post processing
-* Smooth pixel setting adds gradient inside each pixel when render resolution is less than 100%.
 * Bloom limit adjusts amount of light needed for bloom to be rendered.
 * SSAO light bias adjusts amount of light needed to cancel SSAO effect.
-* Rest is self explanatory. Try rendering only bloom etc. with checkboxes to see what settings do.
+* No anti-aliasing, but render scaling and smooth upscaling of frame buffer.
+* Other filters: Sharpen edges, Simple chromatic aberation.
 
 ### Editing objects
 * Controls:
