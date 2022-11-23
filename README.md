@@ -27,20 +27,21 @@ Amongst multiple constraints, here is a non exhaustive list of the restrictions 
 * Computing everything on the CPU. No hardware acceleration.
 * Rendering has to be done from scratch. No ready made libraries.
 * Any crash or memory leak would mean the project has failed.
-* String code format rules. Functions max 25 lines.
+* Strict code format rules. Functions max 25 lines.
 
 ## Features
 
 ### Rendering
-* Point and directional lights with raycasted shadowmapping.
-* In engine lightmap baking
-* Novel tile-based raycast rendering
-* Precomputed reflection and shadow culling
-* Custom immediate mode user interface for level editor
-* Decal rendering by projecting from worldspace and writing to texture
-* Per-vertex character animation
-* 3D billboard sprites
-* Various fragment shaders
+* Point and directional lights with real-time raycasted shadowmapping.
+* In engine lightmap baking.
+* Real-time raycasted reflections.
+* Custom tile-based raycast rendering.
+* Precomputed reflection and shadow culling.
+* Custom immediate mode user interface for level editor.
+* Decal rendering by projecting from worldspace and writing to texture.
+* Per-vertex character animation.
+* Various fragment shaders.
+* 3D billboard sprites.
 
 ##### Post processing
 * Smooth pixel setting adds gradient inside each pixel when render resolution is less than 100%.
@@ -96,4 +97,4 @@ Amongst multiple constraints, here is a non exhaustive list of the restrictions 
 ## Installation
 * Clone repo
 * Run ````make````
-* Run ````dnukem````
+* Run ````doom-nukem````
