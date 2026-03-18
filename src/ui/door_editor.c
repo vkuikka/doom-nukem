@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/05/06 23:29:24 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/03 04:05:03 by rpehkone         ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2022/11/11 14:55:05 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,11 +96,11 @@ void	door_put_text(t_level *level)
 	while (i < level->doors.door_amount)
 	{
 		door = &level->doors.door[i];
-		sprintf(buf, "door %d", i + 1);
+		ft_sprintf(buf, "door %d", i + 1);
 		render_text_3d(buf, door->avg, DOOR_LOCATION_INFO_COLOR, level);
 		if (door->is_activation_pos_active)
 		{
-			sprintf(buf, "door %d activation", i + 1);
+			ft_sprintf(buf, "door %d activation", i + 1);
 			render_text_3d(buf, door->activation_pos,
 				DOOR_ACTIVATION_LOCATION_INFO_COLOR, level);
 		}
@@ -234,7 +234,7 @@ void	add_new_door(t_level *level)
 	}
 }
 
-static void	set_door_pos(t_level *level, int is_pos2)
+void	set_door_pos(t_level *level, int is_pos2)
 {
 	t_door	*door;
 	int		i;
@@ -276,4 +276,20 @@ void	enable_door_editor(t_level *level)
 	level->ui.wireframe_on_top = TRUE;
 	level->ui.wireframe_culling_visual = FALSE;
 	level->ui.vertex_select_mode = FALSE;
+}
+
+void	reset_doors(t_level *level)
+{
+	t_door	*door;
+	int		i;
+
+	i = 0;
+	while (i < level->doors.door_amount)
+	{
+		door = &level->doors.door[i];
+		door->transition_start_time = UINT32_MAX;
+		door->transition_direction = 1;
+		i++;
+	}
+	door_animate(level);
 }

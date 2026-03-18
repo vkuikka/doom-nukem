@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   file_read.c                                        :+:      :+:    :+:   */
+/*   file_read_0.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/09/02 15:15:43 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/13 17:44:15 by rpehkone         ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2022/02/07 14:07:00 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ void	free_file2d(char **file)
 	free(file);
 }
 
-static char	**file2d_internal(char *file, long size)
+char	**file2d_internal(char *file, long size)
 {
 	int		i;
 	int		line_count;
@@ -63,10 +63,12 @@ char	**file2d(char *filename)
 	return (file2d_internal(file, size));
 }
 
-char	**file2d_from_memory(unsigned char *data, unsigned int size)
+char	**file2d_from_memory(unsigned char *data)
 {
+	size_t	size;
 	char	*file;
 
+	size = ft_strlen((char *)data);
 	file = (char *)malloc(sizeof(char) * (size));
 	memcpy(file, data, size);
 	return (file2d_internal(file, (long)size));

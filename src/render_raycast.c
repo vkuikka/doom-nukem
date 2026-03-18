@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   render_raycast.c                                   :+:      :+:    :+:   */
+/*   render_raycast_0.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/10/15 11:42:17 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/20 23:01:38 by vkuikka          ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2021/10/11 18:58:59 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
 
-static void	wait_threads(t_level *level, SDL_Thread *threads[THREAD_AMOUNT])
+void	wait_threads(t_level *level, SDL_Thread *threads[THREAD_AMOUNT])
 {
 	int	thread_casts;
 	int	i;
@@ -26,7 +26,7 @@ static void	wait_threads(t_level *level, SDL_Thread *threads[THREAD_AMOUNT])
 	}
 }
 
-static void	create_threads(t_level *level, t_window *window)
+void	create_threads(t_level *level, t_window *window)
 {
 	SDL_Thread	*threads[THREAD_AMOUNT];
 	t_rthread	thread_data[THREAD_AMOUNT];

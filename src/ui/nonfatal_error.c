@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   nonfatal_error.c                                   :+:      :+:    :+:   */
+/*   nonfatal_error_0.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/08/11 16:04:11 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/08/13 17:21:37 by rpehkone         ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2021/10/11 18:58:59 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ void	nonfatal_error(char *message)
 	ft_strcpy(level->ui.state.error_message[i - 1], message);
 }
 
-static void	ui_remove_expired_nonfatal_start_times(t_level *level)
+void	ui_remove_expired_nonfatal_start_times(t_level *level)
 {
 	int	i;
 
@@ -57,7 +57,7 @@ static void	ui_remove_expired_nonfatal_start_times(t_level *level)
 	}
 }
 
-static void	ui_remove_expired_nonfatal_errors(t_level *level)
+void	ui_remove_expired_nonfatal_errors(t_level *level)
 {
 	int	i;
 	int	k;
@@ -86,7 +86,7 @@ static void	ui_remove_expired_nonfatal_errors(t_level *level)
 	ui_remove_expired_nonfatal_start_times(level);
 }
 
-static int	ui_nonfatal_get_fade(t_level *level, int i)
+int	ui_nonfatal_get_fade(t_level *level, int i)
 {
 	unsigned int	time;
 

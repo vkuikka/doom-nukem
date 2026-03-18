@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/03/05 16:44:10 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/03 02:55:37 by rpehkone         ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2022/11/11 15:09:26 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,7 +112,7 @@ void	pixel_put_force(int x, int y, int color, unsigned int *texture)
 		texture[x + (y * RES_X)] = color;
 }
 
-static void	put_vertex(t_vec3 vertex, int color, unsigned int *texture)
+void	put_vertex(t_vec3 vertex, int color, unsigned int *texture)
 {
 	int	a;
 	int	b;
@@ -132,10 +132,6 @@ static void	put_vertex(t_vec3 vertex, int color, unsigned int *texture)
 	}
 }
 
-// move vertices to camera position
-// rotate vertices around camera
-// add perspective
-// move to center of screen
 void	camera_offset(t_vec3 *vertex, t_camera *cam)
 {
 	vertex->x -= cam->pos.x;
@@ -178,7 +174,7 @@ void	put_normal(unsigned int *texture, t_level *level, t_tri tri,
 	print_line(avg, normal, color, texture);
 }
 
-static t_vec3	wireframe_render_line(t_obj *obj, t_ivec3 i, t_level *level,
+t_vec3	wireframe_render_line(t_obj *obj, t_ivec3 i, t_level *level,
 									unsigned int *texture)
 {
 	static int	arr[4] = {1, 3, 0, 2};

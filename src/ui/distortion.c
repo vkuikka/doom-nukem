@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   distortion.c                                       :+:      :+:    :+:   */
+/*   distortion_0.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/09/01 12:02:04 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/12 20:41:20 by rpehkone         ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2021/10/11 18:58:59 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
 
-static unsigned int	noise(unsigned int color, float probability, float amount)
+unsigned int	noise(unsigned int color, float probability, float amount)
 {
 	unsigned char	*rgb;
 
@@ -30,7 +30,7 @@ static unsigned int	noise(unsigned int color, float probability, float amount)
 	return ((unsigned int)*(int *)rgb);
 }
 
-static unsigned int	black_and_white(unsigned int color, float amount)
+unsigned int	black_and_white(unsigned int color, float amount)
 {
 	unsigned char	*rgb;
 	unsigned int	res;
@@ -47,7 +47,7 @@ static unsigned int	black_and_white(unsigned int color, float amount)
 	return ((unsigned int)*(int *)rgb);
 }
 
-static unsigned int	chroma_px(t_bmp *img, int x, int y, int x_amount)
+unsigned int	chroma_px(t_bmp *img, int x, int y, int x_amount)
 {
 	unsigned int	res_color;
 	unsigned char	*rgb_l;

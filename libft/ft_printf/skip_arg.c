@@ -1,25 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   serialization.h                                    :+:      :+:    :+:   */
+/*   skip_arg.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/10/15 15:30:53 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/15 15:45:55 by vkuikka          ###   ########.fr       */
+/*   Created: 2022/02/08 17:37:59 by vkuikka           #+#    #+#             */
+/*   Updated: 2022/02/08 17:38:07 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef SERIALIZATION_H
-# define SERIALIZATION_H
-# define SERIALIZE_INITIAL_BUFFER_SIZE 512
-
-# include "doom_nukem.h"
-
-void	deserialize_int(int *x, t_buffer *buf);
-void	deserialize_float(float *x, t_buffer *buf);
-
-void	serialize_int(int x, t_buffer *buf);
-void	serialize_float(float x, t_buffer *buf);
-
-#endif
+char	*ft_skiparg(char *arg)
+{
+	if (*arg == '%')
+		return (arg);
+	while (*arg && *arg != 'd' && *arg != 'i' && *arg != 'o' && *arg != 'u'
+		&& *arg != 'f' && *arg != 'x' && *arg != 'X' && *arg != 'c'
+		&& *arg != 's' && *arg != 'p' && *arg != '%')
+		arg++;
+	return (arg);
+}

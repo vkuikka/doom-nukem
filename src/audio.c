@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   audio.c                                            :+:      :+:    :+:   */
+/*   audio_0.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/06/09 21:56:12 by alcohen           #+#    #+#             */
-/*   Updated: 2021/10/15 16:23:28 by vkuikka          ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2021/10/11 18:58:59 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
 
-static void	handle_jump_sound(t_level *level)
+void	handle_jump_sound(t_level *level)
 {
 	const Uint8	*keys;
 	t_audio		*audio;

@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/08/13 12:51:47 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/14 18:49:31 by rpehkone         ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2022/11/11 14:59:40 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ t_ui_state	*get_ui_state(t_ui_state *get_state)
 	return (NULL);
 }
 
-static int	edit_slider_var(float *unit, t_ui_state *state)
+int	edit_slider_var(float *unit, t_ui_state *state)
 {
 	int	x;
 	int	y;
@@ -62,7 +62,7 @@ static int	edit_slider_var(float *unit, t_ui_state *state)
 	return (FALSE);
 }
 
-static int	edit_call_var(t_ui_state *state, t_rect rect)
+int	edit_call_var(t_ui_state *state, t_rect rect)
 {
 	if (state->mouse_location == MOUSE_LOCATION_UI && state->m1_click
 		&& mouse_collision(rect, state->mouse))
@@ -70,7 +70,7 @@ static int	edit_call_var(t_ui_state *state, t_rect rect)
 	return (FALSE);
 }
 
-static int	edit_button_var(int *var, t_ui_state *state)
+int	edit_button_var(int *var, t_ui_state *state)
 {
 	int	x;
 	int	y;
@@ -86,7 +86,7 @@ static int	edit_button_var(int *var, t_ui_state *state)
 	return (FALSE);
 }
 
-static t_rect	render_call(t_ivec2 *size, t_ui_state *state)
+t_rect	render_call(t_ivec2 *size, t_ui_state *state)
 {
 	t_window	*window;
 	t_rect		rect;
@@ -112,7 +112,7 @@ static t_rect	render_call(t_ivec2 *size, t_ui_state *state)
 	return (rect);
 }
 
-static void	render_button(unsigned int *texture, int *var, int dy, int color)
+void	render_button(unsigned int *texture, int *var, int dy, int color)
 {
 	int	edge_color;
 	int	x;
@@ -137,7 +137,7 @@ static void	render_button(unsigned int *texture, int *var, int dy, int color)
 	}
 }
 
-static void	render_slider_button(unsigned int *texture, float pos,
+void	render_slider_button(unsigned int *texture, float pos,
 								int dy, int color)
 {
 	int	x;
@@ -158,7 +158,7 @@ static void	render_slider_button(unsigned int *texture, float pos,
 	}
 }
 
-static void	render_color_slider(t_window *window, float pos,
+void	render_color_slider(t_window *window, float pos,
 						int dy, unsigned int *colors)
 {
 	int	x;
@@ -176,7 +176,7 @@ static void	render_color_slider(t_window *window, float pos,
 		colors[(int)(pos * (UI_SLIDER_WIDTH - 1))]);
 }
 
-static void	render_slider(unsigned int *texture, float pos, int dy, int color)
+void	render_slider(unsigned int *texture, float pos, int dy, int color)
 {
 	int	x;
 	int	y;

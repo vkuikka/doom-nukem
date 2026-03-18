@@ -3,15 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   init.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/09/08 14:38:45 by vkuikka           #+#    #+#             */
-/*   Updated: 2022/01/20 16:05:34 by vkuikka          ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2022/11/11 15:04:39 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
-#include "embed.h"
 
 SDL_Texture	*empty_texture(SDL_Renderer *renderer)
 {
@@ -28,94 +27,104 @@ SDL_Texture	*empty_texture(SDL_Renderer *renderer)
 	return (texture);
 }
 
-static void	init_fonts(t_editor_ui *ui)
+void	init_fonts(t_editor_ui *ui)
 {
-	SDL_RWops	*mem;
+	SDL_RWops		*rwmem;
+	unsigned char	*mem;
+	unsigned long	size;
 
 	TTF_Init();
-	mem = SDL_RWFromMem((void *)&embed_digital_ttf[0],
-			(int)embed_digital_ttf_len);
-	ui->hud_font = TTF_OpenFontRW(mem, 1, HUD_FONT_SIZE);
-	mem = SDL_RWFromMem((void *)&embed_Roboto_Medium_ttf[0],
-			(int)embed_Roboto_Medium_ttf_len);
-	ui->editor_font = TTF_OpenFontRW(mem, 1, UI_FONT_SIZE);
-	mem = SDL_RWFromMem((void *)&embed_Roboto_Medium_ttf[0],
-			(int)embed_Roboto_Medium_ttf_len);
-	ui->main_menu_font = TTF_OpenFontRW(mem, 1, MAIN_MENU_FONT_SIZE);
-	mem = SDL_RWFromMem((void *)&embed_Roboto_Medium_ttf[0],
-			(int)embed_Roboto_Medium_ttf_len);
-	ui->win_lose_font = TTF_OpenFontRW(mem, 1, HUD_GAME_EVENT_FONT_SIZE);
+	mem = read_embedded_file("digital.ttf");
+	size = get_embedded_size("digital.ttf") - 1;
+	ui->digital_data = mem;
+	rwmem = SDL_RWFromMem((void *)mem, size);
+	ui->hud_font = TTF_OpenFontRW(rwmem, 1, HUD_FONT_SIZE);
+	mem = read_embedded_file("roboto.ttf");
+	size = get_embedded_size("roboto.ttf") - 1;
+	ui->roboto_data = mem;
+	rwmem = SDL_RWFromMem((void *)mem, size);
+	ui->editor_font = TTF_OpenFontRW(rwmem, 1, UI_FONT_SIZE);
+	rwmem = SDL_RWFromMem((void *)mem, size);
+	ui->main_menu_font = TTF_OpenFontRW(rwmem, 1, MAIN_MENU_FONT_SIZE);
+	rwmem = SDL_RWFromMem((void *)mem, size);
+	ui->win_lose_font = TTF_OpenFontRW(rwmem, 1, HUD_GAME_EVENT_FONT_SIZE);
 	if (!ui->editor_font || !ui->hud_font
 		|| !ui->main_menu_font || !ui->win_lose_font)
-	{
-		printf("TTF_OpenFont: %s\n", TTF_GetError());
 		ft_error("font open fail");
-	}
 }
 
 void	init_animation(t_level *level)
 {
-	int	res;
+	unsigned char	*mem;
+	int				res;
 
 	res = 0;
-	res += load_obj("embed/enemy_shoot.obj",
-			&level->game_models.enemy_shoot);
-	res += load_animation("embed/enemy_run/enemy_run",
+	mem = read_embedded_file("enemy_shoot.obj");
+	load_obj_from_memory(mem, &level->game_models.enemy_shoot);
+	free(mem);
+	res += load_animation("_run",
 			&level->game_models.enemy_run, 10, 1.0);
 	level->game_models.enemy
 		= get_animation_target(&level->game_models.enemy_run);
-	res += load_animation("embed/enemy_die/enemy_die",
-			&level->game_models.enemy_die, 41, 3.0);
+	res += load_animation("_die",
+			&level->game_models.enemy_die, 14, 3.0);
 	level->game_models.enemy_die.loop = FALSE;
-	res += load_animation("embed/viewmodel/viewmodel",
-			&level->game_models.reload_animation, 3, RELOAD_ANIMATION_DURATION);
+	res += load_animation("odel", &level->game_models.reload_animation,
+			11, RELOAD_ANIMATION_DURATION);
 	level->game_models.viewmodel
 		= get_animation_target(&level->game_models.reload_animation);
-	if (res != 4)
+	if (res != 3)
 		ft_error("animation read fail");
+}
+
+void	init_textures_2(t_level *level)
+{
+	unsigned char	*mem;
+
+	mem = read_embedded_file("vulcan_diff.bmp");
+	level->game_models.viewmodel.texture
+		= bmp_read_from_memory(mem);
+	free(mem);
+	mem = read_embedded_file("lightsprite.bmp");
+	level->game_models.light_sprite
+		= bmp_read_from_memory(mem);
+	free(mem);
+	mem = read_embedded_file("projectile.bmp");
+	level->game_models.projectile_sprite
+		= bmp_read_from_memory(mem);
+	free(mem);
 }
 
 void	init_textures(t_level *level)
 {
-	level->main_menu_title
-		= bmp_read_from_memory(&embed_title_bmp[0]);
+	unsigned char	*mem;
+
+	mem = read_embedded_file("title.bmp");
+	level->main_menu_title = bmp_read_from_memory(mem);
+	free(mem);
+	mem = read_embedded_file("ammo_diff.bmp");
 	level->game_models.ammo_pickup_box.texture
-		= bmp_read_from_memory(&embed_ammo_pickup_texture_bmp[0]);
+		= bmp_read_from_memory(mem);
+	free(mem);
+	mem = read_embedded_file("health_diff.bmp");
 	level->game_models.health_pickup_box.texture
-		= bmp_read_from_memory(&embed_health_pickup_texture_bmp[0]);
+		= bmp_read_from_memory(mem);
+	free(mem);
+	mem = read_embedded_file("enemy_diff.bmp");
 	level->game_models.enemy.texture
-		= bmp_read("embed/enemy_texture.bmp");
-	level->game_models.viewmodel.texture
-		= bmp_read("embed/viewmodel/viewmodel_texture.bmp");
-	level->game_models.light_sprite
-		= bmp_read("embed/light_sprite.bmp");
-	level->game_models.projectile_sprite
-		= bmp_read("embed/projectile_sprite.bmp");
+		= bmp_read_from_memory(mem);
+	free(mem);
+	init_textures_2(level);
 }
 
-void	init_embedded(t_level *level)
-{
-	load_obj_from_memory(&embed_skybox_obj[0], embed_skybox_obj_len,
-		&level->sky.all);
-	load_obj_from_memory(&embed_skybox_obj[0], embed_skybox_obj_len,
-		&level->sky.visible);
-	load_obj_from_memory(&embed_pickup_box_obj[0], embed_pickup_box_obj_len,
-		&level->game_models.ammo_pickup_box);
-	load_obj_from_memory(&embed_pickup_box_obj[0], embed_pickup_box_obj_len,
-		&level->game_models.health_pickup_box);
-	init_animation(level);
-	init_textures(level);
-	init_fonts(&level->ui);
-}
-
-static void	projectile_default(t_projectile *projectile)
+void	projectile_default(t_projectile *projectile)
 {
 	projectile->speed = 10;
 	projectile->dist = 1;
 	projectile->damage = 10;
 }
 
-static void	init_enemy_settings(t_enemy_settings *enemy)
+void	init_enemy_settings(t_enemy_settings *enemy)
 {
 	enemy->dist_limit = 30;
 	enemy->move_speed = 2;
@@ -127,7 +136,7 @@ static void	init_enemy_settings(t_enemy_settings *enemy)
 	enemy->melee_damage = 30;
 }
 
-static void	level_default_settings(t_level *level)
+void	level_default_settings(t_level *level)
 {
 	level->game_logic.player.health = PLAYER_HEALTH_MAX;
 	level->game_logic.player.ammo = PLAYER_AMMO_MAX;
@@ -151,50 +160,64 @@ static void	level_default_settings(t_level *level)
 	level->game_logic.player_projectile_settings.shot_by_player = TRUE;
 }
 
+void	read_embedded_images(t_level *level, unsigned char *mem)
+{
+	mem = read_embedded_file("normal.bmp");
+	if (level->normal_map.image)
+		free(level->normal_map.image);
+	level->normal_map = bmp_read_from_memory(mem);
+	free(mem);
+	mem = read_embedded_file("skybox.bmp");
+	if (level->sky.img.image)
+		free(level->sky.img.image);
+	level->sky.img = bmp_read_from_memory(mem);
+	free(mem);
+	mem = read_embedded_file("spray.bmp");
+	if (level->spray.image)
+		free(level->spray.image);
+	level->spray = bmp_read_from_memory(mem);
+	free(mem);
+}
+
 void	create_default_level(t_level *level)
 {
+	unsigned char	*mem;
+
+	delete_all_doors(level);
+	delete_all_lights(level);
 	level_default_settings(level);
-	level->texture = bmp_read("out.bmp");
-	level->baked = (t_color *)malloc(sizeof(t_color)
-			* (level->texture.width * level->texture.height));
-	if (!level->baked)
-		ft_error("memory allocation failed\n");
-	level->spray_overlay = (unsigned int *)malloc(sizeof(unsigned int)
-			* (level->texture.width * level->texture.height));
-	if (!level->spray_overlay)
-		ft_error("memory allocation failed\n");
-	ft_bzero(level->spray_overlay,
-		level->texture.width * level->texture.height * 4);
-	level->bake_status = BAKE_NOT_BAKED;
-	level->normal_map = bmp_read("normal.bmp");
-	level->sky.img = bmp_read("skybox.bmp");
-	level->spray = bmp_read("embed/spray.bmp");
-	load_obj("level/cache.obj", &level->all);
+	mem = read_embedded_file("out.bmp");
+	if (level->texture.image)
+		free(level->texture.image);
+	level->texture = bmp_read_from_memory(mem);
+	free(mem);
+	realloc_baked_and_spray(level);
+	read_embedded_images(level, mem);
+	mem = read_embedded_file("ship_final.obj");
+	if (level->all.tris)
+	{
+		free_culling(level);
+		free(level->all.tris);
+	}
+	load_obj_from_memory(mem, &level->all);
+	free(mem);
 	init_culling(level);
 }
 
-static void	check_buffers(t_window *window)
+void	init_window_struct(t_window **window)
 {
-	if (!window->depth_buffer
-		|| !window->post_process_buf
-		|| !window->pixel_pos_buffer)
-		ft_error("init window memory allocation failed\n");
-}
-
-static void	init_window_struct(t_window **window)
-{
-	window[0]->SDLwindow = SDL_CreateWindow("DOOM NUKEM",
+	window[0]->sdl_window = SDL_CreateWindow("DOOM NUKEM",
 			SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
 			RES_X, RES_Y, SDL_WINDOW_ALLOW_HIGHDPI);
-	if (!window[0]->SDLwindow)
+	if (!window[0]->sdl_window)
 		ft_error("could not create window");
-	window[0]->SDLrenderer
-		= SDL_CreateRenderer(window[0]->SDLwindow, -1, 0);
-	if (!window[0]->SDLrenderer)
+	window[0]->sdl_renderer
+		= SDL_CreateRenderer(window[0]->sdl_window, -1, 0);
+	if (!window[0]->sdl_renderer)
 		ft_error("could not create renderer");
-	window[0]->raster_texture = empty_texture(window[0]->SDLrenderer);
+	window[0]->raster_texture = empty_texture(window[0]->sdl_renderer);
 	SDL_SetTextureBlendMode(window[0]->raster_texture, SDL_BLENDMODE_BLEND);
-	window[0]->texture = empty_texture(window[0]->SDLrenderer);
+	window[0]->texture = empty_texture(window[0]->sdl_renderer);
 	window[0]->frame_buffer = NULL;
 	window[0]->depth_buffer
 		= (float *)malloc(sizeof(float) * (RES_X * RES_Y));
@@ -217,26 +240,46 @@ void	init_window(t_window **window)
 	if (!*window)
 		ft_error("memory allocation failed\n");
 	init_window_struct(window);
+	SDL_RenderClear((*window)->sdl_renderer);
 }
 
-static void	init_audio_effects(t_level *l)
+void	init_audio_effects_2(t_level *l)
 {
-	SDL_RWops	*rw;
+	unsigned char	*mem;
+	SDL_RWops		*rw;
 
-	rw = SDL_RWFromMem(embed_audio_effects_d_death_ogg,
-			embed_audio_effects_d_death_ogg_len);
+	mem = read_embedded_file("death.ogg");
+	rw = SDL_RWFromMem(mem,
+			(int)get_embedded_size("death.ogg") - 1);
+	l->audio.death_mem = mem;
 	l->audio.death = Mix_LoadWAV_RW(rw, 1);
-	rw = SDL_RWFromMem(embed_audio_effects_jump_wav,
-			embed_audio_effects_jump_wav_len);
+	mem = read_embedded_file("jump.wav");
+	rw = SDL_RWFromMem(mem,
+			(int)get_embedded_size("jump.wav") - 1);
+	l->audio.jump_mem = mem;
 	l->audio.jump = Mix_LoadWAV_RW(rw, 1);
-	rw = SDL_RWFromMem(embed_audio_effects_gunshot_wav,
-			embed_audio_effects_gunshot_wav_len);
+	mem = read_embedded_file("gunshot.wav");
+	rw = SDL_RWFromMem(mem,
+			(int)get_embedded_size("gunshot.wav") - 1);
+	l->audio.gunshot_mem = mem;
 	l->audio.gunshot = Mix_LoadWAV_RW(rw, 1);
-	rw = SDL_RWFromMem(embed_audio_effects_reload_wav,
-			embed_audio_effects_reload_wav_len);
+}
+
+void	init_audio_effects(t_level *l)
+{
+	unsigned char	*mem;
+	SDL_RWops		*rw;
+
+	init_audio_effects_2(l);
+	mem = read_embedded_file("reload.wav");
+	rw = SDL_RWFromMem(mem,
+			(int)get_embedded_size("reload.wav") - 1);
+	l->audio.reload_mem = mem;
 	l->audio.reload = Mix_LoadWAV_RW(rw, 1);
-	rw = SDL_RWFromMem(embed_audio_effects_door_wav,
-			embed_audio_effects_door_wav_len);
+	mem = read_embedded_file("door.wav");
+	rw = SDL_RWFromMem(mem,
+			(int)get_embedded_size("door.wav") - 1);
+	l->audio.door_mem = mem;
 	l->audio.door = Mix_LoadWAV_RW(rw, 1);
 	if (!l->audio.reload || !l->audio.gunshot || !l->audio.jump
 		|| !l->audio.death || !l->audio.door)
@@ -245,7 +288,8 @@ static void	init_audio_effects(t_level *l)
 
 void	init_audio(t_level *l)
 {
-	SDL_RWops	*rw;
+	unsigned char	*mem;
+	SDL_RWops		*rw;
 
 	if (Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 8, 4096) < 0)
 	{
@@ -253,16 +297,66 @@ void	init_audio(t_level *l)
 		return ;
 	}
 	l->audio.music_volume = MIX_MAX_VOLUME / 10;
-	l->audio.sound_effect_volume = MIX_MAX_VOLUME / 10;
+	l->audio.sound_effect_volume = MIX_MAX_VOLUME / 5;
 	Mix_VolumeMusic(l->audio.music_volume);
 	Mix_Volume(-1, l->audio.sound_effect_volume);
-	rw = SDL_RWFromMem(embed_audio_music_main_menu_ogg,
-			embed_audio_music_main_menu_ogg_len);
+	mem = read_embedded_file("main_menu.ogg");
+	rw = SDL_RWFromMem(mem, (int)get_embedded_size("main_menu.ogg") - 1);
+	l->audio.title_music_mem = mem;
 	l->audio.title_music = Mix_LoadMUS_RW(rw, 1);
-	rw = SDL_RWFromMem(embed_audio_music_ingame_ogg,
-			embed_audio_music_ingame_ogg_len);
+	mem = read_embedded_file("ingame.ogg");
+	rw = SDL_RWFromMem(mem, (int)get_embedded_size("ingame.ogg") - 1);
+	l->audio.game_music_mem = mem;
 	l->audio.game_music = Mix_LoadMUS_RW(rw, 1);
 	if (!l->audio.game_music || !l->audio.title_music)
 		ft_error("audio init error");
 	init_audio_effects(l);
+}
+
+void	check_buffers(t_window *window)
+{
+	if (!window->depth_buffer
+		|| !window->post_process_buf
+		|| !window->pixel_pos_buffer)
+		ft_error("init window memory allocation failed\n");
+}
+
+void	init_embedded(t_level *level)
+{
+	unsigned char	*mem;
+
+	mem = read_embedded_file("skybox.obj");
+	load_obj_from_memory(mem, &level->sky.all);
+	free(mem);
+	mem = read_embedded_file("skybox.obj");
+	load_obj_from_memory(mem, &level->sky.visible);
+	free(mem);
+	mem = read_embedded_file("pickup_box.obj");
+	load_obj_from_memory(mem, &level->game_models.ammo_pickup_box);
+	free(mem);
+	mem = read_embedded_file("pickup_box.obj");
+	load_obj_from_memory(mem, &level->game_models.health_pickup_box);
+	free(mem);
+	init_animation(level);
+	init_textures(level);
+	init_fonts(&level->ui);
+}
+
+void	realloc_baked_and_spray(t_level *level)
+{
+	if (level->baked)
+		free(level->baked);
+	level->baked = (t_color *)malloc(sizeof(t_color)
+			* (level->texture.width * level->texture.height));
+	if (!level->baked)
+		ft_error("memory allocation failed\n");
+	if (level->spray_overlay)
+		free(level->spray_overlay);
+	level->spray_overlay = (unsigned int *)malloc(sizeof(unsigned int)
+			* (level->texture.width * level->texture.height));
+	if (!level->spray_overlay)
+		ft_error("memory allocation failed\n");
+	ft_bzero(level->spray_overlay,
+		level->texture.width * level->texture.height * 4);
+	level->bake_status = BAKE_NOT_BAKED;
 }

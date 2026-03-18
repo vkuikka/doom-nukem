@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ui_config.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lsjoberg <lsjoberg@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/03/27 01:03:45 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/11/08 19:24:47 by lsjoberg         ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2022/11/11 15:53:10 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,43 +56,43 @@ void	copy_tri_settings(t_tri *a, t_tri *b)
 	a->refractivity = b->refractivity;
 }
 
-static void	ui_config_projectile_settings(t_projectile *projectile)
+void	ui_config_projectile_settings(t_projectile *projectile)
 {
 	char	buf[100];
 
-	sprintf(buf,
+	ft_sprintf(buf,
 		"projectile speed: %.1fm/s (0 = no projectile)",
 		projectile->speed);
 	float_slider(&projectile->speed, buf, 0, 50);
-	sprintf(buf, "projectile scale: %.2f",
+	ft_sprintf(buf, "projectile scale: %.2f",
 		projectile->scale);
 	float_slider(&projectile->scale,
 		buf, 0.1, 5);
-	sprintf(buf, "distance limit: %.1fm",
+	ft_sprintf(buf, "distance limit: %.1fm",
 		projectile->dist);
 	float_slider(&projectile->dist, buf, 1, 10);
-	sprintf(buf, "attack damage: %.1f",
+	ft_sprintf(buf, "attack damage: %.1f",
 		projectile->damage);
 	float_slider(&projectile->damage, buf, 0, 50);
 }
 
-static void	ui_config_enemy_settings(t_enemy_settings *enemy)
+void	ui_config_enemy_settings(t_enemy_settings *enemy)
 {
 	char	buf[100];
 
-	sprintf(buf, "move speed: %.1fm/s",
+	ft_sprintf(buf, "move speed: %.1fm/s",
 		enemy->move_speed);
 	float_slider(&enemy->move_speed, buf, 0, 10);
-	sprintf(buf, "attack frequency: %.2f seconds per attack",
+	ft_sprintf(buf, "attack frequency: %.2f seconds per attack",
 		enemy->attack_frequency / 1000.0);
 	float_slider(&enemy->attack_frequency, buf, 0, 5000);
-	sprintf(buf, "melee range: %.1fm",
+	ft_sprintf(buf, "melee range: %.1fm",
 		enemy->melee_range);
 	float_slider(&enemy->melee_range, buf, 0.01, 10);
-	sprintf(buf, "move time: %.1fm",
+	ft_sprintf(buf, "move time: %.1fm",
 		enemy->move_duration);
 	float_slider(&enemy->move_duration, buf, 0.01, 10);
-	sprintf(buf, "shoot time: %.1fm",
+	ft_sprintf(buf, "shoot time: %.1fm",
 		enemy->shoot_duration);
 	float_slider(&enemy->shoot_duration, buf, 0, 10);
 }
@@ -113,7 +113,7 @@ void	ui_enemy_and_damage_settings(t_level *level)
 		&level->game_logic.player_projectile_settings);
 }
 
-static void	ui_config_face_perlin_settings(t_perlin_settings *p)
+void	ui_config_face_perlin_settings(t_perlin_settings *p)
 {
 	char	buf[100];
 
@@ -125,7 +125,7 @@ static void	ui_config_face_perlin_settings(t_perlin_settings *p)
 	float_slider(&p->depth, "depth", 0, 5);
 	float_slider(&p->scale, "scale", 0.01, 2);
 	float_slider(&p->move_speed, "speed", 0, 3);
-	sprintf(buf, "depth speed difference: %.2f", p->speed_diff);
+	ft_sprintf(buf, "depth speed difference: %.2f", p->speed_diff);
 	float_slider(&p->speed_diff, buf, 0, 4);
 	int_slider(&p->visualizer, "visualizer", 0, 3);
 	if (color_slider(&p->color_1, "color 1"))
@@ -134,7 +134,7 @@ static void	ui_config_face_perlin_settings(t_perlin_settings *p)
 		hsl_update_color(&p->color_2);
 }
 
-static void	ui_config_face_perlin(t_perlin_settings *perlin, t_level *level)
+void	ui_config_face_perlin(t_perlin_settings *perlin, t_level *level)
 {
 	set_text_color(UI_SHADER_SETTINGS);
 	float_slider(&perlin->swirl, "swirl", 0, 5);
@@ -159,29 +159,29 @@ static void	ui_config_face_perlin(t_perlin_settings *perlin, t_level *level)
 	ui_config_face_perlin_settings(perlin);
 }
 
-static void	ui_confing_face_render_settings(t_tri *tri, t_level *level)
+void	ui_confing_face_render_settings(t_tri *tri, t_level *level)
 {
 	char	buf[100];
 
-	sprintf(buf, "opacity: %.0f%%",
+	ft_sprintf(buf, "opacity: %.0f%%",
 		100 * tri->opacity);
 	float_slider(&tri->opacity, buf, 0, 1);
 	if (tri->opacity)
 	{
 		button(&tri->opacity_precise, "precise opacity");
-		sprintf(buf, "refractive index: %.2f",
+		ft_sprintf(buf, "refractive index: %.2f",
 			tri->refractivity);
 		float_slider(&tri->refractivity, buf, -1, 3);
 	}
 	if (button(&tri->isquad, "quad"))
 		set_fourth_vertex(tri);
-	button(&tri->isgrid, "grid");
+	button(&tri->isgrid, "infinite plane");
 	button(&tri->isbreakable, "breakable");
 	if (call("shader editor", NULL))
 		level->ui.state.ui_location = UI_LOCATION_SHADER_EDITOR;
 }
 
-static void	ui_confing_face_settings(t_level *level,
+void	ui_confing_face_settings(t_level *level,
 							int selected_amount, t_tri *tri)
 {
 	char	buf[100];
@@ -190,16 +190,16 @@ static void	ui_confing_face_settings(t_level *level,
 		text("Selected face:");
 	else
 	{
-		sprintf(buf, "%d faces selected:", selected_amount);
+		ft_sprintf(buf, "%d faces selected:", selected_amount);
 		text(buf);
 	}
 	if (call("remove faces", &remove_faces))
 		return ;
 	if (!tri->reflectivity || selected_amount != 1)
-		sprintf(buf, "reflectivity: %.0f%%",
+		ft_sprintf(buf, "reflectivity: %.0f%%",
 			100 * tri->reflectivity);
 	else
-		sprintf(buf,
+		ft_sprintf(buf,
 			"reflectivity: %.0f%% (%d mirror %d first bounce)",
 			100 * tri->reflectivity,
 			tri->reflection_obj_all.tri_amount,
@@ -282,7 +282,7 @@ void	ui_render_directory_header(t_level *level)
 	text(level->ui.state.directory);
 	if (level->ui.state.ui_location == UI_LOCATION_FILE_OPEN)
 	{
-		sprintf(buf, "select  %s  file", level->ui.state.extension);
+		ft_sprintf(buf, "select  %s  file", level->ui.state.extension);
 		text(buf);
 	}
 	else
@@ -292,8 +292,7 @@ void	ui_render_directory_header(t_level *level)
 		if (level->ui.state.open_file == &open_level
 			|| level->ui.state.open_file == &set_spray)
 			level->ui.main_menu = MAIN_MENU_LOCATION_MAIN;
-		else
-			level->ui.state.ui_location = UI_LOCATION_MAIN;
+		level->ui.state.ui_location = UI_LOCATION_MAIN;
 	}
 	if (call("up dir ..", NULL))
 		path_up_dir(level->ui.state.directory);
@@ -346,32 +345,32 @@ void	ui_render_info(t_editor_ui *ui, t_level *level)
 {
 	char		buf[100];
 
-	sprintf(buf, "fps: %d", get_fps());
+	ft_sprintf(buf, "fps: %d", get_fps());
 	text(buf);
-	sprintf(buf, " |   cull: %ums", ui->cull_time);
+	ft_sprintf(buf, " |   cull: %ums", ui->cull_time);
 	text(buf);
-	sprintf(buf, " |   ssp: %ums", ui->ssp_time);
+	ft_sprintf(buf, " |   ssp: %ums", ui->ssp_time);
 	text(buf);
-	sprintf(buf, " |   |   raycast amount: %uk", ui->total_raycasts / 1000);
+	ft_sprintf(buf, " |   |   raycast amount: %uk", ui->total_raycasts / 1000);
 	text(buf);
-	sprintf(buf, " |   |   raycast: %ums", ui->raycast_time);
+	ft_sprintf(buf, " |   |   raycast: %ums", ui->raycast_time);
 	text(buf);
-	sprintf(buf, " |   |   post:       %ums", ui->post_time);
+	ft_sprintf(buf, " |   |   post:       %ums", ui->post_time);
 	text(buf);
-	sprintf(buf, " |   |   raster:   %ums", ui->raster_time);
+	ft_sprintf(buf, " |   |   raster:   %ums", ui->raster_time);
 	text(buf);
-	sprintf(buf, " |   |   ui:           %ums", ui->ui_time);
+	ft_sprintf(buf, " |   |   ui:           %ums", ui->ui_time);
 	text(buf);
-	sprintf(buf, " |   render:      %ums", ui->render_time);
+	ft_sprintf(buf, " |   render:      %ums", ui->render_time);
 	text(buf);
-	sprintf(buf, "frame: %ums", ui->frame_time);
+	ft_sprintf(buf, "frame: %ums", ui->frame_time);
 	text(buf);
-	sprintf(buf, "faces: %d / %d",
+	ft_sprintf(buf, "faces: %d / %d",
 		level->all.tri_amount, level->visible.tri_amount);
 	text(buf);
 }
 
-static void	center_screen_print_line(t_vec2 dir, unsigned int color)
+void	center_screen_print_line(t_vec2 dir, unsigned int color)
 {
 	t_window	*window;
 	t_vec3		start;
@@ -399,7 +398,7 @@ void	ui_physics_info(t_editor_ui *ui, t_level *level)
 	tmp.x = level->game_logic.player.vel.x;
 	tmp.y = level->game_logic.player.vel.z;
 	center_screen_print_line(tmp, 0xff0000ff);
-	sprintf(buf, "xz vel: %.2fm/s", level->ui.horizontal_velocity);
+	ft_sprintf(buf, "xz vel: %.2fm/s", level->ui.horizontal_velocity);
 	set_text_color(0xff0000ff);
 	render_text(buf, RES_X / 2, RES_Y / 2 + (UI_ELEMENT_HEIGHT * 1));
 	center_screen_print_line(ui->wishdir, 0xff00ff);
@@ -439,11 +438,11 @@ void	ui_post_process_settings(t_level *level)
 	button(&ui->smooth_pixels, "smooth pixel (20ms expensive)");
 	button(&ui->blur, "blur (1ms cheap)");
 	set_text_color(UI_POST_PROCESS_BLOOM);
-	sprintf(buf, "bloom radius: %.1f pixels", level->ui.bloom_radius);
+	ft_sprintf(buf, "bloom radius: %.1f pixels", level->ui.bloom_radius);
 	float_slider(&level->ui.bloom_radius, buf, 0, 100);
-	sprintf(buf, "bloom intensity: %.1f", level->ui.bloom_intensity);
+	ft_sprintf(buf, "bloom intensity: %.1f", level->ui.bloom_intensity);
 	float_slider(&level->ui.bloom_intensity, buf, 0, 5);
-	sprintf(buf, "bloom limit: %.1f", level->ui.bloom_limit);
+	ft_sprintf(buf, "bloom limit: %.1f", level->ui.bloom_limit);
 	float_slider(&level->ui.bloom_limit, buf, 0, 5);
 	set_text_color(UI_POST_PROCESS_SSAO);
 	int_slider(&level->ui.ssao_radius, "ssao radius", 0, 40);
@@ -462,12 +461,12 @@ void	ui_render_settings(t_level *level)
 	float		fov_angle;
 
 	ui = &level->ui;
-	sprintf(buf, "render scale: %d (%.0f%%)", ui->raycast_quality,
+	ft_sprintf(buf, "render scale: %d (%.0f%%)", ui->raycast_quality,
 		100.0 / (float)ui->raycast_quality);
 	int_slider(&ui->raycast_quality, buf, 1, 20);
 	fov_angle = ui->fov;
 	fov_angle *= 180.0 / M_PI;
-	sprintf(buf, "fov: %d", (int)fov_angle);
+	ft_sprintf(buf, "fov: %d", (int)fov_angle);
 	float_slider(&ui->fov, buf, M_PI / 6, M_PI);
 }
 
@@ -475,11 +474,11 @@ void	ui_settings_volume(t_level *level)
 {
 	char		buf[100];
 
-	sprintf(buf, "music volume: %.0f%%",
+	ft_sprintf(buf, "music volume: %.0f%%",
 		100 * (level->audio.music_volume / MIX_MAX_VOLUME));
 	float_slider(&level->audio.music_volume, buf, 0, MIX_MAX_VOLUME);
 	Mix_VolumeMusic(level->audio.music_volume);
-	sprintf(buf, "sound effect volume: %.0f%%",
+	ft_sprintf(buf, "sound effect volume: %.0f%%",
 		100 * (level->audio.sound_effect_volume / MIX_MAX_VOLUME));
 	float_slider(&level->audio.sound_effect_volume, buf, 0, MIX_MAX_VOLUME);
 	Mix_Volume(-1, level->audio.sound_effect_volume);
@@ -501,7 +500,7 @@ void	ui_settings(t_level *level)
 	}
 	button(&level->ui.spray_from_view, "spray from view");
 	if (!level->ui.spray_from_view)
-		sprintf(buf, "spray size: %.1f", level->ui.spray_size);
+		ft_sprintf(buf, "spray size: %.1f", level->ui.spray_size);
 	if (!level->ui.spray_from_view)
 		float_slider(&level->ui.spray_size, buf, 0.1, 5);
 	ui_render_settings(level);
@@ -532,7 +531,7 @@ void	ui_door_settings(t_level *level)
 		if (call("move door activation button", NULL))
 			level->ui.state.ui_location
 				= UI_LOCATION_DOOR_ACTIVATION_BUTTON;
-	sprintf(buf, "door transition time: %fs",
+	ft_sprintf(buf, "door transition time: %fs",
 		level->doors.door[level->doors.selected_index - 1]
 		.transition_time);
 	float_slider(&level->doors.door[level->doors.selected_index - 1]
@@ -577,12 +576,12 @@ void	ui_single_light_settings(t_level *level)
 	changed += color_slider(
 			&level->lights[level->selected_light_index - 1].color,
 			"light color");
-	sprintf(buf, "radius: %.2f",
+	ft_sprintf(buf, "radius: %.2f",
 		level->lights[level->selected_light_index - 1].radius);
 	changed += float_slider(
 			&level->lights[level->selected_light_index - 1].radius,
-			buf, .1, 20);
-	sprintf(buf, "power: %.2f",
+			buf, .1, 50);
+	ft_sprintf(buf, "power: %.2f",
 		level->lights[level->selected_light_index - 1].power);
 	changed += float_slider(
 			&level->lights[level->selected_light_index - 1].power,
@@ -598,13 +597,13 @@ void	ui_level_light_settings(t_level *level)
 	int		changed;
 
 	changed = 0;
-	sprintf(buf, "world brightness: %.2f", level->world_brightness);
+	ft_sprintf(buf, "world brightness: %.2f", level->world_brightness);
 	changed += float_slider(&level->world_brightness, buf, 0, 1);
-	sprintf(buf, "skybox brightness: %.2f (0 = sync)",
+	ft_sprintf(buf, "skybox brightness: %.2f (0 = sync)",
 		level->skybox_brightness);
 	changed += float_slider(&level->skybox_brightness, buf, 0, 1);
 	changed += color_slider(&level->ui.sun_color, "sun color");
-	sprintf(buf, "sun dir: (%.2f, %.2f, %.2f)", level->ui.sun_dir.x,
+	ft_sprintf(buf, "sun dir: (%.2f, %.2f, %.2f)", level->ui.sun_dir.x,
 		level->ui.sun_dir.y, level->ui.sun_dir.z);
 	text(buf);
 	changed += float_slider(&level->ui.sun_dir.x, NULL, -1, 1);
@@ -622,14 +621,14 @@ void	ui_light_editor_bake(t_level *level)
 	char		buf[100];
 
 	set_text_color(UI_LEVEL_NOT_BAKED_COLOR);
-	sprintf(buf, "bake lighting");
+	ft_sprintf(buf, "bake lighting");
 	if (call(buf, start_bake))
 		level->selected_light_index = 0;
 	set_text_color(UI_LEVEL_SETTINGS_TEXT_COLOR);
-	sprintf(buf, "bake scale: %d (%.0f%%)", level->ui.bake_quality,
+	ft_sprintf(buf, "bake scale: %d (%.0f%%)", level->ui.bake_quality,
 		100.0 / (float)level->ui.bake_quality);
 	int_slider(&level->ui.bake_quality, buf, 1, 10);
-	sprintf(buf, "bake blur radius: %d pixels", level->ui.bake_blur_radius);
+	ft_sprintf(buf, "bake blur radius: %d pixels", level->ui.bake_blur_radius);
 	int_slider(&level->ui.bake_blur_radius, buf, 1, 10);
 }
 
@@ -642,7 +641,7 @@ void	bake_buttons(t_level *level)
 	else if (level->bake_status == BAKE_BAKED)
 	{
 		set_text_color(UI_LEVEL_BAKED_COLOR);
-		sprintf(buf, "lighting baked");
+		ft_sprintf(buf, "lighting baked");
 		if (call(buf, NULL))
 			level->bake_status = BAKE_NOT_BAKED;
 	}
@@ -692,14 +691,14 @@ void	ui_animation_settings(t_level *level)
 		= clamp(level->game_logic.enemy_animation_view_index, 0, 2);
 	if (level->game_logic.enemy_animation_view_index == 0)
 	{
-		sprintf(buf, "enemy animation speed %.2fx",
+		ft_sprintf(buf, "enemy animation speed %.2fx",
 			level->game_models.enemy_run.duration_multiplier);
 		float_slider(&level->game_models.enemy_run.duration_multiplier,
 			buf, 0, 2.0);
 	}
 	else if (level->game_logic.enemy_animation_view_index == 1)
 	{
-		sprintf(buf, "enemy animation speed %.2fx",
+		ft_sprintf(buf, "enemy animation speed %.2fx",
 			level->game_models.enemy_die.duration_multiplier);
 		float_slider(&level->game_models.enemy_die.duration_multiplier,
 			buf, 0, 2.0);
@@ -712,13 +711,13 @@ void	ui_game_settings(t_level *level)
 
 	if (call("close", NULL))
 		level->ui.state.ui_location = UI_LOCATION_MAIN;
-	sprintf(buf, "win distance: %.2fm", level->game_logic.win_dist);
+	ft_sprintf(buf, "win distance: %.2fm", level->game_logic.win_dist);
 	float_slider(&level->game_logic.win_dist, buf, 1, 40);
 	call("set win position", &set_win_pos);
 	call("set spawn position", &set_spawn_pos);
 	if (call("menu add camera pos", NULL))
 		camera_path_add_pos(&level->main_menu_anim, level->cam);
-	sprintf(buf, "main menu animation time %ds",
+	ft_sprintf(buf, "main menu animation time %ds",
 		level->main_menu_anim.duration);
 	button(&level->main_menu_anim.loop, "main menu anim edge loop");
 	int_slider((int *)&level->main_menu_anim.duration, buf, 2, 50);
@@ -802,8 +801,8 @@ void	ui_level_settings(t_level *level)
 		button(&level->ui.occlusion_culling,
 			"occlusion culling (O(n^2))");
 	button(&level->ui.distance_culling, "distance culling");
-	sprintf(buf, "render distance: %.1fm", level->ui.render_distance);
-	float_slider(&level->ui.render_distance, buf, 2, 50);
+	ft_sprintf(buf, "render distance: %.1fm", level->ui.render_distance);
+	float_slider(&level->ui.render_distance, buf, 2, 70);
 	file_save("save level", ".doom-nukem", NULL);
 }
 
@@ -841,9 +840,9 @@ void	ui_baking(t_level *level)
 	char	buf[100];
 
 	if (level->bake_progress == 100.0)
-		sprintf(buf, "blurring lightmap");
+		ft_sprintf(buf, "blurring lightmap");
 	else
-		sprintf(buf, "baking: %.3f%%", level->bake_progress);
+		ft_sprintf(buf, "baking: %.3f%%", level->bake_progress);
 	set_text_color(UI_LEVEL_BAKING_COLOR);
 	if (call(buf, NULL))
 		level->bake_status = BAKE_NOT_BAKED;
@@ -912,7 +911,7 @@ void	ui_main_menu(t_window *window, t_level *level, t_game_state *game_state)
 		ui_render_directory(level);
 }
 
-static void	reset_ui_state(t_ui_state *state, t_level *level)
+void	reset_ui_state(t_ui_state *state, t_level *level)
 {
 	state->ui_max_width = 0;
 	state->ui_text_color = 0;

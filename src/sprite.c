@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   sprite.c                                           :+:      :+:    :+:   */
+/*   sprite_0.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/03/14 17:08:49 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/12 13:50:55 by rpehkone         ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2022/06/06 00:12:08 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
 
-static float	find_angle(t_vec3 v1, t_vec3 v2)
+float	find_angle(t_vec3 v1, t_vec3 v2)
 {
 	float	angle;
 
@@ -25,7 +25,7 @@ static float	find_angle(t_vec3 v1, t_vec3 v2)
 	return (angle);
 }
 
-static void	turn_sprite(t_tri *tri, t_vec3 look_at)
+void	turn_sprite(t_tri *tri, t_vec3 look_at)
 {
 	t_vec3	face_mid;
 	t_vec3	rot_vert;
@@ -62,7 +62,7 @@ void	merge_sprite(t_level *level, t_vec3 pos, t_bmp *texture)
 	set_new_face(&level->visible.tris[i], pos, (t_vec3){0, 0, 0}, .1);
 	level->visible.tris[i].isquad = TRUE;
 	turn_sprite(&level->visible.tris[i], level->cam.pos);
-	tri_optimize(&level->visible.tris[i]);
+	tri_optimize(&level->visible.tris[i], true);
 	level->visible.tris[i].texture = texture;
 	level->visible.tri_amount++;
 }

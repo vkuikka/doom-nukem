@@ -5,14 +5,14 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/08/10 22:47:18 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/10/12 18:27:40 by rpehkone         ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2022/11/11 15:03:50 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
 
-static void	player_reload(t_level *level)
+void	player_reload(t_level *level)
 {
 	float	time;
 
@@ -25,53 +25,52 @@ static void	player_reload(t_level *level)
 	}
 }
 
-static void	player_shoot(t_level *level)
+void	player_shoot(t_level *level)
 {
+	float	wall_dist;
+	t_vec3	dir;
+
 	if (level->game_logic.player.ammo)
 	{
 		if (!level->game_logic.reload_start_time)
 		{
-			level->game_logic.player.ammo--;
-			create_projectile(&level->game_logic, level->cam.pos,
-				level->cam.front,
-				level->game_logic.player_projectile_settings);
+			dir = level->cam.front;
+			vec_mult(&dir, PLAYER_PROJECTILE_START_POS);
+			wall_dist = cast_all((t_ray){level->cam.pos, dir}, level, NULL);
+			if (wall_dist > PLAYER_PROJECTILE_START_POS)
+			{
+				level->game_logic.player.ammo--;
+				create_projectile(&level->game_logic, level->cam.pos,
+					level->cam.front,
+					level->game_logic.player_projectile_settings);
+			}
 		}
 	}
 	else
 		level->game_logic.reload_start_time = SDL_GetTicks();
 }
 
-static void	game_finished(t_level *level, t_game_state *game_state,
-				float time)
+void	game_finished(t_level *level, t_game_state *game_state)
 {
+	float	time;
+
+	time = 0;
 	if (level->game_logic.win_start_time)
 	{
 		time = (SDL_GetTicks() - level->game_logic.win_start_time)
 			/ (1000.0 * WIN_LENGTH_SEC);
-		if (time > 1)
-		{
-			*game_state = GAME_STATE_MAIN_MENU;
-			level->ui.state.mouse_capture = FALSE;
-			SDL_SetRelativeMouseMode(SDL_FALSE);
-			level->game_logic.win_start_time = 0;
-		}
 	}
 	else if (level->game_logic.death_start_time)
 	{
 		level->game_logic.player.health = 0;
 		time = (SDL_GetTicks() - level->game_logic.death_start_time)
 			/ (1000.0 * DEATH_LENGTH_SEC);
-		if (time > 1)
-		{
-			*game_state = GAME_STATE_MAIN_MENU;
-			level->ui.state.mouse_capture = FALSE;
-			SDL_SetRelativeMouseMode(SDL_FALSE);
-			level->game_logic.death_start_time = 0;
-		}
 	}
+	if (time > 1)
+		ui_go_back(level, game_state);
 }
 
-static int	pick_up_pick_ups(t_level *level, t_item_pickup *pickups, int amount)
+int	pick_up_pick_ups(t_level *level, t_item_pickup *pickups, int amount)
 {
 	t_vec3	dist;
 	int		i;
@@ -100,7 +99,7 @@ static int	pick_up_pick_ups(t_level *level, t_item_pickup *pickups, int amount)
 	return (FALSE);
 }
 
-static void	reset_pick_ups(t_level *level)
+void	reset_pick_ups(t_level *level)
 {
 	int	i;
 
@@ -118,7 +117,7 @@ static void	reset_pick_ups(t_level *level)
 	}
 }
 
-static void	game_logic_win_lose(t_level *level, t_game_state *game_state)
+void	game_logic_win_lose(t_level *level, t_game_state *game_state)
 {
 	t_vec3	dist;
 
@@ -140,12 +139,12 @@ void	game_logic(t_level *level, t_game_state *game_state)
 {
 	handle_audio(level);
 	if (level->game_logic.win_start_time || level->game_logic.death_start_time)
-		game_finished(level, game_state, 0);
+		game_finished(level, game_state);
 	if (level->game_logic.death_start_time)
 		return ;
 	if (level->game_logic.reload_start_time)
 		player_reload(level);
-	if (level->ui.state.m1_click && level->ui.state.mouse_capture)
+	else if (level->ui.state.m1_click && level->ui.state.mouse_capture)
 		player_shoot(level);
 	if (level->game_logic.win_start_time)
 		return ;

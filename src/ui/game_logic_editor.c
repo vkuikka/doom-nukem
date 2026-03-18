@@ -5,14 +5,14 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/09/25 15:29:26 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/10/12 11:28:55 by rpehkone         ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2022/11/11 14:55:21 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
 
-static float	obj_find_lowest_point(t_obj *obj)
+float	obj_find_lowest_point(t_obj *obj)
 {
 	float	min;
 	int		i;
@@ -134,7 +134,7 @@ void	delete_ammo_box(t_level *level)
 	level->ui.state.logic_selected = GAME_LOGIC_SELECTED_NONE;
 }
 
-static void	move_selected_vec(t_level *level, t_vec3 move_amount, t_vec3 *vec)
+void	move_selected_vec(t_level *level, t_vec3 move_amount, t_vec3 *vec)
 {
 	vec_add(vec, *vec, move_amount);
 	level->ui.state.gizmo_pos = *vec;
@@ -145,6 +145,8 @@ void	game_logic_move_selected(t_level *level, t_vec3 move)
 	int	i;
 
 	i = level->ui.state.logic_selected_index;
+	if (i >= level->main_menu_anim.amount)
+		level->ui.state.logic_selected = GAME_LOGIC_SELECTED_NONE;
 	level->ui.state.gizmo_active = TRUE;
 	if (level->ui.state.logic_selected == GAME_LOGIC_SELECTED_NONE)
 		level->ui.state.gizmo_active = FALSE;
@@ -163,7 +165,7 @@ void	game_logic_move_selected(t_level *level, t_vec3 move)
 		move_selected_vec(level, move, &level->game_logic.enemies[i].spawn_pos);
 }
 
-static int	check_if_3d_closer(t_vec3 vert, float *dist, t_level *level)
+int	check_if_3d_closer(t_vec3 vert, float *dist, t_level *level)
 {
 	t_vec2	test;
 	float	len;

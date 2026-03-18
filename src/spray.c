@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   spray.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/05/01 18:48:35 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/11 16:59:37 by vkuikka          ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2022/11/11 15:07:48 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
 
-static void	spray_point(t_level *l, t_vec2 texture, t_vec2 steps, t_tri *tri)
+void	spray_point(t_level *l, t_vec2 texture, t_vec2 steps, t_tri *tri)
 {
 	t_vec2			point;
 	int				texture_coord;
@@ -21,7 +21,7 @@ static void	spray_point(t_level *l, t_vec2 texture, t_vec2 steps, t_tri *tri)
 
 	texture_coord = (int)texture.x + (int)texture.y * l->texture.width;
 	spray_coord = (int)(l->spray.width * steps.x)
-		+ (int)(l->spray.height * steps.y) *l->spray.width;
+		+ (int)(l->spray.height * steps.y) * l->spray.width;
 	if (spray_coord >= l->spray.width * l->spray.height || spray_coord < 0)
 		return ;
 	point.x = texture.x / l->texture.width;
@@ -38,7 +38,7 @@ static void	spray_point(t_level *l, t_vec2 texture, t_vec2 steps, t_tri *tri)
 				l->spray.image[spray_coord] >> 8, fade, 0xff);
 }
 
-static void	spray_line(t_level *l, t_vec2 line[2], t_tri *tri, t_vec2 axis_step)
+void	spray_line(t_level *l, t_vec2 line[2], t_tri *tri, t_vec2 axis_step)
 {
 	t_vec2	increment;
 	t_vec2	texture;
@@ -66,7 +66,7 @@ static void	spray_line(t_level *l, t_vec2 line[2], t_tri *tri, t_vec2 axis_step)
 	}
 }
 
-static void	square_step(t_vec2 square[4], t_level *l, t_tri *tri, float step)
+void	square_step(t_vec2 square[4], t_level *l, t_tri *tri, float step)
 {
 	t_vec2	line[2];
 	t_vec2	axis_step;
@@ -81,7 +81,7 @@ static void	square_step(t_vec2 square[4], t_level *l, t_tri *tri, float step)
 	spray_line(l, line, tri, axis_step);
 }
 
-static void	draw_square(t_level *l, t_vec2 square[4], t_tri *tri)
+void	draw_square(t_level *l, t_vec2 square[4], t_tri *tri)
 {
 	int		left_steps;
 	int		right_steps;
@@ -130,7 +130,7 @@ t_vec2	uv_to_2d(t_tri tri, t_vec2 uv, int isquad)
 	return (res);
 }
 
-static int	cast_uv(t_tri t, t_ray ray, t_vec2 *uv)
+int	cast_uv(t_tri t, t_ray ray, t_vec2 *uv)
 {
 	t_vec3	vec;
 	t_vec3	tvec;
@@ -152,7 +152,7 @@ static int	cast_uv(t_tri t, t_ray ray, t_vec2 *uv)
 	return (1);
 }
 
-static int	raycast_face_pos(t_ray *r, t_obj *object)
+int	raycast_face_pos(t_ray *r, t_obj *object)
 {
 	float	dist;
 	float	tmp;
@@ -235,7 +235,7 @@ void	rot_to_corner(t_ray *r, t_camera cam, t_vec2 cam_diff)
 	r->dir.z += cam.up.z * cam_diff.y + cam.side.z * cam_diff.x;
 }
 
-static int	face_in_front(t_camera *cam, t_level *level)
+int	face_in_front(t_camera *cam, t_level *level)
 {
 	t_vec2	cam_diff;
 	t_ray	r;

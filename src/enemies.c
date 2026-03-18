@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   enemies.c                                          :+:      :+:    :+:   */
+/*   enemies_0.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/03/14 17:08:49 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/12 15:28:41 by rpehkone         ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2022/04/01 19:02:34 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,11 +51,11 @@ void	add_enemy(t_level *level)
 	level->game_logic.enemy_amount++;
 }
 
-static void	enemy_spawn(t_enemy *enemy, t_enemy_settings *settings)
+void	enemy_spawn(t_enemy *enemy, t_enemy_settings *settings)
 {
 	enemy->dead_start_time = 0;
 	enemy->current_attack_delay = 0;
-	enemy->dir = (t_vec3){1, 0, 0};
+	enemy->dir = (t_vec3){0, 0, 0};
 	enemy->dir_rad = 0;
 	enemy->pos = enemy->spawn_pos;
 	enemy->remaining_health = settings->initial_health;

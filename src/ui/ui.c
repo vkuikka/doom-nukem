@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/02/06 08:50:56 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/11/24 00:43:45 by rpehkone         ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2022/11/11 14:59:56 by rpehkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ void	set_text_color(int color)
 	state->ui_text_color = color;
 }
 
-static SDL_Color	get_text_color(void)
+SDL_Color	get_text_color(void)
 {
 	t_ui_state	*state;
 
@@ -35,28 +35,28 @@ static SDL_Color	get_text_color(void)
 	return (get_sdl_color(state->ui_text_color));
 }
 
-static t_ivec2	render_text_internal(char *str, t_window *window,
+t_ivec2	render_text_internal(char *str, t_window *window,
 						TTF_Font *font, t_ivec2 pos)
 {
 	SDL_Rect		text_rect;
 	t_ivec2			size;
-	SDL_Surface		*surfaceMessage;
-	SDL_Texture		*Message;
+	SDL_Surface		*surface_message;
+	SDL_Texture		*message;
 
-	surfaceMessage
+	surface_message
 		= TTF_RenderText_Blended(font, str, get_text_color());
-	Message
-		= SDL_CreateTextureFromSurface(window->SDLrenderer, surfaceMessage);
+	message
+		= SDL_CreateTextureFromSurface(window->sdl_renderer, surface_message);
 	text_rect.w = 0;
 	text_rect.h = 0;
 	TTF_SizeText(font, str, &text_rect.w, &text_rect.h);
 	text_rect.x = pos.x;
 	text_rect.y = pos.y;
-	SDL_SetRenderTarget(window->SDLrenderer, window->text_texture);
-	SDL_RenderCopy(window->SDLrenderer, Message, NULL, &text_rect);
-	SDL_SetRenderTarget(window->SDLrenderer, NULL);
-	SDL_FreeSurface(surfaceMessage);
-	SDL_DestroyTexture(Message);
+	SDL_SetRenderTarget(window->sdl_renderer, window->text_texture);
+	SDL_RenderCopy(window->sdl_renderer, message, NULL, &text_rect);
+	SDL_SetRenderTarget(window->sdl_renderer, NULL);
+	SDL_FreeSurface(surface_message);
+	SDL_DestroyTexture(message);
 	size.x = text_rect.w;
 	size.y = text_rect.h;
 	return (size);
@@ -109,13 +109,13 @@ void	render_ssp_visual_background(unsigned int *texture)
 	}
 }
 
-static void	ssp_visual_text_text(t_level *level,
+void	ssp_visual_text_text(t_level *level,
 				int max_tris, int x, int y)
 {
 	char	buf[100];
 	int		color;
 
-	sprintf(buf, "%d", level->ssp[y * SSP_MAX_X + x].tri_amount);
+	ft_sprintf(buf, "%d", level->ssp[y * SSP_MAX_X + x].tri_amount);
 	color = (float)level->ssp[y * SSP_MAX_X + x].tri_amount
 		/ max_tris * 0xff;
 	color = crossfade(0x00ff00, 0xff0000, color, 0xff);
@@ -155,13 +155,16 @@ void	ui_render_background(t_window *window, t_level *level)
 	int	y;
 
 	y = -1;
-	while (++y < level->ui.state.ui_text_y_pos + 6)
+	while (++y < level->ui.state.ui_text_y_pos + 6 && y < RES_Y)
 	{
 		x = -1;
-		while (++x < level->ui.state.ui_max_width + UI_PADDING_4)
+		while (++x < level->ui.state.ui_max_width + UI_PADDING_4
+			&& x < RES_X)
+		{
 			if (!window->ui_texture_pixels[x + (y * RES_X)])
 				button_pixel_put(x, y, UI_BACKGROUND_COL,
 					window->ui_texture_pixels);
+		}
 	}
 }
 
@@ -180,10 +183,9 @@ void	init_ui_state(t_level *level)
 	level->ui.state.uv_zoom = 1;
 	level->ui.state.directory = get_current_directory();
 	chdir(level->ui.state.directory);
-	go_in_dir(level->ui.state.directory, "level");
 }
 
-static void	init_ui_settings_post_process(t_editor_ui *ui)
+void	init_ui_settings_post_process(t_editor_ui *ui)
 {
 	ui->blur = FALSE;
 	ui->smooth_pixels = FALSE;
@@ -196,7 +198,7 @@ static void	init_ui_settings_post_process(t_editor_ui *ui)
 	ui->ssao_debug = 0;
 }
 
-static void	init_ui_settings(t_editor_ui *ui)
+void	init_ui_settings(t_editor_ui *ui)
 {
 	ui->noclip = TRUE;
 	ui->backface_culling = TRUE;
@@ -223,7 +225,7 @@ static void	init_ui_settings(t_editor_ui *ui)
 	init_ui_settings_post_process(ui);
 }
 
-static void	init_color_slider(t_level *level)
+void	init_color_slider(t_level *level)
 {
 	unsigned int	i;
 	unsigned int	red;
@@ -254,9 +256,9 @@ void	init_ui(t_window *window, t_level *level)
 {
 	int	width;
 
-	window->text_texture = SDL_CreateTexture(window->SDLrenderer,
+	window->text_texture = SDL_CreateTexture(window->sdl_renderer,
 			SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, RES_X, RES_Y);
-	window->ui_texture = SDL_CreateTexture(window->SDLrenderer,
+	window->ui_texture = SDL_CreateTexture(window->sdl_renderer,
 			SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING,
 			RES_X, RES_Y);
 	init_ui_settings(&level->ui);

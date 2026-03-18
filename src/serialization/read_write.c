@@ -1,61 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   read_write.c                                       :+:      :+:    :+:   */
+/*   read_write_0.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/10/15 15:28:10 by vkuikka           #+#    #+#             */
-/*   Updated: 2021/10/15 15:46:34 by vkuikka          ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2022/02/02 15:28:13 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "serialization.h"
+#include "doom_nukem.h"
 
-#ifdef _WIN32
-void	save_file(t_level *level, t_buffer *buf)
-{
-	HANDLE	hFile;
-	char	*filename1;
-	char	*filename2;
-	DWORD	bytesWritten;
-
-	filename1 = ft_strjoin(level->ui.state.directory, "\\");
-	filename2 = ft_strjoin(filename1, level->ui.state.save_filename);
-	free(filename1);
-	filename1 = ft_strjoin(filename2, ".doom-nukem");
-	free(filename2);
-	hFile = CreateFile(filename1, GENERIC_WRITE, FILE_SHARE_READ,
-			NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
-	if (hFile == INVALID_HANDLE_VALUE)
-		nonfatal_error("failed to create file");
-	else
-		WriteFile(hFile, buf->data, buf->next, &bytesWritten, NULL);
-	free(filename1);
-	CloseHandle(hFile);
-}
-
-void	open_file(char *filename, t_buffer *buf)
-{
-	HANDLE	hFile;
-	DWORD	nRead;
-	size_t	file_size;
-
-	hFile = CreateFile(filename, GENERIC_READ, 0, NULL,
-			OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-	if (hFile == INVALID_HANDLE_VALUE)
-		ft_error("failed to read file");
-	file_size = (size_t)GetFileSize(hFile, NULL);
-	buf->data = malloc(file_size + 1);
-	if (!buf->data)
-		ft_error("failed to allocate memory for file");
-	if (!ReadFile(hFile, buf->data, file_size, &nRead, NULL))
-		ft_error("failed to read file");
-	buf->size = nRead;
-	CloseHandle(hFile);
-}
-
-#elif __APPLE__
 void	save_file(t_level *level, t_buffer *buf)
 {
 	int		fd;
@@ -95,7 +51,6 @@ void	open_file(char *filename, t_buffer *buf)
 		ft_error("failed to read file");
 	close(fd);
 }
-#endif
 
 void	save_level(t_level *level)
 {

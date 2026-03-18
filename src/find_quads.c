@@ -1,23 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   find_quads.c                                       :+:      :+:    :+:   */
+/*   find_quads_0.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpehkone <rpehkone@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: vkuikka <vkuikka@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/01/21 16:54:13 by rpehkone          #+#    #+#             */
-/*   Updated: 2021/09/02 10:21:54 by rpehkone         ###   ########.fr       */
+/*   Created: 2021/01/04 16:54:13 by vkuikka           #+#    #+#             */
+/*   Updated: 2021/10/11 18:58:59 by vkuikka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "doom_nukem.h"
-
-/*
- * Purpose of file: Iterate 3D object and find all pairs of perfectly
- * mirrored triangles and convert those to quads, because we can
- * raycast the same surface area with no additional cost.
- * Faces found here get an isquad property (t_tri.isquad)
- */
 
 void	set_fourth_vertex(t_tri *a)
 {
@@ -37,7 +30,7 @@ void	set_fourth_vertex(t_tri *a)
 	a->verts[3].pos.z = res.z;
 }
 
-static void	set_mirrored_dir(t_tri *a, int not_shared_index)
+void	set_mirrored_dir(t_tri *a, int not_shared_index)
 {
 	t_vec3	tmp;
 	t_vec2	v2tmp;
@@ -66,7 +59,7 @@ static void	set_mirrored_dir(t_tri *a, int not_shared_index)
 	}
 }
 
-static int	has_2_shared_vertices(t_tri a, t_tri b, int *not_shared)
+int	has_2_shared_vertices(t_tri a, t_tri b, int *not_shared)
 {
 	int	shared_count;
 	int	found;
@@ -95,7 +88,7 @@ static int	has_2_shared_vertices(t_tri a, t_tri b, int *not_shared)
 	return (shared_count == 2);
 }
 
-static int	is_mirrored_set(t_tri *a, t_tri *b)
+int	is_mirrored_set(t_tri *a, t_tri *b)
 {
 	int		not_shared_index;
 	t_vec3	test;
