@@ -51,7 +51,7 @@ void	opacity(t_cast_result *res, t_level *l, t_obj *obj, float opacity)
 	}
 	res->color = crossfade((unsigned int)res->color >> 8,
 			(unsigned int)transparent.color >> 8,
-			opacity * 0xff, opacity * 0xff);
+			opacity * 0xff, 0xff);
 }
 
 t_color	sunlight(t_level *l, t_cast_result *res, t_color light)

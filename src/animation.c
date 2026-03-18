@@ -41,7 +41,7 @@ int	load_animation(char *get_filename, t_obj_animation *animation,
 	i = 0;
 	while (i < amount)
 	{
-		ft_sprintf(filename, "%s_%06d.obj", get_filename, i);
+		snprintf(filename, sizeof(filename), "%s_%06d.obj", get_filename, i);
 		mem = read_embedded_file(filename);
 		load_obj_from_memory(mem, &animation->keyframes[i]);
 		if (!obj_check_polygon_equality(&animation->keyframes[0],

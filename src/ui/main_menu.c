@@ -86,8 +86,6 @@ void	fix_faces(t_level *level)
 
 static void	start_game(t_game_state *game_state, t_level *level)
 {
-	t_window	*window;
-
 	level->ui.noclip = FALSE;
 	*game_state = GAME_STATE_INGAME;
 	ui_go_back(level, game_state);
@@ -98,7 +96,6 @@ static void	start_game(t_game_state *game_state, t_level *level)
 	reset_doors(level);
 	Mix_PlayMusic(level->audio.game_music, -1);
 	level->ui.state.mouse_capture = TRUE;
-	window = get_window(NULL);
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 }
 

@@ -14,34 +14,24 @@
 
 unsigned long	get_embedded_size(char *sector_name)
 {
-	const struct section_64	*sect;
+	unsigned long	size;
 
-	sect = getsectbyname("embed", sector_name);
-	if (sect == NULL)
+	if (!getsectiondata(&_mh_execute_header, "embed", sector_name, &size))
 		ft_error("failed to read embedded file size");
-	return ((unsigned long)sect->size + 1);
+	return (size + 1);
 }
 
 unsigned char	*read_embedded_file(char *sector_name)
 {
-	const struct section_64	*sect;
-	unsigned char			*buffer;
-	int						fd;
+	unsigned long	size;
+	unsigned char	*data;
+	unsigned char	*buffer;
 
-	sect = getsectbyname("embed", sector_name);
-	if (sect == NULL)
+	data = getsectiondata(&_mh_execute_header, "embed", sector_name, &size);
+	if (data == NULL)
 		ft_error("failed to read embedded file");
-	buffer = malloc(sect->size + 1);
-	ft_bzero(buffer, sect->size + 1);
-	fd = open("doom-nukem", O_RDONLY);
-	if (fd < 0)
-		ft_error("failed to read embedded file");
-	lseek(fd, sect->offset, SEEK_SET);
-	if (read(fd, buffer, sect->size) != (ssize_t)sect->size)
-	{
-		close(fd);
-		ft_error("failed to read embedded file");
-	}
-	close(fd);
+	buffer = malloc(size + 1);
+	ft_memcpy(buffer, data, size);
+	buffer[size] = 0;
 	return (buffer);
 }

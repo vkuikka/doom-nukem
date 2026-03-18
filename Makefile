@@ -50,6 +50,20 @@ SDL_FRAMEWORKS = -framework SDL2 -framework SDL2_ttf -framework SDL2_mixer
 SDL_HEADER = -I SDL2.framework/Headers
 FLAGS = -Wall -Wextra -Werror -O3
 
+ARCH = $(shell uname -m)
+SDL_PKG_CFLAGS = $(shell pkg-config --cflags sdl2 SDL2_ttf SDL2_mixer 2>/dev/null)
+SDL_PKG_LIBS = $(shell pkg-config --libs sdl2 SDL2_ttf SDL2_mixer 2>/dev/null)
+
+ifeq ($(ARCH),arm64)
+	SDL_DEFS := -DDNUKEM_USE_PKGCONFIG_SDL
+	SDL_LINK := $(SDL_PKG_CFLAGS) $(SDL_PKG_LIBS)
+else
+	SDL_DEFS :=
+	SDL_LINK := $(SDL_HEADER) $(SDL_FRAMEWORKS) -F ./
+endif
+
+LINK_CMD = gcc $(FLAGS) $(SDL_DEFS) $(SDL_LINK) $(FILES) embed.o embed2.o $(LIB) $(INCLUDE) -o $(NAME) -rpath @executable_path
+
 .PHONY: clean fclean re all
 
 all: $(NAME)
@@ -62,7 +76,7 @@ $(NAME):
 	@gcc -o embed2.o -c embed2.c
 	@$(foreach file, $(EMBED), END=$$(echo $(file) | sed 's:.*/::' | tail -c 16); echo "$$END"; ld -r -o embed.o -sectcreate embed "$$END" $(file) embed.o;)
 	@$(foreach file, $(EMBED2), END=$$(echo $(file) | sed 's:.*/::' | tail -c 16); echo "$$END"; ld -r -o embed2.o -sectcreate embed "$$END" $(file) embed2.o;)
-	-gcc $(FLAGS) $(SDL_HEADER) $(SDL_FRAMEWORKS) -F ./ $(FILES) embed.o embed2.o $(LIB) $(INCLUDE) -o $(NAME) -rpath @executable_path
+	@$(LINK_CMD)
 	@rm embed.o embed.c embed2.o embed2.c
 
 clean:

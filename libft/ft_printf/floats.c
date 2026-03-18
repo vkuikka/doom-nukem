@@ -53,9 +53,7 @@ static int	ft_precision_float(long double num, int precision)
 {
 	size_t	div;
 	int		len;
-	int		i;
 
-	i = 0;
 	div = 1;
 	len = 1;
 	ft_write_precision(&num, precision, &div);
@@ -76,15 +74,11 @@ static int	ft_precision_float(long double num, int precision)
 
 int	ft_putfloat(long double num, int precision)
 {
-	int			div;
-	int			n;
 	int			reslen;
 
-	div = 1;
 	reslen = 0;
 	if (num < 0)
 		num *= -1;
-	n = num;
 	if (!ft_check_precision(num, precision))
 		num++;
 	ft_putnbr_ull(num);

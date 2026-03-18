@@ -14,7 +14,7 @@
 # define DOOM_NUKEM_H
 # define RES_X 1000
 # define RES_Y 750
-# define THREAD_AMOUNT 4
+# define THREAD_AMOUNT 12
 # define NOISE_QUALITY_LIMIT 8
 # define SSP_MAX_X 20
 # define SSP_MAX_Y 20
@@ -141,16 +141,24 @@
 # include <arpa/inet.h>
 # include <mach-o/dyld.h>
 # include <mach-o/getsect.h>
-# include "get_next_line.h"
-# include "printf.h"
-# include "SDL2/SDL.h"
-# include "SDL2_ttf/SDL_ttf.h"
-# include "SDL2_mixer/SDL_mixer.h"
+# include <mach-o/ldsyms.h>
 # include <sys/time.h>
-//delete
 # include <stdlib.h>
 # include <stdio.h>
 # include <signal.h>
+
+# include "get_next_line.h"
+# include "printf.h"
+
+# ifdef DNUKEM_USE_PKGCONFIG_SDL
+#  include <SDL2/SDL.h>
+#  include <SDL2/SDL_ttf.h>
+#  include <SDL2/SDL_mixer.h>
+# else
+#  include "SDL2/SDL.h"
+#  include "SDL2_ttf/SDL_ttf.h"
+#  include "SDL2_mixer/SDL_mixer.h"
+# endif
 
 typedef struct s_audio
 {

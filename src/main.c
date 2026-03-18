@@ -52,8 +52,8 @@ void	render_ui(t_window *window, t_level *level,
 	SDL_RenderCopy(window->sdl_renderer, window->ui_texture, NULL, NULL);
 	SDL_RenderCopy(window->sdl_renderer, window->text_texture, NULL, NULL);
 	SDL_SetRenderTarget(window->sdl_renderer, window->text_texture);
+	SDL_SetRenderDrawColor(window->sdl_renderer, 0, 0, 0, 0);
 	SDL_RenderClear(window->sdl_renderer);
-	SDL_RenderPresent(window->sdl_renderer);
 	SDL_SetRenderTarget(window->sdl_renderer, NULL);
 }
 
@@ -71,6 +71,8 @@ void	render(t_window *window, t_level *level, t_game_state *game_state)
 	unsigned int	raster_time;
 	unsigned int	ui_time;
 
+	SDL_SetRenderDrawColor(window->sdl_renderer, 0, 0, 0, 255);
+	SDL_RenderClear(window->sdl_renderer);
 	if (level->level_initialized)
 	{
 		level->ui.total_raycasts = 0;
@@ -92,7 +94,6 @@ void	render(t_window *window, t_level *level, t_game_state *game_state)
 	render_ui(window, level, game_state);
 	level->ui.ui_time = SDL_GetTicks() - ui_time;
 	SDL_RenderPresent(window->sdl_renderer);
-	SDL_RenderClear(window->sdl_renderer);
 }
 
 void	tick_forward(t_level *level, t_game_state *game_state)

@@ -27,6 +27,7 @@ void	rot_cam(t_vec3 *cam, const float lon, const float lat)
 void	trace_bounce(t_cast_result *res, t_obj *obj, t_level *l)
 {
 	float	opacity_value;
+	unsigned int	alpha;
 
 	if (l->all.tris[res->face_index].reflectivity
 		&& res->reflection_depth < REFLECTION_DEPTH)
@@ -39,8 +40,11 @@ void	trace_bounce(t_cast_result *res, t_obj *obj, t_level *l)
 			reflection(res, l,
 				&l->all.tris[res->face_index].reflection_obj_all);
 	}
-	opacity_value = 1.0 - (res->color << 24 >> 24) / (float)0xff;
-	if (!opacity_value)
+	alpha = (unsigned int)res->color & 0xff;
+	opacity_value = 0.0f;
+	if (l->all.tris[res->face_index].shader == SHADER_PERLIN || res->dynamic)
+		opacity_value = 1.0f - (alpha / 255.0f);
+	if (opacity_value == 0.0f)
 		opacity_value = l->all.tris[res->face_index].opacity;
 	if (opacity_value && res->reflection_depth < REFLECTION_DEPTH)
 	{
